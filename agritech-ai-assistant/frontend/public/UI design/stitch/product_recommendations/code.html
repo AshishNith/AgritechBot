@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1c5f20",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#131f14",
+                    },
+                    fontFamily: {
+                        "display": ["Be Vietnam Pro", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<title>Anaaj AI - Product Recommendations</title>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-white dark:bg-background-dark shadow-xl overflow-x-hidden">
+<header class="sticky top-0 z-10 flex items-center bg-white/90 dark:bg-background-dark/90 backdrop-blur-md p-4 border-b border-primary/10 justify-between">
+<div class="text-primary flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-primary/10 cursor-pointer">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight flex-1 text-center">Shop Recommendations</h2>
+<div class="flex w-10 items-center justify-end">
+<button class="relative flex size-10 cursor-pointer items-center justify-center rounded-full hover:bg-primary/10 text-primary transition-colors">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white font-bold">3</span>
+</button>
+</div>
+</header>
+<section class="flex gap-3 p-4 overflow-x-auto no-scrollbar whitespace-nowrap">
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-primary/10 px-4 border border-primary/20">
+<p class="text-primary text-sm font-semibold">Crop: Wheat</p>
+<span class="material-symbols-outlined text-primary text-lg">expand_more</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-slate-100 dark:bg-slate-800 px-4">
+<p class="text-slate-700 dark:text-slate-300 text-sm font-medium">Growth Stage</p>
+<span class="material-symbols-outlined text-slate-500 text-lg">expand_more</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-slate-100 dark:bg-slate-800 px-4">
+<p class="text-slate-700 dark:text-slate-300 text-sm font-medium">Brand</p>
+<span class="material-symbols-outlined text-slate-500 text-lg">expand_more</span>
+</button>
+</section>
+<div class="px-4 py-2">
+<p class="text-sm font-medium text-slate-500 dark:text-slate-400">Based on your Wheat crop health diagnosis</p>
+</div>
+<main class="grid grid-cols-2 gap-4 p-4 pb-24">
+<!-- Product Card 1 -->
+<div class="flex flex-col gap-3 group">
+<div class="relative w-full aspect-square bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm">
+<div class="absolute inset-0 bg-center bg-cover transition-transform duration-300 group-hover:scale-105" data-alt="Organic liquid fertilizer bottle for crops" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC_uxYlU6se3p5xgQuJKVaSPRh4izfn0VjBve5ctcS2rGwtdZkJ4brEAKLKXNWJjNElF0-Om3Ui51ho5JWJf0ObtfztXeStIbYRy8F0t1XXZ2TxXKehibl1fKMu4nPqrNHqjSYFdipp7hegXDFxYUxnkX2SCcgT6UoGn9jEvMcTQRvaMhmWae437vltUQZEdhyrVeI3FjTWMNX9CcqCoeQN7cYYdWNgVOtjZmapGFnDj4KgBvYzuoTJaHPEONNILHOY9jKepkWFsCI");'>
+</div>
+<div class="absolute top-2 left-2">
+<span class="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">Top Pick</span>
+</div>
+</div>
+<div class="flex flex-col flex-grow">
+<div class="flex items-center gap-1 mb-1">
+<span class="material-symbols-outlined text-amber-500 text-sm fill-current">star</span>
+<p class="text-slate-600 dark:text-slate-400 text-xs font-bold">4.8 (120+)</p>
+</div>
+<p class="text-slate-900 dark:text-white text-sm font-bold leading-tight line-clamp-1">Organic Fertilizer Plus</p>
+<p class="text-primary text-lg font-bold mt-1">$25.00</p>
+<div class="mt-2 flex flex-wrap gap-1">
+<span class="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-primary/20">Safe for Wheat</span>
+</div>
+<button class="mt-3 w-full rounded-lg bg-primary py-2.5 text-xs font-bold text-white shadow-md active:scale-95 transition-transform">
+                        Buy Now
+                    </button>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="flex flex-col gap-3 group">
+<div class="relative w-full aspect-square bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm">
+<div class="absolute inset-0 bg-center bg-cover transition-transform duration-300 group-hover:scale-105" data-alt="High quality wheat seeds in burlap bag" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBRWqu3GyqTAnnMul115XTWtIPH5yEy1nwgc14SAyAt5yxFbnm-ljh5qaT5gltUu4m8aFIkffkyIY09y_rQOR1zLLBW1aowtYqV4aWzmXVBjt8yRiSz8ggcf55q4VYdTYOpxxFv6kCyRnJRYt_1GzcZFHdQm7JGfpplUjZwVrySsuMXF0_WpvSjekjQeEDGy7uVwl-ymqysmATHfGxGkgcvYN-x4M-ZlqgXGcAZyaq-5O84zmt6eb4xPupn2i0xBcOcZMaLf0VziRM");'>
+</div>
+</div>
+<div class="flex flex-col flex-grow">
+<div class="flex items-center gap-1 mb-1">
+<span class="material-symbols-outlined text-amber-500 text-sm fill-current">star</span>
+<p class="text-slate-600 dark:text-slate-400 text-xs font-bold">4.5 (89)</p>
+</div>
+<p class="text-slate-900 dark:text-white text-sm font-bold leading-tight line-clamp-1">Premium Gold Seeds</p>
+<p class="text-primary text-lg font-bold mt-1">$15.00</p>
+<div class="mt-2 flex flex-wrap gap-1">
+<span class="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-primary/20">Safe for Wheat</span>
+</div>
+<button class="mt-3 w-full rounded-lg bg-primary py-2.5 text-xs font-bold text-white shadow-md active:scale-95 transition-transform">
+                        Buy Now
+                    </button>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="flex flex-col gap-3 group">
+<div class="relative w-full aspect-square bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm">
+<div class="absolute inset-0 bg-center bg-cover transition-transform duration-300 group-hover:scale-105" data-alt="Bag of NPK complex mineral fertilizer" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBQOcJc__63ICKL_JwrJcGfDg5NwNBP6HOHjVSSAhZCLXiZvmRP41-yclC9b-beLTMSATxyubsACwakWbDPC_2LeDtxkwKKrORYIBHs-sfQKJ_yJq7KLIK7flxMNqNP9jqbfSRsJcxrZC_bQ6xB7hYqxajIDzzUkgzdATeKpS3g7iEiWacieZBDXQvlDD9ki17LNDuqriksAH6VAB6ZFNJ9atvs0eG0aZFwqKP__b9nbDpXQGxEQ8TUEboWf0YtYmP7W6BknfeNcsA");'>
+</div>
+</div>
+<div class="flex flex-col flex-grow">
+<div class="flex items-center gap-1 mb-1">
+<span class="material-symbols-outlined text-amber-500 text-sm fill-current">star</span>
+<p class="text-slate-600 dark:text-slate-400 text-xs font-bold">4.2 (45)</p>
+</div>
+<p class="text-slate-900 dark:text-white text-sm font-bold leading-tight line-clamp-1">NPK Complex 15-15</p>
+<p class="text-primary text-lg font-bold mt-1">$30.00</p>
+<div class="mt-2 flex flex-wrap gap-1">
+<span class="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-primary/20">Safe for Wheat</span>
+</div>
+<button class="mt-3 w-full rounded-lg bg-primary py-2.5 text-xs font-bold text-white shadow-md active:scale-95 transition-transform">
+                        Buy Now
+                    </button>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="flex flex-col gap-3 group">
+<div class="relative w-full aspect-square bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm">
+<div class="absolute inset-0 bg-center bg-cover transition-transform duration-300 group-hover:scale-105" data-alt="Natural pesticide spray bottle for plants" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBZ3WVJ50mD51I5cwcW1ev9Xm5k_WVRluNtK1hYvdC6gbQXxZEg8wEiASIaP9EioKQ0yVPna2gxXdKDny7lD4AFwLoEHZZajJC0m5zOBpKuwKh08fyvBUttZUFc0xxOk_yrcVYDj7CGkPrWaGqMo6zVeo2HwXL8vdRJXVvcdKi4mf9mQG7p4TYCT5FLMzY-cC9RHPMkH5lHsst2mJqo3OIQkyaKQJoEbCjz-PGpqsLN5o39uvs21KauF131ScBO1u-B_lYcLWTEGPM");'>
+</div>
+</div>
+<div class="flex flex-col flex-grow">
+<div class="flex items-center gap-1 mb-1">
+<span class="material-symbols-outlined text-amber-500 text-sm fill-current">star</span>
+<p class="text-slate-600 dark:text-slate-400 text-xs font-bold">4.7 (63)</p>
+</div>
+<p class="text-slate-900 dark:text-white text-sm font-bold leading-tight line-clamp-1">Neem Oil Pesticide</p>
+<p class="text-primary text-lg font-bold mt-1">$22.00</p>
+<div class="mt-2 flex flex-wrap gap-1">
+<span class="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-primary/20">Safe for Wheat</span>
+</div>
+<button class="mt-3 w-full rounded-lg bg-primary py-2.5 text-xs font-bold text-white shadow-md active:scale-95 transition-transform">
+                        Buy Now
+                    </button>
+</div>
+</div>
+</main>
+<!-- Featured / Recommendation Summary -->
+<div class="p-4 @container border-t border-slate-100 dark:border-slate-800">
+<h3 class="text-slate-900 dark:text-white font-bold mb-4">Complete Care Package</h3>
+<div class="flex flex-col items-stretch justify-start rounded-xl @xl:flex-row @xl:items-start shadow-lg bg-white dark:bg-slate-800 overflow-hidden border border-primary/10">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover" data-alt="Lush green wheat field during sunset" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuClHB39__hGcDyAENiCWFSJXL9wH7-4FomuYASL39AjuBNHaM55SkphVE352GoHZ5DQ7ylZ0rEFqBN1t7U4_dwN1j5VNpmBCNeWH9WmtdjU8HVVQOSCc8KgHDIkWIFTWqpcqQzEN3OOl56tL8xEGBmeP0jgvgTbMnW8F8pKpHdPuDQgnoSCDkQyOKucH43QUon-sYsap_Pm4URXdRE25CFhigzuX-6FQkpHUCXXspl8H8e4IS5i3wj748kmLnu-S5tjeFcjbaqA1PQ");'>
+</div>
+<div class="flex w-full min-w-72 grow flex-col items-stretch justify-center gap-1 p-4">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-primary text-xs font-bold uppercase tracking-wide">Bundle Deal</p>
+<p class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight">Wheat Growth Kit</p>
+</div>
+<span class="bg-primary text-white text-[10px] font-bold px-2 py-1 rounded">SAVE 15%</span>
+</div>
+<div class="flex items-end gap-3 justify-between mt-4">
+<div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal">Fertilizer + Pesticide + Zinc</p>
+<p class="text-primary text-xl font-bold">$55.00 <span class="text-slate-400 line-through text-sm ml-2">$64.99</span></p>
+</div>
+<button class="flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-primary text-white text-sm font-bold shadow-lg hover:bg-primary/90">
+<span class="truncate">Add Kit</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-4 pb-6 pt-2 flex justify-between items-center z-50">
+<a class="flex flex-1 flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<p class="text-[10px] font-medium">Home</p>
+</a>
+<a class="flex flex-1 flex-col items-center gap-1 text-primary transition-colors" href="#">
+<span class="material-symbols-outlined fill-current">shopping_basket</span>
+<p class="text-[10px] font-bold">Products</p>
+</a>
+<a class="flex flex-1 flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<p class="text-[10px] font-medium">Diagnosis</p>
+</a>
+<a class="flex flex-1 flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<p class="text-[10px] font-medium">Profile</p>
+</a>
+</nav>
+</div>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</body></html>

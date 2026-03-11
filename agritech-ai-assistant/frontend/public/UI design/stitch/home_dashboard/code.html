@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1c5f20",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#131f14",
+                    },
+                    fontFamily: {
+                        "display": ["Be Vietnam Pro"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<title>Anaaj AI Dashboard</title>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen pb-24">
+<!-- Header Section -->
+<header class="flex items-center bg-white dark:bg-background-dark/50 p-4 sticky top-0 z-50 backdrop-blur-md border-b border-primary/10">
+<div class="flex size-12 shrink-0 items-center">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary/20" data-alt="Portrait of a smiling Indian farmer" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCf7HWkGF-yqLNFgFAZ6wH5-fBKdr05XKio5HIB2g3rnYIQkgxcsFarLfIQ14BuDsjj4GOLYRBjqyCUWq8BIU_dMTQXl27TXv8_w7Lah8A2tMZuAwo_wqIj1NpUg0RiluqKbOypnIOYbvEsgEvgqUwOAMK4QI-764dtWfRI9-DcCotlfy57tHzeFo__eSTn6j06eAS4Ov-lTrgemnqQvWRIRZmPZvejlF1gBA1R8BtrDZfkb_nEGIYKs2M7Tqnt2HQ7MMPOJ-Q-H1U");'></div>
+</div>
+<div class="flex-1 ml-3">
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight">Namaste Ramesh 👋</h2>
+<p class="text-primary text-xs font-medium">Ludhiana, Punjab</p>
+</div>
+<div class="flex gap-2">
+<button class="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<main class="p-4 space-y-6">
+<!-- Hero AI Card -->
+<div class="relative overflow-hidden rounded-xl bg-primary text-white shadow-lg shadow-primary/20">
+<div class="absolute inset-0 opacity-20" data-alt="Close up of healthy green crop leaves" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDXrm7YVvIyS7DGcjmk3-ohpFD2OlRldfUR1hgWxdqMKCKLOHUsTmtpYYyph96UGOIpnFo1HUSR-3fWNP3xGckBspwGSd3i3NOzCn7HtBnkGiFbJmd5v_mMOn1JM4eFtJKsWqWOOlBJ4MW-FNIQCL_MbLKCIM29GN7M2HYrHdeyZSkBQ2qxiLE58olhM0WjI4ARH3LorI0DIK1FOPawDSzDlk48gNtNF0Rpd9fU4uecyfasnj8DpJJKTjc-eysUSw37lywwhBiermA"); background-size: cover; background-position: center;'></div>
+<div class="relative p-6 flex flex-col items-start gap-4">
+<div class="bg-white/20 backdrop-blur-md p-2 rounded-lg">
+<span class="material-symbols-outlined text-white text-3xl">psychology</span>
+</div>
+<div>
+<h1 class="text-2xl font-bold leading-tight">Ask Anaaj AI</h1>
+<p class="text-white/80 text-sm mt-1">Talk to your assistant about your crops, pests, or market trends.</p>
+</div>
+<button class="flex items-center gap-2 bg-white text-primary px-6 py-3 rounded-full font-bold text-sm shadow-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined">mic</span>
+                    Voice Assistant
+                </button>
+</div>
+</div>
+<!-- Search & Quick Action Bar -->
+<div class="flex gap-2">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-white dark:bg-slate-800 border-none rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary shadow-sm" placeholder="Ask a question..." type="text"/>
+</div>
+<button class="bg-primary text-white p-3 rounded-xl flex items-center justify-center shadow-md shadow-primary/30">
+<span class="material-symbols-outlined">photo_camera</span>
+</button>
+</div>
+<!-- Quick Help Grid -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold">How can we help?</h3>
+<a class="text-primary text-sm font-medium" href="#">View All</a>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<!-- Diagnose Card -->
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col gap-3">
+<div class="size-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+<span class="material-symbols-outlined">biotech</span>
+</div>
+<div>
+<p class="font-bold text-sm">Diagnose Crop</p>
+<p class="text-[10px] text-slate-500 dark:text-slate-400">Identify diseases</p>
+</div>
+<div class="h-12 w-full rounded-lg bg-slate-50 dark:bg-slate-700/50 mt-1" data-alt="Microscopic view of plant leaf cells" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDpa7v4IH1zkRxB6qpzwvF6b2scn7t8AEWy3NXcg0S90hlpT_VL9ydf1zD3zCFHtWQp4CQ-9Sfna8mY5UZhcgK6VhIjAQW6sjymAAvEjJsA8xZnIvzvb8s-x_R8PdomU2Nt-ckpzyALU1Sfq-HdQCbGcpqCSJO3fdAMtU5xASa22ofkN4kYgmLyiWsoW23OeEvrBNpsCEv2di6Ykug_jx_PKAP_Aq0YuYVUJ1vO3onq5Iw0ze6eMAamRedqZijFaPu7FNQynnW2VaA"); background-size: cover;'></div>
+</div>
+<!-- Pest Problem -->
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col gap-3">
+<div class="size-10 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center">
+<span class="material-symbols-outlined">pest_control</span>
+</div>
+<div>
+<p class="font-bold text-sm">Pest Problem</p>
+<p class="text-[10px] text-slate-500 dark:text-slate-400">Control &amp; solutions</p>
+</div>
+<div class="h-12 w-full rounded-lg bg-slate-50 dark:bg-slate-700/50 mt-1" data-alt="Close up of a ladybug on a leaf" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCLvpc4gHD_1lhulbjv361GevgjCv38J-IXs82NG3fHTmT1ev4I70QG7EEc2_75eRZlIJF6QlQI-cFlBzUQl22Rua4L8-djxHwRhXBfJ9naxrSCyvf9N0cT6nMQzfQVupVdjv2CG-QVSU6M5KqRLTQnxRPSQw8BeTwKBh3puwZouIaBlMBDxTDLdPkoeOTXZ_T_54DAWkunz1WCiUNNZA1vowYCzFz4M9SV77e4Hel2lf7CrVMS0nYgFAyJ8bG10oFhI2OqG05Dkn8"); background-size: cover;'></div>
+</div>
+<!-- Fertilizer Advice -->
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col gap-3">
+<div class="size-10 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center">
+<span class="material-symbols-outlined">compost</span>
+</div>
+<div>
+<p class="font-bold text-sm">Fertilizer Advice</p>
+<p class="text-[10px] text-slate-500 dark:text-slate-400">Optimal soil health</p>
+</div>
+<div class="h-12 w-full rounded-lg bg-slate-50 dark:bg-slate-700/50 mt-1" data-alt="Farmer spreading fertilizer on soil" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD09d7bAkdEQOUaUkvWyjBo0G7DV29eZ_3fJ16s18uVre4bRE_ngjXqYZEGTtxNbsekMYi_X9Iv3aT203dBdn_IF7lI0HM88o4M9cqbuZiS-l_TRWrGwYAf_UV6oVFE1HbnP-LcJApbjqqd6uhx5C-6oVhVFfors-ME20cdwld28uhzc65CTLMgrNlPJ-YoIBO-76L6ElflODKKM9hU98EJo-LHWYadO_yoUDETwSMiAIVqw8lzzC8EShECLvpkvZwOmdU8BThCmdQ"); background-size: cover;'></div>
+</div>
+<!-- Weather Forecast -->
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col gap-3">
+<div class="size-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+<span class="material-symbols-outlined">cloud_sync</span>
+</div>
+<div>
+<p class="font-bold text-sm">Weather</p>
+<p class="text-[10px] text-slate-500 dark:text-slate-400">Rain &amp; wind alerts</p>
+</div>
+<div class="h-12 w-full rounded-lg bg-slate-50 dark:bg-slate-700/50 mt-1" data-alt="Sun breaking through clouds over a field" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCarWvhAHN1RJDjVRJCU7m2oVn_h8FvkYxlcC0XT8z0-219euXootdhA1maugUl-YHStSSQdBcrs36Ibvf0OUOyMDbttYTycs3tOm3zI4neQVofpRIS5j5CBZcHV32pA5M0YBjXkkwsLwaZGhutHcRuPM-j_KLyYXPU22BDpi0PcSS0fesfloWtD126s9tbrMmdtB5YzDWd6OwJfj5nNolWxQU0QfobdBxED5lG5Bubdexqp8e7Q1Ixm-J7ORw1dhDXjGdM25U-WGw"); background-size: cover;'></div>
+</div>
+<!-- Market Prices -->
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col gap-3">
+<div class="size-10 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 flex items-center justify-center">
+<span class="material-symbols-outlined">trending_up</span>
+</div>
+<div>
+<p class="font-bold text-sm">Market Prices</p>
+<p class="text-[10px] text-slate-500 dark:text-slate-400">Latest Mandi rates</p>
+</div>
+<div class="h-12 w-full rounded-lg bg-slate-50 dark:bg-slate-700/50 mt-1" data-alt="Vibrant vegetable market scene" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCiVLQ9G5wbgD2w1y92b1hFl7dyILiBoyLLKbdpqf2CHcbcZDy4FO9BsgoXp3oRDAsrzocH2Y-4USkMQNUzf83I8MFkX6Ul73G852Ru3lL-ORz6qLmYgrF8zxCWAfz97t9V5y0B7ng7GbcdgRXV59aCbAKh2qjHKfsRLHfpknzqGOLKZFY3pjagEkGTzsKQhwmA6A9fJQsFESwRFF8qAE-NJVDRqug0pZlROJjS8oeSntpb1QRQllLLCRxIOoutlet8UJU3ZjH5tbA"); background-size: cover;'></div>
+</div>
+<!-- Recommended Products -->
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col gap-3">
+<div class="size-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+<span class="material-symbols-outlined">shopping_cart</span>
+</div>
+<div>
+<p class="font-bold text-sm">Shop Products</p>
+<p class="text-[10px] text-slate-500 dark:text-slate-400">Seeds &amp; equipment</p>
+</div>
+<div class="h-12 w-full rounded-lg bg-slate-50 dark:bg-slate-700/50 mt-1" data-alt="Packets of vegetable seeds" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDbf5S-Oxj32nTJMFZfI_epGGYGZqG9fZihrnHnDJmt9EubXaEgBT0Rr-HQvIsqmgJqxPNO6Tv4QGfrwzsdgrmK15Fjs9iLn_gz9ZH4kII3jE11IAzUwgWQ4ibFSk38bpd2nGlQhuFTb_wzj_a1CfMsL_gJxxSJJsouJy7q_476khBeJqjcVTWLRO6Qi6cZatM81OM81prj5Dim4__fG40_x7_H_tvL6EroK5i0Yg65F5Bf8f7utWamLu9NRT9PZOHb3fyNG8tQpDI"); background-size: cover;'></div>
+</div>
+</div>
+</section>
+<!-- Weather Status Bar (Brief) -->
+<div class="bg-primary/5 dark:bg-primary/10 rounded-xl p-4 flex items-center justify-between border border-primary/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl">partly_cloudy_day</span>
+<div>
+<p class="font-bold text-slate-900 dark:text-white">32°C / 24°C</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">Mostly Sunny in Ludhiana</p>
+</div>
+</div>
+<button class="text-primary font-bold text-xs uppercase tracking-wider">Details</button>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-background-dark border-t border-primary/10 flex justify-around items-center px-4 pb-4 pt-2">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined font-fill">home</span>
+<p class="text-[10px] font-bold">Home</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">potted_plant</span>
+<p class="text-[10px] font-medium">My Crops</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">group</span>
+<p class="text-[10px] font-medium">Community</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<p class="text-[10px] font-medium">Market</p>
+</a>
+</nav>
+</body></html>

@@ -2,7 +2,7 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { AGRI_SYSTEM_PROMPT } from '../prompts/agriPrompt';
 import { PromptTemplate } from "@langchain/core/prompts";
 
-export async function askLLM(question: string, context: string, cropData: string, language: string, modelType: 'gemini' = 'gemini'): Promise<string> {
+export async function askLLM(question: string, context: string, cropData: string, language: string, modelType: 'gemini' = 'gemini', conversationHistory: string = ''): Promise<string> {
 
     const llm = new ChatGoogleGenerativeAI({
         model: "gemini-2.5-flash",
@@ -16,6 +16,7 @@ export async function askLLM(question: string, context: string, cropData: string
         language: language,
         context: context,
         cropData: cropData,
+        conversationHistory: conversationHistory || 'No previous conversation.',
         question: question
     });
 

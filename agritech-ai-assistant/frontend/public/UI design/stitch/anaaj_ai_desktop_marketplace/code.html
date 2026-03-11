@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Anaaj AI | Premium Agricultural Catalog</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1c5f20",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#131f14",
+                    },
+                    fontFamily: {
+                        "display": ["Be Vietnam Pro"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .sidebar-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: #1c5f2033;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
+<div class="relative flex min-h-screen flex-col">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 w-full border-b border-primary/10 bg-white/80 backdrop-blur-md dark:bg-background-dark/80">
+<div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-3xl font-bold">potted_plant</span>
+<h2 class="text-xl font-bold tracking-tight">Anaaj AI</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-semibold text-primary" href="#">Seeds</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Fertilizers</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Pesticides</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Consultancy</a>
+</nav>
+</div>
+<div class="flex flex-1 justify-center px-8">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full rounded-xl border-none bg-primary/5 py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20" placeholder="Search for high-yield wheat seeds..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+<button class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="h-10 w-10 rounded-full bg-primary/20 bg-cover bg-center border-2 border-primary/20" data-alt="User profile picture of a professional farmer" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAPNHSPkjY1YuMk6MXhyKPqLb-izL3us8XC66EjsOs201iO4huZEQylGulZ9QnrKlJI54NRJfkwIl0JqvW33vTvAvkYKtST8Ay3l3zop01QScjygXLU_2Yt5UTzsOBvORLRV-EGhO10Zfy9MEvVxaBrdibeycfTYLy_CZuIDwpq7gUxkxL60NrbulPiKnUrhWY7EKkxGrYeDfv58HwcfYvWGmaloocrtwR9NMupxx_XFGUIUkTrOnjHVLysTBLOUZZ3Xm_Ezpwpz9c')"></div>
+</div>
+</div>
+</header>
+<div class="mx-auto flex w-full max-w-7xl grow gap-8 px-6 py-8">
+<!-- Sidebar Filter -->
+<aside class="hidden w-64 shrink-0 lg:block">
+<div class="sticky top-28 flex flex-col gap-8">
+<div>
+<h3 class="mb-4 flex items-center gap-2 text-lg font-bold">
+<span class="material-symbols-outlined text-primary">tune</span> Filters
+                        </h3>
+<!-- Category: Crop Type -->
+<div class="mb-6">
+<h4 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">Crop Type</h4>
+<div class="space-y-2">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">Wheat &amp; Grains</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">Rice Varieties</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">Legumes</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">Vegetables</span>
+</label>
+</div>
+</div>
+<!-- Category: Growth Stage -->
+<div class="mb-6">
+<h4 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">Growth Stage</h4>
+<div class="grid grid-cols-2 gap-2">
+<button class="rounded-lg border border-primary bg-primary/5 px-3 py-2 text-xs font-bold text-primary">Pre-plant</button>
+<button class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium hover:border-primary transition-colors">Seedling</button>
+<button class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium hover:border-primary transition-colors">Vegetative</button>
+<button class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium hover:border-primary transition-colors">Flowering</button>
+</div>
+</div>
+<!-- Category: Soil Type -->
+<div class="mb-6">
+<h4 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">Soil Type</h4>
+<select class="w-full rounded-xl border-slate-200 bg-white text-sm focus:border-primary focus:ring-primary">
+<option>All Soil Types</option>
+<option>Loamy Soil</option>
+<option>Clay Soil</option>
+<option>Sandy Soil</option>
+<option>Silty Soil</option>
+</select>
+</div>
+<!-- Category: Price Range -->
+<div class="mb-6">
+<h4 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">Price Range ($)</h4>
+<div class="flex items-center gap-2">
+<input class="w-full rounded-lg border-slate-200 text-sm focus:ring-primary" placeholder="Min" type="number"/>
+<span class="text-slate-400">-</span>
+<input class="w-full rounded-lg border-slate-200 text-sm focus:ring-primary" placeholder="Max" type="number"/>
+</div>
+</div>
+<button class="w-full rounded-xl bg-primary py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all">
+                            Apply Filters
+                        </button>
+</div>
+<div class="rounded-2xl bg-primary/5 p-4 border border-primary/10">
+<div class="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
+<span class="material-symbols-outlined text-sm">smart_toy</span>
+</div>
+<h4 class="text-sm font-bold">AI Recommendation</h4>
+<p class="mt-1 text-xs text-slate-600 leading-relaxed">Based on your recent soil test, we recommend Phosphorous-rich fertilizers for your upcoming wheat cycle.</p>
+<a class="mt-3 inline-block text-xs font-bold text-primary hover:underline" href="#">View AI Plan →</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1">
+<!-- Breadcrumbs & Header -->
+<div class="mb-8 flex flex-col gap-4">
+<nav class="flex items-center gap-2 text-xs font-medium text-slate-400">
+<a class="hover:text-primary transition-colors" href="#">Home</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Product Catalog</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-primary">Agricultural Essentials</span>
+</nav>
+<div class="flex flex-wrap items-end justify-between gap-4">
+<div>
+<h1 class="text-4xl font-black tracking-tight text-slate-900">Agricultural Essentials</h1>
+<p class="mt-1 text-slate-500">Premium quality seeds, fertilizers, and pesticides vetted by AI agronomy.</p>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-lg">compare_arrows</span>
+                                Compare (0)
+                            </button>
+<div class="flex rounded-xl bg-slate-100 p-1">
+<button class="rounded-lg bg-white p-1.5 shadow-sm">
+<span class="material-symbols-outlined text-lg">grid_view</span>
+</button>
+<button class="p-1.5 text-slate-400">
+<span class="material-symbols-outlined text-lg">list</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Quick Badges -->
+<div class="flex flex-wrap gap-2 py-2">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                            Organic <span class="material-symbols-outlined text-xs">close</span>
+</span>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                            High Yield <span class="material-symbols-outlined text-xs">close</span>
+</span>
+<button class="text-xs font-bold text-slate-400 hover:text-primary">Clear all</button>
+</div>
+</div>
+<!-- Product Grid -->
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+<!-- Product Card 1: Seeds -->
+<div class="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white transition-all hover:shadow-xl hover:-translate-y-1">
+<div class="aspect-[4/3] w-full bg-slate-100 relative">
+<img alt="Wheat seeds in burlap sack" class="h-full w-full object-cover" data-alt="High quality golden wheat seeds in burlap sack" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvI13zAMAJeQy0lfQcWZ3k_pa1zB4iqSyj9kr5xT7KNutjPmoWaCh7nVCpUVdoxqVLWgWv0a2OoniPsK1yjn8HtVQifdEv-KMDVl7v2t2XVMcmqUxI5__hqeHMZvML5eGo5YxDeHJ3xOF0AYbmcWaJDkjgttQ-J1oFwaGdYzCF5C3myb_CtelD5dsqbi2k3BJI2Zlf-o5v5gXXBTHyrGR_4o--K0WCRXPYwF6yMEVWQG5qSkbXE8l48GB5rY8FIQ6w1xIx9X_7wtc"/>
+<div class="absolute top-3 left-3 flex flex-col gap-2">
+<span class="rounded-lg bg-primary px-2 py-1 text-[10px] font-black uppercase tracking-wider text-white">Top Rated</span>
+<span class="rounded-lg bg-yellow-500 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-white">AI Choice</span>
+</div>
+<button class="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-400 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-lg">favorite</span>
+</button>
+</div>
+<div class="flex flex-1 flex-col p-5">
+<div class="mb-1 flex items-center justify-between">
+<span class="text-xs font-bold text-primary">SEEDS</span>
+<div class="flex items-center gap-1 text-xs font-bold text-slate-900">
+<span class="material-symbols-outlined text-xs text-yellow-500 fill-current">star</span>
+                                    4.9 <span class="font-normal text-slate-400">(1.2k)</span>
+</div>
+</div>
+<h3 class="text-lg font-bold leading-tight group-hover:text-primary transition-colors">Golden Harvest Wheat S-9</h3>
+<p class="mt-2 text-xs text-slate-500 line-clamp-2">High-yield winter wheat seeds engineered for loamy soil and drought resistance.</p>
+<div class="mt-4 flex flex-wrap gap-1">
+<span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">Loamy Soil</span>
+<span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">Pre-plant</span>
+</div>
+<div class="mt-auto pt-5 flex items-center justify-between">
+<div>
+<span class="text-2xl font-black text-slate-900">$124.00</span>
+<span class="text-xs text-slate-400">/ 50kg bag</span>
+</div>
+<button class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white hover:bg-primary/90 transition-all">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 2: Fertilizer -->
+<div class="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white transition-all hover:shadow-xl hover:-translate-y-1">
+<div class="aspect-[4/3] w-full bg-slate-100 relative">
+<img alt="Liquid fertilizer being applied" class="h-full w-full object-cover" data-alt="Liquid organic fertilizer being applied to small plants" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFb2L00i-kH6mlZJqY6uLUm0Vjeevk6oBY9CK3P13ZAxJJcmW-cBbWyrOacF4kDEQPj8WgxHWNyNLdoTDn3mDqgdSchFwBcYA3M1aPhpXitSY73m8RigrO95CzBEabhhQzvQH0POScRe1VrXzQ7M3-Aet-bPBPQRsA5Jv1_MbaSRiS_sPFVXifd0YgTyJlOyC1UBskyWbom-IwECNmIbIOC_9b78xwqwAR91wV5Vveozthbef-xEmOkq01qZ7aR6i9OiKZq0oBPhk"/>
+<div class="absolute top-3 left-3">
+<span class="rounded-lg bg-blue-600 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-white">New Arrival</span>
+</div>
+<button class="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-400 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-lg">favorite</span>
+</button>
+</div>
+<div class="flex flex-1 flex-col p-5">
+<div class="mb-1 flex items-center justify-between">
+<span class="text-xs font-bold text-blue-600">FERTILIZER</span>
+<div class="flex items-center gap-1 text-xs font-bold text-slate-900">
+<span class="material-symbols-outlined text-xs text-yellow-500 fill-current">star</span>
+                                    4.7 <span class="font-normal text-slate-400">(850)</span>
+</div>
+</div>
+<h3 class="text-lg font-bold leading-tight group-hover:text-primary transition-colors">NitroGrow Max 500</h3>
+<p class="mt-2 text-xs text-slate-500 line-clamp-2">Rapid-release nitrogen formula for early vegetative growth stage boost.</p>
+<div class="mt-4 flex flex-wrap gap-1">
+<span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">All Soils</span>
+<span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">Seedling</span>
+</div>
+<div class="mt-auto pt-5 flex items-center justify-between">
+<div>
+<span class="text-2xl font-black text-slate-900">$89.99</span>
+<span class="text-xs text-slate-400">/ 20L drum</span>
+</div>
+<button class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white hover:bg-primary/90 transition-all">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 3: Pesticide -->
+<div class="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white transition-all hover:shadow-xl hover:-translate-y-1">
+<div class="aspect-[4/3] w-full bg-slate-100 relative">
+<img alt="Natural pesticide spraying" class="h-full w-full object-cover" data-alt="A spray bottle showing natural pesticide being used in a garden" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKkJ_u7xsKCcDZf3PmXOiDanFIUvi1LhLBaM7xRikvPGdUOygLCfxLok2m7uhJNTLVSaXtTdR4bv0HxOUbR6inEpf5qL2vQnAYpYefcf0Xbt-aZb8hyVsC1u3-hhBA1FLAFapm6h8JTbv2LsdbPOcscD0AAyR_7ZvC4krDWdI0gizPoW7Nw2ntcA9PkGeEOGX8rCXIIkgb1SLEQAPXYO_NDXMPK7puVDyUH4Pa_H_Tzg57AqxoSB0Ohrp16mWkPte2hClQEGi-4Lk"/>
+<div class="absolute top-3 left-3">
+<span class="rounded-lg bg-red-600 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-white">Eco-Safe</span>
+</div>
+<button class="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-400 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-lg">favorite</span>
+</button>
+</div>
+<div class="flex flex-1 flex-col p-5">
+<div class="mb-1 flex items-center justify-between">
+<span class="text-xs font-bold text-red-600">PESTICIDE</span>
+<div class="flex items-center gap-1 text-xs font-bold text-slate-900">
+<span class="material-symbols-outlined text-xs text-yellow-500 fill-current">star</span>
+                                    4.5 <span class="font-normal text-slate-400">(430)</span>
+</div>
+</div>
+<h3 class="text-lg font-bold leading-tight group-hover:text-primary transition-colors">BioGuard Natural 10x</h3>
+<p class="mt-2 text-xs text-slate-500 line-clamp-2">Non-toxic, bio-degradable defense against aphids and common crop beetles.</p>
+<div class="mt-4 flex flex-wrap gap-1">
+<span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">Vegetative</span>
+<span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">Organic</span>
+</div>
+<div class="mt-auto pt-5 flex items-center justify-between">
+<div>
+<span class="text-2xl font-black text-slate-900">$45.50</span>
+<span class="text-xs text-slate-400">/ bottle</span>
+</div>
+<button class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white hover:bg-primary/90 transition-all">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 4: Seeds (Rice) -->
+<div class="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white transition-all hover:shadow-xl hover:-translate-y-1">
+<div class="aspect-[4/3] w-full bg-slate-100 relative">
+<img alt="Rice paddy field" class="h-full w-full object-cover" data-alt="Vibrant green rice paddy field with seedlings" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_GlzY7RQComZMaeIB1hOrIiasRYXrvj68kwl5kNpk-ULH9EOiZfMSqj1vuGLhnRyepdP8Sh2HpTOzLLtiKfFbmP6dme9f7jvpuDBxm6OqqxNbz1rFTsMdbK3a5q84FfB4BtvFwiWB_XxGsQOytyzbyp0NDvGMLl39vpmt_1FqbxhJOesULGNlxhCI1YCMs00ewI5vMx--0fypo8zP5hWOt2yoEMkKgl2-Mp7-cJCt-8bsIdea4XkzTdhRn818KhDOUW5WAGWBmp0"/>
+<div class="absolute top-3 left-3">
+<span class="rounded-lg bg-primary px-2 py-1 text-[10px] font-black uppercase tracking-wider text-white">Water Efficient</span>
+</div>
+<button class="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-400 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-lg">favorite</span>
+</button>
+</div>
+<div class="flex flex-1 flex-col p-5">
+<div class="mb-1 flex items-center justify-between">
+<span class="text-xs font-bold text-primary">SEEDS</span>
+<div class="flex items-center gap-1 text-xs font-bold text-slate-900">
+<span class="material-symbols-outlined text-xs text-yellow-500 fill-current">star</span>
+                                    4.8 <span class="font-normal text-slate-400">(2.1k)</span>
+</div>
+</div>
+<h3 class="text-lg font-bold leading-tight group-hover:text-primary transition-colors">Basmati Elite Fragrant-7</h3>
+<p class="mt-2 text-xs text-slate-500 line-clamp-2">Premium long-grain rice seeds with enhanced aromatic properties.</p>
+<div class="mt-4 flex flex-wrap gap-1">
+<span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">Clay Soil</span>
+<span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">Pre-plant</span>
+</div>
+<div class="mt-auto pt-5 flex items-center justify-between">
+<div>
+<span class="text-2xl font-black text-slate-900">$175.00</span>
+<span class="text-xs text-slate-400">/ 50kg bag</span>
+</div>
+<button class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white hover:bg-primary/90 transition-all">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 5: Fertilizer (NPK) -->
+<div class="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white transition-all hover:shadow-xl hover:-translate-y-1">
+<div class="aspect-[4/3] w-full bg-slate-100 relative">
+<img alt="NPK Fertilizer granules" class="h-full w-full object-cover" data-alt="Close up of multi-colored NPK fertilizer granules" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXW9Euy37rILv9Utd3njQEVjfFN6kHorZc5lzQMzZkwpXtiuGKKqoLgnfujibFGTU0FwrzZvfNQ2jksjPLoHzQ51ZvxuJKIJYcRu22WGJrVDZvmFEEFoYylbVZTXZjRlY51SfFVtCqEaBqAiTO8D9umSc-EkCUTG5jxb6jr-fwKOAmkOzBgPwgWf99Js8xHBkATr31q8lKAm4w21CZDzqv0QkMhk_G12U6Be7LnISxZLeI5hn98BiBu84UUbW_Z0IkdWBOgLqRLn4"/>
+<button class="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-400 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-lg">favorite</span>
+</button>
+</div>
+<div class="flex flex-1 flex-col p-5">
+<div class="mb-1 flex items-center justify-between">
+<span class="text-xs font-bold text-blue-600">FERTILIZER</span>
+<div class="flex items-center gap-1 text-xs font-bold text-slate-900">
+<span class="material-symbols-outlined text-xs text-yellow-500 fill-current">star</span>
+                                    4.6 <span class="font-normal text-slate-400">(610)</span>
+</div>
+</div>
+<h3 class="text-lg font-bold leading-tight group-hover:text-primary transition-colors">BalancePlus NPK 15-15-15</h3>
+<p class="mt-2 text-xs text-slate-500 line-clamp-2">Universal multi-nutrient fertilizer suitable for all major cereal crops.</p>
+<div class="mt-4 flex flex-wrap gap-1">
+<span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">Silty Soil</span>
+<span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">Growth Stage</span>
+</div>
+<div class="mt-auto pt-5 flex items-center justify-between">
+<div>
+<span class="text-2xl font-black text-slate-900">$65.00</span>
+<span class="text-xs text-slate-400">/ 25kg bag</span>
+</div>
+<button class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white hover:bg-primary/90 transition-all">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 6: Pesticide (Fungicide) -->
+<div class="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white transition-all hover:shadow-xl hover:-translate-y-1">
+<div class="aspect-[4/3] w-full bg-slate-100 relative">
+<img alt="Fungi on plant leaf" class="h-full w-full object-cover" data-alt="Close up of a plant leaf with fungal infection being treated" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1fuMDdOUqHvVjpE8vINcsjOc6dMS9YXHm4RZAch88pwBC7AD9ce_0xknh2sKZ8sZ_es1lo2B8I_7iMzrj4QFDvW0V49Wl4kq9HTQv1pHzsns9qD2pi5LmdsV2jVV06nl9MsYaGyPE05_HHXqFUQkkodgTNA28oDwyL9oXa6sYNP7fbeNBhkcCp6Vfl7153p-4lx57Ie5oZTf4ChbyZDa1DeJx1hzpktcnlYkN87PeN-TTNe5tDGeYU6gU0yzq0MxWqKYvUXH6xf0"/>
+<div class="absolute top-3 left-3">
+<span class="rounded-lg bg-orange-600 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-white">Fast Acting</span>
+</div>
+<button class="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-400 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-lg">favorite</span>
+</button>
+</div>
+<div class="flex flex-1 flex-col p-5">
+<div class="mb-1 flex items-center justify-between">
+<span class="text-xs font-bold text-red-600">PESTICIDE</span>
+<div class="flex items-center gap-1 text-xs font-bold text-slate-900">
+<span class="material-symbols-outlined text-xs text-yellow-500 fill-current">star</span>
+                                    4.4 <span class="font-normal text-slate-400">(290)</span>
+</div>
+</div>
+<h3 class="text-lg font-bold leading-tight group-hover:text-primary transition-colors">FungiStop Pro Liquid</h3>
+<p class="mt-2 text-xs text-slate-500 line-clamp-2">Broad-spectrum fungicide to combat rust, mildew, and leaf spots.</p>
+<div class="mt-4 flex flex-wrap gap-1">
+<span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">Flowering</span>
+<span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">Durable</span>
+</div>
+<div class="mt-auto pt-5 flex items-center justify-between">
+<div>
+<span class="text-2xl font-black text-slate-900">$38.25</span>
+<span class="text-xs text-slate-400">/ bottle</span>
+</div>
+<button class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white hover:bg-primary/90 transition-all">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-12 flex items-center justify-between border-t border-slate-100 pt-6">
+<p class="text-sm font-medium text-slate-400">Showing 1-12 of 240 products</p>
+<div class="flex items-center gap-2">
+<button class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 hover:border-primary hover:text-primary transition-all">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white font-bold">1</button>
+<button class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 hover:border-primary hover:text-primary transition-all font-bold">2</button>
+<button class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 hover:border-primary hover:text-primary transition-all font-bold">3</button>
+<span class="text-slate-400 px-1">...</span>
+<button class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 hover:border-primary hover:text-primary transition-all font-bold">20</button>
+<button class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 hover:border-primary hover:text-primary transition-all">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+<!-- Sticky Mobile Bottom Bar -->
+<div class="sticky bottom-0 z-50 flex w-full justify-around bg-white p-3 shadow-2xl lg:hidden border-t border-primary/10">
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-bold">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="text-[10px] font-bold">Catalog</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">psychology</span>
+<span class="text-[10px] font-bold">AI Expert</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="text-[10px] font-bold">Profile</span>
+</button>
+</div>
+</div>
+</body></html>

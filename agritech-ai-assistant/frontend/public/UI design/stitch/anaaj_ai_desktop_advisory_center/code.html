@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1c5f20",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#131f14",
+                    },
+                    fontFamily: {
+                        "display": ["Be Vietnam Pro"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<title>Anaaj AI | Advisor Portal</title>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-64 border-r border-primary/10 bg-white dark:bg-slate-900 flex flex-col">
+<div class="p-6 flex items-center gap-3">
+<div class="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">agriculture</span>
+</div>
+<div>
+<h1 class="text-lg font-bold leading-tight">Anaaj AI</h1>
+<p class="text-xs text-slate-500">Expert Advisory</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 px-3 py-2 rounded-xl bg-primary/10 text-primary font-medium" href="#">
+<span class="material-symbols-outlined">chat</span>
+<span class="text-sm">Advisory</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors" href="#">
+<span class="material-symbols-outlined">potted_plant</span>
+<span class="text-sm">Diagnoses</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="text-sm">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<span class="text-sm">Marketplace</span>
+</a>
+<div class="pt-4 pb-2">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3">System</p>
+</div>
+<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm">Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-primary/5">
+<button class="w-full flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-sm hover:bg-primary/90 transition-all">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Analysis
+            </button>
+</div>
+</aside>
+<!-- Main Content Area (Split Pane) -->
+<main class="flex-1 flex overflow-hidden">
+<!-- List Pane -->
+<section class="w-96 border-r border-primary/10 bg-white flex flex-col">
+<div class="p-4 border-b border-primary/5">
+<div class="flex bg-slate-100 p-1 rounded-lg mb-4">
+<button class="flex-1 text-xs font-bold py-2 rounded-md bg-white shadow-sm">Recent Chats</button>
+<button class="flex-1 text-xs font-bold py-2 rounded-md text-slate-500">Reports</button>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-xl text-sm focus:ring-1 focus:ring-primary/30" placeholder="Search conversations..." type="text"/>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto">
+<!-- Chat Item Active -->
+<div class="p-4 bg-primary/5 border-l-4 border-primary cursor-pointer">
+<div class="flex justify-between items-start mb-1">
+<span class="font-bold text-sm">Wheat Rust Infection</span>
+<span class="text-[10px] text-slate-400 font-medium">14:30</span>
+</div>
+<p class="text-xs text-slate-600 line-clamp-1">Current status: Stage 2 Yellow Rust detected in north field...</p>
+<div class="mt-2 flex gap-2">
+<span class="px-2 py-0.5 bg-red-100 text-red-600 rounded text-[10px] font-bold">Urgent</span>
+<span class="px-2 py-0.5 bg-slate-200 text-slate-600 rounded text-[10px] font-bold">Crop: Wheat</span>
+</div>
+</div>
+<!-- Chat Item -->
+<div class="p-4 border-b border-primary/5 hover:bg-slate-50 cursor-pointer">
+<div class="flex justify-between items-start mb-1">
+<span class="font-bold text-sm">Nitrogen Deficiency Alert</span>
+<span class="text-[10px] text-slate-400 font-medium">12:15</span>
+</div>
+<p class="text-xs text-slate-500 line-clamp-1">Soil analysis report for Block C indicates low levels of nitrogen...</p>
+<div class="mt-2 flex gap-2">
+<span class="px-2 py-0.5 bg-yellow-100 text-yellow-600 rounded text-[10px] font-bold">Warning</span>
+<span class="px-2 py-0.5 bg-slate-200 text-slate-600 rounded text-[10px] font-bold">Crop: Maize</span>
+</div>
+</div>
+<!-- Chat Item -->
+<div class="p-4 border-b border-primary/5 hover:bg-slate-50 cursor-pointer">
+<div class="flex justify-between items-start mb-1">
+<span class="font-bold text-sm">Irrigation Optimization</span>
+<span class="text-[10px] text-slate-400 font-medium">Yesterday</span>
+</div>
+<p class="text-xs text-slate-500 line-clamp-1">Smart irrigation system suggests reducing water flow by 15%...</p>
+<div class="mt-2 flex gap-2">
+<span class="px-2 py-0.5 bg-blue-100 text-blue-600 rounded text-[10px] font-bold">Optimization</span>
+</div>
+</div>
+<!-- Chat Item -->
+<div class="p-4 border-b border-primary/5 hover:bg-slate-50 cursor-pointer">
+<div class="flex justify-between items-start mb-1">
+<span class="font-bold text-sm">Pest Control Protocol</span>
+<span class="text-[10px] text-slate-400 font-medium">Oct 24</span>
+</div>
+<p class="text-xs text-slate-500 line-clamp-1">Confirmed aphid infestation in plot 4. Recommend immediate...</p>
+<div class="mt-2 flex gap-2">
+<span class="px-2 py-0.5 bg-red-100 text-red-600 rounded text-[10px] font-bold">Urgent</span>
+<span class="px-2 py-0.5 bg-slate-200 text-slate-600 rounded text-[10px] font-bold">Pest: Aphids</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Chat Pane -->
+<section class="flex-1 flex flex-col bg-background-light">
+<!-- Chat Header -->
+<header class="h-16 px-6 bg-white border-b border-primary/10 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-primary/10 text-primary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">warning</span>
+</div>
+<div>
+<h2 class="font-bold text-sm">Wheat Rust Infection Analysis</h2>
+<p class="text-[10px] text-slate-400">Diagnosis #ANA-2023-9912 • Started 2h ago</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">print</span>
+</button>
+<div class="h-6 w-px bg-slate-200 mx-1"></div>
+<button class="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-bold transition-all">
+<span class="material-symbols-outlined text-sm">description</span>
+                        Export Report
+                    </button>
+</div>
+</header>
+<!-- Chat Content -->
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+<!-- User Message -->
+<div class="flex justify-end">
+<div class="max-w-[70%] bg-primary text-white p-4 rounded-xl rounded-tr-none shadow-sm">
+<p class="text-sm">I've noticed yellow spots on my wheat crop in the north-western sector. It seems to be spreading quickly. Can you analyze these photos?</p>
+</div>
+</div>
+<!-- AI Message: Diagnosis -->
+<div class="flex gap-4">
+<div class="size-8 rounded-full bg-primary text-white flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">smart_toy</span>
+</div>
+<div class="max-w-[85%] space-y-4">
+<div class="bg-white p-4 rounded-xl rounded-tl-none shadow-sm border border-primary/5">
+<p class="text-sm mb-4">Based on the visual evidence and current regional weather patterns, I have identified a **94% probability of Puccinia striiformis (Yellow Rust)** infection.</p>
+<!-- Image Analysis Result -->
+<div class="grid grid-cols-2 gap-3 mb-4">
+<div class="relative group">
+<div class="aspect-video rounded-lg overflow-hidden border border-slate-100 bg-slate-200">
+<img class="w-full h-full object-cover" data-alt="Close up of wheat leaves with yellow fungal spots" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLxz0MzvIfjsaoWG5I7Tem4YHbFogmTsw_GZTDAi3CT4TccupAbL0534n8xvpH31u4YqDzHf1GFK_nbdjZeHkmObAorW7PKNS-799C1fsN0JSU22m6URDeeY2x8P52w4KpgYjJseQM-10j0ZWIbSEWQXUWgEdrhf0D4WeEmOFioOL4oyB1DWKulf_kEFWgBpUCGxVcxe9Jf8U_4KZ84N6oFXXAY1o-EgvHV3axOJgfaMxuX0AsfVQq98lP6YSTsIZQQ6ALo-hefXE"/>
+<div class="absolute inset-0 bg-red-500/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="bg-white text-red-600 text-[10px] font-bold px-2 py-1 rounded">Spores Detected</span>
+</div>
+</div>
+<p class="text-[10px] mt-1 text-slate-500 italic">Input Image 1: Leaf surface analysis</p>
+</div>
+<div class="relative group">
+<div class="aspect-video rounded-lg overflow-hidden border border-slate-100 bg-slate-200">
+<img class="w-full h-full object-cover" data-alt="Overview of wheat field showing discolored patches" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACKN1KeZSRtYo-EMfB4hTLjd2wey7xyM5rq9em4G991ad9mp3Vbur470edge_NBM6NdFePDQfKcl2fxqk1pxWjuXGtV9q7rEaAqDuc9dJfeu8g8cwLjAWIPU0Bp6gdlt14YWtSUuyBt1KdodMAKC1MT0ip1EkMihoyMykKSHy5aaFnwnlK3QfPFiokJYca-Df60LX3qKqsBiCSDIF0ZcBofCZyclNGWBe3ycJ9WcJOy3PB1ujiowzMQ-zTZirYU8358XnQ9clx2MU"/>
+<div class="absolute inset-0 bg-red-500/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="bg-white text-red-600 text-[10px] font-bold px-2 py-1 rounded">Spread Pattern</span>
+</div>
+</div>
+<p class="text-[10px] mt-1 text-slate-500 italic">Input Image 2: Field distribution</p>
+</div>
+</div>
+<div class="flex items-center gap-2 p-3 bg-primary/5 rounded-lg border border-primary/10">
+<button class="size-8 flex items-center justify-center bg-primary text-white rounded-full">
+<span class="material-symbols-outlined text-base">play_arrow</span>
+</button>
+<div class="flex-1 h-1 bg-primary/20 rounded-full relative">
+<div class="absolute top-0 left-0 w-1/3 h-full bg-primary rounded-full"></div>
+</div>
+<span class="text-[10px] font-bold text-primary">0:12 / 0:45</span>
+<span class="text-[10px] text-slate-400 ml-2 italic">Audio Summary</span>
+</div>
+</div>
+<!-- Actionable Steps -->
+<div class="bg-white p-5 rounded-xl shadow-sm border border-primary/5">
+<h3 class="font-bold text-sm mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">fact_check</span>
+                                Immediate Treatment Plan
+                            </h3>
+<div class="space-y-4">
+<div class="flex gap-3">
+<div class="size-6 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0">1</div>
+<div>
+<p class="text-sm font-semibold">Isolate Infected Areas</p>
+<p class="text-xs text-slate-500">Stop irrigation in the north-western sector temporarily to reduce humidity.</p>
+</div>
+</div>
+<div class="flex gap-3">
+<div class="size-6 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0">2</div>
+<div>
+<p class="text-sm font-semibold">Apply Fungicide</p>
+<p class="text-xs text-slate-500">Spray a Tebuconazole or Propiconazole based fungicide within the next 24 hours.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Product Recommendations Carousel -->
+<div class="space-y-2">
+<p class="text-xs font-bold text-slate-500 px-1 uppercase tracking-wider">Recommended Products</p>
+<div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+<div class="w-48 bg-white border border-slate-100 p-3 rounded-xl flex-shrink-0 shadow-sm">
+<div class="aspect-square bg-slate-50 rounded-lg mb-2 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Bottle of professional grade agricultural fungicide" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6TT4H0TXnZjc17dPninmOciYu_gg1Nh8RoFHz2sMVi9T130FWZKw1Grartq_n8h6bLMQ_ZwneLGNMa9nFhv1tBPKwEREeEKgAqqv1nBGWhSl63bbv90AoEJK1fV4omwzpLy0cUYbsLuLLqU1IIPsxPYNKwL6ePIGj7j_ErPrkwZX5tr8FbJQr4jtiOSvmdi4mviF1N0icYgVFarT_zx0j5VcuCnDVkv4kdXYaZqinZ7AqAUr3juU5ntsFd8aqpGdeq0R7M54P9Yw"/>
+</div>
+<p class="text-xs font-bold truncate">RustGuard Pro 250</p>
+<div class="flex justify-between items-center mt-2">
+<span class="text-xs font-bold text-primary">$45.00</span>
+<button class="size-7 bg-primary/10 text-primary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">shopping_cart</span>
+</button>
+</div>
+</div>
+<div class="w-48 bg-white border border-slate-100 p-3 rounded-xl flex-shrink-0 shadow-sm">
+<div class="aspect-square bg-slate-50 rounded-lg mb-2 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Protective agricultural spraying equipment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0i7k53Q0oeK93B8zF_QPcIbUIPOAcyTGgZHeGzPHq_bj4sU6SFnYb9BXm5yo6rsK1LEmrjMZx4_vgnOwI1ICr2XGK78Rz5rFoFNq0nT-8yDTmk8t4N7laXezaWZb4AzT8DjaLwsp0-6k26QeT9O9OypMXMzMlZHbZZfy5PDcyGEqasVKuiofdr8XGiT7Z0ekbmzoRWpx6ioOZq6brTOrSgHvKw6QWehptOSiUb0hwgFOvPC_dc-z7Rer982auXskGhX2aY1VNHKQ"/>
+</div>
+<p class="text-xs font-bold truncate">SprayMaster Elite</p>
+<div class="flex justify-between items-center mt-2">
+<span class="text-xs font-bold text-primary">$120.00</span>
+<button class="size-7 bg-primary/10 text-primary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">shopping_cart</span>
+</button>
+</div>
+</div>
+<div class="w-48 bg-white border border-slate-100 p-3 rounded-xl flex-shrink-0 shadow-sm opacity-50">
+<div class="aspect-square bg-slate-50 rounded-lg mb-2 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-300 text-3xl">arrow_forward_ios</span>
+</div>
+<p class="text-xs font-medium text-center text-slate-400">View more</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Chat Input Area -->
+<footer class="p-6 bg-white border-t border-primary/10">
+<div class="relative bg-slate-100 rounded-2xl p-2 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+<textarea class="w-full bg-transparent border-none focus:ring-0 text-sm resize-none px-4 pt-3 pb-12" placeholder="Ask follow-up questions about the treatment..." rows="2"></textarea>
+<div class="flex items-center justify-between px-2 pb-1">
+<div class="flex gap-1">
+<button class="p-2 text-slate-500 hover:bg-slate-200 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-xl">attach_file</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-200 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-xl">image</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-200 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-xl">mic</span>
+</button>
+</div>
+<button class="flex items-center gap-2 bg-primary text-white px-5 py-2 rounded-xl font-bold text-sm shadow-md hover:scale-[1.02] active:scale-95 transition-all">
+                            Send Analysis
+                            <span class="material-symbols-outlined text-sm">send</span>
+</button>
+</div>
+</div>
+<div class="mt-3 flex justify-center">
+<p class="text-[10px] text-slate-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">info</span>
+                        AI can make mistakes. Always consult with a local agronomist before applying chemical treatments.
+                    </p>
+</div>
+</footer>
+</section>
+</main>
+</div>
+</body></html>

@@ -1,253 +1,128 @@
-import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
-import { Mic, Send, Leaf, PauseCircle, Loader2 } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { FiHome, FiMessageSquare, FiShoppingBag, FiUser, FiCamera } from 'react-icons/fi';
+import { RiPlantLine } from 'react-icons/ri';
+import Landing from './pages/Landing';
+import Home from './pages/Home';
+import Chat from './pages/Chat';
+import Diagnosis from './pages/Diagnosis';
+import Products from './pages/Products';
+import Profile from './pages/Profile';
 
-interface Message {
-    id: string;
-    type: 'user' | 'ai';
-    text: string;
-    audio?: string; // base64 string
-    audioUrl?: string; // local or remote URL
-    language?: string;
-    inputType?: 'text' | 'voice';
-}
-
-function App() {
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [input, setInput] = useState('');
-    const [language, setLanguage] = useState('Hindi');
-    const [isRecording, setIsRecording] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [hasStarted, setHasStarted] = useState(false);
-    const chatEndRef = useRef<HTMLDivElement>(null);
-
-    // Audio recording refs
-    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-    const audioChunksRef = useRef<BlobPart[]>([]);
-
-    const API_URL = 'http://localhost:3000';
-
-    useEffect(() => {
-        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
-
-    const handleSendText = async (e?: React.FormEvent) => {
-        e?.preventDefault();
-        if (!input.trim() || isLoading) return;
-
-        const userMessage: Message = { id: Date.now().toString(), type: 'user', text: input, language, inputType: 'text' };
-        setMessages(prev => [...prev, userMessage]);
-        setInput('');
-        setIsLoading(true);
-
-        try {
-            const response = await axios.post(`${API_URL}/ask`, {
-                question: userMessage.text,
-                language,
-                model: 'gemini'
-            });
-
-            const aiMessage: Message = {
-                id: (Date.now() + 1).toString(),
-                type: 'ai',
-                text: response.data.answer,
-                audio: response.data.audio,
-                language: response.data.language,
-                inputType: 'text'
-            };
-            setMessages(prev => [...prev, aiMessage]);
-
-        } catch (error) {
-            console.error('API Error:', error);
-            setMessages(prev => [...prev, { id: Date.now().toString(), type: 'ai', text: 'Sorry, I encountered an error. Please try again later.' }]);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const startRecording = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const recorder = new MediaRecorder(stream);
-            mediaRecorderRef.current = recorder;
-            audioChunksRef.current = [];
-
-            recorder.ondataavailable = (event) => {
-                if (event.data.size > 0) {
-                    audioChunksRef.current.push(event.data);
-                }
-            };
-
-            recorder.onstop = async () => {
-                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-                await handleVoiceSubmit(audioBlob);
-                stream.getTracks().forEach(track => track.stop());
-            };
-
-            recorder.start();
-            setIsRecording(true);
-        } catch (error) {
-            console.error('Error accessing microphone:', error);
-            alert('Could not access microphone. Please check permissions.');
-        }
-    };
-
-    const stopRecording = () => {
-        if (mediaRecorderRef.current && isRecording) {
-            mediaRecorderRef.current.stop();
-            setIsRecording(false);
-            setIsLoading(true);
-        }
-    };
-
-    const handleVoiceSubmit = async (audioBlob: Blob) => {
-        const formData = new FormData();
-        formData.append('audio', audioBlob, 'voice.webm');
-        formData.append('model', 'gemini');
-
-        try {
-            const tempUserMsgId = Date.now().toString();
-            setMessages(prev => [...prev, { id: tempUserMsgId, type: 'user', text: '🎤 [Voice Query]', inputType: 'voice' }]);
-
-            const response = await axios.post(`${API_URL}/voice`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-
-            // Replace temp msg with transcribed audio
-            setMessages(prev => prev.map(m => m.id === tempUserMsgId ? { ...m, text: `🎤 ${response.data.question}` } : m));
-
-            const aiMessage: Message = {
-                id: (Date.now() + 1).toString(),
-                type: 'ai',
-                text: response.data.answer,
-                audio: response.data.audio,
-                language: response.data.detectedLanguage,
-                inputType: 'voice' // Key to showing audio only
-            };
-
-            setMessages(prev => [...prev, aiMessage]);
-
-        } catch (error) {
-            console.error('API Error:', error);
-            setMessages(prev => [...prev, { id: Date.now().toString(), type: 'ai', text: 'Sorry, I encountered an error processing your voice.' }]);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // Auto-fetch a welcome message hidden request to generate voice
-    const handleStartSession = () => {
-        setHasStarted(true);
-        const textMessage = language === 'Hindi' ? "नमस्ते किसान भाई! मैं आपका कृषि तकनीकी सहायक हूँ। आज मैं आपकी कैसे मदद कर सकता हूँ?" :
-            language === 'Punjabi' ? "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ ਕਿਸਾਨ ਭਰਾ! ਮੈਂ ਤੁਹਾਡਾ ਖੇਤੀਬਾੜੀ ਤਕਨੀਕੀ ਸਹਾਇਕ ਹਾਂ। ਅੱਜ ਮੈਂ ਤੁਹਾਡੀ ਕਿਵੇਂ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ?" :
-                "નમસ્તે ખેડૂત ભાઈ! હું તમારો કૃષિ તકનીકી સહાયક છું. આજે હું તમારી કેવી રીતે મદદ કરી શકું?";
-
-        const aiMessage: Message = {
-            id: Date.now().toString(),
-            type: 'ai',
-            text: textMessage,
-            audioUrl: '/Initial%20Audio.wav', // Fast local pre-fetched audio file
-            language: language,
-            inputType: 'voice' // Render it elegantly just as a Voice indicator to save space and just play audio
-        };
-        setMessages([aiMessage]);
-    }
+function DashboardLayout() {
+    const location = useLocation();
 
     return (
-        <div className="app-container">
-            <header className="header">
-                <Leaf size={32} />
-                <h1>Agritech AI Assistant</h1>
+        <div className="relative flex flex-col min-h-screen bg-background-light">
+            {/* Desktop Top Navbar — hidden on mobile */}
+            <header className="hidden lg:flex items-center justify-between border-b border-primary/10 bg-white/80 backdrop-blur-md sticky top-0 z-50 px-8 xl:px-20 py-4">
+                <NavLink to="/" className="flex items-center gap-3 text-primary">
+                    <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center text-white">
+                        <RiPlantLine size={20} />
+                    </div>
+                    <h2 className="text-slate-900 text-xl font-black tracking-tight">Anaaj AI</h2>
+                </NavLink>
+                <nav className="flex items-center gap-8">
+                    <DesktopNavItem to="/dashboard" label="Home" />
+                    <DesktopNavItem to="/chat" label="AI Chat" />
+                    <DesktopNavItem to="/diagnosis" label="Diagnosis" />
+                    <DesktopNavItem to="/products" label="Marketplace" />
+                    <DesktopNavItem to="/profile" label="Profile" />
+                </nav>
+                <div className="flex items-center gap-3">
+                    <button className="flex w-10 h-10 items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+                        🔔
+                    </button>
+                    <div className="w-10 h-10 rounded-full bg-primary/20 border-2 border-primary/20 flex items-center justify-center text-primary font-bold text-sm">
+                        RP
+                    </div>
+                </div>
             </header>
 
-            {!hasStarted ? (
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
-                    <div className="lang-selector" style={{ transform: 'scale(1.2)' }}>
-                        <select value={language} onChange={(e) => setLanguage(e.target.value)}>
-                            <option value="Hindi">Hindi (हिंदी)</option>
-                            <option value="Punjabi">Punjabi (ਪੰਜਾਬੀ)</option>
-                            <option value="Gujarati">Gujarati (ગુજરાતી)</option>
-                        </select>
+            {/* Mobile Home header */}
+            {location.pathname === '/dashboard' && (
+                <header className="lg:hidden flex items-center bg-white p-4 sticky top-0 z-50 backdrop-blur-md border-b border-primary/10">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 border-2 border-primary/20 flex items-center justify-center text-primary font-bold text-sm">
+                        RP
                     </div>
-                    <button
-                        onClick={handleStartSession}
-                        style={{ padding: '1rem 2rem', fontSize: '1.2rem', borderRadius: '32px', border: 'none', background: 'var(--primary)', color: 'white', cursor: 'pointer', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)' }}
-                    >
-                        Start Assistant 🌱
+                    <div className="flex-1 ml-3">
+                        <h2 className="text-slate-900 text-lg font-bold leading-tight tracking-tight">Namaste Ramesh 👋</h2>
+                        <p className="text-primary text-xs font-medium">Ludhiana, Punjab</p>
+                    </div>
+                    <button className="flex w-10 h-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        🔔
                     </button>
-                    <p style={{ color: 'var(--text-muted)' }}>Tap to initialize smart voice</p>
-                </div>
-            ) : (
-                <>
-                    <div className="chat-box">
-                        {messages.map(msg => (
-                            <div key={msg.id} className={`message ${msg.type}`}>
-
-                                {/* Rendering conditions based on inputType */}
-                                {msg.type === 'ai' && msg.inputType === 'voice' ? (
-                                    <div style={{ fontStyle: 'italic', fontWeight: 500, color: 'var(--primary)', marginBottom: '0.2rem' }}>
-                                        🎙️ Voice Response
-                                    </div>
-                                ) : msg.type === 'user' ? (
-                                    msg.text
-                                ) : (
-                                    <div className="markdown-body">
-                                        <ReactMarkdown>{msg.text}</ReactMarkdown>
-                                    </div>
-                                )}
-
-                                {/* Auto playing audio player with native controls */}
-                                {(msg.audio || msg.audioUrl) && msg.type === 'ai' && (
-                                    <div style={{ marginTop: '0.8rem' }}>
-                                        <audio controls autoPlay className="audio-player" src={msg.audioUrl ? msg.audioUrl : `data:audio/wav;base64,${msg.audio}`} />
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-
-                        {isLoading && (
-                            <div className="typing-indicator">
-                                <span></span><span></span><span></span>
-                            </div>
-                        )}
-                        <div ref={chatEndRef} />
-                    </div>
-
-                    <div className="input-container">
-                        <form className="input-row" onSubmit={handleSendText}>
-                            <button
-                                type="button"
-                                className={`icon-btn ${isRecording ? 'recording' : ''}`}
-                                onClick={isRecording ? stopRecording : startRecording}
-                                disabled={isLoading && !isRecording}
-                            >
-                                {isRecording ? <PauseCircle /> : <Mic />}
-                            </button>
-
-                            <input
-                                type="text"
-                                className="text-input"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                placeholder={isRecording ? "Listening..." : "Type your question..."}
-                                disabled={isRecording || isLoading}
-                            />
-
-                            <button
-                                type="submit"
-                                className="icon-btn"
-                                disabled={!input.trim() || isRecording || isLoading}
-                                style={{ backgroundColor: !input.trim() || isRecording || isLoading ? '' : 'var(--primary)' }}
-                            >
-                                {isLoading ? <Loader2 className="animate-spin" /> : <Send size={20} />}
-                            </button>
-                        </form>
-                    </div>
-                </>
+                </header>
             )}
+
+            {/* Main content */}
+            <div className="flex-1 flex flex-col pb-20 lg:pb-0">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={location.pathname}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex-1 flex flex-col"
+                    >
+                        <Routes location={location}>
+                            <Route path="/dashboard" element={<Home />} />
+                            <Route path="/chat" element={<Chat />} />
+                            <Route path="/diagnosis" element={<Diagnosis />} />
+                            <Route path="/products" element={<Products />} />
+                            <Route path="/profile" element={<Profile />} />
+                        </Routes>
+                    </motion.div>
+                </AnimatePresence>
+            </div>
+
+            {/* Mobile Bottom Navigation — hidden on desktop */}
+            <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-primary/10 flex justify-around items-center px-4 pb-4 pt-2 z-50">
+                <MobileNavItem to="/dashboard" icon={<FiHome size={20} />} label="Home" />
+                <MobileNavItem to="/chat" icon={<FiMessageSquare size={20} />} label="Chat" />
+                <MobileNavItem to="/diagnosis" icon={<FiCamera size={20} />} label="Scan" />
+                <MobileNavItem to="/products" icon={<FiShoppingBag size={20} />} label="Market" />
+                <MobileNavItem to="/profile" icon={<FiUser size={20} />} label="Profile" />
+            </nav>
         </div>
     );
 }
 
-export default App;
+function DesktopNavItem({ to, label }: { to: string; label: string }) {
+    return (
+        <NavLink
+            to={to}
+            className={({ isActive }) =>
+                `text-sm font-semibold transition-colors ${isActive ? 'text-primary' : 'text-slate-700 hover:text-primary'}`
+            }
+        >
+            {label}
+        </NavLink>
+    );
+}
+
+function MobileNavItem({ to, icon, label }: { to: string; icon: React.ReactNode; label: string }) {
+    return (
+        <NavLink
+            to={to}
+            className={({ isActive }) =>
+                `flex flex-col items-center gap-1 transition-colors ${isActive ? 'text-primary' : 'text-slate-400 hover:text-primary'}`
+            }
+        >
+            {icon}
+            <span className="text-[10px] font-medium">{label}</span>
+        </NavLink>
+    );
+}
+
+export default function App() {
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/*" element={<DashboardLayout />} />
+            </Routes>
+        </BrowserRouter>
+    );
+}

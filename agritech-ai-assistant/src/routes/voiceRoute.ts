@@ -7,6 +7,7 @@ import { retrieveContext } from '../database/vectorStore';
 import { getCropAdvisory } from '../services/ragService';
 import { askLLM } from '../services/llmRouter';
 import { convertTextToSpeech } from '../services/sarvamTTS';
+import { formatHistory, addToHistory } from '../services/conversationMemory';
 
 const router = Router();
 const uploadDir = path.join(__dirname, '../../uploads');
@@ -34,6 +35,7 @@ router.post('/', upload.single('audio'), async (req: Request, res: Response): Pr
         }
 
         const model = req.body.model || 'gemini';
+        const sessionId = req.body.sessionId || '';
 
         // 1. Speech to Text via Sarvam Saaras v3
         const transcription = await convertSpeechToText(req.file.path);
@@ -53,12 +55,20 @@ router.post('/', upload.single('audio'), async (req: Request, res: Response): Pr
         // 3. Crop DB Lookups
         const cropData = await getCropAdvisory(question);
 
-        // 4. LLM Reasoning
+        // 4. Get conversation history for context
+        const conversationHistory = sessionId ? formatHistory(sessionId) : '';
+
+        // 5. LLM Reasoning
         // Append an explicit command for the voice answer to fit Sarvam's constraints (it throws 400 on 500+ length inputs array chunks)
         const voiceQuestion = `${question} (IMPORTANT: Give a VERY short response under 450 characters. Get straight to the point without pleasantries as this is a voice response.)`;
-        const answer = await askLLM(voiceQuestion, context, cropData, language, model);
+        const answer = await askLLM(voiceQuestion, context, cropData, language, model, conversationHistory);
 
-        // 5. Text to Speech via Sarvam Bulbul v3
+        // 6. Store this exchange in conversation memory
+        if (sessionId) {
+            addToHistory(sessionId, question, answer);
+        }
+
+        // 7. Text to Speech via Sarvam Bulbul v3
         let audioBase64 = '';
         try {
             audioBase64 = await convertTextToSpeech(answer, language);

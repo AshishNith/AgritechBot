@@ -12,7 +12,10 @@ Here is some relevant agricultural knowledge (Context) that you should use to an
 Here is the supplementary crop database recommendation (if any):
 {cropData}
 
-Use the above context and crop recommendations to provide a highly accurate and helpful answer to the farmer's question. If the context is empty, try to answer based on your general knowledge but keep it strictly related to agriculture.
+Here is the recent conversation history with this farmer (use it to understand context and follow-ups, but focus on the current question):
+{conversationHistory}
+
+Use the above context, crop recommendations, and conversation history to provide a highly accurate and helpful answer to the farmer's question. If the context is empty, try to answer based on your general knowledge but keep it strictly related to agriculture.
 
 Farmer's Question: {question}
 

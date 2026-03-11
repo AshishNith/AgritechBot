@@ -1,0 +1,257 @@
+import React, { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
+import { Mic, Send, Leaf, PauseCircle, Loader2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+
+interface Message {
+    id: string;
+    type: 'user' | 'ai';
+    text: string;
+    audio?: string; // base64 string
+    audioUrl?: string; // local or remote URL
+    language?: string;
+    inputType?: 'text' | 'voice';
+}
+
+function App() {
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [input, setInput] = useState('');
+    const [language, setLanguage] = useState('Hindi');
+    const [isRecording, setIsRecording] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [hasStarted, setHasStarted] = useState(false);
+    const chatEndRef = useRef<HTMLDivElement>(null);
+    const sessionIdRef = useRef<string>('');
+
+    // Audio recording refs
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioChunksRef = useRef<BlobPart[]>([]);
+
+    const API_URL = 'http://localhost:3000';
+
+    useEffect(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
+    const handleSendText = async (e?: React.FormEvent) => {
+        e?.preventDefault();
+        if (!input.trim() || isLoading) return;
+
+        const userMessage: Message = { id: Date.now().toString(), type: 'user', text: input, language, inputType: 'text' };
+        setMessages(prev => [...prev, userMessage]);
+        setInput('');
+        setIsLoading(true);
+
+        try {
+            const response = await axios.post(`${API_URL}/ask`, {
+                question: userMessage.text,
+                language,
+                model: 'gemini',
+                sessionId: sessionIdRef.current
+            });
+
+            const aiMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                type: 'ai',
+                text: response.data.answer,
+                audio: response.data.audio,
+                language: response.data.language,
+                inputType: 'text'
+            };
+            setMessages(prev => [...prev, aiMessage]);
+
+        } catch (error) {
+            console.error('API Error:', error);
+            setMessages(prev => [...prev, { id: Date.now().toString(), type: 'ai', text: 'Sorry, I encountered an error. Please try again later.' }]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const recorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = recorder;
+            audioChunksRef.current = [];
+
+            recorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+                }
+            };
+
+            recorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                await handleVoiceSubmit(audioBlob);
+                stream.getTracks().forEach(track => track.stop());
+            };
+
+            recorder.start();
+            setIsRecording(true);
+        } catch (error) {
+            console.error('Error accessing microphone:', error);
+            alert('Could not access microphone. Please check permissions.');
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current && isRecording) {
+            mediaRecorderRef.current.stop();
+            setIsRecording(false);
+            setIsLoading(true);
+        }
+    };
+
+    const handleVoiceSubmit = async (audioBlob: Blob) => {
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'voice.webm');
+        formData.append('model', 'gemini');
+        formData.append('sessionId', sessionIdRef.current);
+
+        try {
+            const tempUserMsgId = Date.now().toString();
+            setMessages(prev => [...prev, { id: tempUserMsgId, type: 'user', text: '🎤 [Voice Query]', inputType: 'voice' }]);
+
+            const response = await axios.post(`${API_URL}/voice`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            // Replace temp msg with transcribed audio
+            setMessages(prev => prev.map(m => m.id === tempUserMsgId ? { ...m, text: `🎤 ${response.data.question}` } : m));
+
+            const aiMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                type: 'ai',
+                text: response.data.answer,
+                audio: response.data.audio,
+                language: response.data.detectedLanguage,
+                inputType: 'voice' // Key to showing audio only
+            };
+
+            setMessages(prev => [...prev, aiMessage]);
+
+        } catch (error) {
+            console.error('API Error:', error);
+            setMessages(prev => [...prev, { id: Date.now().toString(), type: 'ai', text: 'Sorry, I encountered an error processing your voice.' }]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Auto-fetch a welcome message hidden request to generate voice
+    const handleStartSession = () => {
+        setHasStarted(true);
+        sessionIdRef.current = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+        const textMessage = language === 'Hindi' ? "नमस्ते किसान भाई! मैं आपका कृषि तकनीकी सहायक हूँ। आज मैं आपकी कैसे मदद कर सकता हूँ?" :
+            language === 'Punjabi' ? "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ ਕਿਸਾਨ ਭਰਾ! ਮੈਂ ਤੁਹਾਡਾ ਖੇਤੀਬਾੜੀ ਤਕਨੀਕੀ ਸਹਾਇਕ ਹਾਂ। ਅੱਜ ਮੈਂ ਤੁਹਾਡੀ ਕਿਵੇਂ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ?" :
+                "નમસ્તે ખેડૂત ભાઈ! હું તમારો કૃષિ તકનીકી સહાયક છું. આજે હું તમારી કેવી રીતે મદદ કરી શકું?";
+
+        const aiMessage: Message = {
+            id: Date.now().toString(),
+            type: 'ai',
+            text: textMessage,
+            audioUrl: '/Initial%20Audio.wav', // Fast local pre-fetched audio file
+            language: language,
+            inputType: 'voice' // Render it elegantly just as a Voice indicator to save space and just play audio
+        };
+        setMessages([aiMessage]);
+    }
+
+    return (
+        <div className="app-container">
+            <header className="header">
+                <Leaf size={32} />
+                <h1>Agritech AI Assistant</h1>
+            </header>
+
+            {!hasStarted ? (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
+                    <div className="lang-selector" style={{ transform: 'scale(1.2)' }}>
+                        <select value={language} onChange={(e) => setLanguage(e.target.value)}>
+                            <option value="Hindi">Hindi (हिंदी)</option>
+                            <option value="Punjabi">Punjabi (ਪੰਜਾਬੀ)</option>
+                            <option value="Gujarati">Gujarati (ગુજરાતી)</option>
+                        </select>
+                    </div>
+                    <button
+                        onClick={handleStartSession}
+                        style={{ padding: '1rem 2rem', fontSize: '1.2rem', borderRadius: '32px', border: 'none', background: 'var(--primary)', color: 'white', cursor: 'pointer', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)' }}
+                    >
+                        Start Assistant 🌱
+                    </button>
+                    <p style={{ color: 'var(--text-muted)' }}>Tap to initialize smart voice</p>
+                </div>
+            ) : (
+                <>
+                    <div className="chat-box">
+                        {messages.map(msg => (
+                            <div key={msg.id} className={`message ${msg.type}`}>
+
+                                {/* Rendering conditions based on inputType */}
+                                {msg.type === 'ai' && msg.inputType === 'voice' ? (
+                                    <div style={{ fontStyle: 'italic', fontWeight: 500, color: 'var(--primary)', marginBottom: '0.2rem' }}>
+                                        🎙️ Voice Response
+                                    </div>
+                                ) : msg.type === 'user' ? (
+                                    msg.text
+                                ) : (
+                                    <div className="markdown-body">
+                                        <ReactMarkdown>{msg.text}</ReactMarkdown>
+                                    </div>
+                                )}
+
+                                {/* Auto playing audio player with native controls */}
+                                {(msg.audio || msg.audioUrl) && msg.type === 'ai' && (
+                                    <div style={{ marginTop: '0.8rem' }}>
+                                        <audio controls autoPlay className="audio-player" src={msg.audioUrl ? msg.audioUrl : `data:audio/wav;base64,${msg.audio}`} />
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+
+                        {isLoading && (
+                            <div className="typing-indicator">
+                                <span></span><span></span><span></span>
+                            </div>
+                        )}
+                        <div ref={chatEndRef} />
+                    </div>
+
+                    <div className="input-container">
+                        <form className="input-row" onSubmit={handleSendText}>
+                            <button
+                                type="button"
+                                className={`icon-btn ${isRecording ? 'recording' : ''}`}
+                                onClick={isRecording ? stopRecording : startRecording}
+                                disabled={isLoading && !isRecording}
+                            >
+                                {isRecording ? <PauseCircle /> : <Mic />}
+                            </button>
+
+                            <input
+                                type="text"
+                                className="text-input"
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                placeholder={isRecording ? "Listening..." : "Type your question..."}
+                                disabled={isRecording || isLoading}
+                            />
+
+                            <button
+                                type="submit"
+                                className="icon-btn"
+                                disabled={!input.trim() || isRecording || isLoading}
+                                style={{ backgroundColor: !input.trim() || isRecording || isLoading ? '' : 'var(--primary)' }}
+                            >
+                                {isLoading ? <Loader2 className="animate-spin" /> : <Send size={20} />}
+                            </button>
+                        </form>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
+
+export default App;
