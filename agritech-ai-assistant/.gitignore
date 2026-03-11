@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Build outputs
+dist/
+frontend/dist/
+
+# Environment variables — never commit real secrets
+.env
+frontend/.env
+
+# Uploads (user audio files)
+uploads/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+*.log

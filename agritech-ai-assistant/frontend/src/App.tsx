@@ -13,7 +13,7 @@ function DashboardLayout() {
     const location = useLocation();
 
     return (
-        <div className="relative flex flex-col min-h-screen bg-background-light">
+        <div className="relative flex flex-col h-screen bg-background-light overflow-hidden">
             {/* Desktop Top Navbar — hidden on mobile */}
             <header className="hidden lg:flex items-center justify-between border-b border-primary/10 bg-white/80 backdrop-blur-md sticky top-0 z-50 px-8 xl:px-20 py-4">
                 <NavLink to="/" className="flex items-center gap-3 text-primary">
@@ -56,7 +56,7 @@ function DashboardLayout() {
             )}
 
             {/* Main content */}
-            <div className="flex-1 flex flex-col pb-20 lg:pb-0">
+            <div className="flex-1 min-h-0 flex flex-col pb-20 lg:pb-0 overflow-y-auto">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={location.pathname}
@@ -64,7 +64,7 @@ function DashboardLayout() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -8 }}
                         transition={{ duration: 0.2 }}
-                        className="flex-1 flex flex-col"
+                        className="flex-1 min-h-0 flex flex-col"
                     >
                         <Routes location={location}>
                             <Route path="/dashboard" element={<Home />} />

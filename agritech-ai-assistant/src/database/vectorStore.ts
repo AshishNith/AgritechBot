@@ -12,7 +12,7 @@ export async function initializeVectorStore() {
     try {
         const embeddings = new GoogleGenerativeAIEmbeddings({
             apiKey: process.env.GEMINI_API_KEY,
-            model: "text-embedding-004",
+            model: "gemini-embedding-exp-03-07",
         });
 
         // Use in-memory Chroma setup if possible, or remote. 

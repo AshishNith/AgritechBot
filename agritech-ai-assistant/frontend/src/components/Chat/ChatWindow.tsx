@@ -5,7 +5,8 @@ import MessageBubble from './MessageBubble';
 export interface ChatMessage {
     role: 'user' | 'assistant';
     message: string;
-    audio?: string;
+    audio?: string;      // base64 from backend
+    audioUrl?: string;  // static file URL
     inputType?: 'text' | 'voice';
 }
 
@@ -22,7 +23,7 @@ export default function ChatWindow({ messages, isLoading }: ChatWindowProps) {
     }, [messages, isLoading]);
 
     return (
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="p-4 space-y-4 min-h-full flex flex-col">
             {messages.length === 0 && (
                 <div className="flex flex-col items-center justify-center h-full text-center py-20">
                     <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
@@ -42,6 +43,7 @@ export default function ChatWindow({ messages, isLoading }: ChatWindowProps) {
                         role={msg.role}
                         message={msg.message}
                         audio={msg.audio}
+                        audioUrl={msg.audioUrl}
                         inputType={msg.inputType}
                     />
                 ))}

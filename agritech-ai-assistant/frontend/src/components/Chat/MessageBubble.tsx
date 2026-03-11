@@ -8,10 +8,11 @@ interface MessageBubbleProps {
     message: string;
     isTyping?: boolean;
     audio?: string;
+    audioUrl?: string;
     inputType?: 'text' | 'voice';
 }
 
-export default function MessageBubble({ role, message, isTyping, audio, inputType }: MessageBubbleProps) {
+export default function MessageBubble({ role, message, isTyping, audio, audioUrl, inputType }: MessageBubbleProps) {
     const isUser = role === 'user';
 
     return (
@@ -48,13 +49,13 @@ export default function MessageBubble({ role, message, isTyping, audio, inputTyp
                 )}
 
                 {/* Audio player for AI responses */}
-                {audio && !isUser && (
+                {(audio || audioUrl) && !isUser && (
                     <div className="mt-2">
                         <audio
                             controls
-                            autoPlay
+                            autoPlay={!!audio}  // only autoPlay base64 responses (user already interacted)
                             className="w-full h-8 [&::-webkit-media-controls-panel]:bg-primary/5"
-                            src={`data:audio/wav;base64,${audio}`}
+                            src={audioUrl ?? `data:audio/wav;base64,${audio}`}
                         />
                     </div>
                 )}
