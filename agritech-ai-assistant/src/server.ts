@@ -11,14 +11,19 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',')
-    : ['http://localhost:5173'];
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+    : ['http://localhost:5173', 'http://127.0.0.1:5173'];
 
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (curl, Render health checks, etc.)
         if (!origin) return callback(null, true);
         if (allowedOrigins.includes(origin)) return callback(null, true);
+        // During local dev, a more permissive fallback if origin doesn't match exact strings 
+        // string matching is strict. Let's allow localhost / 127.0.0.1 dynamically if needed
+        if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
+            return callback(null, true); 
+        }
         callback(new Error(`CORS blocked: ${origin}`));
     },
     credentials: true,
