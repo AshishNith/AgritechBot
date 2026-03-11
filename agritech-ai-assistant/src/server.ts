@@ -10,21 +10,23 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-    : ['http://localhost:5173', 'http://127.0.0.1:5173'];
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://agritech-bot.vercel.app'
+];
 
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests with no origin (curl, Render health checks, etc.)
+        // Allow requests with no origin (like mobile apps, curl, or Render health checks)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) return callback(null, true);
-        // During local dev, a more permissive fallback if origin doesn't match exact strings 
-        // string matching is strict. Let's allow localhost / 127.0.0.1 dynamically if needed
-        if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
-            return callback(null, true); 
+        
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
         }
-        callback(new Error(`CORS blocked: ${origin}`));
+
+        console.warn(`CORS blocked request from origin: ${origin}`);
+        callback(null, false); // Block other origins gracefully
     },
     credentials: true,
 }));
@@ -39,7 +41,7 @@ app.get('/health', (req, res) => {
 });
 
 async function startServer() {
-    try {
+    try {   
         console.log('Initializing Vector Store for RAG...');
         await initializeVectorStore();
         
