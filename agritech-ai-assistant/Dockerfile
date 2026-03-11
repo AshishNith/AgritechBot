@@ -10,7 +10,7 @@ COPY src ./src
 RUN npm run build
 
 # Prune dev dependencies after build
-RUN npm prune --omit=dev
+RUN npm prune --omit=dev --legacy-peer-deps
 
 # Remove source artifacts
 RUN rm -rf src tsconfig.json
