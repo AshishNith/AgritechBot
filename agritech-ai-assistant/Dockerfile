@@ -4,9 +4,7 @@ WORKDIR /app
 
 # Install ALL dependencies (including devDeps for tsc)
 COPY package*.json ./
-RUN npm install
-
-# Copy source and compile TypeScript
+RUN npm install --legacy-peer-deps
 COPY tsconfig.json ./
 COPY src ./src
 RUN npm run build
