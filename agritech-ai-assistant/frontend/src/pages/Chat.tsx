@@ -109,7 +109,7 @@ export default function Chat() {
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute inset-0 flex flex-col"
+            className="flex-1 relative flex flex-col w-full h-full"
         >
             {/* Hidden audio element for the welcome message — played via ref on user click */}
             <audio ref={welcomeAudioRef} src="/InitialAudio.wav" preload="auto" />
