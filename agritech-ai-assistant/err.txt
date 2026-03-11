@@ -1,0 +1,5 @@
+﻿src/services/llmRouter.ts(17,19): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(model: string, fields?: Omit<GoogleGenerativeAIChatInput, "model"> | undefined): ChatGoogleGenerativeAI', gave the following error.
+    Argument of type '{ modelName: string; temperature: number; apiKey: string | undefined; }' is not assignable to parameter of type 'string'.
+  Overload 2 of 2, '(fields: GoogleGenerativeAIChatInput): ChatGoogleGenerativeAI', gave the following error.
+    Object literal may only specify known properties, and 'modelName' does not exist in type 'GoogleGenerativeAIChatInput'.

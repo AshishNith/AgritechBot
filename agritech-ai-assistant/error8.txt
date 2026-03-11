@@ -1,0 +1,11 @@
+﻿src/database/vectorStore.ts(2,24): error TS2307: Cannot find module '@langchain/community/vectorstores/chroma' or its corresponding type declarations.
+src/database/vectorStore.ts(3,34): error TS2307: Cannot find module '@langchain/openai' or its corresponding type declarations.
+src/database/vectorStore.ts(4,26): error TS2307: Cannot find module '@langchain/core/documents' or its corresponding type declarations.
+src/database/vectorStore.ts(80,28): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/server.ts(3,20): error TS2307: Cannot find module 'dotenv' or its corresponding type declarations.
+src/services/llmRouter.ts(1,28): error TS2307: Cannot find module '@langchain/openai' or its corresponding type declarations.
+src/services/llmRouter.ts(2,40): error TS2307: Cannot find module '@langchain/google-genai' or its corresponding type declarations.
+src/services/llmRouter.ts(4,32): error TS2307: Cannot find module '@langchain/core/prompts' or its corresponding type declarations.
+src/services/sarvamSTT.ts(1,19): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
+src/services/sarvamSTT.ts(3,22): error TS2307: Cannot find module 'form-data' or its corresponding type declarations.
+src/services/sarvamTTS.ts(1,19): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
