@@ -4,7 +4,7 @@ services:
     runtime: node
     region: singapore
     plan: free
-    rootDir: .
+    rootDir: agritech-ai-assistant
     buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
