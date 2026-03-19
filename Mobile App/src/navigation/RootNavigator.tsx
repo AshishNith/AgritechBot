@@ -1,0 +1,101 @@
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useColorScheme } from 'react-native';
+
+import { AnaajTabBar } from '../components/ui';
+import { theme } from '../constants/theme';
+import { MainTabParamList, RootStackParamList } from './types';
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<MainTabParamList>();
+
+function MainTabs() {
+  return (
+    <Tab.Navigator
+      initialRouteName="HomeTab"
+      screenOptions={{
+        headerShown: false,
+        lazy: true,
+      }}
+      tabBar={(props) => <AnaajTabBar {...props} />}
+    >
+      <Tab.Screen
+        name="HomeTab"
+        options={{ title: 'Home' }}
+        getComponent={() => require('../screens/HomeScreen').HomeScreen}
+      />
+      <Tab.Screen
+        name="ChatTab"
+        options={{ title: 'Chat' }}
+        getComponent={() => require('../screens/ChatScreen').ChatScreen}
+      />
+      <Tab.Screen
+        name="MarketplaceTab"
+        options={{ title: 'Marketplace' }}
+        getComponent={() => require('../screens/MarketplaceScreen').MarketplaceScreen}
+      />
+      <Tab.Screen
+        name="HistoryTab"
+        options={{ title: 'History' }}
+        getComponent={() => require('../screens/HistoryScreen').HistoryScreen}
+      />
+      <Tab.Screen
+        name="ProfileTab"
+        options={{ title: 'Profile' }}
+        getComponent={() => require('../screens/ProfileScreen').ProfileScreen}
+      />
+    </Tab.Navigator>
+  );
+}
+
+export function RootNavigator() {
+  const scheme = useColorScheme();
+  const isDark = scheme === 'dark';
+
+  return (
+    <NavigationContainer
+      theme={{
+        ...(isDark ? DarkTheme : DefaultTheme),
+        colors: {
+          ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
+          background: isDark ? theme.colors.backgroundDark : theme.colors.background,
+          primary: theme.colors.primary,
+          card: isDark ? '#18221c' : theme.colors.surface,
+          text: isDark ? theme.colors.textOnDark : theme.colors.text,
+          border: isDark ? 'rgba(255,255,255,0.08)' : theme.colors.border,
+        },
+      }}
+    >
+      <Stack.Navigator
+        initialRouteName="Splash"
+        screenOptions={{
+          headerShown: false,
+          animation: 'fade',
+          contentStyle: { backgroundColor: isDark ? theme.colors.backgroundDark : theme.colors.background },
+        }}
+      >
+        <Stack.Screen name="Splash" getComponent={() => require('../screens/SplashScreen').SplashScreen} />
+        <Stack.Screen name="LanguageOnboarding" getComponent={() => require('../screens/LanguageOnboardingScreen').LanguageOnboardingScreen} />
+        <Stack.Screen name="VoiceIntro" getComponent={() => require('../screens/VoiceIntroScreen').VoiceIntroScreen} />
+        <Stack.Screen name="CropIntro" getComponent={() => require('../screens/CropIntroScreen').CropIntroScreen} />
+        <Stack.Screen name="Login" getComponent={() => require('../screens/LoginScreen').LoginScreen} />
+        <Stack.Screen name="Otp" getComponent={() => require('../screens/OtpScreen').OtpScreen} />
+        <Stack.Screen name="ProfileSetup" getComponent={() => require('../screens/ProfileSetupScreen').ProfileSetupScreen} />
+        <Stack.Screen name="ProfileCompletion" getComponent={() => require('../screens/ProfileSetupScreen').ProfileSetupScreen} />
+        <Stack.Screen name="ProfileComplete" getComponent={() => require('../screens/ProfileSetupScreen').ProfileSetupScreen} />
+        <Stack.Screen name="MainTabs" component={MainTabs} />
+        <Stack.Screen name="Marketplace" getComponent={() => require('../screens/MarketplaceScreen').MarketplaceScreen} />
+        <Stack.Screen name="ProductDetail" getComponent={() => require('../screens/ProductDetailScreen').ProductDetailScreen} />
+        <Stack.Screen name="Cart" getComponent={() => require('../screens/CartScreen').CartScreen} />
+        <Stack.Screen name="Checkout" getComponent={() => require('../screens/CheckoutScreen').CheckoutScreen} />
+        <Stack.Screen name="OrderSuccess" getComponent={() => require('../screens/OrderSuccessScreen').OrderSuccessScreen} />
+        <Stack.Screen name="OrderHistory" getComponent={() => require('../screens/OrderHistoryScreen').OrderHistoryScreen} />
+        <Stack.Screen name="Subscription" getComponent={() => require('../screens/SubscriptionScreen').SubscriptionScreen} />
+        <Stack.Screen name="Voice" getComponent={() => require('../screens/VoiceScreen').VoiceScreen} />
+        <Stack.Screen name="ImageScan" getComponent={() => require('../screens/ImageScanScreen').ImageScanScreen} />
+        <Stack.Screen name="Notifications" getComponent={() => require('../screens/NotificationScreen').NotificationScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}

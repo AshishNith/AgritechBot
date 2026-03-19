@@ -1,0 +1,17 @@
+[
+  {
+    "crop": "wheat",
+    "topic": "nitrogen_split",
+    "guidance": "Apply nitrogen in splits instead of one heavy dose."
+  },
+  {
+    "crop": "rice",
+    "topic": "potassium_role",
+    "guidance": "Adequate potassium improves stress tolerance and stem strength."
+  },
+  {
+    "crop": "cotton",
+    "topic": "balanced_npk",
+    "guidance": "Balanced NPK with micronutrients supports better boll development."
+  }
+]

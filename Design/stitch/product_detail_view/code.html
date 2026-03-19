@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#52b781",
+                        "background-light": "#f6f7f7",
+                        "background-dark": "#151d19",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Header -->
+<div class="fixed top-0 z-50 flex w-full items-center justify-between bg-background-dark/80 backdrop-blur-md p-4">
+<div class="flex size-10 items-center justify-center rounded-full bg-primary/20 text-primary">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-tight text-slate-100">Product Details</h2>
+<div class="flex size-10 items-center justify-end">
+<button class="flex items-center justify-center rounded-full bg-primary/20 p-2 text-primary">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</div>
+<!-- Hero Image -->
+<div class="w-full pt-16">
+<div class="px-0 sm:px-4">
+<div class="relative aspect-[4/5] w-full bg-cover bg-center sm:rounded-xl shadow-2xl" data-alt="Professional bottle of liquid organic fertilizer in green field" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCgaMhDOMWbkUgMd3_Y8lbz_n2tbIFBQJoVZetPo2ZO6MNiivTzXd2lJ8zejVuAnAw2qbkC9gvJGjtuL2oJhq52YLkdc8DvXV7zMe-fe4WOZ61jE7frROJ9UlkT_RDMfGQyyj4bA9vjarLWjRmNPs-3_p0piH7SiMJDOci-w8pdY6hyq6FnqXwWOmasy9YHTndJNS8V6R9XALzdOcmi_e4_4BcqcxWVkQs2GdzkflvexkI5mToPpRqr8Zpa0VtP08wTnpXtbbkgCEuC");'>
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent"></div>
+<div class="absolute bottom-6 left-6 right-6">
+<span class="inline-block px-3 py-1 rounded-full bg-primary text-background-dark text-xs font-bold uppercase tracking-wider mb-2">Organic Certified</span>
+<h1 class="text-3xl font-bold text-white">Premium Crop Booster</h1>
+<p class="text-primary font-medium text-lg mt-1">₹850.00 <span class="text-slate-400 text-sm line-through ml-2">₹1,200</span></p>
+</div>
+</div>
+</div>
+</div>
+<!-- Language Selector -->
+<div class="flex gap-3 px-4 py-6 overflow-x-auto no-scrollbar">
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full bg-primary px-6 text-background-dark font-semibold">
+<span class="material-symbols-outlined text-sm">translate</span>
+<span>English</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full bg-primary/10 border border-primary/20 px-6 text-primary font-medium">
+<span>हिंदी</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full bg-primary/10 border border-primary/20 px-6 text-primary font-medium">
+<span>తెలుగు</span>
+</button>
+</div>
+<!-- Stats -->
+<div class="grid grid-cols-2 gap-4 px-4 pb-6">
+<div class="flex flex-col gap-1 rounded-xl border border-primary/20 bg-primary/5 p-4">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">star</span>
+<p class="text-2xl font-bold leading-tight text-slate-100">4.8</p>
+</div>
+<p class="text-slate-400 text-sm">Rating (2.4k reviews)</p>
+</div>
+<div class="flex flex-col gap-1 rounded-xl border border-primary/20 bg-primary/5 p-4">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">local_shipping</span>
+<p class="text-2xl font-bold leading-tight text-slate-100">5k+</p>
+</div>
+<p class="text-slate-400 text-sm">Farmers using this</p>
+</div>
+</div>
+<!-- Product Description -->
+<div class="px-4 pb-8">
+<h3 class="text-xl font-bold mb-3 text-primary">What it does</h3>
+<p class="text-slate-300 leading-relaxed">
+                Specifically designed for Indian soil, this booster helps your crops grow stronger roots and greener leaves. It protects against common soil diseases and ensures your harvest is healthy and chemical-free.
+            </p>
+</div>
+<!-- Benefits Grid -->
+<div class="px-4 pb-8">
+<h3 class="text-xl font-bold mb-4 text-primary">Key Benefits</h3>
+<div class="space-y-4">
+<div class="flex items-start gap-4 rounded-xl bg-slate-800/50 p-4 border border-slate-700">
+<div class="bg-primary/20 p-2 rounded-lg text-primary">
+<span class="material-symbols-outlined">eco</span>
+</div>
+<div>
+<h4 class="font-bold text-slate-100">30% Better Yield</h4>
+<p class="text-sm text-slate-400">Noticeable growth in fruit size and quality within 14 days.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 rounded-xl bg-slate-800/50 p-4 border border-slate-700">
+<div class="bg-primary/20 p-2 rounded-lg text-primary">
+<span class="material-symbols-outlined">water_drop</span>
+</div>
+<div>
+<h4 class="font-bold text-slate-100">Saves Water</h4>
+<p class="text-sm text-slate-400">Helps soil retain moisture for longer during dry spells.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 rounded-xl bg-slate-800/50 p-4 border border-slate-700">
+<div class="bg-primary/20 p-2 rounded-lg text-primary">
+<span class="material-symbols-outlined">shield</span>
+</div>
+<div>
+<h4 class="font-bold text-slate-100">Pest Resistance</h4>
+<p class="text-sm text-slate-400">Naturally strengthens plant immunity against pests.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Usage Instructions -->
+<div class="px-4 pb-24">
+<h3 class="text-xl font-bold mb-4 text-primary">How to use</h3>
+<div class="relative space-y-8 before:absolute before:inset-0 before:ml-5 before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-primary before:via-primary/50 before:to-transparent">
+<div class="relative flex items-center gap-6">
+<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-background-dark font-bold shadow-lg shadow-primary/20">1</div>
+<div>
+<h4 class="font-bold text-slate-100">Mix</h4>
+<p class="text-sm text-slate-400">Add 50ml of booster to 15 liters of water (one sprayer tank).</p>
+</div>
+</div>
+<div class="relative flex items-center gap-6">
+<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-background-dark font-bold shadow-lg shadow-primary/20">2</div>
+<div>
+<h4 class="font-bold text-slate-100">Spray</h4>
+<p class="text-sm text-slate-400">Apply early morning or late evening on the leaves and soil.</p>
+</div>
+</div>
+<div class="relative flex items-center gap-6">
+<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-background-dark font-bold shadow-lg shadow-primary/20">3</div>
+<div>
+<h4 class="font-bold text-slate-100">Repeat</h4>
+<p class="text-sm text-slate-400">Repeat every 15 days during the growth stage of the crop.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Action Bar -->
+<div class="fixed bottom-0 z-50 w-full bg-background-dark/90 backdrop-blur-lg border-t border-primary/10 p-4 flex gap-4">
+<button class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border-2 border-primary/30 text-primary">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+<button class="flex h-14 flex-1 items-center justify-center rounded-xl bg-primary text-background-dark font-bold text-lg shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all">
+                Buy Now
+            </button>
+</div>
+</div>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</body></html>

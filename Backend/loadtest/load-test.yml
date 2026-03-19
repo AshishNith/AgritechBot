@@ -1,0 +1,164 @@
+config:
+  target: "http://localhost:4000"
+  phases:
+    # Warm-up: ramp from 0 to 100 users over 30 seconds
+    - duration: 30
+      arrivalRate: 5
+      rampTo: 100
+      name: "Warm-up phase"
+
+    # Sustained load: 500 concurrent users for 2 minutes
+    - duration: 120
+      arrivalRate: 500
+      name: "Sustained load"
+
+    # Spike test: burst to 2000 users/sec for 30 seconds
+    - duration: 30
+      arrivalRate: 2000
+      name: "Spike test"
+
+    # Peak test: 10000 users/sec for 60 seconds
+    - duration: 60
+      arrivalRate: 10000
+      name: "Peak load — 10k users"
+
+    # Cool-down
+    - duration: 30
+      arrivalRate: 100
+      rampTo: 5
+      name: "Cool-down"
+
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+  plugins:
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+
+  # Generate per-second stats
+  statsInterval: 10
+
+  # Timeout settings
+  timeout: 30
+  http:
+    pool: 256 # Keep-alive connection pool per target
+
+  variables:
+    authToken:
+      - ""
+
+  processor: "./helpers.js"
+
+scenarios:
+  # ── Health Check (lightweight, high throughput) ──
+  - name: "Health Check"
+    weight: 20
+    flow:
+      - get:
+          url: "/health"
+          capture:
+            - json: "$.status"
+              as: "healthStatus"
+          expect:
+            - statusCode: 200
+
+  # ── Auth Flow ──
+  - name: "OTP Login Flow"
+    weight: 10
+    flow:
+      - post:
+          url: "/api/auth/send-otp"
+          json:
+            phone: "{{ $randomNumber(9000000000, 9999999999) }}"
+          capture:
+            - json: "$.message"
+              as: "otpMessage"
+          expect:
+            - statusCode: 200
+
+  # ── Chat Ask (core AI flow) ──
+  - name: "Chat Ask — Hindi"
+    weight: 25
+    flow:
+      - function: "generateAuthToken"
+      - post:
+          url: "/api/chat/ask"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            message: "{{ $randomString() }} मेरी गेहूं की फसल में पीलापन आ रहा है, क्या करूं?"
+            language: "Hindi"
+          expect:
+            - statusCode:
+                - 200
+                - 504
+          capture:
+            - json: "$.chatId"
+              as: "chatId"
+
+  - name: "Chat Ask — English"
+    weight: 15
+    flow:
+      - function: "generateAuthToken"
+      - post:
+          url: "/api/chat/ask"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            message: "What is the best fertilizer for rice in {{ $randomString() }} season?"
+            language: "English"
+          expect:
+            - statusCode:
+                - 200
+                - 504
+
+  # ── Chat Ask (cache hit scenario — same query repeated) ──
+  - name: "Chat Ask — Cache Hit"
+    weight: 10
+    flow:
+      - function: "generateAuthToken"
+      - post:
+          url: "/api/chat/ask"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            message: "मेरी गेहूं की फसल में पीलापन आ रहा है, क्या करूं?"
+            language: "Hindi"
+          expect:
+            - statusCode:
+                - 200
+                - 504
+
+  # ── Chat History ──
+  - name: "Chat History"
+    weight: 5
+    flow:
+      - function: "generateAuthToken"
+      - get:
+          url: "/api/chat/history?page=1&limit=20"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+
+  # ── Marketplace Products ──
+  - name: "Browse Products"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/products?page=1&limit=20"
+          expect:
+            - statusCode: 200
+
+  # ── User Profile ──
+  - name: "Get Profile"
+    weight: 5
+    flow:
+      - function: "generateAuthToken"
+      - get:
+          url: "/api/user/profile"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200

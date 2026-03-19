@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#52b781",
+                        "background-light": "#f6f7f7",
+                        "background-dark": "#151d19",
+                        "neutral-light": "#a0baad",
+                        "neutral-dark": "#202c26",
+                        "border-muted": "#40594c"
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .bg-soft-gradient {
+            background: radial-gradient(circle at 10% 20%, rgba(82, 183, 129, 0.15) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(82, 183, 129, 0.1) 0%, transparent 40%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-display bg-soft-gradient">
+<!-- Top Navigation Bar -->
+<header class="flex items-center px-4 py-4 justify-between sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h2 class="text-lg font-bold leading-tight flex-1 text-center">प्रोफ़ाइल पूरा करें</h2>
+<div class="size-10"></div> <!-- Spacer for balance -->
+</header>
+<main class="flex-1 flex flex-col max-w-md mx-auto w-full px-4 pb-12">
+<!-- Progress Indicator -->
+<div class="flex flex-col gap-3 py-4">
+<div class="flex justify-between items-end">
+<div>
+<p class="text-primary font-medium text-sm">प्रगति (Progress)</p>
+<p class="text-2xl font-bold">फसल विवरण</p>
+</div>
+<p class="text-slate-500 dark:text-neutral-light text-sm font-medium">3/4</p>
+</div>
+<div class="h-2 w-full rounded-full bg-slate-200 dark:bg-border-muted overflow-hidden">
+<div class="h-full rounded-full bg-primary transition-all duration-500" style="width: 75%;"></div>
+</div>
+</div>
+<!-- Section Title & Localization -->
+<div class="py-6 text-center">
+<h1 class="text-3xl font-bold leading-tight mb-2">आप कौन सी फसलें उगाते हैं?</h1>
+<p class="text-slate-500 dark:text-neutral-light text-sm">
+                ਤੁਸੀਂ ਕਿਹੜੀਆਂ ਫਸਲਾਂ ਉਗਾਉਂਦੇ ਹੋ? | તમે કયા પાક ઉગાડો છો?
+            </p>
+</div>
+<!-- Step Content: Crops Selection (Progressive Disclosure Example) -->
+<div class="grid grid-cols-2 gap-4 pt-4">
+<!-- Crop Card 1 (Selected) -->
+<button class="relative flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-primary bg-primary/10 transition-all">
+<div class="absolute top-2 right-2 text-primary">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+</div>
+<div class="size-16 rounded-full bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl text-primary">agriculture</span>
+</div>
+<div class="text-center">
+<p class="font-bold">गेहूं (Wheat)</p>
+<p class="text-xs text-neutral-light">ਕਣਕ | ઘઉં</p>
+</div>
+</button>
+<!-- Crop Card 2 -->
+<button class="flex flex-col items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-border-muted bg-white dark:bg-neutral-dark hover:border-primary/50 transition-all">
+<div class="size-16 rounded-full bg-slate-100 dark:bg-border-muted flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl text-slate-400 dark:text-neutral-light">eco</span>
+</div>
+<div class="text-center">
+<p class="font-bold">चावल (Rice)</p>
+<p class="text-xs text-neutral-light">ਚੌਲ | ચોખા</p>
+</div>
+</button>
+<!-- Crop Card 3 -->
+<button class="flex flex-col items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-border-muted bg-white dark:bg-neutral-dark hover:border-primary/50 transition-all">
+<div class="size-16 rounded-full bg-slate-100 dark:border-muted flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl text-slate-400 dark:text-neutral-light">grass</span>
+</div>
+<div class="text-center">
+<p class="font-bold">कपास (Cotton)</p>
+<p class="text-xs text-neutral-light">ਕਪਾਹ | કપાસ</p>
+</div>
+</button>
+<!-- Crop Card 4 -->
+<button class="flex flex-col items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-border-muted bg-white dark:bg-neutral-dark hover:border-primary/50 transition-all">
+<div class="size-16 rounded-full bg-slate-100 dark:border-muted flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl text-slate-400 dark:text-neutral-light">local_florist</span>
+</div>
+<div class="text-center">
+<p class="font-bold">सरसों (Mustard)</p>
+<p class="text-xs text-neutral-light">ਸਰ੍ਹੋਂ | સરસવ</p>
+</div>
+</button>
+</div>
+<!-- Land Size Input (Revealed contextually) -->
+<div class="mt-8 p-6 rounded-xl bg-primary/5 border border-primary/20">
+<label class="block mb-4">
+<span class="block text-sm font-medium mb-2">अपनी भूमि का आकार चुनें (Land Size)</span>
+<div class="flex gap-4 items-center">
+<input class="w-full bg-white dark:bg-neutral-dark border-slate-200 dark:border-border-muted rounded-lg h-14 px-4 text-lg focus:ring-primary focus:border-primary" placeholder="0.0" type="number"/>
+<select class="bg-white dark:bg-neutral-dark border-slate-200 dark:border-border-muted rounded-lg h-14 px-4 focus:ring-primary focus:border-primary">
+<option>Acre (एकड़)</option>
+<option>Bigha (बीघा)</option>
+<option>Hectare (हेक्टेयर)</option>
+</select>
+</div>
+</label>
+</div>
+<!-- Location Preview (Quick feedback) -->
+<div class="mt-6 flex items-center gap-4 p-4 rounded-xl bg-slate-100 dark:bg-neutral-dark/50 border border-slate-200 dark:border-border-muted">
+<div class="size-12 rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Simplified local farm map illustration" data-location="Punjab, India" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBV2P9yLxFzHr_moAxsUnb1iqqbIt0kxCvAb5QO3ldKpCE2nNW-GMoppRGzfYNwoHu4pEHVxjczO5mhEWc-SUeA4_eOgkwJ3gYjWr6z5Py6dxC9LJP4IQO9PmoqZEJHDq250q7IPRsPpFhoEBf7BMHGbsE8yZP8U1tnGkyXxdQWxpdPWAFJamPSD10eSz-0CQFOVxZ9f6EoWSCA0teKuFV2jHH5lglbrEn4pt3SSmSQiDlVJcZKayI2lpTFN30sirdnwvPy_WabLnj5"/>
+</div>
+<div class="flex-1">
+<p class="text-xs text-slate-500 dark:text-neutral-light uppercase tracking-wider font-bold">स्थान (Location)</p>
+<p class="text-sm font-medium">बठिंडा, पंजाब (Bathinda, Punjab)</p>
+</div>
+<button class="text-primary text-sm font-bold">बदलें (Edit)</button>
+</div>
+<!-- Sticky Bottom Action -->
+<div class="mt-auto pt-10">
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-5 rounded-xl text-lg flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-transform active:scale-[0.98]">
+                अगला कदम (Next Step)
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="w-full mt-4 py-2 text-slate-500 dark:text-neutral-light text-sm font-medium">बाद में पूरा करें (Complete Later)</button>
+</div>
+</main>
+</body></html>

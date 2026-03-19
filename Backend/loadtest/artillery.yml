@@ -1,0 +1,153 @@
+config:
+  target: "http://localhost:4000"
+  phases:
+    # Warm-up: ramp from 0 to 50 users over 30 seconds
+    - duration: 30
+      arrivalRate: 5
+      rampTo: 50
+      name: "Warm-up"
+    # Load: sustain 200 users/sec for 2 minutes
+    - duration: 120
+      arrivalRate: 200
+      name: "Sustained load"
+    # Spike: ramp to 500 users/sec for 1 minute (simulating 10k concurrent)
+    - duration: 60
+      arrivalRate: 500
+      name: "Spike test"
+    # Peak: 800 users/sec for 30 seconds
+    - duration: 30
+      arrivalRate: 800
+      name: "Peak load"
+    # Cool-down
+    - duration: 30
+      arrivalRate: 50
+      name: "Cool-down"
+
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+  plugins:
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+
+  ensure:
+    thresholds:
+      - http.response_time.p95: 3000    # p95 < 3 seconds
+      - http.response_time.p99: 5000    # p99 < 5 seconds
+      - http.codes.2xx: 95              # 95% success rate minimum
+
+  variables:
+    testPhone: "+919876543210"
+
+scenarios:
+  # ── Auth flow (30% of traffic) ──
+  - name: "Auth: OTP Login Flow"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/auth/send-otp"
+          json:
+            phone: "{{ testPhone }}"
+          capture:
+            - json: "$.otp"
+              as: "otp"
+          expect:
+            - statusCode: 200
+      - think: 1
+      - post:
+          url: "/api/auth/verify-otp"
+          json:
+            phone: "{{ testPhone }}"
+            otp: "{{ otp }}"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+          expect:
+            - statusCode: 200
+
+  # ── Chat flow (40% of traffic — heaviest) ──
+  - name: "Chat: AI Question"
+    weight: 40
+    flow:
+      # Login first
+      - post:
+          url: "/api/auth/send-otp"
+          json:
+            phone: "+91{{ $randomNumber(7000000000, 9999999999) }}"
+          capture:
+            - json: "$.otp"
+              as: "otp"
+            - json: "$.message"
+              as: "_"
+      - function: "setPhone"
+      - post:
+          url: "/api/auth/verify-otp"
+          json:
+            phone: "{{ phone }}"
+            otp: "{{ otp }}"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      # Ask questions
+      - post:
+          url: "/api/chat/ask"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            message: "{{ $randomItem('मेरी गेहूं की फसल में पीलापन आ रहा है', 'Cotton pest control methods', 'धान की बुवाई कब करें', 'What fertilizer for tomato', 'मक्के में कीड़ा लगा है क्या करें') }}"
+            language: "auto"
+          expect:
+            - statusCode:
+                - 200
+                - 504
+      - think: 2
+      # Ask a repeated question (should hit cache)
+      - post:
+          url: "/api/chat/ask"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            message: "मेरी गेहूं की फसल में पीलापन आ रहा है"
+            language: "Hindi"
+          expect:
+            - statusCode:
+                - 200
+                - 504
+      # Get history
+      - get:
+          url: "/api/chat/history"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+
+  # ── Marketplace flow (20% of traffic) ──
+  - name: "Marketplace: Browse & Order"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/products?page=1&limit=10"
+          expect:
+            - statusCode: 200
+          capture:
+            - json: "$.products[0]._id"
+              as: "productId"
+      - think: 1
+      - get:
+          url: "/api/products/{{ productId }}"
+          ifTrue: "productId"
+          expect:
+            - statusCode:
+                - 200
+                - 404
+
+  # ── Health check (10% of traffic) ──
+  - name: "Health Check"
+    weight: 10
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+            - hasProperty: "status"

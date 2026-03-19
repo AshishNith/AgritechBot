@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#52b781",
+                        "background-light": "#f6f7f7",
+                        "background-dark": "#151d19",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-dot::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 8px;
+            height: 8px;
+            background-color: #52b781;
+            border-radius: 50%;
+            border: 2px solid #151d19;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+<div class="relative flex min-h-screen w-full max-w-md mx-auto flex-col bg-background-light dark:bg-background-dark overflow-x-hidden border-x border-slate-200 dark:border-slate-800">
+<!-- Header -->
+<header class="sticky top-0 z-20 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center p-4 justify-between">
+<button class="flex size-10 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-900 dark:text-slate-100">arrow_back</span>
+</button>
+<div class="flex flex-col items-center">
+<h1 class="text-lg font-bold leading-tight tracking-tight">Notifications</h1>
+<div class="flex gap-2 mt-0.5">
+<span class="text-[10px] font-bold uppercase tracking-wider text-primary">EN</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">ES</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">FR</span>
+</div>
+</div>
+<button class="flex size-10 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-900 dark:text-slate-100">settings</span>
+</button>
+</div>
+<!-- Tabs -->
+<div class="px-4 overflow-x-auto no-scrollbar">
+<div class="flex gap-6 whitespace-nowrap">
+<a class="flex flex-col items-center justify-center border-b-2 border-primary text-primary pb-3 pt-2" href="#">
+<p class="text-sm font-bold">Crop Alerts</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-500 dark:text-slate-400 pb-3 pt-2 hover:text-slate-900 dark:hover:text-slate-100" href="#">
+<p class="text-sm font-bold">Weather</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-500 dark:text-slate-400 pb-3 pt-2 hover:text-slate-900 dark:hover:text-slate-100" href="#">
+<p class="text-sm font-bold">AI Suggestions</p>
+</a>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 pb-24">
+<!-- Section: Today -->
+<div class="px-4 py-4">
+<h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">Today</h3>
+<div class="space-y-3">
+<!-- Alert Item 1 -->
+<div class="group relative flex items-start gap-4 p-4 rounded-xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/50 transition-all hover:border-primary/50">
+<div class="relative flex size-12 shrink-0 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400">
+<span class="material-symbols-outlined">pest_control</span>
+<div class="absolute -top-1 -right-1 flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+</div>
+</div>
+<div class="flex flex-col flex-1">
+<div class="flex justify-between items-start">
+<p class="text-sm font-bold text-slate-900 dark:text-slate-100">Pest Risk Detected</p>
+<span class="text-[11px] font-medium text-slate-500 dark:text-slate-400">2h ago</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">High probability of aphids in Sector B. Check your tomato plants immediately for signs of infestation.</p>
+<div class="flex gap-2 mt-3">
+<button class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg transition-transform active:scale-95">Take Action</button>
+<button class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-lg">Dismiss</button>
+</div>
+</div>
+</div>
+<!-- Alert Item 2 -->
+<div class="group flex items-start gap-4 p-4 rounded-xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/50 transition-all">
+<div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+<span class="material-symbols-outlined">water_drop</span>
+</div>
+<div class="flex flex-col flex-1">
+<div class="flex justify-between items-start">
+<p class="text-sm font-bold text-slate-900 dark:text-slate-100">Irrigation Update</p>
+<span class="text-[11px] font-medium text-slate-500 dark:text-slate-400">5h ago</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">Irrigation cycle completed for the North Vineyard. Soil moisture level is now at optimal 72%.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Section: Yesterday -->
+<div class="px-4 py-4">
+<h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">Yesterday</h3>
+<div class="space-y-3">
+<!-- Alert Item 3 -->
+<div class="group flex items-start gap-4 p-4 rounded-xl bg-slate-100/50 dark:bg-slate-900/30 border border-transparent opacity-80">
+<div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined">psychology</span>
+</div>
+<div class="flex flex-col flex-1">
+<div class="flex justify-between items-start">
+<p class="text-sm font-bold text-slate-900 dark:text-slate-100">AI Yield Insight</p>
+<span class="text-[11px] font-medium text-slate-500 dark:text-slate-400">1d ago</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">Based on current growth patterns, your corn yield is projected to increase by 12% compared to last season.</p>
+</div>
+</div>
+<!-- Alert Item 4 -->
+<div class="group flex items-start gap-4 p-4 rounded-xl bg-slate-100/50 dark:bg-slate-900/30 border border-transparent opacity-80">
+<div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400">
+<span class="material-symbols-outlined">thermostat</span>
+</div>
+<div class="flex flex-col flex-1">
+<div class="flex justify-between items-start">
+<p class="text-sm font-bold text-slate-900 dark:text-slate-100">Frost Warning</p>
+<span class="text-[11px] font-medium text-slate-500 dark:text-slate-400">1d ago</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">Temperature dropped below 4°C last night. System successfully activated heat lamps in Greenhouse 3.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Suggestion Card -->
+<div class="px-4 mt-4">
+<div class="relative overflow-hidden rounded-xl bg-primary/10 border border-primary/20 p-6">
+<div class="relative z-10">
+<h4 class="text-primary font-bold text-base mb-1">New AI Insights Available</h4>
+<p class="text-sm text-slate-600 dark:text-slate-400 mb-4">We've analyzed your soil data from the last 30 days. Ready to optimize your fertilizer mix?</p>
+<button class="w-full py-2.5 bg-primary text-white font-bold rounded-lg shadow-lg shadow-primary/20 hover:brightness-110">View Analysis</button>
+</div>
+<div class="absolute -right-8 -bottom-8 opacity-10">
+<span class="material-symbols-outlined text-9xl">auto_awesome</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md border-t border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-background-dark/90 backdrop-blur-lg px-4 pb-6 pt-2 z-30">
+<div class="flex items-center justify-between">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 dark:text-slate-400" href="#">
+<span class="material-symbols-outlined">home</span>
+<p class="text-[10px] font-bold">Home</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 dark:text-slate-400" href="#">
+<span class="material-symbols-outlined">potted_plant</span>
+<p class="text-[10px] font-bold">Crops</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary" href="#">
+<div class="relative flex h-8 items-center justify-center">
+<span class="material-symbols-outlined !text-[28px] fill-[1]">notifications</span>
+<div class="absolute top-0 right-0 h-2 w-2 rounded-full bg-primary border-2 border-white dark:border-background-dark"></div>
+</div>
+<p class="text-[10px] font-bold">Alerts</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 dark:text-slate-400" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<p class="text-[10px] font-bold">Profile</p>
+</a>
+</div>
+</nav>
+</div>
+</body></html>

@@ -1,0 +1,123 @@
+config:
+  target: "http://localhost:4000"
+  phases:
+    # Ramp from 0 to 500 over 2 minutes
+    - duration: 120
+      arrivalRate: 1
+      rampTo: 500
+      name: "Ramp to 500/sec"
+
+    # Hold at 500 for 1 minute
+    - duration: 60
+      arrivalRate: 500
+      name: "Sustained 500/sec"
+
+    # Ramp to 2000 over 1 minute
+    - duration: 60
+      arrivalRate: 500
+      rampTo: 2000
+      name: "Ramp to 2000/sec"
+
+    # Hold at 2000 for 1 minute
+    - duration: 60
+      arrivalRate: 2000
+      name: "Sustained 2000/sec"
+
+    # Ramp to 5000 over 1 minute
+    - duration: 60
+      arrivalRate: 2000
+      rampTo: 5000
+      name: "Ramp to 5000/sec"
+
+    # Hold at 5000 for 1 minute
+    - duration: 60
+      arrivalRate: 5000
+      name: "Sustained 5000/sec"
+
+    # Ramp to 10000 over 1 minute
+    - duration: 60
+      arrivalRate: 5000
+      rampTo: 10000
+      name: "Ramp to 10000/sec"
+
+    # Hold at 10000 for 2 minutes — the ultimate test
+    - duration: 120
+      arrivalRate: 10000
+      name: "Peak 10000/sec"
+
+    # Cool-down
+    - duration: 30
+      arrivalRate: 10000
+      rampTo: 10
+      name: "Cool-down"
+
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+  plugins:
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+
+  statsInterval: 5
+
+  http:
+    pool: 512
+    timeout: 30
+
+  processor: "./helpers.js"
+
+scenarios:
+  - name: "Health Check"
+    weight: 30
+    flow:
+      - get:
+          url: "/health"
+
+  - name: "Chat — Cached Query"
+    weight: 25
+    flow:
+      - function: "generateAuthToken"
+      - post:
+          url: "/api/chat/ask"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            message: "गेहूं में कौन सी खाद डालें?"
+            language: "Hindi"
+
+  - name: "Chat — Unique Query"
+    weight: 15
+    flow:
+      - function: "generateAuthToken"
+      - post:
+          url: "/api/chat/ask"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            message: "{{ $randomString() }} best crop for monsoon?"
+            language: "auto"
+
+  - name: "Products List"
+    weight: 15
+    flow:
+      - get:
+          url: "/api/products?page=1&limit=20"
+
+  - name: "Chat History"
+    weight: 10
+    flow:
+      - function: "generateAuthToken"
+      - get:
+          url: "/api/chat/history?page=1&limit=20"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+  - name: "Profile"
+    weight: 5
+    flow:
+      - function: "generateAuthToken"
+      - get:
+          url: "/api/user/profile"
+          headers:
+            Authorization: "Bearer {{ authToken }}"

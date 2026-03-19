@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>History - Crop Diagnostics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#52b781",
+                "background-light": "#f6f7f7",
+                "background-dark": "#151d19",
+              },
+              fontFamily: {
+                "display": ["Inter", "sans-serif"]
+              },
+              borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Header -->
+<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-primary/10">
+<div class="flex items-center p-4 justify-between">
+<div class="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-primary/20 cursor-pointer">
+<span class="material-symbols-outlined text-slate-900 dark:text-slate-100">menu</span>
+</div>
+<div class="text-center">
+<h1 class="text-lg font-bold leading-tight tracking-tight">History / इतिहास / تاریخ</h1>
+<p class="text-[10px] uppercase tracking-widest text-primary font-semibold">Your Scans</p>
+</div>
+<div class="flex size-10 items-center justify-end">
+<button class="flex items-center justify-center rounded-full size-10 hover:bg-slate-200 dark:hover:bg-primary/20">
+<span class="material-symbols-outlined text-slate-900 dark:text-slate-100">notifications</span>
+</button>
+</div>
+</div>
+<!-- Search Bar -->
+<div class="px-4 pb-4">
+<label class="flex flex-col w-full">
+<div class="flex w-full items-stretch rounded-xl h-12 bg-slate-200 dark:bg-primary/10 border border-transparent focus-within:border-primary/50 transition-all">
+<div class="flex items-center justify-center pl-4">
+<span class="material-symbols-outlined text-slate-500 dark:text-primary/60">search</span>
+</div>
+<input class="w-full bg-transparent border-none focus:ring-0 text-base placeholder:text-slate-500 dark:placeholder:text-primary/40 px-4 pl-2" placeholder="Search scans / खोजें / تلاش کریں"/>
+</div>
+</label>
+</div>
+<!-- Filters -->
+<div class="flex gap-3 px-4 pb-4 overflow-x-auto no-scrollbar">
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-primary text-white px-4 shadow-sm shadow-primary/20">
+<span class="text-sm font-medium">All Crops</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-slate-200 dark:bg-primary/10 border border-slate-300 dark:border-primary/20 px-4">
+<span class="text-sm font-medium">Wheat</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-slate-200 dark:bg-primary/10 border border-slate-300 dark:border-primary/20 px-4">
+<span class="text-sm font-medium">Tomato</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-slate-200 dark:bg-primary/10 border border-slate-300 dark:border-primary/20 px-4">
+<span class="text-sm font-medium">Rice</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</header>
+<!-- Content Area -->
+<main class="flex-1 overflow-y-auto px-4 py-2 space-y-4">
+<!-- Date Group -->
+<div>
+<p class="text-xs font-bold text-slate-500 dark:text-primary/60 uppercase tracking-widest mb-3 ml-1">Today / आज / آج</p>
+<div class="bg-white dark:bg-primary/5 rounded-xl overflow-hidden border border-slate-200 dark:border-primary/10">
+<!-- Item 1 -->
+<div class="flex items-center p-3 gap-4 hover:bg-slate-50 dark:hover:bg-primary/10 cursor-pointer transition-colors">
+<div class="size-16 rounded-lg bg-slate-100 dark:bg-primary/20 overflow-hidden shrink-0 border border-slate-200 dark:border-primary/10">
+<img class="w-full h-full object-cover" data-alt="Close up of diseased wheat leaves" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlm5lBo8zqdFANpZ3eB9SyNJFA8Po19mLXr8axUpE1D2peEJWcdm7n6D3ECYlhazZTNGgv3EUaAjIVR-bpatD8VGLVKiaOStgR0OTtX0LyuImP3pQxBZ2d9fApkZFXUpTIBKGnwpay-0h_8g0HQCQsHubUQW8WRYRu8FuDp3Zi8HHG5SU0Zljbuf4SFIxMV2xr9LqfKw-NKW6XeYmgRcNTs47MRJX1SYIGvWNxFFcr_quKE5fyIxk8BbMYydlFLhpCjlji5jv3G13-"/>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-base truncate">Yellow Rust (Puccinia)</h3>
+<p class="text-sm text-slate-600 dark:text-slate-400">Wheat • 10:45 AM</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="flex size-2 rounded-full bg-orange-500"></span>
+<span class="text-[10px] font-semibold text-orange-600 dark:text-orange-400 uppercase">Warning / चेतावनी / انتباہ</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+</div>
+<div class="h-px bg-slate-200 dark:bg-primary/10 mx-3"></div>
+<!-- Item 2 -->
+<div class="flex items-center p-3 gap-4 hover:bg-slate-50 dark:hover:bg-primary/10 cursor-pointer transition-colors">
+<div class="size-16 rounded-lg bg-slate-100 dark:bg-primary/20 overflow-hidden shrink-0 border border-slate-200 dark:border-primary/10">
+<img class="w-full h-full object-cover" data-alt="Healthy green tomato crop field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMPPCoQ_1WFQnQI1_XJx1mrDUp88Nl_h8Ywo0GkHwkNFKJUlI16ZO1WEXiuu3OkVWzrDQXMeT_p5cNeiAU-TpTdx7juche2oFxRxULWaa0d5_-NTeqzgXWQbXS8yR3kLEQq3vdjdiRtW_V7v91SIsJuSUTTuPlxAMrkrJFt-jEkUZota8qOLEODjP9inzcqDUWkhpkVjY4-Wu0R1we10VOwQhfSAfCUakuAAxkA92MbgfK0Zfh6aoKUO8BPMKqO5ynUPf_C7alZLUj"/>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-base truncate">Healthy Crop / स्वस्थ फसल</h3>
+<p class="text-sm text-slate-600 dark:text-slate-400">Tomato • 08:20 AM</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="flex size-2 rounded-full bg-primary"></span>
+<span class="text-[10px] font-semibold text-primary uppercase">Good / अच्छा / اچھا</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Date Group -->
+<div>
+<p class="text-xs font-bold text-slate-500 dark:text-primary/60 uppercase tracking-widest mb-3 ml-1">Yesterday / कल / کل</p>
+<div class="bg-white dark:bg-primary/5 rounded-xl overflow-hidden border border-slate-200 dark:border-primary/10">
+<!-- Item 3 -->
+<div class="flex items-center p-3 gap-4 hover:bg-slate-50 dark:hover:bg-primary/10 cursor-pointer transition-colors">
+<div class="size-16 rounded-lg bg-slate-100 dark:bg-primary/20 overflow-hidden shrink-0 border border-slate-200 dark:border-primary/10">
+<img class="w-full h-full object-cover" data-alt="Brown spots on rice plant leaves" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBWsv4kDkTPmc4N5hT6v4881S4VEXR9aWepz0g9YOq2JgMiUFkjwhbZ1e8SMg3vZUpX7R2dQ2F5lrEbpkQvMKweKAP_Sl4SjicXWqd4JF0hbmdP-FZAydZqd0rXUv1GrMPp-9UgB--7iJdKr32i98iorPPXHyT4NXzc7mpAQPJGvPx20hX88j5_pj8Ggzx9qpvTPOp2rgmDfCDKfpakE-BcNKcott27Zs10X78NczVP1-rzCjy1k2il0zqCYfKfBny7YMw7E4XO1Vs"/>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-base truncate">Leaf Blast / पत्ती झोंका</h3>
+<p class="text-sm text-slate-600 dark:text-slate-400">Rice • 04:15 PM</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="flex size-2 rounded-full bg-red-500"></span>
+<span class="text-[10px] font-semibold text-red-600 dark:text-red-400 uppercase">Severe / गंभीर / سنگین</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+</div>
+<div class="h-px bg-slate-200 dark:bg-primary/10 mx-3"></div>
+<!-- Item 4 -->
+<div class="flex items-center p-3 gap-4 hover:bg-slate-50 dark:hover:bg-primary/10 cursor-pointer transition-colors">
+<div class="size-16 rounded-lg bg-slate-100 dark:bg-primary/20 overflow-hidden shrink-0 border border-slate-200 dark:border-primary/10">
+<img class="w-full h-full object-cover" data-alt="Wheat field during sunset" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0-9hvZcp-Sj23FwUwQZhHoGqnz5d7T182BAM-_l7aqQY-tNT9wc-GxK0M3OMgrA5H24IZujBGx00LoyTuFxBqeh4TMlRCgJkUH3bPePARemS1UCrUm8vFiMGwS_Od0dsP0IT8jNlwN0PGazB_grZPPKrBKRarAKU4homPJVkyC0MYseRHLrZ55e8gvWQOmtYkCXx5S2bbdpm1BneJDCMXhsclwzBfKfLwKMDgmlTeZjZBD5O7C0U6D3k7bLeEjgsJ_x_5A8xJgmAl"/>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-base truncate">Nutrient Deficiency</h3>
+<p class="text-sm text-slate-600 dark:text-slate-400">Wheat • 11:30 AM</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="flex size-2 rounded-full bg-orange-500"></span>
+<span class="text-[10px] font-semibold text-orange-600 dark:text-orange-400 uppercase">Moderate / मध्यम / معتدل</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation -->
+<nav class="sticky bottom-0 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md border-t border-slate-200 dark:border-primary/10 pb-6 pt-2">
+<div class="flex justify-around items-center px-4">
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-primary/40" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined font-bold">history</span>
+<span class="text-[10px] font-bold">History</span>
+</a>
+<div class="relative -top-6">
+<div class="bg-primary size-14 rounded-full flex items-center justify-center shadow-lg shadow-primary/40 text-white">
+<span class="material-symbols-outlined text-3xl">photo_camera</span>
+</div>
+</div>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-primary/40" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="text-[10px] font-medium">Expert</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-primary/40" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</a>
+</div>
+</nav>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</body></html>

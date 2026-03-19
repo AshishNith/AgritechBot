@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#52b781",
+                        "background-light": "#f6f7f7",
+                        "background-dark": "#151d19",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .organic-shape { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+        .soft-shadow { box-shadow: 0 10px 25px -5px rgba(82, 183, 129, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+<!-- Header & Search -->
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 pt-6 pb-4">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-3">
+<div class="p-2 rounded-xl bg-primary/10 border border-primary/20">
+<span class="material-symbols-outlined text-primary text-2xl">eco</span>
+</div>
+<div>
+<h1 class="text-xl font-bold leading-none">ખેતી બજાર</h1>
+<p class="text-[10px] text-primary/70 font-medium uppercase tracking-widest mt-1">Premium Agri Market</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="size-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-primary/10 text-slate-700 dark:text-primary">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="size-10 flex items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+</div>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-white dark:bg-slate-800/50 border-none rounded-xl py-3.5 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary shadow-sm" placeholder="શોધો: ખાતર, બીજ અથવા સાધનો..." type="text"/>
+</div>
+</header>
+<main class="pb-24">
+<!-- Categories Filter -->
+<div class="flex gap-3 px-4 py-2 overflow-x-auto no-scrollbar">
+<button class="flex h-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-6 text-white text-sm font-semibold">
+                બધા (All)
+            </button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-2 rounded-full bg-white dark:bg-slate-800 px-6 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-sm font-medium">
+                ખાતર (Fertilizers)
+            </button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-2 rounded-full bg-white dark:bg-slate-800 px-6 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-sm font-medium">
+                બીજ (Seeds)
+            </button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-2 rounded-full bg-white dark:bg-slate-800 px-6 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-sm font-medium">
+                સાધનો (Tools)
+            </button>
+</div>
+<!-- Smart Recommendations -->
+<section class="mt-8 px-4">
+<div class="bg-gradient-to-br from-primary to-primary/60 rounded-xl p-6 relative overflow-hidden text-white shadow-xl shadow-primary/20">
+<div class="relative z-10 max-w-[60%]">
+<h3 class="text-sm font-medium opacity-90 mb-1">સ્માર્ટ ભલામણ (AI Pick)</h3>
+<h2 class="text-xl font-bold mb-4 leading-tight">તમારી જમીન માટે શ્રેષ્ઠ પસંદગી</h2>
+<button class="bg-white text-primary px-4 py-2 rounded-lg text-sm font-bold">હમણાં જુઓ</button>
+</div>
+<div class="absolute -right-4 -bottom-4 size-40 bg-white/20 rounded-full blur-2xl"></div>
+<span class="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 text-8xl opacity-20">psychology</span>
+</div>
+</section>
+<!-- Top Fertilizers (Horizontal Scroll) -->
+<section class="mt-10">
+<div class="flex items-center justify-between px-4 mb-4">
+<h2 class="text-lg font-bold">ટોચના ખાતર (Top Fertilizers)</h2>
+<a class="text-primary text-sm font-semibold" href="#">બધા જુઓ</a>
+</div>
+<div class="flex gap-6 px-4 overflow-x-auto no-scrollbar pb-6">
+<!-- Product item -->
+<div class="w-40 shrink-0">
+<div class="h-48 rounded-xl bg-primary/5 dark:bg-slate-800/50 flex items-center justify-center relative mb-3 soft-shadow overflow-hidden group">
+<img class="w-full h-full object-cover opacity-90 mix-blend-multiply dark:mix-blend-normal group-hover:scale-110 transition-transform" data-alt="Bag of high quality organic fertilizer product" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEUyL3aK_JM-eGAo9oErHtdm8VWRMZHfANcj7R4YwE1P4yeiv00Eb9G5cn5vy0fNr0Q-wT8lPJz31DgX0gYr6ZZYa_a-6PneE1QWvCwba2URWOIP6pXQJLyl8yJ8w6AbYNHdWM1D6uqERlyLEWtBfV5wPs97IaiQV3NVs01heYRK8Kuf4wyRCiJn_Zse4uXytPwg8gLnroU3rQrGzr3LeDPcqIhAdgLDXdJyrDUCIHsuHhBYKpef4gsJ4bj0yv79F_EMe2ERAsn8sn"/>
+<div class="absolute bottom-2 right-2 bg-white dark:bg-primary text-primary dark:text-white p-1.5 rounded-lg shadow-md">
+<span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+</div>
+</div>
+<p class="text-sm font-bold truncate">Premium Urea (પ્રીમિયમ)</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-1">50 KG Bag</p>
+<p class="text-primary font-bold">₹1,250</p>
+</div>
+<!-- Product item -->
+<div class="w-40 shrink-0">
+<div class="h-48 rounded-xl bg-primary/5 dark:bg-slate-800/50 flex items-center justify-center relative mb-3 soft-shadow overflow-hidden group">
+<img class="w-full h-full object-cover opacity-90 mix-blend-multiply dark:mix-blend-normal group-hover:scale-110 transition-transform" data-alt="Liquid nitrogen fertilizer bottle for crops" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS2oFdyDf9ReOVcOxpVsBuObZxuk50z1oTqTAP2vjbAkmvUPiCA4cTJrEMGOCx5PuGWxzMJk8hLnY8RIG_-yguKO1IOKVVD7aIC4l7dX-vfdHK1mGKEo2qxbymV2qx9XWEnyjRFA0P-EL2TeB7gSUlXE_NY-Zs9D9_baDW5NHkGNI6aIGWIwl9hXaSvoIWbpw8voABBuRFZHOEfCxQVTLs-r3n-MaBsPE3HEtIihcwqP36fZfRpjPdHrcJH4m3fKHewfres0GLhD7d"/>
+<div class="absolute bottom-2 right-2 bg-white dark:bg-primary text-primary dark:text-white p-1.5 rounded-lg shadow-md">
+<span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+</div>
+</div>
+<p class="text-sm font-bold truncate">Potash Liquid (પોટાશ)</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-1">5 Litre</p>
+<p class="text-primary font-bold">₹890</p>
+</div>
+<!-- Product item -->
+<div class="w-40 shrink-0">
+<div class="h-48 rounded-xl bg-primary/5 dark:bg-slate-800/50 flex items-center justify-center relative mb-3 soft-shadow overflow-hidden group">
+<img class="w-full h-full object-cover opacity-90 mix-blend-multiply dark:mix-blend-normal group-hover:scale-110 transition-transform" data-alt="Organic compost fertilizer pellets" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ3jetAcB3PYvV4AaEcY97R7yBPVFXTophDAgnMf14uMtp-Tacp7i92OnoruOZBk7ZVXz3EW8D0dObPnm-vBwlvQGwpz2wcBOAQfFBQvX9XvWsFFVbVTjausA178f8nxARk7rQxVVbjNDe-xWp4kBgfVfjGHvHExD1daRsogtxo4D7a3y6m_6Xu1sJAp-sfgRw-wuTTvUbM-1hJ6G3qbEj1oK4XhtFbwLIKkC-JPlq1ZVRU-KS9i0CGAFwDHVMvMEU-I_6qOqY3gn6"/>
+<div class="absolute bottom-2 right-2 bg-white dark:bg-primary text-primary dark:text-white p-1.5 rounded-lg shadow-md">
+<span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+</div>
+</div>
+<p class="text-sm font-bold truncate">Organic DAP (ડીએપી)</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-1">25 KG Bag</p>
+<p class="text-primary font-bold">₹1,500</p>
+</div>
+</div>
+</section>
+<!-- Essential Seeds (Horizontal Scroll) -->
+<section class="mt-6">
+<div class="flex items-center justify-between px-4 mb-4">
+<h2 class="text-lg font-bold">બીજ (Essential Seeds)</h2>
+<a class="text-primary text-sm font-semibold" href="#">બધા જુઓ</a>
+</div>
+<div class="flex gap-6 px-4 overflow-x-auto no-scrollbar pb-6">
+<!-- Product item -->
+<div class="w-40 shrink-0">
+<div class="h-48 organic-shape bg-primary/10 flex items-center justify-center relative mb-3 soft-shadow overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform" data-alt="Golden wheat grain seeds scattered on wood" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFPlm-7Ic7beeIPmaDuuSzV59W4uj6PA9cu_PVpgjaWeVJuY7CndL1Gir-3-3JquHtBoGPXYq1q0l-qWbD2CLyhW2fqDbZFRBIm-_jhVB3lBm9ZU23TK7kEVYxJSqgZr1p26WUou50Donn7lSbyCXnKEw9sWT4u5ISR-BY4ca0i2lnW7hALns7QTj0WFQSHXI3a0_X0G1-1kSs2KxSMfWxGHzVv1ObXhN70y3NDKExbWdctdfJL7L9RKJEdxg8wEemecTex8KICXnD"/>
+</div>
+<p class="text-sm font-bold truncate">Wheat Seeds (ઘઉં)</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-1">High Yield Hybrid</p>
+<p class="text-primary font-bold">₹450 / kg</p>
+</div>
+<!-- Product item -->
+<div class="w-40 shrink-0">
+<div class="h-48 organic-shape bg-primary/10 flex items-center justify-center relative mb-3 soft-shadow overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform" data-alt="Healthy cotton bolls showing fibers and seeds" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8ZDVWJCT4JCkKfO_h_vTpEfiuHJQfVFT3w12ItoXYQ2rCT1IG40ygyzc6T9HCPaV7I6oQdhjcE8TOFynFxw2ok5VEoiszqXrbr7FgSsLXzK3oBZZwoqG_13CHTM_gYEKwU1_UZvamFMeeJGTBvEhO48Xzis_FgqdOBzpCOWEm-9ETIExI8iZhOPWuVXCS3V1k3CiNdnxR4ikpgs1VAl0qHN5MgwKOuv9QjBsWB4Lw-1yv9Gsa_ckFhCtBNDFh_0pRC-hsB21rAvCV"/>
+</div>
+<p class="text-sm font-bold truncate">Cotton Seeds (કપાસ)</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-1">BT Cotton Gold</p>
+<p class="text-primary font-bold">₹720 / packet</p>
+</div>
+<!-- Product item -->
+<div class="w-40 shrink-0">
+<div class="h-48 organic-shape bg-primary/10 flex items-center justify-center relative mb-3 soft-shadow overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform" data-alt="High quality rice paddy seeds" src="https://lh3.googleusercontent.com/aida-public/AB6AXuApQLXFGzHO3fmtw5MW9x6CHn7CuUJ6A2fQXHezsBhXIIRlFFidA3SkxynDkytL5n_jD4ErIkVD4iA_aojjgc8RuUFNSzt--xTu2Ei2vG36qZvLTd0WGVwKN4qAgF6mB8CiDH4nqj2Leyn3r1HsgOomX590Uz24xyd8l_p5ie8rOhqewjTI6tFDqLbyXGGNnjIvIrDVgzOFSw1OT2OJyzRaD9le7_Ps66TejoJ8BqrxDgUAcqjbR4ic2faEPYy9LYOQBk7fCDXC6bVI"/>
+</div>
+<p class="text-sm font-bold truncate">Paddy Seeds (ડાંગર)</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Basmati Special</p>
+<p class="text-primary font-bold">₹580 / kg</p>
+</div>
+</div>
+</section>
+<!-- Modern Tools -->
+<section class="mt-6 mb-12">
+<div class="flex items-center justify-between px-4 mb-4">
+<h2 class="text-lg font-bold">આધુનિક સાધનો (Modern Tools)</h2>
+<a class="text-primary text-sm font-semibold" href="#">બધા જુઓ</a>
+</div>
+<div class="px-4 space-y-4">
+<!-- List style for tools -->
+<div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 soft-shadow">
+<div class="size-20 rounded-lg bg-slate-100 dark:bg-slate-700 overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Handheld agricultural soil testing tool" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCwMfVC65_cV2VqJQnJfyI8mvcLkqD_mOzbQ-GhjffsuKJjOmuvkyEcnW1cL4qWPi1sGX9EBZzCmFbMz7iKIn1p7nV2ZvQHeeeCCEZP7PDfD4SIrJAi_vZR03rEcfNpTm23gMs2kFDkYZlLWWvGtgll2QZ05133rBf3Bh0kv2TFeQwX3T0RgCwuoa-yZd7-VlI-pnemH2cuJ4HAmRJgDG7F-BhUnN3RYPyF5eOD0-auTjEeLo2RtUvI47qz-IVpwIgKG8fVbCNCstg"/>
+</div>
+<div class="flex-1">
+<h4 class="text-sm font-bold">Digital Soil Meter (સોઇલ મીટર)</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">નવું (New)</span>
+<span class="text-xs text-slate-500">★ 4.8</span>
+</div>
+<p class="text-primary font-bold mt-1">₹2,499</p>
+</div>
+<button class="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700">
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</button>
+</div>
+<div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 soft-shadow">
+<div class="size-20 rounded-lg bg-slate-100 dark:bg-slate-700 overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Manual professional gardening sprayer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuByhhMA-JUUNRMXXJY72eoNudZp8tMrHfUxrnOVIbC7ZB8-D9TSlszXd1fCEWcmAfxqm0GZcD58ysG8OBZ6jL3tap7tU9j95voHj-AC8gMBwd-g-jqw8Lfji3fexi4CU-yOgnwFmdCed_9ygq9biE-zHeMTNyk8Lxn4YUtJpp0dcrpqwAA1rZoyHrjtj_B7fTKbO7iCc8JvNIrSk0tRL4j8fR_yqy6K2SGom7u1xPS7qIm-_B7VatVs9mUlNtmlXyGrac_xsk2vzzQx"/>
+</div>
+<div class="flex-1">
+<h4 class="text-sm font-bold">Manual Sprayer (સ્પ્રે પંપ)</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-600">ટ્રેન્ડિંગ</span>
+<span class="text-xs text-slate-500">★ 4.5</span>
+</div>
+<p class="text-primary font-bold mt-1">₹1,850</p>
+</div>
+<button class="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700">
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-6 py-3 pb-6">
+<div class="flex justify-between items-center max-w-lg mx-auto">
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">storefront</span>
+<span class="text-[10px] font-bold">Market</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="text-[10px] font-medium">Orders</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</a>
+</div>
+</nav>
+</body></html>

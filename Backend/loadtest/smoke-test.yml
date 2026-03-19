@@ -1,0 +1,46 @@
+config:
+  target: "http://localhost:4000"
+  phases:
+    # Quick smoke: 10 users/sec for 10 seconds
+    - duration: 10
+      arrivalRate: 10
+      name: "Smoke test"
+
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+  processor: "./helpers.js"
+
+scenarios:
+  - name: "Health Check"
+    weight: 30
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+
+  - name: "Chat Ask"
+    weight: 40
+    flow:
+      - function: "generateAuthToken"
+      - post:
+          url: "/api/chat/ask"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            message: "What is the best fertilizer for wheat?"
+            language: "English"
+          expect:
+            - statusCode:
+                - 200
+                - 504
+
+  - name: "Browse Products"
+    weight: 30
+    flow:
+      - get:
+          url: "/api/products?page=1&limit=10"
+          expect:
+            - statusCode: 200

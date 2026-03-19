@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#52b781",
+                        "background-light": "#f6f7f7",
+                        "background-dark": "#151d19",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<title>AI Crop Doctor - Image Scan</title>
+<style>
+        .scanning-line {
+            background: linear-gradient(to bottom, transparent, #52b781, transparent);
+            height: 100px;
+            width: 100%;
+            position: absolute;
+            top: 20%;
+            left: 0;
+            opacity: 0.6;
+        }
+        .scan-overlay {
+            border: 2px solid rgba(82, 183, 129, 0.5);
+            box-shadow: 0 0 20px rgba(82, 183, 129, 0.3);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+<div class="relative flex h-screen w-full flex-col overflow-hidden">
+<!-- Header -->
+<div class="flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md p-4 justify-between z-20 border-b border-primary/10">
+<div class="text-slate-900 dark:text-slate-100 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-primary/10 transition-colors cursor-pointer">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<div class="flex flex-col items-center">
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight">AI Crop Doctor</h2>
+<span class="text-[10px] uppercase tracking-widest text-primary font-bold">Live Diagnostics</span>
+</div>
+<div class="flex w-10 items-center justify-end">
+<button class="flex size-10 items-center justify-center rounded-full hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-slate-900 dark:text-slate-100">info</span>
+</button>
+</div>
+</div>
+<!-- Camera Viewport with Scanning Overlay -->
+<div class="relative flex-1 bg-black overflow-hidden group">
+<div class="absolute inset-0 bg-center bg-no-repeat bg-cover transition-transform duration-700" data-alt="Close up of a diseased plant leaf with yellow spots" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCYuHvFP5X--XncNQ2tPwsAt9NDJJe9ckHrTGptrWRYG_r11eobz6nLaZoJZHhqX0XXfbgVeoclMIuZDPWyXi-T8H1mT9nr_Hwp6IW20qHbzU-g6_9bC2-y_th-81BNonY__jKoUScU_0CXRiQcKWVEJXBn0szepZvUycMehJ5CjwBMH5cDTQvqqiN9VUmGPNQM7E4jd-s521SLG8hZY1p5rqsNU_vGQMMyghHL1YuFrkaN6PazQOpKr6yCrcDPSgaqC-xVmF1uD2zI");'>
+</div>
+<!-- High-Tech Scanning UI -->
+<div class="absolute inset-0 flex items-center justify-center p-8">
+<div class="relative w-full aspect-square max-w-sm scan-overlay rounded-xl overflow-hidden">
+<div class="scanning-line"></div>
+<!-- Corner Brackets -->
+<div class="absolute top-4 left-4 size-8 border-t-4 border-l-4 border-primary rounded-tl-sm"></div>
+<div class="absolute top-4 right-4 size-8 border-t-4 border-r-4 border-primary rounded-tr-sm"></div>
+<div class="absolute bottom-4 left-4 size-8 border-b-4 border-l-4 border-primary rounded-bl-sm"></div>
+<div class="absolute bottom-4 right-4 size-8 border-b-4 border-r-4 border-primary rounded-br-sm"></div>
+<!-- Floating Data Points -->
+<div class="absolute top-1/4 left-1/4 flex items-center gap-2 bg-primary/20 backdrop-blur-sm border border-primary/30 px-2 py-1 rounded text-[10px] text-primary-light">
+<span class="size-1 bg-primary rounded-full animate-pulse"></span>
+                        Chlorosis Detected
+                    </div>
+</div>
+</div>
+<!-- AI Result Toast (Floating) -->
+<div class="absolute top-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-30">
+<div class="bg-red-500/20 backdrop-blur-xl border border-red-500/50 p-4 rounded-xl flex items-start gap-4 shadow-2xl">
+<div class="bg-red-500 text-white p-2 rounded-lg">
+<span class="material-symbols-outlined">warning</span>
+</div>
+<div>
+<h3 class="text-white font-bold text-sm">Disease Detected</h3>
+<p class="text-red-100 text-xs mt-0.5 font-medium">बीमारी का पता चला • રોગ જણાયો • ਬਿਮਾਰੀ ਦਾ ਪਤਾ ਲੱਗਿਆ</p>
+<p class="text-white text-[11px] mt-2 opacity-90">Pathogen: <span class="font-bold">Late Blight (Phytophthora)</span></p>
+</div>
+</div>
+</div>
+</div>
+<!-- Treatment Suggestion Drawer (Partial View) -->
+<div class="relative bg-background-light dark:bg-background-dark rounded-t-xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] z-40">
+<div class="flex flex-col items-stretch p-4">
+<button class="flex h-2 w-full items-center justify-center mb-4">
+<div class="h-1.5 w-12 rounded-full bg-primary/30"></div>
+</button>
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h4 class="font-bold text-slate-900 dark:text-slate-100">Immediate Action</h4>
+<span class="px-2 py-1 bg-primary/10 text-primary text-[10px] font-bold rounded uppercase">Treatment Ready</span>
+</div>
+<div class="grid grid-cols-1 gap-3">
+<div class="flex items-center gap-4 bg-primary/5 dark:bg-primary/10 p-3 rounded-lg border border-primary/20">
+<span class="material-symbols-outlined text-primary">pill</span>
+<div class="flex-1">
+<p class="text-sm font-semibold">Apply Fungicide</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">Copper-based spray recommended immediately.</p>
+</div>
+<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+</div>
+<div class="flex items-center gap-4 bg-primary/5 dark:bg-primary/10 p-3 rounded-lg border border-primary/20">
+<span class="material-symbols-outlined text-primary">content_cut</span>
+<div class="flex-1">
+<p class="text-sm font-semibold">Prune Affected Areas</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">Remove yellow leaves to stop the spread.</p>
+</div>
+<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex items-center justify-center gap-6 py-4">
+<button class="flex shrink-0 items-center justify-center rounded-full size-12 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:scale-105 transition-transform shadow-lg">
+<span class="material-symbols-outlined">image</span>
+</button>
+<button class="flex shrink-0 items-center justify-center rounded-full size-20 bg-primary text-white hover:scale-110 transition-transform shadow-xl shadow-primary/30 outline outline-4 outline-primary/20">
+<span class="material-symbols-outlined text-4xl">photo_camera</span>
+</button>
+<button class="flex shrink-0 items-center justify-center rounded-full size-12 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:scale-105 transition-transform shadow-lg">
+<span class="material-symbols-outlined">history</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation Bar -->
+<div class="flex gap-2 border-t border-primary/10 bg-background-light dark:bg-background-dark px-4 pb-6 pt-2 z-50">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined fill-1">document_scanner</span>
+<p class="text-xs font-bold leading-normal tracking-tight">Scan</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">history</span>
+<p class="text-xs font-medium leading-normal tracking-tight">History</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">cloud_sync</span>
+<p class="text-xs font-medium leading-normal tracking-tight">Weather</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<p class="text-xs font-medium leading-normal tracking-tight">Profile</p>
+</a>
+</div>
+</div>
+</body></html>

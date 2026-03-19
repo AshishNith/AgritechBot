@@ -1,0 +1,308 @@
+[
+  {
+    "_id": "prod_001",
+    "name": "Organic Neem Oil Pesticide",
+    "slug": "organic-neem-oil-pesticide",
+    "brand": "GreenGrow",
+    "category": "Pesticides",
+    "subCategory": "Organic",
+    "description": "100% organic neem oil solution to protect crops from pests like aphids, whiteflies, and mites.",
+    "farmerFriendlyInfo": {
+      "whyUse": "Keeps insects away without harming crops",
+      "howToUse": "Mix 5ml in 1 litre of water and spray on leaves every 7 days",
+      "bestForCrops": ["Tomato", "Wheat", "Cotton", "Vegetables"],
+      "resultTime": "3-5 days",
+      "safety": "Safe for humans and animals"
+    },
+    "pricing": {
+      "price": 299,
+      "discountPrice": 249,
+      "currency": "INR",
+      "unit": "500ml",
+      "stock": 120,
+      "minOrderQty": 1
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1589927986089-35812388d1f4",
+      "https://images.unsplash.com/photo-1602928321679-560bb453f190"
+    ],
+    "ratings": {
+      "average": 4.5,
+      "count": 128
+    },
+    "reviews": [
+      {
+        "user": "Ramesh Kumar",
+        "rating": 5,
+        "comment": "Bahut acha product hai, keede khatam ho gaye",
+        "date": "2026-02-10"
+      }
+    ],
+    "inventory": {
+      "available": true,
+      "warehouseLocation": "Delhi",
+      "deliveryTime": "3-5 days"
+    },
+    "aiMetadata": {
+      "tags": ["pest control", "organic", "neem", "safe"],
+      "useCases": ["aphids", "whiteflies", "mites"],
+      "recommendedWith": ["npk-fertilizer-20-20-20"],
+      "season": ["all"],
+      "soilType": ["all"]
+    },
+    "seller": {
+      "name": "AgroStore India",
+      "rating": 4.7,
+      "phone": "9999999999"
+    }
+  },
+  {
+    "_id": "prod_002",
+    "name": "NPK Fertilizer 20-20-20",
+    "slug": "npk-fertilizer-20-20-20",
+    "brand": "AgriBoost",
+    "category": "Fertilizers",
+    "subCategory": "Chemical",
+    "description": "Balanced fertilizer providing Nitrogen, Phosphorus, and Potassium for better plant growth.",
+    "farmerFriendlyInfo": {
+      "whyUse": "Helps plants grow faster and healthier",
+      "howToUse": "Mix 10g in 1 litre water and apply weekly",
+      "bestForCrops": ["Rice", "Wheat", "Corn", "Vegetables"],
+      "resultTime": "5-7 days",
+      "safety": "Use gloves while handling"
+    },
+    "pricing": {
+      "price": 499,
+      "discountPrice": 449,
+      "currency": "INR",
+      "unit": "1kg",
+      "stock": 200,
+      "minOrderQty": 1
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1625246333195-78d9c38ad449",
+      "https://images.unsplash.com/photo-1598514982841-ec3c3a3a66d5"
+    ],
+    "ratings": {
+      "average": 4.3,
+      "count": 89
+    },
+    "reviews": [
+      {
+        "user": "Suresh Patel",
+        "rating": 4,
+        "comment": "Fasal ki growth bahut achi hui",
+        "date": "2026-02-15"
+      }
+    ],
+    "inventory": {
+      "available": true,
+      "warehouseLocation": "Punjab",
+      "deliveryTime": "2-4 days"
+    },
+    "aiMetadata": {
+      "tags": ["fertilizer", "growth", "npk"],
+      "useCases": ["low growth", "nutrient deficiency"],
+      "recommendedWith": ["organic-neem-oil-pesticide"],
+      "season": ["rabi", "kharif"],
+      "soilType": ["loamy", "clay"]
+    },
+    "seller": {
+      "name": "FarmKart",
+      "rating": 4.6,
+      "phone": "9888888888"
+    }
+  },
+  {
+    "_id": "prod_003",
+    "name": "Premium Urea Granules",
+    "slug": "premium-urea-granules",
+    "brand": "SoilMax",
+    "category": "Fertilizers",
+    "subCategory": "Nitrogen",
+    "description": "High nitrogen fertilizer for rapid vegetative growth and greener leaves.",
+    "pricing": {
+      "price": 1250,
+      "discountPrice": 1150,
+      "currency": "INR",
+      "unit": "50kg",
+      "stock": 80,
+      "minOrderQty": 1
+    },
+    "farmerFriendlyInfo": {
+      "whyUse": "Boosts leaf growth and crop vigor",
+      "howToUse": "Apply 20kg per acre during early growth",
+      "bestForCrops": ["Wheat", "Rice", "Maize"],
+      "resultTime": "4-6 days",
+      "safety": "Store in dry place"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1621451537084-482c73073a0f"
+    ],
+    "ratings": {
+      "average": 4.2,
+      "count": 54
+    },
+    "inventory": {
+      "available": true,
+      "warehouseLocation": "Jaipur",
+      "deliveryTime": "3-6 days"
+    },
+    "aiMetadata": {
+      "tags": ["nitrogen", "urea"],
+      "useCases": ["yellow leaves", "slow growth"],
+      "recommendedWith": ["potash-liquid-fertilizer"],
+      "season": ["all"],
+      "soilType": ["all"]
+    },
+    "seller": {
+      "name": "KisanMart",
+      "rating": 4.5,
+      "phone": "9777777777"
+    }
+  },
+  {
+    "_id": "prod_004",
+    "name": "Potash Liquid Fertilizer",
+    "slug": "potash-liquid-fertilizer",
+    "brand": "GrowLine",
+    "category": "Fertilizers",
+    "subCategory": "Potassium",
+    "description": "Liquid potash improves fruit quality and strengthens plant resistance.",
+    "pricing": {
+      "price": 890,
+      "discountPrice": 820,
+      "currency": "INR",
+      "unit": "5L",
+      "stock": 95,
+      "minOrderQty": 1
+    },
+    "farmerFriendlyInfo": {
+      "whyUse": "Improves flowering and fruit quality",
+      "howToUse": "Dilute 3ml per litre and spray every 10 days",
+      "bestForCrops": ["Tomato", "Chilli", "Cotton"],
+      "resultTime": "6-8 days",
+      "safety": "Do not exceed dosage"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1615818499660-30bb5816e1c7"
+    ],
+    "ratings": {
+      "average": 4.4,
+      "count": 70
+    },
+    "inventory": {
+      "available": true,
+      "warehouseLocation": "Indore",
+      "deliveryTime": "2-5 days"
+    },
+    "aiMetadata": {
+      "tags": ["potash", "fruiting"],
+      "useCases": ["weak stem", "poor fruit size"],
+      "recommendedWith": ["npk-fertilizer-20-20-20"],
+      "season": ["kharif", "zaid"],
+      "soilType": ["loamy", "sandy"]
+    },
+    "seller": {
+      "name": "AgriBoost Hub",
+      "rating": 4.4,
+      "phone": "9666666666"
+    }
+  },
+  {
+    "_id": "prod_005",
+    "name": "Wheat Seeds High Yield",
+    "slug": "wheat-seeds-high-yield",
+    "brand": "SeedPro",
+    "category": "Seeds",
+    "subCategory": "Cereal",
+    "description": "Certified high germination wheat seeds for better tillering and yield.",
+    "pricing": {
+      "price": 450,
+      "discountPrice": 420,
+      "currency": "INR",
+      "unit": "1kg",
+      "stock": 260,
+      "minOrderQty": 1
+    },
+    "farmerFriendlyInfo": {
+      "whyUse": "Uniform germination and stronger plants",
+      "howToUse": "Use 40kg seed per acre",
+      "bestForCrops": ["Wheat"],
+      "resultTime": "7-10 days",
+      "safety": "Keep away from moisture"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b"
+    ],
+    "ratings": {
+      "average": 4.6,
+      "count": 112
+    },
+    "inventory": {
+      "available": true,
+      "warehouseLocation": "Ludhiana",
+      "deliveryTime": "2-3 days"
+    },
+    "aiMetadata": {
+      "tags": ["wheat", "seed"],
+      "useCases": ["poor germination"],
+      "recommendedWith": ["npk-fertilizer-20-20-20"],
+      "season": ["rabi"],
+      "soilType": ["all"]
+    },
+    "seller": {
+      "name": "Punjab Seeds",
+      "rating": 4.8,
+      "phone": "9555555555"
+    }
+  },
+  {
+    "_id": "prod_006",
+    "name": "Digital Soil Meter",
+    "slug": "digital-soil-meter",
+    "brand": "FarmTech",
+    "category": "Tools",
+    "subCategory": "Testing",
+    "description": "Portable digital meter for quick soil pH and moisture checks.",
+    "pricing": {
+      "price": 2499,
+      "discountPrice": 2299,
+      "currency": "INR",
+      "unit": "1pc",
+      "stock": 35,
+      "minOrderQty": 1
+    },
+    "farmerFriendlyInfo": {
+      "whyUse": "Helps make accurate fertilizer decisions",
+      "howToUse": "Insert probe in soil and read pH/moisture instantly",
+      "bestForCrops": ["All Crops"],
+      "resultTime": "Instant",
+      "safety": "Clean probe after use"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1532094349884-543bc11b234d"
+    ],
+    "ratings": {
+      "average": 4.7,
+      "count": 38
+    },
+    "inventory": {
+      "available": true,
+      "warehouseLocation": "Ahmedabad",
+      "deliveryTime": "3-7 days"
+    },
+    "aiMetadata": {
+      "tags": ["soil", "meter", "pH"],
+      "useCases": ["soil testing"],
+      "recommendedWith": ["npk-fertilizer-20-20-20"],
+      "season": ["all"],
+      "soilType": ["all"]
+    },
+    "seller": {
+      "name": "AgriGadgets",
+      "rating": 4.5,
+      "phone": "9444444444"
+    }
+  }
+]

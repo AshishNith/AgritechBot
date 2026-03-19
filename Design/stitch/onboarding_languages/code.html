@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#52b781",
+                "background-light": "#f6f7f7",
+                "background-dark": "#151d19",
+              },
+              fontFamily: {
+                "display": ["Inter", "sans-serif"]
+              },
+              borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+<!-- Main Container -->
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Top App Bar -->
+<div class="flex items-center px-4 py-6 justify-between">
+<button class="text-slate-900 dark:text-slate-100 flex size-12 items-center justify-center rounded-full hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</button>
+<div class="flex-1">
+<div class="flex justify-center gap-1.5">
+<div class="h-1 w-8 rounded-full bg-primary/20"></div>
+<div class="h-1 w-8 rounded-full bg-primary/20"></div>
+<div class="h-1 w-12 rounded-full bg-primary"></div>
+</div>
+</div>
+<button class="text-primary font-semibold text-sm px-4">Skip</button>
+</div>
+<!-- Hero Visual Section -->
+<div class="relative flex px-6 py-4 flex-col items-center">
+<div class="relative w-full aspect-square max-w-md flex items-center justify-center">
+<!-- Background Glow -->
+<div class="absolute inset-0 bg-primary/10 rounded-full blur-3xl"></div>
+<!-- Main Visual: Map/Globe Illustration placeholder -->
+<div class="relative z-10 w-full h-full bg-center bg-no-repeat bg-contain" data-alt="Stylized glowing green globe with connection lines" data-location="India" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBwtYwvVZ3O2L2_Cnf6gTZRIz71_WT26w4eAJ2DFLFUKL4n6mfstWP2vcW9hXCW1fg0kCPo5UUS1Caue-oyL2Il0tGju6_YMmYTw4siR-yKsX9qihzLDoLym7RS_fSt4iv2Jupwauw6OUv0fK6zvM4tl6S7Bl_iLBRfCWttBzb-X04ZBgfrhCWD1ilMH3E5VrS3reNGWabd0ybm8gJBbbC5e4WLe6tkrvR15NI80LCX6d6t3EB_fclUxGUh1NURXvHz0AK6TGbv0SMH");'>
+</div>
+<!-- Floating Language Bubbles -->
+<div class="absolute top-10 right-4 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-xl shadow-2xl animate-bounce" style="animation-duration: 3s;">
+<span class="text-primary font-bold">नमस्ते</span>
+</div>
+<div class="absolute bottom-20 left-4 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-xl shadow-2xl animate-bounce" style="animation-duration: 4s;">
+<span class="text-primary font-bold">કેમ છો</span>
+</div>
+<div class="absolute top-1/2 -left-2 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-xl shadow-2xl animate-bounce" style="animation-duration: 3.5s;">
+<span class="text-primary font-bold">ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ</span>
+</div>
+</div>
+</div>
+<!-- Text Content -->
+<div class="flex flex-col px-6 mt-8">
+<h1 class="text-slate-900 dark:text-slate-100 text-4xl font-bold leading-tight tracking-tight text-center">
+                Your Language, <br/>
+<span class="text-primary">Your App</span>
+</h1>
+<div class="mt-6 space-y-2 text-center">
+<p class="text-slate-600 dark:text-slate-400 text-lg font-medium">आपकी भाषा, आपका ऐप</p>
+<p class="text-slate-600 dark:text-slate-400 text-lg font-medium">તમારી ભાષા, તમારી એપ</p>
+<p class="text-slate-600 dark:text-slate-400 text-lg font-medium">ਤੁਹਾਡੀ ਭਾਸ਼ਾ, ਤੁਹਾਡੀ ਐਪ</p>
+</div>
+</div>
+<!-- Language Selectors (Quick Toggle Style) -->
+<div class="flex flex-wrap justify-center gap-3 px-6 py-8">
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-white font-medium shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-xl">translate</span>
+<span>English</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium hover:bg-primary/20 transition-colors border border-transparent hover:border-primary/30">
+<span class="material-symbols-outlined text-xl">translate</span>
+<span>हिंदी</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium hover:bg-primary/20 transition-colors border border-transparent hover:border-primary/30">
+<span class="material-symbols-outlined text-xl">translate</span>
+<span>ગુજરાતી</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium hover:bg-primary/20 transition-colors border border-transparent hover:border-primary/30">
+<span class="material-symbols-outlined text-xl">translate</span>
+<span>ਪੰਜਾਬੀ</span>
+</button>
+</div>
+<!-- Footer Button -->
+<div class="mt-auto px-6 pb-10">
+<button class="w-full bg-primary hover:bg-primary/90 text-white text-lg font-bold py-4 rounded-xl shadow-xl shadow-primary/25 flex items-center justify-center gap-2 transition-transform active:scale-[0.98]">
+                Get Started
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<p class="text-center text-slate-500 dark:text-slate-500 text-xs mt-4">
+                You can change language anytime in settings
+            </p>
+</div>
+</div>
+</body></html>
