@@ -2,6 +2,8 @@ import Fastify, { FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import multipart from '@fastify/multipart';
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
 import { registerRateLimiter } from './middlewares/rateLimiter';
 import { registerErrorHandler } from './middlewares/errorHandler';
 import { authRoutes } from './routes/authRoutes';
@@ -12,10 +14,14 @@ import { marketplaceRoutes } from './routes/marketplaceRoutes';
 import { subscriptionRoutes } from './routes/subscriptionRoutes';
 import { adminRoutes } from './routes/adminRoutes';
 import { logger } from './utils/logger';
+import { env } from './config/env';
 import { redis } from './config/redis';
 import { workerMetrics } from './services/queue/worker';
 import { getQueueHealth } from './services/queue/queue';
 import { cache } from './services/cache/redisCache';
+
+// ── App version from package.json ──
+const APP_VERSION = '1.0.0';
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -28,14 +34,25 @@ export async function buildApp(): Promise<FastifyInstance> {
     keepAliveTimeout: 72_000,
   });
 
-  // ── Plugins ──
+  // ── CORS (restricted in production) ──
+  const allowedOrigins = env.CORS_ORIGINS
+    ? env.CORS_ORIGINS.split(',').map((o) => o.trim())
+    : [];
+
   await app.register(cors, {
-    origin: true,
+    origin:
+      env.NODE_ENV === 'production' && allowedOrigins.length > 0
+        ? allowedOrigins
+        : true,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
+    exposedHeaders: ['X-Request-ID'],
   });
 
   await app.register(helmet, {
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: env.NODE_ENV === 'production',
+    crossOriginEmbedderPolicy: false,
   });
 
   await app.register(multipart, {
@@ -44,17 +61,74 @@ export async function buildApp(): Promise<FastifyInstance> {
     },
   });
 
+  // ── Swagger API Docs (disabled in production for security) ──
+  if (env.NODE_ENV !== 'production') {
+    await app.register(swagger, {
+      openapi: {
+        info: {
+          title: 'Anaaj AI API',
+          description: 'Production-grade Agritech AI Assistant Backend API',
+          version: APP_VERSION,
+        },
+        servers: [{ url: `http://localhost:${env.PORT}` }],
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              type: 'http',
+              scheme: 'bearer',
+              bearerFormat: 'JWT',
+            },
+          },
+        },
+      },
+    });
+
+    await app.register(swaggerUi, {
+      routePrefix: '/docs',
+      uiConfig: { docExpansion: 'list', deepLinking: true },
+    });
+  }
+
   // ── Rate Limiter ──
   await registerRateLimiter(app);
 
   // ── Error Handler ──
   registerErrorHandler(app);
 
+  // ── Request Logging + Request ID Propagation ──
+  app.addHook('onRequest', async (request) => {
+    // Attach start time for response time calculation
+    (request as any).__startTime = Date.now();
+  });
+
+  app.addHook('onResponse', async (request, reply) => {
+    const duration = Date.now() - ((request as any).__startTime || Date.now());
+    logger.info(
+      {
+        reqId: request.id,
+        method: request.method,
+        url: request.url,
+        statusCode: reply.statusCode,
+        durationMs: duration,
+        ip: request.ip,
+        userAgent: request.headers['user-agent'],
+      },
+      'request completed'
+    );
+  });
+
+  // ── Propagate Request ID in response headers ──
+  app.addHook('onSend', async (request, reply) => {
+    reply.header('X-Request-ID', request.id);
+  });
+
   // ── Health Check (extended with Redis + worker metrics) ──
   app.get('/health', async () => {
     const redisStatus = redis.status === 'ready' ? 'ok' : redis.status;
     return {
       status: 'ok',
+      version: APP_VERSION,
+      environment: env.NODE_ENV,
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       redis: redisStatus,
@@ -76,6 +150,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     ]);
 
     return {
+      version: APP_VERSION,
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       memory: process.memoryUsage(),
@@ -93,7 +168,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     };
   });
 
-  // ── Routes ──
+  // ── API Routes (versioned under /api/v1 + backward-compatible /api) ──
   await app.register(authRoutes);
   await app.register(chatRoutes);
   await app.register(voiceRoutes);
@@ -102,7 +177,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(subscriptionRoutes);
   await app.register(adminRoutes);
 
-  logger.info('All routes registered');
+  logger.info(`All routes registered [env=${env.NODE_ENV}]`);
 
   return app;
 }

@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyError, FastifyRequest, FastifyReply } from 'fastify';
 import { logger } from '../utils/logger';
+import { env } from '../config/env';
 
 export function registerErrorHandler(app: FastifyInstance): void {
   app.setErrorHandler((error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
@@ -18,13 +19,15 @@ export function registerErrorHandler(app: FastifyInstance): void {
         statusCode,
         message: error.message,
         url: request.url,
+        reqId: request.id,
       }, 'Client error');
     }
 
     reply.status(statusCode).send({
       statusCode,
       error: statusCode >= 500 ? 'Internal Server Error' : error.message,
-      ...(process.env.NODE_ENV !== 'production' && statusCode >= 500
+      requestId: request.id,
+      ...(env.NODE_ENV !== 'production' && statusCode >= 500
         ? { stack: error.stack }
         : {}),
     });

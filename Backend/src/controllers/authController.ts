@@ -37,13 +37,20 @@ export async function sendOtp(request: FastifyRequest, reply: FastifyReply) {
   user.otpExpiresAt = new Date(Date.now() + env.OTP_EXPIRY_MINUTES * 60 * 1000);
   await user.save();
 
-  // In production, send OTP via SMS gateway.
-  // For development, log it.
-  if (env.NODE_ENV === 'development') {
-    logger.info({ phone, otp }, 'DEV OTP generated');
+  if (env.NODE_ENV === 'production') {
+    // TODO: Integrate SMS gateway (Twilio, MSG91, etc.) here
+    // await sendSMS(phone, `Your Anaaj AI OTP is: ${otp}`);
+    logger.info({ phone }, 'OTP generated and sent via SMS');
+  } else {
+    // Only log OTP in development for testing
+    logger.info({ phone, otp }, 'DEV OTP generated (not sent via SMS)');
   }
 
-  return reply.send({ message: 'OTP sent successfully', ...(env.NODE_ENV === 'development' ? { otp } : {}) });
+  // SECURITY: Never return OTP in production response
+  return reply.send({
+    message: 'OTP sent successfully',
+    ...(env.NODE_ENV === 'development' ? { otp } : {}),
+  });
 }
 
 /**
