@@ -89,6 +89,7 @@ export async function createProfile(request: FastifyRequest, reply: FastifyReply
       crops: user.crops,
       landSize: user.landSize,
       landUnit: user.landUnit,
+      subscriptionTier: user.subscriptionTier,
     },
   });
 }
@@ -121,6 +122,7 @@ export async function updateProfile(request: FastifyRequest, reply: FastifyReply
       crops: user.crops,
       landSize: user.landSize,
       landUnit: user.landUnit,
+      subscriptionTier: user.subscriptionTier,
     },
   });
 }

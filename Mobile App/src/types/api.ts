@@ -16,6 +16,7 @@ export interface UserProfile {
   crops?: string[];
   landSize?: number;
   landUnit?: string;
+  subscriptionTier?: 'free' | 'basic' | 'premium';
 }
 
 export interface AuthResponse {

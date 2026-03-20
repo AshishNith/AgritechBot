@@ -116,7 +116,13 @@ export function ProfileScreen() {
         <AppText color={theme.colors.textMuted}>{user?.phone || 'phone not available'}</AppText>
         <View style={styles.badge}>
           <AppText variant="label" color={theme.colors.textOnDark}>
-            {user?.name ? 'Member' : 'Incomplete Profile'}
+            {!user?.name 
+              ? 'Incomplete Profile' 
+              : user?.subscriptionTier === 'premium' 
+                ? 'Premium Member' 
+                : user?.subscriptionTier === 'basic' 
+                  ? 'Basic Member' 
+                  : 'Free Member'}
           </AppText>
         </View>
         <GradientButton label="Edit Profile" secondary style={{ marginTop: 16 }} onPress={() => setEditModalVisible(true)} />
@@ -125,7 +131,13 @@ export function ProfileScreen() {
         <View style={styles.subHeader}>
           <View>
             <AppText variant="label">Subscription Status</AppText>
-            <AppText color={theme.colors.textMuted}>Renews on Oct 12, 2024</AppText>
+            <AppText color={theme.colors.textMuted}>
+              {user?.subscriptionTier === 'premium' 
+                 ? 'Premium Plan (Active)' 
+                 : user?.subscriptionTier === 'basic' 
+                   ? 'Basic Plan (Active)' 
+                   : 'Free Plan'}
+            </AppText>
           </View>
           <Pressable onPress={() => navigation.navigate('Subscription')}>
             <AppText color={theme.colors.primary}>Manage</AppText>

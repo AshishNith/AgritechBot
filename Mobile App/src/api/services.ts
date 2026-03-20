@@ -87,6 +87,21 @@ export const apiService = {
     const { data } = await api.put<{ message: string; user: UserProfile }>('/api/user/profile', profileData);
     return data;
   },
+  async getSubscriptionStatus() {
+    const { data } = await api.get<{ 
+      tier: 'free' | 'basic' | 'premium'; 
+      status: 'active' | 'expired'; 
+      features: string[] 
+    }>('/api/subscription/status');
+    return data;
+  },
+  async subscribe(tier: 'basic' | 'premium', paymentId: string) {
+    const { data } = await api.post<{ message: string; subscription: any }>('/api/subscription', {
+      tier,
+      paymentId
+    });
+    return data;
+  },
   async askChat(payload: AskChatRequest) {
     const { data } = await api.post<AskChatResponse>('/api/chat/ask', payload);
     return data;

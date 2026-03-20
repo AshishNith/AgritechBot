@@ -1,10 +1,14 @@
-import { Image, StyleSheet, View } from 'react-native';
+import { Alert, Image, Pressable, StyleSheet, View, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 
+import { apiService } from '../api/services';
 import { AppText, GradientButton, Screen, ScreenCard } from '../components/ui';
 import { designImages } from '../constants/designData';
 import { theme } from '../constants/theme';
+import { useAppStore } from '../store/useAppStore';
 import { RootStackParamList } from '../navigation/types';
 
 const features = [
@@ -15,6 +19,25 @@ const features = [
 
 export function SubscriptionScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const user = useAppStore((state) => state.user);
+  const setUser = useAppStore((state) => state.setUser);
+
+  const [selectedPlan, setSelectedPlan] = useState<'basic' | 'premium'>('premium');
+
+  const subscribeMutation = useMutation({
+    mutationFn: () => apiService.subscribe(selectedPlan, `mock_pay_${Date.now()}`),
+    onSuccess: (data) => {
+      if (user) {
+        setUser({ ...user, subscriptionTier: selectedPlan });
+      }
+      Alert.alert('Success!', data.message || `You are now subscribed to the ${selectedPlan} plan. Enjoy!`);
+      navigation.goBack();
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.error || 'Failed to process subscription. Please try again.';
+      Alert.alert('Payment Error', msg);
+    },
+  });
 
   return (
     <Screen scrollable>
@@ -39,20 +62,33 @@ export function SubscriptionScreen() {
           </ScreenCard>
         ))}
       </View>
-      <ScreenCard style={[styles.pricingCard, styles.pricingCardActive]}>
-        <AppText variant="label">Annual Plan</AppText>
-        <AppText variant="title" style={{ marginTop: 8 }}>
-          ₹2,999/year
-        </AppText>
-        <AppText color={theme.colors.primaryDark}>SAVE 40%</AppText>
-      </ScreenCard>
-      <ScreenCard style={styles.pricingCard}>
-        <AppText variant="label">Monthly Plan</AppText>
-        <AppText variant="title" style={{ marginTop: 8 }}>
-          ₹399/month
-        </AppText>
-      </ScreenCard>
-      <GradientButton label="Start 7-Day Free Trial" onPress={() => navigation.goBack()} style={{ marginTop: 18 }} />
+      
+      <Pressable onPress={() => setSelectedPlan('premium')}>
+        <ScreenCard style={[styles.pricingCard, selectedPlan === 'premium' && styles.pricingCardActive]}>
+          <AppText variant="label">Annual Plan (Premium)</AppText>
+          <AppText variant="title" style={{ marginTop: 8 }}>
+            ₹2,999/year
+          </AppText>
+          {selectedPlan === 'premium' && <AppText color={theme.colors.primaryDark}>SAVE 40%</AppText>}
+        </ScreenCard>
+      </Pressable>
+
+      <Pressable onPress={() => setSelectedPlan('basic')}>
+        <ScreenCard style={[styles.pricingCard, selectedPlan === 'basic' && styles.pricingCardActive]}>
+          <AppText variant="label">Monthly Plan (Basic)</AppText>
+          <AppText variant="title" style={{ marginTop: 8 }}>
+            ₹399/month
+          </AppText>
+        </ScreenCard>
+      </Pressable>
+
+      <GradientButton 
+        label={subscribeMutation.isPending ? 'Processing...' : 'Start 7-Day Free Trial'} 
+        onPress={() => subscribeMutation.mutate()} 
+        disabled={subscribeMutation.isPending}
+        style={{ marginTop: 18 }} 
+        leftIcon={subscribeMutation.isPending ? <ActivityIndicator size={18} color={theme.colors.textOnDark} /> : undefined}
+      />
       <AppText color={theme.colors.textMuted} style={{ textAlign: 'center', marginTop: 12, paddingBottom: 120 }}>
         Cancel anytime. No commitment.
       </AppText>

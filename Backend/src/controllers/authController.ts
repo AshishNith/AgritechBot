@@ -120,6 +120,7 @@ export async function verifyOtp(request: FastifyRequest, reply: FastifyReply) {
       name: user.name,
       role: user.role,
       language: user.language,
+      subscriptionTier: user.subscriptionTier,
     },
   });
 }
