@@ -114,6 +114,10 @@ export async function verifyOtp(request: FastifyRequest, reply: FastifyReply) {
       name: user.name,
       role: user.role,
       language: user.language,
+      location: user.location,
+      crops: user.crops,
+      landSize: user.landSize,
+      landUnit: user.landUnit,
       subscriptionTier: user.subscriptionTier,
     },
   });

@@ -103,10 +103,10 @@ export function OtpScreen({ navigation, route }: Props) {
           </AppText>
         )}
 
-        {process.env.NODE_ENV === 'development' && pendingOtp ? (
+        {pendingOtp ? (
           <View style={{ marginTop: 8, backgroundColor: 'rgba(82,183,129,0.1)', padding: 10, borderRadius: 8, borderLeftWidth: 3, borderLeftColor: theme.colors.primary }}>
-            <AppText variant="caption" color={theme.colors.textMuted}>{t(language, 'devModeOnly')}</AppText>
-            <AppText color={theme.colors.primary} style={{ marginTop: 4 }}>
+            <AppText variant="caption" color={theme.colors.textMuted}>{t(language, 'sentCodeTo')} (Demo Mode)</AppText>
+            <AppText color={theme.colors.primary} style={{ marginTop: 4, fontWeight: 'bold' }}>
               {pendingOtp}
             </AppText>
           </View>
