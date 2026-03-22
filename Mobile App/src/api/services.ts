@@ -45,8 +45,8 @@ export const apiService = {
     const { data } = await api.post<SendOtpResponse>('/api/auth/send-otp', { phone });
     return data;
   },
-  async verifyOtp(phone: string, otp: string) {
-    const { data } = await api.post<AuthResponse>('/api/auth/verify-otp', { phone, otp });
+  async verifyOtp(phone: string, firebaseToken: string) {
+    const { data } = await api.post<AuthResponse>('/api/auth/verify-otp', { phone, token: firebaseToken });
     return data;
   },
   async getProfile() {

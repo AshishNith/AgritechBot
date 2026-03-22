@@ -27,7 +27,7 @@ export interface AuthResponse {
 
 export interface SendOtpResponse {
   message: string;
-  otp?: string;
+  token?: string; // Optional: for any server-side refs
 }
 
 export interface Product {
