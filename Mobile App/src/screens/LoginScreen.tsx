@@ -10,7 +10,7 @@ import { t } from '../constants/localization';
 import { theme } from '../constants/theme';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
-import auth from '@react-native-firebase/auth';
+import { signInWithPhoneNumber } from '../utils/firebaseAuth';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -40,7 +40,7 @@ export function LoginScreen({ navigation }: Props) {
   const sendOtpMutation = useMutation({
     mutationFn: async (normalizedPhone: string) => {
       // Firebase Phone Auth
-      const confirmation = await auth().signInWithPhoneNumber(normalizedPhone);
+      const confirmation = await signInWithPhoneNumber(normalizedPhone);
       return confirmation;
     },
     onSuccess: (confirmation, normalizedPhone) => {

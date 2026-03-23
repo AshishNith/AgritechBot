@@ -23,7 +23,13 @@ if (!admin.apps.length) {
       logger.info('Firebase Admin initialized using Default Credentials');
     }
   } catch (error) {
-    logger.error('Firebase admin initialization failed. Make sure you provided the correct credentials.', error);
+    logger.error(
+      { err: error },
+      'Firebase admin initialization failed. Make sure you provided the correct credentials.'
+    );
+    if (env.NODE_ENV === 'production') {
+      process.exit(1);
+    }
   }
 }
 

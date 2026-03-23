@@ -13,6 +13,8 @@ interface AppState {
   hasCompletedOnboarding: boolean;
   selectedCrops: string[];
   featuredProduct: Product | null;
+  notificationsEnabled: boolean;
+  unreadNotificationCount: number;
   setToken: (token: string | null) => void;
   setUser: (user: UserProfile | null) => void;
   setLanguage: (language: AppLanguage) => void;
@@ -22,6 +24,8 @@ interface AppState {
   setHasCompletedOnboarding: (completed: boolean) => void;
   setSelectedCrops: (crops: string[]) => void;
   setFeaturedProduct: (product: Product | null) => void;
+  setNotificationsEnabled: (enabled: boolean) => void;
+  setUnreadNotificationCount: (count: number) => void;
   signOut: () => void;
 }
 
@@ -36,6 +40,8 @@ export const useAppStore = create<AppState>()(
       hasCompletedOnboarding: false,
       selectedCrops: ['गेहूं'],
       featuredProduct: null,
+      notificationsEnabled: true,
+      unreadNotificationCount: 0,
       setToken: (token) => set({ token }),
       setUser: (user) => set({ user }),
       setLanguage: (language) => set({ language }),
@@ -45,6 +51,8 @@ export const useAppStore = create<AppState>()(
       setHasCompletedOnboarding: (hasCompletedOnboarding) => set({ hasCompletedOnboarding }),
       setSelectedCrops: (selectedCrops) => set({ selectedCrops }),
       setFeaturedProduct: (featuredProduct) => set({ featuredProduct }),
+      setNotificationsEnabled: (notificationsEnabled) => set({ notificationsEnabled }),
+      setUnreadNotificationCount: (unreadNotificationCount) => set({ unreadNotificationCount }),
       signOut: () =>
         set({
           token: null,
@@ -54,6 +62,7 @@ export const useAppStore = create<AppState>()(
           phoneDraft: '+91',
           featuredProduct: null,
           selectedCrops: ['गेहूं'],
+          unreadNotificationCount: 0,
         }),
     }),
     {
@@ -64,6 +73,7 @@ export const useAppStore = create<AppState>()(
         user: state.user,
         language: state.language,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        notificationsEnabled: state.notificationsEnabled,
       }),
     }
   )

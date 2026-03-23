@@ -10,7 +10,7 @@
   import { RootStackParamList } from '../navigation/types';
   import { useAppStore } from '../store/useAppStore';
   import { isProfileComplete } from '../utils/profile';
-  import auth from '@react-native-firebase/auth';
+  import { signInWithPhoneNumber, getCurrentUserIdToken } from '../utils/firebaseAuth';
 
   type Props = NativeStackScreenProps<RootStackParamList, 'Otp'>;
 
@@ -43,7 +43,7 @@
         await firebaseConfirm.confirm(otp);
         
         // 2. Get ID Token for backend auth
-        const idToken = await auth().currentUser?.getIdToken();
+        const idToken = await getCurrentUserIdToken();
         if (!idToken) throw new Error('Token generation failed');
 
         // 3. Exchange for session in our backend
@@ -68,7 +68,7 @@
 
     const resendMutation = useMutation({
       mutationFn: async () => {
-        const confirmation = await auth().signInWithPhoneNumber(phone);
+        const confirmation = await signInWithPhoneNumber(phone);
         return confirmation;
       },
       onSuccess: (confirmation) => {
