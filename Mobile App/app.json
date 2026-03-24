@@ -57,8 +57,9 @@
     "extra": {
       "apiBaseUrl": "https://agritechbot-2.onrender.com",
       "eas": {
-        "projectId": "07d5b523-9bbb-4e38-b6c2-052ce9afb0fd"
+        "projectId": "3d69be85-43a1-43cd-b73f-b477bb3d5489"
       }
-    }
+    },
+    "owner": "ig_ashish.ranjan"
   }
 }
