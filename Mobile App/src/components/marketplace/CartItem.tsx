@@ -2,7 +2,7 @@ import { StyleSheet, View, Pressable, Image, useColorScheme } from 'react-native
 import { AppText } from '../ui';
 import { theme } from '../../constants/theme';
 import { CartItem as CartItemType } from '../../store/useMarketplaceStore';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { IconMap } from '../IconMap';
 
 interface CartItemProps {
   item: CartItemType;
@@ -14,6 +14,10 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
   const isDark = useColorScheme() === 'dark';
   const { product, quantity } = item;
   const itemTotal = product.price * quantity;
+
+  const MinusIcon = IconMap['Minus'];
+  const PlusIcon = IconMap['Plus'];
+  const TrashIcon = IconMap['Trash2'];
 
   return (
     <View
@@ -46,22 +50,14 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
           onPress={() => onQuantityChange(Math.max(0, quantity - 1))}
           style={styles.quantityButton}
         >
-          <MaterialCommunityIcons
-            name="minus"
-            size={18}
-            color={theme.colors.primary}
-          />
+          {MinusIcon ? <MinusIcon size={18} color={theme.colors.primary} /> : null}
         </Pressable>
         <AppText style={styles.quantityText}>{quantity}</AppText>
         <Pressable
           onPress={() => onQuantityChange(quantity + 1)}
           style={styles.quantityButton}
         >
-          <MaterialCommunityIcons
-            name="plus"
-            size={18}
-            color={theme.colors.primary}
-          />
+          {PlusIcon ? <PlusIcon size={18} color={theme.colors.primary} /> : null}
         </Pressable>
       </View>
 
@@ -70,11 +66,7 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
           ₹{itemTotal.toFixed(0)}
         </AppText>
         <Pressable onPress={onRemove} style={styles.removeButton}>
-          <MaterialCommunityIcons
-            name="trash-can-outline"
-            size={18}
-            color={theme.colors.danger}
-          />
+          {TrashIcon ? <TrashIcon size={18} color={theme.colors.danger} /> : null}
         </Pressable>
       </View>
     </View>

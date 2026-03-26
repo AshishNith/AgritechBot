@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { IconMap } from '../components/IconMap';
 
 import { AppText, Screen, GradientButton, ScreenCard } from '../components/ui';
 import { theme } from '../constants/theme';
@@ -80,17 +80,15 @@ export function CheckoutScreen() {
     },
   });
 
+  const ArrowLeftIcon = IconMap['ArrowLeft'];
+
   return (
     <Screen scrollable>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Header */}
         <View style={styles.header}>
           <Pressable onPress={() => navigation.goBack()}>
-            <MaterialCommunityIcons
-              name="arrow-left"
-              size={24}
-              color={theme.colors.text}
-            />
+            {ArrowLeftIcon ? <ArrowLeftIcon size={24} color={theme.colors.text} /> : null}
           </Pressable>
           <AppText variant="heading" style={{ flex: 1, textAlign: 'center' }}>
             {t(language, 'deliveryDetails')}

@@ -10,7 +10,7 @@ import { useAppStore } from '../store/useAppStore';
 import { useMarketplaceStore } from '../store/useMarketplaceStore';
 import { CartItem } from '../components/marketplace/CartItem';
 import { PriceSummary } from '../components/marketplace/PriceSummary';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { IconMap } from '../components/IconMap';
 
 type Navigation = NativeStackNavigationProp<RootStackParamList>;
 
@@ -23,15 +23,16 @@ export function CartScreen() {
   const tax = total * 0.05;
   const subtotal = total;
 
+  const ShoppingCartIcon = IconMap['ShoppingCart'];
+  const ArrowLeftIcon = IconMap['ArrowLeft'];
+
   if (cart.length === 0) {
     return (
       <Screen scrollable>
         <View style={styles.emptyContainer}>
-          <MaterialCommunityIcons
-            name="shopping-outline"
-            size={64}
-            color={theme.colors.textMuted}
-          />
+          {ShoppingCartIcon ? (
+            <ShoppingCartIcon size={64} color={theme.colors.textMuted} />
+          ) : null}
           <AppText variant="heading" style={{ marginTop: 16 }}>
             {t(language, 'cartEmptyTitle')}
           </AppText>
@@ -52,11 +53,7 @@ export function CartScreen() {
     <Screen scrollable>
       <View style={styles.header}>
         <Pressable onPress={() => navigation.goBack()}>
-          <MaterialCommunityIcons
-            name="arrow-left"
-            size={24}
-            color={theme.colors.text}
-          />
+          {ArrowLeftIcon ? <ArrowLeftIcon size={24} color={theme.colors.text} /> : null}
         </Pressable>
         <AppText variant="heading" style={{ flex: 1, textAlign: 'center' }}>
           {t(language, 'cart')}

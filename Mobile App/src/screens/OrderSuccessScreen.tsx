@@ -1,7 +1,7 @@
 import { StyleSheet, View, Pressable, useColorScheme } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackScreenProps, NativeStackNavigationProp } from '@react-navigation/native-stack';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { IconMap } from '../components/IconMap';
 
 import { AppText, Screen, GradientButton } from '../components/ui';
 import { theme } from '../constants/theme';
@@ -25,16 +25,15 @@ export function OrderSuccessScreen({ route }: Props) {
     navigation.navigate('OrderHistory');
   };
 
+  const CheckIcon = IconMap['CircleCheckBig'];
+  const TruckIcon = IconMap['Truck'];
+
   return (
     <Screen scrollable padded>
       <View style={styles.container}>
         {/* Success Icon */}
         <View style={styles.iconContainer}>
-          <MaterialCommunityIcons
-            name="check-circle"
-            size={80}
-            color={theme.colors.primary}
-          />
+          {CheckIcon ? <CheckIcon size={80} color={theme.colors.primary} /> : null}
         </View>
 
         {/* Success Message */}
@@ -58,12 +57,9 @@ export function OrderSuccessScreen({ route }: Props) {
 
         {/* Information Box */}
         <View style={styles.infoBox}>
-          <MaterialCommunityIcons
-            name="truck-delivery"
-            size={24}
-            color={theme.colors.primary}
-            style={{ marginBottom: 8 }}
-          />
+          {TruckIcon ? (
+            <TruckIcon size={24} color={theme.colors.primary} style={{ marginBottom: 8 }} />
+          ) : null}
           <AppText variant="label" style={{ marginBottom: 4 }}>
             {t(language, 'deliveryInfo')}
           </AppText>

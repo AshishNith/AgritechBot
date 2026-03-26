@@ -1,9 +1,8 @@
-import { ArrowLeft, Share2, ShoppingCart, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { IconMap } from '../components/IconMap';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image, Pressable, ScrollView, StyleSheet, View, Alert, Share, useColorScheme } from 'react-native';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useEffect, useMemo, useState } from 'react';
 
 import { apiService } from '../api/services';
@@ -118,15 +117,15 @@ export function ProductDetailScreen({ route }: Props) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
         <View style={styles.header}>
           <Pressable onPress={() => navigation.goBack()} style={styles.headerIconButton}>
-            <ArrowLeft size={20} color={isDark ? theme.colors.textOnDark : theme.colors.text} />
+            {(() => { const IconComp = IconMap['ArrowLeft']; return IconComp ? <IconComp size={20} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
           </Pressable>
           <AppText variant="label" style={styles.headerTitle}>{t(language, 'productDetails')}</AppText>
           <View style={styles.headerActions}>
             <Pressable onPress={handleShareProduct} style={styles.headerIconButton}>
-              <Share2 size={19} color={isDark ? theme.colors.textOnDark : theme.colors.text} />
+              {(() => { const IconComp = IconMap['Share2']; return IconComp ? <IconComp size={19} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
             </Pressable>
             <Pressable onPress={() => navigation.navigate('Cart')} style={styles.headerIconButton}>
-              <ShoppingCart size={20} color={isDark ? theme.colors.textOnDark : theme.colors.text} />
+              {(() => { const IconComp = IconMap['ShoppingCart']; return IconComp ? <IconComp size={20} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
               {cartCount > 0 ? (
                 <View style={styles.cartBadge}>
                   <AppText variant="caption" color={theme.colors.textOnDark} style={styles.cartBadgeText}>
@@ -143,10 +142,10 @@ export function ProductDetailScreen({ route }: Props) {
             {galleryImages.length > 1 ? (
               <>
                 <Pressable onPress={handlePrevImage} style={[styles.imageNavButton, styles.imageNavButtonLeft]}>
-                  <ChevronLeft size={20} color={theme.colors.text} />
+                  {(() => { const IconComp = IconMap['ChevronLeft']; return IconComp ? <IconComp size={20} color={theme.colors.text} /> : null; })()}
                 </Pressable>
                 <Pressable onPress={handleNextImage} style={[styles.imageNavButton, styles.imageNavButtonRight]}>
-                  <ChevronRight size={20} color={theme.colors.text} />
+                  {(() => { const IconComp = IconMap['ChevronRight']; return IconComp ? <IconComp size={20} color={theme.colors.text} /> : null; })()}
                 </Pressable>
               </>
             ) : null}
@@ -287,7 +286,7 @@ export function ProductDetailScreen({ route }: Props) {
               addToCart(product, 1);
               Alert.alert(t(language, 'added'), t(language, 'productAddedToCart'));
             }}
-            leftIcon={<ShoppingBag size={18} color={theme.colors.primaryDark} style={{ marginRight: 6 }} />}
+            leftIcon={(() => { const IconComp = IconMap['ShoppingBag']; return IconComp ? <IconComp size={18} color={theme.colors.primaryDark} style={{ marginRight: 6 }} /> : null; })()}
             style={{ flex: 1 }}
           />
           <GradientButton label={t(language, 'buyNow')} onPress={handleBuyNow} style={{ flex: 1 }} />

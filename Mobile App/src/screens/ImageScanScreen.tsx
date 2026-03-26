@@ -1,5 +1,4 @@
-
-import { ArrowLeft, Camera } from 'lucide-react-native';
+import { IconMap } from '../components/IconMap';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -31,7 +30,7 @@ export function ImageScanScreen() {
       <ImageBackground source={{ uri: imageUri }} style={styles.background}>
         <View style={styles.header}>
           <Pressable onPress={() => navigation.goBack()}>
-            <ArrowLeft size={24} color={theme.colors.textOnDark} />
+            {(() => { const IconComp = IconMap['ArrowLeft']; return IconComp ? <IconComp size={24} color={theme.colors.textOnDark} /> : null; })()}
           </Pressable>
           <View>
             <AppText color={theme.colors.textOnDark} variant="heading">
@@ -40,7 +39,7 @@ export function ImageScanScreen() {
             <AppText color="#9ad5b0">Live Diagnostics</AppText>
           </View>
           <Pressable onPress={pickImage}>
-            <Camera size={24} color={theme.colors.textOnDark} />
+            {(() => { const IconComp = IconMap['Camera']; return IconComp ? <IconComp size={24} color={theme.colors.textOnDark} /> : null; })()}
           </Pressable>
         </View>
         <View style={styles.scannerFrame}>

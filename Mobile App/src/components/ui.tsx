@@ -1,4 +1,4 @@
-import * as LucideIcons from 'lucide-react-native';
+import { IconMap } from './IconMap';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -184,7 +184,7 @@ export function SearchInput({ value, onChangeText, placeholder }: { value: strin
         },
       ]}
     >
-      <LucideIcons.Search size={18} color={theme.colors.textMuted} />
+      {(() => { const IconComp = IconMap['Search']; return IconComp ? <IconComp size={18} color={theme.colors.textMuted} /> : null; })()}
       <TextInput
         placeholder={placeholder}
         placeholderTextColor={theme.colors.textMuted}
@@ -257,7 +257,7 @@ export function PulseMic({ size = 108 }: { size?: number }) {
       <Animated.View style={[styles.pulseRing, { width: size + 56, height: size + 56, borderRadius: (size + 56) / 2 }, ringStyle]} />
       <Animated.View style={[styles.pulseRing, { width: size + 26, height: size + 26, borderRadius: (size + 26) / 2 }, ringStyle]} />
       <LinearGradient colors={[theme.colors.primary, '#8ce0af']} style={[styles.micCore, { width: size, height: size, borderRadius: size / 2 }]}>
-        <LucideIcons.Mic size={size * 0.38} color={theme.colors.textOnDark} />
+        {(() => { const IconComp = IconMap['Mic']; return IconComp ? <IconComp size={size * 0.38} color={theme.colors.textOnDark} /> : null; })()}
       </LinearGradient>
     </View>
   );
@@ -312,7 +312,7 @@ export function ProgressDots({ total, active }: { total: number; active: number 
 export function AnaajTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const isDark = useColorScheme() === 'dark';
-  const tabIcons: Record<string, keyof typeof LucideIcons> = {
+  const tabIcons: Record<string, string> = {
     HomeTab: 'Home',
     ChatTab: 'MessageSquare',
     MarketplaceTab: 'ShoppingBag',
@@ -346,7 +346,7 @@ export function AnaajTabBar({ state, descriptors, navigation }: BottomTabBarProp
             >
               <View style={[styles.tabIconWrap, isFocused && styles.tabIconActive]}>
                 {(() => {
-                  const IconComp = (LucideIcons as any)[tabIcons[route.name] ?? 'Circle'];
+                  const IconComp = IconMap[tabIcons[route.name] ?? 'Circle'];
                   return IconComp ? <IconComp size={20} color={isFocused ? theme.colors.textOnDark : isDark ? 'rgba(247,250,248,0.72)' : theme.colors.textMuted} /> : null;
                 })()}
               </View>
@@ -373,7 +373,7 @@ export function IconRow({ icon, title, subtitle, right }: { icon: string; title:
   return (
     <View style={styles.iconRow}>
       <View style={styles.iconBadge}>
-        {(() => { const IconComp = (LucideIcons as any)[icon]; return IconComp ? <IconComp size={20} color={theme.colors.primaryDark} /> : null; })()}
+        {(() => { const IconComp = IconMap[icon]; return IconComp ? <IconComp size={20} color={theme.colors.primaryDark} /> : null; })()}
       </View>
       <View style={{ flex: 1 }}>
         <AppText variant="label">{title}</AppText>

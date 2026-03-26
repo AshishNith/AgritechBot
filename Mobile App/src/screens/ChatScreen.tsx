@@ -1,5 +1,4 @@
-
-import { ArrowLeft, Search, MoreVertical, PlayCircle, Mic, ImagePlus } from 'lucide-react-native';
+import { IconMap } from '../components/IconMap';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useMutation } from '@tanstack/react-query';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -206,7 +205,7 @@ export function ChatScreen() {
         <View style={[styles.header, { backgroundColor: isDark ? '#151d19' : '#eaf3ee' }]}>
           <View style={styles.headerLeft}>
             <Pressable onPress={() => navigation.goBack()} style={styles.topIconButton}>
-              <ArrowLeft size={20} color={theme.colors.textOnDark} />
+              {(() => { const IconComp = IconMap['ArrowLeft']; return IconComp ? <IconComp size={20} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
             </Pressable>
             <Image source={{ uri: designImages.chatAvatar }} style={styles.avatar} />
             <View>
@@ -218,10 +217,10 @@ export function ChatScreen() {
           </View>
           <View style={styles.headerActions}>
             <Pressable style={styles.topIconButton}>
-              <Search size={20} color={theme.colors.textOnDark} />
+              {(() => { const IconComp = IconMap['Search']; return IconComp ? <IconComp size={20} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
             </Pressable>
             <Pressable style={styles.topIconButton}>
-              <MoreVertical size={20} color={theme.colors.textOnDark} />
+              {(() => { const IconComp = IconMap['MoreVertical']; return IconComp ? <IconComp size={20} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
             </Pressable>
           </View>
         </View>
@@ -248,7 +247,7 @@ export function ChatScreen() {
                 </AppText>
                 {message.role === 'assistant' && message.audioUrl ? (
                   <Pressable onPress={() => playAudio(message.audioUrl)} style={styles.audioButton}>
-                    <PlayCircle size={18} color={theme.colors.primaryDark} />
+                    {(() => { const IconComp = IconMap['PlayCircle']; return IconComp ? <IconComp size={18} color={theme.colors.primaryDark} /> : null; })()}
                     <AppText variant="label" color={theme.colors.primaryDark}>
                       {t(language, 'audioPlayback')}
                     </AppText>
@@ -276,12 +275,12 @@ export function ChatScreen() {
           {pickedImage ? (
             <View style={styles.imagePreviewRow}>
               <Image source={{ uri: pickedImage }} style={styles.previewImage} />
-              <AppText color={theme.colors.textOnDark}>{t(language, 'imageAttached')}</AppText>
+              <AppText color={isDark ? theme.colors.textOnDark : theme.colors.text}>{t(language, 'imageAttached')}</AppText>
             </View>
           ) : null}
           <View style={styles.inputRow}>
             <Pressable onPress={pickImage} style={styles.iconAction}>
-              <ImagePlus size={20} color={theme.colors.textOnDark} />
+              {(() => { const IconComp = IconMap['ImagePlus']; return IconComp ? <IconComp size={20} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
             </Pressable>
             <TextInput
               placeholder={t(language, 'typeHere')}
@@ -292,7 +291,7 @@ export function ChatScreen() {
               multiline
             />
             <Pressable onPress={() => navigation.navigate('Voice')} style={styles.iconAction}>
-              <Mic size={20} color={theme.colors.textOnDark} />
+              {(() => { const IconComp = IconMap['Mic']; return IconComp ? <IconComp size={20} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
             </Pressable>
             <GradientButton label="→" onPress={sendMessage} style={styles.sendButton} />
           </View>

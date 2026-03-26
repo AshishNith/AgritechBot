@@ -1,7 +1,7 @@
 import { StyleSheet, View, FlatList, Pressable, useColorScheme } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { IconMap } from '../components/IconMap';
 
 import { AppText, Screen, ScreenCard } from '../components/ui';
 import { localeForLanguage, t } from '../constants/localization';
@@ -11,13 +11,19 @@ import { useAppStore } from '../store/useAppStore';
 import { useMarketplaceStore } from '../store/useMarketplaceStore';
 
 type Navigation = NativeStackNavigationProp<RootStackParamList>;
-type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
 
 const STATUS_COLORS: { [key: string]: string } = {
   pending: '#fbbf24',
   confirmed: '#60a5fa',
   shipped: '#34d399',
   delivered: '#10b981',
+};
+
+const STATUS_ICONS: { [key: string]: string } = {
+  pending: 'Clock',
+  confirmed: 'CheckCircle2',
+  shipped: 'Truck',
+  delivered: 'CircleCheckBig',
 };
 
 export function OrderHistoryScreen() {
@@ -33,15 +39,16 @@ export function OrderHistoryScreen() {
     delivered: t(language, 'statusDelivered'),
   };
 
+  const ShoppingCartIcon = IconMap['ShoppingCart'];
+  const ArrowLeftIcon = IconMap['ArrowLeft'];
+
   if (orders.length === 0) {
     return (
       <Screen scrollable>
         <View style={styles.emptyContainer}>
-          <MaterialCommunityIcons
-            name="cart"
-            size={64}
-            color={theme.colors.textMuted}
-          />
+          {ShoppingCartIcon ? (
+            <ShoppingCartIcon size={64} color={theme.colors.textMuted} />
+          ) : null}
           <AppText variant="heading" style={{ marginTop: 16 }}>
             {t(language, 'noOrders')}
           </AppText>
@@ -57,11 +64,7 @@ export function OrderHistoryScreen() {
     <Screen scrollable>
       <View style={styles.header}>
         <Pressable onPress={() => navigation.goBack()}>
-          <MaterialCommunityIcons
-            name="arrow-left"
-            size={24}
-            color={theme.colors.text}
-          />
+          {ArrowLeftIcon ? <ArrowLeftIcon size={24} color={theme.colors.text} /> : null}
         </Pressable>
         <AppText variant="heading" style={{ flex: 1, textAlign: 'center' }}>
           {t(language, 'orderHistory')}
@@ -71,94 +74,85 @@ export function OrderHistoryScreen() {
 
       <FlatList
         data={orders}
-        renderItem={({ item }) => (
-          <ScreenCard style={styles.orderCard} key={item.id}>
-            <View style={styles.orderHeader}>
-              <View style={{ flex: 1 }}>
-                <AppText variant="label">{t(language, 'order')} #{item.id.slice(-6)}</AppText>
-                <AppText color={theme.colors.textMuted} style={{ fontSize: 12, marginTop: 4 }}>
-                  {new Date(item.createdAt).toLocaleDateString(localeForLanguage(language))}
-                </AppText>
-              </View>
-              <View
-                style={[
-                  styles.statusBadge,
-                  { backgroundColor: `${STATUS_COLORS[item.status]}30` },
-                ]}
-              >
-                <MaterialCommunityIcons
-                  name={getStatusIcon(item.status)}
-                  size={14}
-                  color={STATUS_COLORS[item.status]}
-                  style={{ marginRight: 4 }}
-                />
-                <AppText
-                  color={STATUS_COLORS[item.status]}
-                  style={{ fontSize: 11, fontWeight: '600' }}
-                >
-                  {statusLabels[item.status]}
-                </AppText>
-              </View>
-            </View>
+        renderItem={({ item }) => {
+          const statusIconName = STATUS_ICONS[item.status] || 'Circle';
+          const StatusIcon = IconMap[statusIconName];
 
-            {/* Items Summary */}
-            <View style={[styles.itemsSummary, { backgroundColor: isDark ? '#1b2721' : theme.colors.surfaceMuted }]}>
-              {item.items.slice(0, 2).map((cartItem) => (
-                <View key={cartItem.product.id} style={styles.itemRow}>
-                  <AppText color={theme.colors.textMuted} style={{ fontSize: 12 }}>
-                    {cartItem.product.name}
-                  </AppText>
-                  <AppText color={theme.colors.textMuted} style={{ fontSize: 12 }}>
-                    x{cartItem.quantity}
+          return (
+            <ScreenCard style={styles.orderCard} key={item.id}>
+              <View style={styles.orderHeader}>
+                <View style={{ flex: 1 }}>
+                  <AppText variant="label">{t(language, 'order')} #{item.id.slice(-6)}</AppText>
+                  <AppText color={theme.colors.textMuted} style={{ fontSize: 12, marginTop: 4 }}>
+                    {new Date(item.createdAt).toLocaleDateString(localeForLanguage(language))}
                   </AppText>
                 </View>
-              ))}
-              {item.items.length > 2 && (
-                <AppText color={theme.colors.textMuted} style={{ fontSize: 11, marginTop: 4 }}>
-                  +{item.items.length - 2} {t(language, 'moreItems')}
-                </AppText>
-              )}
-            </View>
-
-            {/* Total and Action */}
-            <View style={styles.orderFooter}>
-              <View>
-                <AppText color={theme.colors.textMuted} style={{ fontSize: 12 }}>
-                  {t(language, 'total')}
-                </AppText>
-                <AppText variant="label" color={theme.colors.primary}>
-                  ₹{item.totalPrice.toFixed(0)}
-                </AppText>
+                <View
+                  style={[
+                    styles.statusBadge,
+                    { backgroundColor: `${STATUS_COLORS[item.status]}30` },
+                  ]}
+                >
+                  {StatusIcon ? (
+                    <StatusIcon
+                      size={14}
+                      color={STATUS_COLORS[item.status]}
+                      style={{ marginRight: 4 }}
+                    />
+                  ) : null}
+                  <AppText
+                    color={STATUS_COLORS[item.status]}
+                    style={{ fontSize: 11, fontWeight: '600' }}
+                  >
+                    {statusLabels[item.status]}
+                  </AppText>
+                </View>
               </View>
-              <Pressable style={styles.viewButton}>
-                <AppText color={theme.colors.primary} style={{ fontSize: 12 }}>
-                  {t(language, 'viewDetails')}
-                </AppText>
-              </Pressable>
-            </View>
-          </ScreenCard>
-        )}
+
+              {/* Items Summary */}
+              <View style={[styles.itemsSummary, { backgroundColor: isDark ? '#1b2721' : theme.colors.surfaceMuted }]}>
+                {item.items.slice(0, 2).map((cartItem) => (
+                  <View key={cartItem.product.id} style={styles.itemRow}>
+                    <AppText color={theme.colors.textMuted} style={{ fontSize: 12 }}>
+                      {cartItem.product.name}
+                    </AppText>
+                    <AppText color={theme.colors.textMuted} style={{ fontSize: 12 }}>
+                      x{cartItem.quantity}
+                    </AppText>
+                  </View>
+                ))}
+                {item.items.length > 2 && (
+                  <AppText color={theme.colors.textMuted} style={{ fontSize: 11, marginTop: 4 }}>
+                    +{item.items.length - 2} {t(language, 'moreItems')}
+                  </AppText>
+                )}
+              </View>
+
+              {/* Total and Action */}
+              <View style={styles.orderFooter}>
+                <View>
+                  <AppText color={theme.colors.textMuted} style={{ fontSize: 12 }}>
+                    {t(language, 'total')}
+                  </AppText>
+                  <AppText variant="label" color={theme.colors.primary}>
+                    ₹{item.totalPrice.toFixed(0)}
+                  </AppText>
+                </View>
+                <Pressable style={styles.viewButton}>
+                  <AppText color={theme.colors.primary} style={{ fontSize: 12 }}>
+                    {t(language, 'viewDetails')}
+                  </AppText>
+                </Pressable>
+              </View>
+            </ScreenCard>
+          );
+        }}
         keyExtractor={(item) => item.id}
         scrollEnabled={false}
         style={{ marginVertical: 12 }}
       />
     </Screen>
   );
-}
-
-function getStatusIcon(status: string): IconName {
-  switch (status) {
-    case 'pending':
-      return 'clock-outline';
-    case 'confirmed':
-      return 'check-circle-outline';
-    case 'shipped':
-      return 'truck-outline';
-    case 'delivered':
-      return 'check-circle';
-    default:
-      return 'cart';
-  }
 }
 
 const styles = StyleSheet.create({

@@ -19,11 +19,11 @@ export default function Marketplace() {
             <span className="material-symbols-outlined text-sm">storefront</span>
             <span className="text-xs font-bold uppercase tracking-widest">Marketplace</span>
           </div>
-          <h2 className="text-5xl md:text-6xl font-headline font-bold text-primary max-w-2xl leading-tight">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-headline font-bold text-primary max-w-2xl leading-tight">
             Top Featured Vendors
           </h2>
         </div>
-        <button className="flex items-center gap-2 border-2 border-primary text-primary px-8 py-4 rounded-2xl font-bold hover:bg-primary hover:text-on-primary transition-colors whitespace-nowrap">
+        <button className="flex items-center gap-2 border-2 border-primary text-primary px-6 py-3 md:px-8 md:py-4 rounded-2xl font-bold hover:bg-primary hover:text-on-primary transition-colors whitespace-nowrap">
           View All Sellers
           <span className="material-symbols-outlined">arrow_forward</span>
         </button>

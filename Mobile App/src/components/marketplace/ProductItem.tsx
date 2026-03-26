@@ -2,7 +2,7 @@ import { StyleSheet, View, Pressable, Image, ActivityIndicator } from 'react-nat
 import { AppText } from '../ui';
 import { theme } from '../../constants/theme';
 import { Product } from '../../types/api';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { IconMap } from '../IconMap';
 
 interface ProductItemProps {
   product: Product;
@@ -13,6 +13,8 @@ interface ProductItemProps {
 }
 
 export function ProductItem({ product, onPress, onAddToCart, style, isLoading }: ProductItemProps) {
+  const CartIcon = IconMap['ShoppingCart'];
+
   return (
     <Pressable onPress={onPress} style={[styles.container, style]}>
       <View style={styles.imageContainer}>
@@ -29,11 +31,7 @@ export function ProductItem({ product, onPress, onAddToCart, style, isLoading }:
             {isLoading ? (
               <ActivityIndicator size={18} color={theme.colors.primary} />
             ) : (
-              <MaterialCommunityIcons
-                name="shopping-outline"
-                size={18}
-                color={theme.colors.primary}
-              />
+              CartIcon ? <CartIcon size={18} color={theme.colors.primary} /> : null
             )}
           </Pressable>
         )}
@@ -59,6 +57,8 @@ interface ProductListItemProps {
 }
 
 export function ProductListItem({ product, onPress, onAddToCart, isLoading }: ProductListItemProps) {
+  const ChevronRightIcon = IconMap['ChevronRight'];
+
   return (
     <Pressable onPress={onPress} style={styles.listItemContainer}>
       <Image
@@ -87,11 +87,7 @@ export function ProductListItem({ product, onPress, onAddToCart, isLoading }: Pr
         {isLoading ? (
           <ActivityIndicator size={18} color={theme.colors.primary} />
         ) : (
-          <MaterialCommunityIcons
-            name="chevron-right"
-            size={24}
-            color={theme.colors.primary}
-          />
+          ChevronRightIcon ? <ChevronRightIcon size={24} color={theme.colors.primary} /> : null
         )}
       </Pressable>
     </Pressable>

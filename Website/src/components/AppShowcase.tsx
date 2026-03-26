@@ -11,12 +11,12 @@ export default function AppShowcase() {
       className="py-32 bg-surface-container-low relative overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-8 flex flex-col items-center">
-        <h2 className="text-5xl font-headline font-bold text-center mb-16 text-primary">The entire farm in your pocket.</h2>
+        <h2 className="text-4xl md:text-5xl font-headline font-bold text-center mb-12 md:mb-16 text-primary">The entire farm in your pocket.</h2>
 
-        <div className="relative w-full max-w-4xl bg-surface-container-lowest rounded-[3rem] p-12 shadow-2xl overflow-hidden flex flex-col md:flex-row gap-12 items-center">
+        <div className="relative w-full max-w-4xl bg-surface-container-lowest rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 shadow-2xl overflow-hidden flex flex-col md:flex-row gap-8 md:gap-12 items-center">
 
           <div className="md:w-1/2 space-y-6 z-10">
-            <h3 className="text-3xl font-bold text-primary">Voice-first design.</h3>
+            <h3 className="text-2xl md:text-3xl font-bold text-primary">Voice-first design.</h3>
             <p className="text-on-surface-variant leading-relaxed">
               We know you have your hands dirty. That's why every feature of Anaaj.ai is accessible via voice commands. Just double-tap anywhere to talk.
             </p>
@@ -33,7 +33,7 @@ export default function AppShowcase() {
           </div>
 
           <div className="md:w-1/2 relative flex justify-center z-10">
-            <div className="w-64 h-[500px] bg-primary rounded-[2.5rem] p-3 shadow-xl transform rotate-3 relative z-10">
+            <div className="w-56 md:w-64 h-[400px] md:h-[500px] bg-primary rounded-[2rem] md:rounded-[2.5rem] p-3 shadow-xl transform rotate-3 relative z-10">
               <img
                 className="w-full h-full object-cover rounded-[2rem]"
                 alt="a smartphone screen displaying a vibrant farm management app interface with green charts and crop icons"

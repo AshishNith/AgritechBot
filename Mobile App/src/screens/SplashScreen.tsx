@@ -1,5 +1,4 @@
-
-import { Leaf, Brain } from 'lucide-react-native';
+import { IconMap } from '../components/IconMap';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 import { ImageBackground, StyleSheet, View } from 'react-native';
@@ -31,6 +30,9 @@ export function SplashScreen({ navigation }: Props) {
     return () => clearTimeout(timer);
   }, [token, user, navigation]);
 
+  const BrainIcon = IconMap['Brain'];
+  const LeafIcon = IconMap['Leaf'];
+
   return (
     <Screen dark padded={false}>
       <LinearGradient colors={['#1b3d2f', '#151d19', '#0b120e']} style={StyleSheet.absoluteFillObject} />
@@ -42,9 +44,9 @@ export function SplashScreen({ navigation }: Props) {
             <View style={styles.outerRing} />
             <View style={styles.middleRing} />
             <View style={styles.logoCard}>
-              <Brain size={40} color={theme.colors.primary} />
+              {BrainIcon ? <BrainIcon size={40} color={theme.colors.primary} /> : null}
               <View style={styles.ecoBadge}>
-                <Leaf size={14} color={theme.colors.textOnDark} />
+                {LeafIcon ? <LeafIcon size={14} color={theme.colors.textOnDark} /> : null}
               </View>
             </View>
           </View>

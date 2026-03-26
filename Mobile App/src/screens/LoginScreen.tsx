@@ -1,4 +1,4 @@
-import { AlertCircle, Globe, Mail } from 'lucide-react-native';
+import { IconMap } from '../components/IconMap';
 import { useMutation } from '@tanstack/react-query';
 
 import { useState } from 'react';
@@ -17,7 +17,6 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 function normalizePhone(input: string): string | null {
   const digits = input.replace(/\D/g, '');
 
-  // Assume local Indian number when user enters 10 digits.
   if (digits.length === 10) {
     return `+91${digits}`;
   }
@@ -93,7 +92,7 @@ export function LoginScreen({ navigation }: Props) {
 
           {error && (
             <View style={styles.errorBox}>
-              <AlertCircle size={16} color={theme.colors.danger} />
+              {(() => { const IconComp = IconMap['AlertCircle']; return IconComp ? <IconComp size={16} color={theme.colors.danger} /> : null; })()}
               <AppText color={theme.colors.danger} style={{ flex: 1, marginLeft: 8 }}>
                 {error}
               </AppText>
@@ -117,8 +116,14 @@ export function LoginScreen({ navigation }: Props) {
             <View style={styles.line} />
           </View>
           <View style={styles.socialRow}>
-            <GradientButton label="Google" secondary leftIcon={<Globe size={18} color={theme.colors.primaryDark} />} style={styles.socialButton} />
-            <GradientButton label="Email" secondary leftIcon={<Mail size={18} color={theme.colors.primaryDark} />} style={styles.socialButton} />
+            <GradientButton label="Google" secondary 
+              leftIcon={(() => { const IconComp = IconMap['Globe']; return IconComp ? <IconComp size={18} color={theme.colors.primaryDark} /> : null; })()} 
+              style={styles.socialButton} 
+            />
+            <GradientButton label="Email" secondary 
+              leftIcon={(() => { const IconComp = IconMap['Mail']; return IconComp ? <IconComp size={18} color={theme.colors.primaryDark} /> : null; })()} 
+              style={styles.socialButton} 
+            />
           </View>
         </ScreenCard>
         <AppText color={theme.colors.textMuted} style={styles.terms}>

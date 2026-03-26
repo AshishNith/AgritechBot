@@ -123,7 +123,7 @@ export default function Hero() {
             <span className="text-xs font-bold uppercase tracking-widest font-label">The Future of Farming</span>
           </div>
           
-          <h1 className="text-6xl md:text-8xl font-headline font-bold text-white tracking-tight leading-[1] drop-shadow-2xl">
+          <h1 className="text-5xl sm:text-6xl md:text-8xl font-headline font-bold text-white tracking-tight leading-[1] drop-shadow-2xl">
             Your AI <br />
             <span className="text-tertiary-fixed italic">Farming</span> <br />
             Assistant.
@@ -138,7 +138,7 @@ export default function Hero() {
           style={{ opacity: opacity2, y: y2 }}
           className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-4 md:px-8 text-center"
         >
-          <h2 className="text-5xl md:text-8xl font-headline font-bold text-tertiary-fixed tracking-tight drop-shadow-2xl">
+          <h2 className="text-4xl sm:text-5xl md:text-8xl font-headline font-bold text-tertiary-fixed tracking-tight drop-shadow-2xl">
             Intelligent Data.
           </h2>
           <p className="mt-6 text-2xl text-white font-body max-w-2xl drop-shadow-lg font-medium">
@@ -151,17 +151,17 @@ export default function Hero() {
           style={{ opacity: opacity3, y: y3 }}
           className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-4 md:px-8 text-center"
         >
-          <h2 className="text-5xl md:text-8xl font-headline font-bold text-white tracking-tight drop-shadow-2xl">
+          <h2 className="text-4xl sm:text-5xl md:text-8xl font-headline font-bold text-white tracking-tight drop-shadow-2xl">
             Harvest with <span className="text-tertiary-fixed">Confidence.</span>
           </h2>
           <p className="mt-6 text-2xl text-white font-body max-w-2xl drop-shadow-lg font-medium">
             Watch your yield increase and costs decrease.
           </p>
-          <div className="mt-12 flex items-center justify-center gap-4 pointer-events-auto">
-            <button className="bg-tertiary-fixed text-on-tertiary-fixed px-10 py-5 rounded-2xl font-bold text-xl shadow-xl hover:scale-105 transition-all">
+          <div className="mt-8 md:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto">
+            <button className="bg-tertiary-fixed text-on-tertiary-fixed px-6 py-4 md:px-10 md:py-5 rounded-2xl font-bold text-base md:text-xl shadow-xl hover:scale-105 transition-all w-full sm:w-auto">
               Start Your Free Trial
             </button>
-            <button className="flex items-center gap-2 font-bold px-8 py-5 rounded-2xl border border-white/30 text-white backdrop-blur-md hover:bg-white/10 transition-colors">
+            <button className="flex items-center justify-center gap-2 font-bold px-6 py-4 md:px-8 md:py-5 rounded-2xl border border-white/30 text-white backdrop-blur-md hover:bg-white/10 transition-colors w-full sm:w-auto text-base md:text-lg">
               <span className="material-symbols-outlined">play_circle</span>
               Watch Demo
             </button>

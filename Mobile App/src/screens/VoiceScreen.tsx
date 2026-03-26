@@ -1,5 +1,5 @@
 
-import { X, Scan } from 'lucide-react-native';
+import { IconMap } from '../components/IconMap';
 import { useMutation } from '@tanstack/react-query';
 import { Audio } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
@@ -61,10 +61,10 @@ export function VoiceScreen() {
     <Screen dark>
       <View style={styles.topBar}>
         <Pressable onPress={() => navigation.goBack()}>
-          <X size={28} color={theme.colors.textOnDark} />
+          {(() => { const IconComp = IconMap['X']; return IconComp ? <IconComp size={28} color={theme.colors.textOnDark} /> : null; })()}
         </Pressable>
         <Pressable onPress={() => navigation.navigate('ImageScan')}>
-          <Scan size={24} color={theme.colors.textOnDark} />
+          {(() => { const IconComp = IconMap['Scan']; return IconComp ? <IconComp size={24} color={theme.colors.textOnDark} /> : null; })()}
         </Pressable>
       </View>
       <View style={styles.center}>

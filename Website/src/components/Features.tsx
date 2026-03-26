@@ -11,10 +11,10 @@ export default function Features() {
       className="py-32 bg-surface-container-lowest"
     >
       <div className="max-w-7xl mx-auto px-8">
-        <h2 className="text-center text-5xl font-headline font-bold mb-32 text-primary">Precision tools for every acre.</h2>
+        <h2 className="text-center text-4xl md:text-5xl font-headline font-bold mb-16 md:mb-32 text-primary">Precision tools for every acre.</h2>
         
         {/* Feature 1 */}
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16 mb-24 lg:mb-48">
+        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16 mb-20 lg:mb-48">
           <div className="lg:w-1/2">
             <div className="relative rounded-[2rem] overflow-hidden shadow-2xl">
               <img 
@@ -30,7 +30,7 @@ export default function Features() {
           </div>
           <div className="lg:w-1/2 space-y-6">
             <span className="text-on-primary-container font-label uppercase tracking-widest font-bold">Image Scanning</span>
-            <h3 className="text-4xl font-headline font-bold leading-tight text-primary">Identify pests and diseases in seconds.</h3>
+            <h3 className="text-3xl md:text-4xl font-headline font-bold leading-tight text-primary">Identify pests and diseases in seconds.</h3>
             <p className="text-lg text-on-surface-variant leading-relaxed">
               Take a photo of your leaf or crop. Our AI analyzes thousands of data points to identify issues instantly and suggest the exact cure.
             </p>
@@ -50,7 +50,7 @@ export default function Features() {
         {/* Feature 2 */}
         <div className="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-16">
           <div className="lg:w-1/2">
-            <div className="relative p-12 bg-surface-container rounded-[2rem] border border-outline-variant/20 overflow-hidden">
+            <div className="relative p-6 md:p-12 bg-surface-container rounded-[2rem] border border-outline-variant/20 overflow-hidden">
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/10">
                   <span className="font-label text-sm text-on-surface-variant tracking-wider">SOIL PH</span>
@@ -76,7 +76,7 @@ export default function Features() {
           </div>
           <div className="lg:w-1/2 space-y-6">
             <span className="text-on-primary-container font-label uppercase tracking-widest font-bold">Smart Insights</span>
-            <h3 className="text-4xl font-headline font-bold leading-tight text-primary">Data-driven decisions, simplified.</h3>
+            <h3 className="text-3xl md:text-4xl font-headline font-bold leading-tight text-primary">Data-driven decisions, simplified.</h3>
             <p className="text-lg text-on-surface-variant leading-relaxed">
               Anaaj.ai connects with your local climate data and soil history to provide recommendations that actually work for your specific land.
             </p>

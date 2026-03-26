@@ -1,5 +1,5 @@
 
-import { Bell, CloudSun, Droplets } from 'lucide-react-native';
+import { IconMap } from '../components/IconMap';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -170,7 +170,7 @@ export function HomeScreen() {
         </View>
         <Pill
           label={unreadCount > 0 ? `Alerts (${unreadCount})` : 'Alerts'}
-          icon={<Bell size={16} color={isDark ? theme.colors.textOnDark : theme.colors.text} />}
+          icon={(() => { const IconComp = IconMap['Bell']; return IconComp ? <IconComp size={16} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
           onPress={() => navigation.navigate('Notifications')}
           active={unreadCount > 0}
         />
@@ -195,7 +195,7 @@ export function HomeScreen() {
               {liveLocationName}
             </AppText>
           </View>
-          <CloudSun size={36} color={theme.colors.primary} />
+          {(() => { const IconComp = IconMap['CloudSun']; return IconComp ? <IconComp size={36} color={theme.colors.primary} /> : null; })()}
         </View>
         <View style={styles.insightSplit}>
           <View style={styles.splitDivider} />
@@ -212,7 +212,7 @@ export function HomeScreen() {
             <AppText variant="heading">{weatherHumidity}</AppText>
             <AppText color={theme.colors.textMuted}>{homeWeatherCard.station}</AppText>
           </View>
-          <Droplets size={32} color={theme.colors.primary} />
+          {(() => { const IconComp = IconMap['Droplets']; return IconComp ? <IconComp size={32} color={theme.colors.primary} /> : null; })()}
         </View>
       </GlassCard>
 

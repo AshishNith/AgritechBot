@@ -1,4 +1,4 @@
-import * as LucideIcons from 'lucide-react-native';
+import { IconMap } from '../components/IconMap';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, View, useColorScheme } from 'react-native';
 import { useState, useCallback, useEffect } from 'react';
@@ -25,11 +25,11 @@ const TYPE_COLORS: Record<NotificationType, string> = {
 };
 
 const TYPE_ICONS: Record<NotificationType, any> = {
-  crop_alert: 'leaf-outline',
-  weather: 'cloud-outline',
-  ai_suggestion: 'sparkles-outline',
-  order: 'cube-outline',
-  system: 'information-circle-outline',
+  crop_alert: 'Leaf',
+  weather: 'CloudRain',
+  ai_suggestion: 'Sparkles',
+  order: 'Package',
+  system: 'Info',
 };
 
 function timeAgo(dateStr: string): string {
@@ -132,7 +132,7 @@ export function NotificationScreen() {
 
       {isError && !isLoading && (
         <View style={styles.centered}>
-          <LucideIcons.AlertCircle size={48} color={theme.colors.danger} />
+          {(() => { const IconComp = IconMap['AlertCircle']; return IconComp ? <IconComp size={48} color={theme.colors.danger} /> : null; })()}
           <AppText color={theme.colors.textMuted} style={{ marginTop: 12 }}>
             Failed to load notifications.
           </AppText>
@@ -142,7 +142,7 @@ export function NotificationScreen() {
 
       {!isLoading && !isError && notifications.length === 0 && (
         <View style={styles.centered}>
-          <LucideIcons.BellOff size={48} color={theme.colors.textMuted} />
+          {(() => { const IconComp = IconMap['BellOff']; return IconComp ? <IconComp size={48} color={theme.colors.textMuted} /> : null; })()}
           <AppText color={theme.colors.textMuted} style={{ marginTop: 12 }}>
             No notifications yet
           </AppText>
@@ -168,7 +168,7 @@ export function NotificationScreen() {
                 ]}
               >
                 <View style={[styles.alertIcon, { backgroundColor: TYPE_COLORS[item.type] }]}>
-                  {(() => { const IconComp = (LucideIcons as any)[TYPE_ICONS[item.type]]; return IconComp ? <IconComp size={22} color={theme.colors.primary} /> : null; })()}
+                  {(() => { const IconComp = IconMap[TYPE_ICONS[item.type]]; return IconComp ? <IconComp size={22} color={theme.colors.primary} /> : null; })()}
                 </View>
                 <View style={{ flex: 1 }}>
                   <View style={styles.alertHeader}>

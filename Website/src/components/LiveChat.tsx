@@ -12,7 +12,7 @@ export default function LiveChat() {
     >
       <div className="max-w-7xl mx-auto px-8 editorial-grid">
         <div className="col-span-12 lg:col-span-5 flex flex-col justify-center space-y-6">
-          <h2 className="text-4xl font-headline font-bold text-primary">Speaks Your Language</h2>
+          <h2 className="text-3xl md:text-4xl font-headline font-bold text-primary">Speaks Your Language</h2>
           <p className="text-lg text-on-surface-variant leading-relaxed">
             Whether it's Hindi, Gujarati, or Punjabi, Anaaj.ai understands local dialects and context. Just speak naturally, and get instant answers.
           </p>
@@ -24,7 +24,7 @@ export default function LiveChat() {
           </div>
         </div>
         
-        <div className="col-span-12 lg:col-span-7 bg-surface-container-low rounded-[2.5rem] p-12 relative overflow-hidden">
+        <div className="col-span-12 lg:col-span-7 bg-surface-container-low rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 relative overflow-hidden mt-8 lg:mt-0">
           <div className="space-y-8 relative z-10">
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center shrink-0">

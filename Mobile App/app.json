@@ -6,7 +6,7 @@
     "icon": "./assets/icon.png",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/icon.png",
       "resizeMode": "contain",
@@ -74,9 +74,9 @@
     "extra": {
       "apiBaseUrl": "https://agritechbot-2.onrender.com",
       "eas": {
-        "projectId": "3d69be85-43a1-43cd-b73f-b477bb3d5489"
+        "projectId": "009871c5-8998-4f87-afa8-1ce28889875e"
       }
     },
-    "owner": "ig_ashish.ranjan"
+    "owner": "ig_ashish.ranjan1"
   }
 }

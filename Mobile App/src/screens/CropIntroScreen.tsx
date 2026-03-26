@@ -1,4 +1,4 @@
-import * as LucideIcons from 'lucide-react-native';
+import { IconMap } from '../components/IconMap';
 import { ImageBackground, StyleSheet, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
@@ -38,7 +38,7 @@ export function CropIntroScreen({ navigation }: Props) {
           {featureCards.map((card) => (
             <ScreenCard key={card.title} style={[styles.featureCard, card.active && styles.featureCardActive]}>
               <View style={[styles.iconBox, card.active && styles.iconBoxActive]}>
-                {(() => { const IconComp = (LucideIcons as any)[card.icon]; return IconComp ? <IconComp size={24} color={card.active ? theme.colors.textOnDark : theme.colors.primaryDark} /> : null; })()}
+                {(() => { const IconComp = IconMap[card.icon]; return IconComp ? <IconComp size={24} color={card.active ? theme.colors.textOnDark : theme.colors.primaryDark} /> : null; })()}
               </View>
               <AppText variant="label" color={card.active ? theme.colors.textOnDark : theme.colors.text}>
                 {card.title}

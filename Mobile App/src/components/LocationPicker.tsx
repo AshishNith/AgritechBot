@@ -1,4 +1,4 @@
-import { X, LocateFixed, Locate, MapPinOff, MapPin } from 'lucide-react-native';
+import { IconMap } from './IconMap';
 import React, { useEffect } from 'react';
 import { View, StyleSheet, ActivityIndicator, Pressable, Platform } from 'react-native';
 
@@ -67,13 +67,13 @@ export function LocationPicker({
           </AppText>
         </View>
         <Pressable onPress={onCancel} style={styles.closeButton}>
-          <X size={24} color={theme.colors.text} />
+          {(() => { const IconComp = IconMap['X']; return IconComp ? <IconComp size={24} color={theme.colors.text} /> : null; })()}
         </Pressable>
       </View>
 
       {/* Map Fallback View */}
       <View style={[styles.mapContainer, { justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.surfaceMuted }]}>
-        <LocateFixed size={64} color={theme.colors.primary} />
+        {(() => { const IconComp = IconMap['LocateFixed']; return IconComp ? <IconComp size={64} color={theme.colors.primary} /> : null; })()}
         <AppText variant="heading" style={{ marginTop: 24 }}>
           {loading ? 'Finding you...' : 'Location Ready'}
         </AppText>
@@ -89,7 +89,7 @@ export function LocationPicker({
             label="Refresh Current Location"
             onPress={handleUseCurrentLocation}
             style={{ marginTop: 24, paddingHorizontal: 24 }}
-            leftIcon={<Locate size={20} color={theme.colors.textOnDark} />}
+            leftIcon={(() => { const IconComp = IconMap['Locate']; return IconComp ? <IconComp size={20} color={theme.colors.textOnDark} /> : null; })()}
           />
         )}
 
@@ -97,7 +97,7 @@ export function LocationPicker({
         {permissionDenied && (
           <View style={{ marginTop: 24, width: '90%' }}>
             <ScreenCard>
-              <MapPinOff size={32} color={theme.colors.danger} />
+              {(() => { const IconComp = IconMap['MapPinOff']; return IconComp ? <IconComp size={32} color={theme.colors.danger} /> : null; })()}
               <AppText color={theme.colors.danger} style={{ marginTop: 8 }}>
                 Location permission denied
               </AppText>
@@ -113,7 +113,7 @@ export function LocationPicker({
       <View style={styles.addressContainer}>
         <ScreenCard style={styles.addressCard}>
           <View style={styles.addressHeader}>
-            <MapPin size={20} color={theme.colors.primary} />
+            {(() => { const IconComp = IconMap['MapPin']; return IconComp ? <IconComp size={20} color={theme.colors.primary} /> : null; })()}
             <AppText variant="label" style={{ marginLeft: 8 }}>
               Selected Location
             </AppText>
