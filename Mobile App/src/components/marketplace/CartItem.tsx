@@ -1,8 +1,8 @@
-import { StyleSheet, View, Pressable, Image, useColorScheme } from 'react-native';
+import { StyleSheet, View, Pressable, Image } from 'react-native';
 import { AppText } from '../ui';
-import { theme } from '../../constants/theme';
 import { CartItem as CartItemType } from '../../store/useMarketplaceStore';
 import { IconMap } from '../IconMap';
+import { useTheme } from '../../providers/ThemeContext';
 
 interface CartItemProps {
   item: CartItemType;
@@ -11,7 +11,7 @@ interface CartItemProps {
 }
 
 export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
-  const isDark = useColorScheme() === 'dark';
+  const { isDark, colors } = useTheme();
   const { product, quantity } = item;
   const itemTotal = product.price * quantity;
 
@@ -24,8 +24,8 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
       style={[
         styles.container,
         {
-          backgroundColor: isDark ? '#1b2721' : theme.colors.surface,
-          borderColor: isDark ? 'rgba(255,255,255,0.1)' : theme.colors.border,
+          backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : colors.surface,
+          borderColor: colors.border,
         },
       ]}
     >
@@ -37,36 +37,36 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
         <AppText variant="label" numberOfLines={2}>
           {product.name}
         </AppText>
-        <AppText color={theme.colors.textMuted} style={styles.unit}>
+        <AppText color={colors.textMuted} style={styles.unit}>
           {product.unit}
         </AppText>
-        <AppText variant="label" color={theme.colors.primary} style={styles.price}>
+        <AppText variant="label" color={colors.primary} style={styles.price}>
           ₹{product.price.toFixed(0)}
         </AppText>
       </View>
 
-      <View style={[styles.quantitySection, { backgroundColor: isDark ? theme.colors.backgroundDark : theme.colors.surfaceMuted }]}>
+      <View style={[styles.quantitySection, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : colors.surfaceMuted }]}>
         <Pressable
           onPress={() => onQuantityChange(Math.max(0, quantity - 1))}
           style={styles.quantityButton}
         >
-          {MinusIcon ? <MinusIcon size={18} color={theme.colors.primary} /> : null}
+          {MinusIcon ? <MinusIcon size={18} color={colors.primary} /> : null}
         </Pressable>
         <AppText style={styles.quantityText}>{quantity}</AppText>
         <Pressable
           onPress={() => onQuantityChange(quantity + 1)}
           style={styles.quantityButton}
         >
-          {PlusIcon ? <PlusIcon size={18} color={theme.colors.primary} /> : null}
+          {PlusIcon ? <PlusIcon size={18} color={colors.primary} /> : null}
         </Pressable>
       </View>
 
       <View style={styles.rightSection}>
-        <AppText variant="label" color={theme.colors.primary}>
+        <AppText variant="label" color={colors.primary}>
           ₹{itemTotal.toFixed(0)}
         </AppText>
         <Pressable onPress={onRemove} style={styles.removeButton}>
-          {TrashIcon ? <TrashIcon size={18} color={theme.colors.danger} /> : null}
+          {TrashIcon ? <TrashIcon size={16} color={colors.danger} /> : null}
         </Pressable>
       </View>
     </View>
@@ -105,10 +105,11 @@ const styles = StyleSheet.create({
     marginRight: 12,
     borderRadius: 8,
     paddingHorizontal: 4,
+    paddingVertical: 2,
   },
   quantityButton: {
     width: 24,
-    height: 24,
+    height: 32,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -120,8 +121,10 @@ const styles = StyleSheet.create({
   rightSection: {
     alignItems: 'flex-end',
     justifyContent: 'space-between',
+    height: '100%',
+    paddingVertical: 2,
   },
   removeButton: {
-    marginTop: 4,
+    marginTop: 8,
   },
 });

@@ -1,10 +1,9 @@
-
 import { IconMap } from '../components/IconMap';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Image, StyleSheet, View, useColorScheme } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { useEffect, useMemo, useState } from 'react';
 import * as Location from 'expo-location';
 import MapView, { Marker } from 'react-native-maps';
@@ -16,10 +15,11 @@ import { t } from '../constants/localization';
 import { theme } from '../constants/theme';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
+import { useTheme } from '../providers/ThemeContext';
 
 export function HomeScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const isDark = useColorScheme() === 'dark';
+  const { isDark, colors } = useTheme();
   const user = useAppStore((state) => state.user);
   const language = useAppStore((state) => state.language);
   const setFeaturedProduct = useAppStore((state) => state.setFeaturedProduct);
@@ -159,7 +159,7 @@ export function HomeScreen() {
 
   return (
     <Screen scrollable>
-      <LinearGradient colors={isDark ? ['#0f1713', '#151d19'] : ['#edf7f0', '#f6f7f7']} style={StyleSheet.absoluteFillObject} />
+      <LinearGradient colors={isDark ? [colors.backgroundAlt, colors.background] : ['#edf7f0', '#f6f7f7']} style={StyleSheet.absoluteFillObject} />
       <View style={styles.topRow}>
         <View style={styles.brandWrap}>
           <Image
@@ -170,7 +170,7 @@ export function HomeScreen() {
         </View>
         <Pill
           label={unreadCount > 0 ? `Alerts (${unreadCount})` : 'Alerts'}
-          icon={(() => { const IconComp = IconMap['Bell']; return IconComp ? <IconComp size={16} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
+          icon={(() => { const IconComp = IconMap['Bell']; return IconComp ? <IconComp size={16} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
           onPress={() => navigation.navigate('Notifications')}
           active={unreadCount > 0}
         />
@@ -190,36 +190,36 @@ export function HomeScreen() {
         <View style={styles.weatherHeader}>
           <View>
             <AppText variant="title">{weatherTemperature}</AppText>
-            <AppText color={theme.colors.textMuted}>{weatherCondition}</AppText>
-            <AppText color={theme.colors.textMuted} style={{ marginTop: 2 }}>
+            <AppText color={colors.textMuted}>{weatherCondition}</AppText>
+            <AppText color={colors.textMuted} style={{ marginTop: 2 }}>
               {liveLocationName}
             </AppText>
           </View>
-          {(() => { const IconComp = IconMap['CloudSun']; return IconComp ? <IconComp size={36} color={theme.colors.primary} /> : null; })()}
+          {(() => { const IconComp = IconMap['CloudSun']; return IconComp ? <IconComp size={36} color={colors.primary} /> : null; })()}
         </View>
         <View style={styles.insightSplit}>
           <View style={styles.splitDivider} />
-          <AppText color={theme.colors.textMuted} style={{ flex: 1 }}>
+          <AppText color={colors.textMuted} style={{ flex: 1 }}>
             Free weather feed: Humidity {weatherHumidity} | Wind {weatherWind}
           </AppText>
         </View>
       </View>
 
       <GlassCard style={styles.weatherCard}>
-        <AppText variant="caption" color={theme.colors.primary}>Soil Moisture</AppText>
+        <AppText variant="caption" color={colors.primary}>Soil Moisture</AppText>
         <View style={styles.soilRow}>
           <View>
             <AppText variant="heading">{weatherHumidity}</AppText>
-            <AppText color={theme.colors.textMuted}>{homeWeatherCard.station}</AppText>
+            <AppText color={colors.textMuted}>{homeWeatherCard.station}</AppText>
           </View>
-          {(() => { const IconComp = IconMap['Droplets']; return IconComp ? <IconComp size={32} color={theme.colors.primary} /> : null; })()}
+          {(() => { const IconComp = IconMap['Droplets']; return IconComp ? <IconComp size={32} color={colors.primary} /> : null; })()}
         </View>
       </GlassCard>
 
       <ScreenCard style={styles.mapCard}>
         <View style={styles.mapHeader}>
           <AppText variant="label">Farm Location Map</AppText>
-          <AppText color={theme.colors.textMuted}>{liveLocationName}</AppText>
+          <AppText color={colors.textMuted}>{liveLocationName}</AppText>
         </View>
         <MapView
           style={styles.mapView}
@@ -250,7 +250,7 @@ export function HomeScreen() {
         <AppText variant="heading" style={{ marginTop: 8 }}>
           {featured.name}
         </AppText>
-        <AppText color={theme.colors.textMuted} style={{ marginTop: 6 }}>
+        <AppText color={colors.textMuted} style={{ marginTop: 6 }}>
           {featured.description}
         </AppText>
         <View style={styles.productMeta}>
@@ -260,7 +260,7 @@ export function HomeScreen() {
       </ScreenCard>
       <View style={styles.micArea}>
         <PulseMic />
-        <AppText color={theme.colors.textMuted} style={{ marginTop: 18 }}>{t(language, 'voiceFarmingHelp')}</AppText>
+        <AppText color={colors.textMuted} style={{ marginTop: 18 }}>{t(language, 'voiceFarmingHelp')}</AppText>
         <Pill label={t(language, 'startListening')} active onPress={() => navigation.navigate('Voice')} style={{ marginTop: 18 }} />
       </View>
     </Screen>

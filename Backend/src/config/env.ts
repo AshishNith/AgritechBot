@@ -45,6 +45,15 @@ const envSchema = z.object({
   QUEUE_CONCURRENCY: z.coerce.number().default(25),
   OTP_EXPIRY_MINUTES: z.coerce.number().default(5),
   CLUSTER_WORKERS: z.coerce.number().default(0), // 0 = auto-detect CPU count
+  OTP_PREVIEW_ENABLED: z.coerce.boolean().default(false),
+  NOTIFICATION_SEEDING_ENABLED: z.coerce.boolean().default(false),
+
+  // Payments
+  PAYMENTS_ENABLED: z.coerce.boolean().default(false),
+  RAZORPAY_KEY_ID: z.string().optional().default(''),
+  RAZORPAY_KEY_SECRET: z.string().optional().default(''),
+  RAZORPAY_WEBHOOK_SECRET: z.string().optional().default(''),
+  PUBLIC_WEBSITE_URL: z.string().optional().default(''),
 
   // Production-specific
   CORS_ORIGINS: z.string().optional().default(''),       // Comma-separated allowed origins
@@ -67,6 +76,18 @@ if (parsed.data.NODE_ENV === 'production') {
   if (parsed.data.JWT_SECRET.length < 32) {
     console.error('❌ JWT_SECRET must be at least 32 characters in production');
     process.exit(1);
+  }
+
+  if (parsed.data.PAYMENTS_ENABLED) {
+    if (!parsed.data.RAZORPAY_KEY_ID.trim() || !parsed.data.RAZORPAY_KEY_SECRET.trim()) {
+      console.error('❌ RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET are required when PAYMENTS_ENABLED=true');
+      process.exit(1);
+    }
+
+    if (!parsed.data.PUBLIC_WEBSITE_URL.trim()) {
+      console.error('❌ PUBLIC_WEBSITE_URL is required when PAYMENTS_ENABLED=true');
+      process.exit(1);
+    }
   }
 
   if (parsed.data.REDIS_ENABLED && ['localhost', '127.0.0.1', '::1'].includes(parsed.data.REDIS_HOST)) {

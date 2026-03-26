@@ -12,6 +12,7 @@ import Sustainability from './pages/Sustainability';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Sitemap from './pages/Sitemap';
+import Checkout from './pages/Checkout';
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/vendor/:id" element={<VendorProfile />} />
             <Route path="/download" element={<DownloadApp />} />
+            <Route path="/checkout/:paymentOrderId" element={<Checkout />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/sustainability" element={<Sustainability />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />

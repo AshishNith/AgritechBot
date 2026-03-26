@@ -42,7 +42,7 @@ export function LoginScreen({ navigation }: Props) {
     onSuccess: (data, normalizedPhone) => {
       setError(null);
       setPhoneDraft(normalizedPhone);
-      navigation.navigate('Otp', { phone: normalizedPhone, otpPreview: data.otp });
+      navigation.navigate('Otp', { phone: normalizedPhone, otpPreview: data.otp ?? null });
     },
     onError: (err: any) => {
       console.error('Send OTP error', err);

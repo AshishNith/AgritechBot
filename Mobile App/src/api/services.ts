@@ -6,11 +6,15 @@ import {
   AuthResponse,
   ChatHistoryResponse,
   NotificationListResponse,
+  OrderListResponse,
   OrderRequest,
+  PaymentCheckoutResponse,
+  PaymentStatusResponse,
   Product,
   ProductDetailResponse,
   ProductListResponse,
   SendOtpResponse,
+  SubscriptionTier,
   UserProfile,
   VoiceAskResponse,
 } from '../types/api';
@@ -90,17 +94,58 @@ export const apiService = {
     return data;
   },
   async getSubscriptionStatus() {
-    const { data } = await api.get<{ 
-      tier: 'free' | 'basic' | 'premium'; 
-      status: 'active' | 'expired'; 
-      features: string[] 
+    const { data } = await api.get<{
+      tier?: 'free' | 'basic' | 'premium';
+      status?: 'active' | 'expired';
+      features?: {
+        dailyQueryLimit: number;
+        voiceEnabled: boolean;
+        prioritySupport: boolean;
+        marketplaceAccess: boolean;
+      };
+      subscription?: {
+        tier: 'free' | 'basic' | 'premium';
+        status: 'active' | 'expired';
+        features: {
+          dailyQueryLimit: number;
+          voiceEnabled: boolean;
+          prioritySupport: boolean;
+          marketplaceAccess: boolean;
+        };
+      };
     }>('/api/subscription/status');
+
+    if (data.subscription) {
+      return {
+        tier: data.subscription.tier,
+        status: data.subscription.status,
+        features: data.subscription.features,
+      };
+    }
+
+    return {
+      tier: data.tier ?? 'free',
+      status: data.status ?? 'active',
+      features: data.features ?? [],
+    };
+  },
+  async createOrderPayment(payload: OrderRequest) {
+    const { data } = await api.post<PaymentCheckoutResponse>('/api/payment/orders', {
+      purpose: 'order',
+      order: payload,
+    });
     return data;
   },
-  async subscribe(tier: 'basic' | 'premium', paymentId: string) {
-    const { data } = await api.post<{ message: string; subscription: any }>('/api/subscription', {
-      tier,
-      paymentId
+  async createSubscriptionPayment(tier: Exclude<SubscriptionTier, 'free'>) {
+    const { data } = await api.post<PaymentCheckoutResponse>('/api/payment/orders', {
+      purpose: 'subscription',
+      subscription: { tier },
+    });
+    return data;
+  },
+  async getPaymentStatus(paymentOrderId: string, checkoutToken: string) {
+    const { data } = await api.get<PaymentStatusResponse>(`/api/payment/status/${paymentOrderId}`, {
+      params: { token: checkoutToken },
     });
     return data;
   },
@@ -148,9 +193,15 @@ export const apiService = {
       product: mapProduct(data.product),
     } satisfies ProductDetailResponse;
   },
-  async createOrder(payload: OrderRequest) {
-    const { data } = await api.post('/api/orders', payload);
-    return data;
+  async getOrders() {
+    const { data } = await api.get<OrderListResponse>('/api/orders');
+    return {
+      ...data,
+      orders: data.orders.map((order: any) => ({
+        ...order,
+        id: String(order._id ?? order.id),
+      })),
+    } satisfies OrderListResponse;
   },
   async sendVoice(audioUri: string, language: string) {
     const formData = new FormData();

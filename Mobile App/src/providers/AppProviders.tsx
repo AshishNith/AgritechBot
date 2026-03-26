@@ -1,12 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
 import { PropsWithChildren, useState } from 'react';
-import { useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ThemeProvider, useTheme } from './ThemeContext';
 
-export function AppProviders({ children }: PropsWithChildren) {
-  const colorScheme = useColorScheme();
+function AppContent({ children }: PropsWithChildren) {
+  const { isDark } = useTheme();
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -23,13 +23,21 @@ export function AppProviders({ children }: PropsWithChildren) {
   );
 
   return (
+    <SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
+        <StatusBar style={isDark ? 'light' : 'dark'} />
+        {children}
+      </QueryClientProvider>
+    </SafeAreaProvider>
+  );
+}
+
+export function AppProviders({ children }: PropsWithChildren) {
+  return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-          {children}
-        </QueryClientProvider>
-      </SafeAreaProvider>
+      <ThemeProvider>
+        <AppContent>{children}</AppContent>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }

@@ -79,11 +79,16 @@ export async function sendOtp(request: FastifyRequest, reply: FastifyReply) {
 
   logger.info({ phone }, 'OTP generated successfully');
 
-  return reply.send({
+  const response: Record<string, unknown> = {
     message: 'OTP sent successfully',
-    otp,
     expiresInSeconds: env.OTP_EXPIRY_MINUTES * 60,
-  });
+  };
+
+  if (env.NODE_ENV !== 'production' && env.OTP_PREVIEW_ENABLED) {
+    response.otp = otp;
+  }
+
+  return reply.send(response);
 }
 
 /**

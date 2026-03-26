@@ -18,7 +18,7 @@ export default function Navbar() {
   const isActive = (path: string) => location.pathname === path;
   
   // To ensure the white logo is always visible on light paths, we always inject a dark glass aesthetic
-  const isDarkCanvas = location.pathname === '/' || location.pathname === '/chat';
+  const isDarkCanvas = location.pathname === '/';
 
   return (
     <motion.nav 
@@ -47,9 +47,6 @@ export default function Navbar() {
           <Link to="/" className={`font-headline font-bold text-sm tracking-widest uppercase transition-colors ${isActive('/') ? 'text-lime-400' : 'text-stone-300 hover:text-white'}`}>
             Home
           </Link>
-          <Link to="/chat" className={`font-headline font-bold text-sm tracking-widest uppercase transition-colors ${isActive('/chat') ? 'text-lime-400' : 'text-stone-300 hover:text-white'}`}>
-            AgriBot AI
-          </Link>
           <Link to="/contact" className={`font-headline font-bold text-sm tracking-widest uppercase transition-colors ${isActive('/contact') ? 'text-lime-400' : 'text-stone-300 hover:text-white'}`}>
             Contact
           </Link>
@@ -64,8 +61,8 @@ export default function Navbar() {
           <button className="material-symbols-outlined text-white hover:scale-105 transition-transform duration-200">
             language
           </button>
-          <Link to="/chat" className="bg-white text-emerald-950 px-6 py-2.5 rounded-full font-bold hover:scale-105 hover:bg-lime-400 active:opacity-80 transition-all shadow-lg text-sm uppercase tracking-wider">
-            Try Bot
+          <Link to="/download" className="bg-white text-emerald-950 px-6 py-2.5 rounded-full font-bold hover:scale-105 hover:bg-lime-400 active:opacity-80 transition-all shadow-lg text-sm uppercase tracking-wider">
+            Download App
           </Link>
         </div>
 
@@ -84,9 +81,6 @@ export default function Navbar() {
             <Link to="/" onClick={toggleMenu} className={`font-headline font-bold text-xl uppercase tracking-widest ${isActive('/') ? 'text-lime-400' : 'text-stone-200'}`}>
               Home
             </Link>
-            <Link to="/chat" onClick={toggleMenu} className={`font-headline font-bold text-xl uppercase tracking-widest ${isActive('/chat') ? 'text-lime-400' : 'text-stone-200'}`}>
-              AgriBot AI
-            </Link>
             <Link to="/contact" onClick={toggleMenu} className={`font-headline font-bold text-xl uppercase tracking-widest ${isActive('/contact') ? 'text-lime-400' : 'text-stone-200'}`}>
               Contact
             </Link>
@@ -94,8 +88,8 @@ export default function Navbar() {
               Get App
             </Link>
             <hr className="border-white/10 mx-10 my-2" />
-            <Link to="/chat" onClick={toggleMenu} className="bg-lime-400 text-emerald-950 text-center px-6 py-4 rounded-2xl font-bold mx-4 shadow-xl uppercase tracking-widest hover:scale-105 transition-transform">
-              Try For Free
+            <Link to="/download" onClick={toggleMenu} className="bg-lime-400 text-emerald-950 text-center px-6 py-4 rounded-2xl font-bold mx-4 shadow-xl uppercase tracking-widest hover:scale-105 transition-transform">
+              Download App
             </Link>
           </div>
         </div>

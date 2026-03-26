@@ -27,7 +27,7 @@ export interface AuthResponse {
 
 export interface SendOtpResponse {
   message: string;
-  otp: string;
+  otp?: string;
   expiresInSeconds: number;
 }
 
@@ -165,6 +165,70 @@ export interface OrderRequest {
     state: string;
     pincode: string;
   };
+}
+
+export type SubscriptionTier = 'free' | 'basic' | 'premium';
+
+export interface OrderSummary {
+  id: string;
+  items: Array<{
+    productId: string;
+    name: string;
+    quantity: number;
+    price: number;
+  }>;
+  totalAmount: number;
+  paymentId?: string;
+  status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
+  deliveryAddress: {
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string;
+    pincode: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderListResponse {
+  orders: OrderSummary[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+  };
+}
+
+export interface PaymentCheckoutResponse {
+  paymentOrderId: string;
+  checkoutToken: string;
+  checkoutUrl: string;
+  provider: 'razorpay';
+  providerOrderId: string;
+  keyId: string;
+  amount: number;
+  currency: string;
+  purpose: 'order' | 'subscription';
+  status: 'created';
+  metadata?: Record<string, unknown>;
+}
+
+export interface PaymentStatusResponse {
+  paymentOrderId: string;
+  status: 'created' | 'verified' | 'failed' | 'expired';
+  purpose: 'order' | 'subscription';
+  orderId?: string;
+  subscriptionTier?: 'basic' | 'premium';
+  verifiedAt?: string;
+  error?: string;
+}
+
+export interface PaymentVerificationResponse {
+  status: 'verified';
+  purpose: 'order' | 'subscription';
+  orderId?: string;
+  subscriptionTier?: 'basic' | 'premium';
 }
 
 export interface VoiceAskResponse {

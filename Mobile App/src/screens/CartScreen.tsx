@@ -3,7 +3,6 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { AppText, Screen, GradientButton } from '../components/ui';
-import { theme } from '../constants/theme';
 import { t } from '../constants/localization';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
@@ -11,10 +10,12 @@ import { useMarketplaceStore } from '../store/useMarketplaceStore';
 import { CartItem } from '../components/marketplace/CartItem';
 import { PriceSummary } from '../components/marketplace/PriceSummary';
 import { IconMap } from '../components/IconMap';
+import { useTheme } from '../providers/ThemeContext';
 
 type Navigation = NativeStackNavigationProp<RootStackParamList>;
 
 export function CartScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation<Navigation>();
   const language = useAppStore((state) => state.language);
   const { cart, removeFromCart, updateCartItemQuantity, getCartTotal } = useMarketplaceStore();
@@ -31,12 +32,12 @@ export function CartScreen() {
       <Screen scrollable>
         <View style={styles.emptyContainer}>
           {ShoppingCartIcon ? (
-            <ShoppingCartIcon size={64} color={theme.colors.textMuted} />
+            <ShoppingCartIcon size={64} color={colors.textMuted} />
           ) : null}
           <AppText variant="heading" style={{ marginTop: 16 }}>
             {t(language, 'cartEmptyTitle')}
           </AppText>
-          <AppText color={theme.colors.textMuted} style={{ marginTop: 8, textAlign: 'center' }}>
+          <AppText color={colors.textMuted} style={{ marginTop: 8, textAlign: 'center' }}>
             {t(language, 'cartEmptySubtitle')}
           </AppText>
           <GradientButton
@@ -52,13 +53,13 @@ export function CartScreen() {
   return (
     <Screen scrollable>
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()}>
-          {ArrowLeftIcon ? <ArrowLeftIcon size={24} color={theme.colors.text} /> : null}
+        <Pressable onPress={() => navigation.goBack()} style={[styles.backButton, { backgroundColor: colors.surfaceMuted }]}>
+          {ArrowLeftIcon ? <ArrowLeftIcon size={22} color={colors.text} /> : null}
         </Pressable>
         <AppText variant="heading" style={{ flex: 1, textAlign: 'center' }}>
           {t(language, 'cart')}
         </AppText>
-        <View style={{ width: 24 }} />
+        <View style={{ width: 42 }} />
       </View>
 
       <FlatList
@@ -106,7 +107,7 @@ export function CartScreen() {
           onPress={() => navigation.navigate('Marketplace')}
           style={styles.continueShopping}
         >
-          <AppText color={theme.colors.primary} style={{ textAlign: 'center' }}>
+          <AppText color={colors.primary} style={{ textAlign: 'center' }}>
             {t(language, 'continueShopping')}
           </AppText>
         </Pressable>
@@ -118,6 +119,7 @@ export function CartScreen() {
 const styles = StyleSheet.create({
   emptyContainer: {
     flex: 1,
+    height: 600,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -127,6 +129,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 16,
+    paddingTop: 8,
+  },
+  backButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   summarySection: {
     marginTop: 20,

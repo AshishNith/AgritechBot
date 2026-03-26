@@ -1,4 +1,4 @@
-import { Switch, Image, Pressable, StyleSheet, View, Modal, TextInput, ActivityIndicator, ScrollView, useColorScheme } from 'react-native';
+import { Switch, Image, Pressable, StyleSheet, View, Modal, TextInput, ActivityIndicator, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useState } from 'react';
@@ -12,10 +12,12 @@ import { t } from '../constants/localization';
 import { theme } from '../constants/theme';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
+import { useTheme } from '../providers/ThemeContext';
 
 export function ProfileScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const isDark = useColorScheme() === 'dark';
+  const { isDark, themeMode, setThemeMode, colors } = useTheme();
+  
   const user = useAppStore((state) => state.user);
   const language = useAppStore((state) => state.language);
   const setUser = useAppStore((state) => state.setUser);
@@ -23,8 +25,6 @@ export function ProfileScreen() {
   const signOut = useAppStore((state) => state.signOut);
   const notificationsEnabled = useAppStore((state) => state.notificationsEnabled);
   const setNotificationsEnabled = useAppStore((state) => state.setNotificationsEnabled);
-
-  const [darkMode, setDarkMode] = useState(true);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editedName, setEditedName] = useState(user?.name || '');
   const [editedLanguage, setEditedLanguage] = useState(user?.language || 'English');
@@ -170,7 +170,17 @@ export function ProfileScreen() {
         <Pressable onPress={() => setEditModalVisible(true)}>
           <IconRow icon="Languages" title="App Language" subtitle={language} />
         </Pressable>
-        <IconRow icon="MoonStar" title="Dark Appearance" right={<Switch value={darkMode} onValueChange={setDarkMode} trackColor={{ true: theme.colors.primary }} />} />
+        <IconRow 
+          icon="MoonStar" 
+          title="Dark Appearance" 
+          right={
+            <Switch 
+              value={isDark} 
+              onValueChange={(val) => setThemeMode(val ? 'dark' : 'light')} 
+              trackColor={{ true: colors.primary }} 
+            />
+          } 
+        />
         <Pressable onPress={() => navigation.navigate('Notifications')}>
           <IconRow
             icon="Bell"

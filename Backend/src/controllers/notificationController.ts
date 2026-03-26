@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { Notification, NotificationType } from '../models/Notification';
 import { logger } from '../utils/logger';
+import { env } from '../config/env';
 
 // ── Sample notifications to seed for new users ──
 const SEED_NOTIFICATIONS: Array<{
@@ -78,9 +79,8 @@ export async function getNotifications(
   const userId = request.user!._id;
   const { type } = request.query;
 
-  // Auto-seed notifications if user has none
   const count = await Notification.countDocuments({ userId });
-  if (count === 0) {
+  if (count === 0 && env.NODE_ENV !== 'production' && env.NOTIFICATION_SEEDING_ENABLED) {
     await seedNotificationsForUser(userId);
   }
 

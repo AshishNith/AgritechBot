@@ -1,14 +1,15 @@
-import { StyleSheet, View, FlatList, Pressable, useColorScheme } from 'react-native';
+import { StyleSheet, View, FlatList, Pressable, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { IconMap } from '../components/IconMap';
+import { useQuery } from '@tanstack/react-query';
 
-import { AppText, Screen, ScreenCard } from '../components/ui';
+import { IconMap } from '../components/IconMap';
+import { AppText, Screen, ScreenCard, GradientButton } from '../components/ui';
 import { localeForLanguage, t } from '../constants/localization';
-import { theme } from '../constants/theme';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
-import { useMarketplaceStore } from '../store/useMarketplaceStore';
+import { useTheme } from '../providers/ThemeContext';
+import { apiService } from '../api/services';
 
 type Navigation = NativeStackNavigationProp<RootStackParamList>;
 
@@ -17,6 +18,7 @@ const STATUS_COLORS: { [key: string]: string } = {
   confirmed: '#60a5fa',
   shipped: '#34d399',
   delivered: '#10b981',
+  cancelled: '#ef4444',
 };
 
 const STATUS_ICONS: { [key: string]: string } = {
@@ -24,35 +26,67 @@ const STATUS_ICONS: { [key: string]: string } = {
   confirmed: 'CheckCircle2',
   shipped: 'Truck',
   delivered: 'CircleCheckBig',
+  cancelled: 'XCircle',
 };
 
 export function OrderHistoryScreen() {
   const navigation = useNavigation<Navigation>();
-  const isDark = useColorScheme() === 'dark';
+  const { isDark, colors } = useTheme();
   const language = useAppStore((state) => state.language);
-  const { orders } = useMarketplaceStore();
 
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ['orders'],
+    queryFn: () => apiService.getOrders(),
+  });
+
+  const orders = data?.orders ?? [];
   const statusLabels: { [key: string]: string } = {
     pending: t(language, 'statusPending'),
     confirmed: t(language, 'statusConfirmed'),
     shipped: t(language, 'statusShipped'),
     delivered: t(language, 'statusDelivered'),
+    cancelled: 'Cancelled',
   };
 
   const ShoppingCartIcon = IconMap['ShoppingCart'];
   const ArrowLeftIcon = IconMap['ArrowLeft'];
 
+  if (isLoading) {
+    return (
+      <Screen scrollable>
+        <View style={styles.emptyContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <AppText color={colors.textMuted} style={{ marginTop: 12 }}>
+            Loading order history...
+          </AppText>
+        </View>
+      </Screen>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Screen scrollable>
+        <View style={styles.emptyContainer}>
+          <AppText variant="heading">Unable to load orders</AppText>
+          <AppText color={colors.textMuted} style={{ marginTop: 8, textAlign: 'center' }}>
+            Your backend order history is currently unavailable.
+          </AppText>
+          <GradientButton label="Retry" onPress={() => refetch()} style={{ marginTop: 24 }} />
+        </View>
+      </Screen>
+    );
+  }
+
   if (orders.length === 0) {
     return (
       <Screen scrollable>
         <View style={styles.emptyContainer}>
-          {ShoppingCartIcon ? (
-            <ShoppingCartIcon size={64} color={theme.colors.textMuted} />
-          ) : null}
+          {ShoppingCartIcon ? <ShoppingCartIcon size={64} color={colors.textMuted} /> : null}
           <AppText variant="heading" style={{ marginTop: 16 }}>
             {t(language, 'noOrders')}
           </AppText>
-          <AppText color={theme.colors.textMuted} style={{ marginTop: 8, textAlign: 'center' }}>
+          <AppText color={colors.textMuted} style={{ marginTop: 8, textAlign: 'center' }}>
             {t(language, 'noOrdersSubtitle')}
           </AppText>
         </View>
@@ -63,13 +97,13 @@ export function OrderHistoryScreen() {
   return (
     <Screen scrollable>
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()}>
-          {ArrowLeftIcon ? <ArrowLeftIcon size={24} color={theme.colors.text} /> : null}
+        <Pressable onPress={() => navigation.goBack()} style={[styles.backButton, { backgroundColor: colors.surfaceMuted }]}>
+          {ArrowLeftIcon ? <ArrowLeftIcon size={22} color={colors.text} /> : null}
         </Pressable>
         <AppText variant="heading" style={{ flex: 1, textAlign: 'center' }}>
           {t(language, 'orderHistory')}
         </AppText>
-        <View style={{ width: 24 }} />
+        <View style={{ width: 42 }} />
       </View>
 
       <FlatList
@@ -82,17 +116,14 @@ export function OrderHistoryScreen() {
             <ScreenCard style={styles.orderCard} key={item.id}>
               <View style={styles.orderHeader}>
                 <View style={{ flex: 1 }}>
-                  <AppText variant="label">{t(language, 'order')} #{item.id.slice(-6)}</AppText>
-                  <AppText color={theme.colors.textMuted} style={{ fontSize: 12, marginTop: 4 }}>
+                  <AppText variant="label">
+                    {t(language, 'order')} #{item.id.slice(-6)}
+                  </AppText>
+                  <AppText color={colors.textMuted} style={{ fontSize: 12, marginTop: 4 }}>
                     {new Date(item.createdAt).toLocaleDateString(localeForLanguage(language))}
                   </AppText>
                 </View>
-                <View
-                  style={[
-                    styles.statusBadge,
-                    { backgroundColor: `${STATUS_COLORS[item.status]}30` },
-                  ]}
-                >
+                <View style={[styles.statusBadge, { backgroundColor: `${STATUS_COLORS[item.status]}30` }]}>
                   {StatusIcon ? (
                     <StatusIcon
                       size={14}
@@ -100,49 +131,44 @@ export function OrderHistoryScreen() {
                       style={{ marginRight: 4 }}
                     />
                   ) : null}
-                  <AppText
-                    color={STATUS_COLORS[item.status]}
-                    style={{ fontSize: 11, fontWeight: '600' }}
-                  >
+                  <AppText color={STATUS_COLORS[item.status]} style={{ fontSize: 11, fontWeight: '600' }}>
                     {statusLabels[item.status]}
                   </AppText>
                 </View>
               </View>
 
-              {/* Items Summary */}
-              <View style={[styles.itemsSummary, { backgroundColor: isDark ? '#1b2721' : theme.colors.surfaceMuted }]}>
-                {item.items.slice(0, 2).map((cartItem) => (
-                  <View key={cartItem.product.id} style={styles.itemRow}>
-                    <AppText color={theme.colors.textMuted} style={{ fontSize: 12 }}>
-                      {cartItem.product.name}
+                <View style={[styles.itemsSummary, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : colors.surfaceMuted }]}>
+                {item.items.slice(0, 2).map((orderItem: { productId: string; name: string; quantity: number }) => (
+                  <View key={`${orderItem.productId}-${orderItem.name}`} style={styles.itemRow}>
+                    <AppText color={colors.textMuted} style={{ fontSize: 12 }}>
+                      {orderItem.name}
                     </AppText>
-                    <AppText color={theme.colors.textMuted} style={{ fontSize: 12 }}>
-                      x{cartItem.quantity}
+                    <AppText color={colors.textMuted} style={{ fontSize: 12 }}>
+                      x{orderItem.quantity}
                     </AppText>
                   </View>
                 ))}
-                {item.items.length > 2 && (
-                  <AppText color={theme.colors.textMuted} style={{ fontSize: 11, marginTop: 4 }}>
+                {item.items.length > 2 ? (
+                  <AppText color={colors.textMuted} style={{ fontSize: 11, marginTop: 4 }}>
                     +{item.items.length - 2} {t(language, 'moreItems')}
                   </AppText>
-                )}
+                ) : null}
               </View>
 
-              {/* Total and Action */}
-              <View style={styles.orderFooter}>
+              <View style={[styles.orderFooter, { borderTopColor: colors.border }]}>
                 <View>
-                  <AppText color={theme.colors.textMuted} style={{ fontSize: 12 }}>
+                  <AppText color={colors.textMuted} style={{ fontSize: 12 }}>
                     {t(language, 'total')}
                   </AppText>
-                  <AppText variant="label" color={theme.colors.primary}>
-                    ₹{item.totalPrice.toFixed(0)}
+                  <AppText variant="label" color={colors.primary}>
+                    Rs {item.totalAmount.toFixed(0)}
                   </AppText>
                 </View>
-                <Pressable style={styles.viewButton}>
-                  <AppText color={theme.colors.primary} style={{ fontSize: 12 }}>
-                    {t(language, 'viewDetails')}
+                <View>
+                  <AppText color={colors.textMuted} style={{ fontSize: 12 }}>
+                    {item.deliveryAddress.city}, {item.deliveryAddress.state}
                   </AppText>
-                </Pressable>
+                </View>
               </View>
             </ScreenCard>
           );
@@ -161,9 +187,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 16,
+    paddingTop: 8,
+  },
+  backButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyContainer: {
     flex: 1,
+    height: 500,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -186,13 +221,13 @@ const styles = StyleSheet.create({
   },
   itemsSummary: {
     borderRadius: 8,
-    padding: 8,
-    marginBottom: 12,
+    padding: 10,
+    marginBottom: 14,
   },
   itemRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   orderFooter: {
     flexDirection: 'row',
@@ -200,12 +235,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
-  },
-  viewButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: `${theme.colors.primary}15`,
-    borderRadius: 6,
   },
 });

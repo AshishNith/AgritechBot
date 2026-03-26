@@ -304,5 +304,197 @@
       "rating": 4.5,
       "phone": "9444444444"
     }
+  },
+  {
+    "_id": "prod_007",
+    "name": "Solar Powered Water Pump",
+    "slug": "solar-powered-water-pump",
+    "brand": "SunEnergy",
+    "category": "Irrigation",
+    "subCategory": "Solar",
+    "description": "Eco-friendly solar water pump for small to medium farms. 2HP capacity.",
+    "pricing": {
+      "price": 28500,
+      "discountPrice": 26000,
+      "currency": "INR",
+      "unit": "1pc",
+      "stock": 15,
+      "minOrderQty": 1
+    },
+    "farmerFriendlyInfo": {
+      "whyUse": "Saves electricity and fuel costs",
+      "howToUse": "Install solar panel in open sunlight and connect to pump",
+      "bestForCrops": ["Vegetables", "Orchards"],
+      "resultTime": "Immediate",
+      "safety": "Handle solar panels with care"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09"
+    ],
+    "ratings": {
+      "average": 4.8,
+      "count": 25
+    },
+    "inventory": {
+      "available": true,
+      "warehouseLocation": "Pune",
+      "deliveryTime": "5-10 days"
+    },
+    "aiMetadata": {
+      "tags": ["solar", "pump", "irrigation", "green energy"],
+      "useCases": ["off-grid irrigation"],
+      "recommendedWith": ["smart-iot-valve-controller"],
+      "season": ["summer", "all"],
+      "soilType": ["all"]
+    },
+    "seller": {
+      "name": "SolarAgri",
+      "rating": 4.9,
+      "phone": "9333333333"
+    }
+  },
+  {
+    "_id": "prod_008",
+    "name": "Hybrid Cotton Seeds",
+    "slug": "hybrid-cotton-seeds",
+    "brand": "FiberGold",
+    "category": "Seeds",
+    "subCategory": "Fiber",
+    "description": "Superior quality hybrid cotton seeds for high lint quality and pest resistance.",
+    "pricing": {
+      "price": 850,
+      "discountPrice": 790,
+      "currency": "INR",
+      "unit": "450g",
+      "stock": 450,
+      "minOrderQty": 1
+    },
+    "farmerFriendlyInfo": {
+      "whyUse": "Better lint quality and higher profits",
+      "howToUse": "Follow recommended spacing of 90cm x 60cm",
+      "bestForCrops": ["Cotton"],
+      "resultTime": "5-7 days",
+      "safety": "Treated seed - Do not consume"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1594903333917-0ec99081e626"
+    ],
+    "ratings": {
+      "average": 4.5,
+      "count": 94
+    },
+    "inventory": {
+      "available": true,
+      "warehouseLocation": "Nagpur",
+      "deliveryTime": "3-5 days"
+    },
+    "aiMetadata": {
+      "tags": ["cotton", "hybrid", "seeds"],
+      "useCases": ["low fiber quality"],
+      "recommendedWith": ["potash-liquid-fertilizer"],
+      "season": ["kharif"],
+      "soilType": ["black soil"]
+    },
+    "seller": {
+      "name": "Vidarbha Seeds",
+      "rating": 4.6,
+      "phone": "9222222222"
+    }
+  },
+  {
+    "_id": "prod_009",
+    "name": "Fungicide Shield Pro",
+    "slug": "fungicide-shield-pro",
+    "brand": "CureAll",
+    "category": "Pesticides",
+    "subCategory": "Fungicide",
+    "description": "Effective broad-spectrum fungicide to protect against fungal infections and leaf spots.",
+    "pricing": {
+      "price": 550,
+      "discountPrice": 490,
+      "currency": "INR",
+      "unit": "250g",
+      "stock": 180,
+      "minOrderQty": 1
+    },
+    "farmerFriendlyInfo": {
+      "whyUse": "Stops fungal spread and saves crops",
+      "howToUse": "Mix 2g per litre of water and spray on infected areas",
+      "bestForCrops": ["Grapes", "Potato", "Tomato"],
+      "resultTime": "2-4 days",
+      "safety": "Wear protective mask"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1595113316349-9fa4ee24f884"
+    ],
+    "ratings": {
+      "average": 4.4,
+      "count": 62
+    },
+    "inventory": {
+      "available": true,
+      "warehouseLocation": "Nashik",
+      "deliveryTime": "2-4 days"
+    },
+    "aiMetadata": {
+      "tags": ["fungicide", "protection", "leaf spot"],
+      "useCases": ["fungal infection", "blight"],
+      "recommendedWith": ["organic-neem-oil-pesticide"],
+      "season": ["monsoon", "all"],
+      "soilType": ["all"]
+    },
+    "seller": {
+      "name": "CureAgri",
+      "rating": 4.5,
+      "phone": "9111111111"
+    }
+  },
+  {
+    "_id": "prod_010",
+    "name": "Ergonomic Hand Weeder",
+    "slug": "ergonomic-hand-weeder",
+    "brand": "EasyFarm",
+    "category": "Tools",
+    "subCategory": "Manual",
+    "description": "Manual hand weeder designed to reduce back strain while removing stubborn weeds.",
+    "pricing": {
+      "price": 450,
+      "discountPrice": 399,
+      "currency": "INR",
+      "unit": "1pc",
+      "stock": 500,
+      "minOrderQty": 1
+    },
+    "farmerFriendlyInfo": {
+      "whyUse": "Easier weeding with less effort",
+      "howToUse": "Hold handle and push into soil at weed base to lift",
+      "bestForCrops": ["Vegetables", "Nursery"],
+      "resultTime": "Instant",
+      "safety": "Keep away from children"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b"
+    ],
+    "ratings": {
+      "average": 4.3,
+      "count": 45
+    },
+    "inventory": {
+      "available": true,
+      "warehouseLocation": "Bangalore",
+      "deliveryTime": "3-5 days"
+    },
+    "aiMetadata": {
+      "tags": ["weeder", "manual tool", "ergonomic"],
+      "useCases": ["weeding"],
+      "recommendedWith": ["organic-neem-oil-pesticide"],
+      "season": ["all"],
+      "soilType": ["all"]
+    },
+    "seller": {
+      "name": "ToolBox Agri",
+      "rating": 4.4,
+      "phone": "9000000000"
+    }
   }
 ]

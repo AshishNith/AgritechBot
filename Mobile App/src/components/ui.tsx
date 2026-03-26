@@ -15,7 +15,6 @@ import {
   TextProps,
   TextInput,
   TextStyle,
-  useColorScheme,
   View,
   ViewStyle,
 } from 'react-native';
@@ -32,6 +31,7 @@ import Animated, {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { theme } from '../constants/theme';
+import { useTheme } from '../providers/ThemeContext';
 
 export function Screen({
   children,
@@ -47,13 +47,14 @@ export function Screen({
   style?: StyleProp<ViewStyle>;
   refreshControl?: React.ReactElement;
 }>) {
-  const isDark = dark ?? (useColorScheme() === 'dark');
+  const { isDark, colors } = useTheme();
+  const effectiveDark = dark ?? isDark;
 
   const content = (
     <View
       style={[
         styles.screen,
-        { backgroundColor: isDark ? theme.colors.backgroundDark : theme.colors.background },
+        { backgroundColor: effectiveDark ? colors.background : colors.background },
         padded && styles.screenPadding,
         style,
       ]}
@@ -64,14 +65,14 @@ export function Screen({
 
   if (scrollable) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? theme.colors.backgroundDark : theme.colors.background }} edges={[ 'top', 'left', 'right' ]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: effectiveDark ? colors.background : colors.background }} edges={[ 'top', 'left', 'right' ]}>
         <ScrollView showsVerticalScrollIndicator={false} refreshControl={refreshControl}>{content}</ScrollView>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? theme.colors.backgroundDark : theme.colors.background }} edges={[ 'top', 'left', 'right' ]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: effectiveDark ? colors.background : colors.background }} edges={[ 'top', 'left', 'right' ]}>
       {content}
     </SafeAreaView>
   );
@@ -88,10 +89,10 @@ export function AppText({
   style?: StyleProp<TextStyle>;
   variant?: keyof typeof theme.typography;
 }> & TextProps) {
-  const isDark = useColorScheme() === 'dark';
+  const { isDark, colors } = useTheme();
 
   return (
-    <Text {...props} style={[theme.typography[variant], { color: color ?? (isDark ? theme.colors.textOnDark : theme.colors.text) }, style]}>
+    <Text {...props} style={[theme.typography[variant], { color: color ?? (isDark ? colors.textOnDark : colors.text) }, style]}>
       {children}
     </Text>
   );
@@ -112,15 +113,16 @@ export function GradientButton({
   leftIcon?: ReactNode;
   style?: StyleProp<ViewStyle>;
 }) {
-  const colors = secondary
+  const { colors } = useTheme();
+  const gradColors = secondary
     ? (['rgba(82,183,129,0.12)', 'rgba(82,183,129,0.05)'] as const)
-    : ([theme.colors.primary, '#75d39f'] as const);
+    : ([colors.primary, '#75d39f'] as const);
 
   return (
     <Pressable disabled={disabled} onPress={onPress} style={({ pressed }) => [{ opacity: disabled ? 0.5 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] }, style]}>
-      <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.button, secondary && styles.buttonSecondary]}>
+      <LinearGradient colors={gradColors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.button, secondary && styles.buttonSecondary]}>
         {leftIcon}
-        <AppText color={secondary ? theme.colors.primaryDark : theme.colors.textOnDark} variant="label">
+        <AppText color={secondary ? colors.primaryDark : colors.textOnDark} variant="label">
           {label}
         </AppText>
       </LinearGradient>
@@ -129,7 +131,7 @@ export function GradientButton({
 }
 
 export function GlassCard({ children, style }: PropsWithChildren<{ style?: StyleProp<ViewStyle> }>) {
-  const isDark = useColorScheme() === 'dark';
+  const { isDark } = useTheme();
 
   return (
     <BlurView intensity={isDark ? 35 : 50} tint={isDark ? 'dark' : 'light'} style={[styles.glassCard, style]}>
@@ -139,22 +141,21 @@ export function GlassCard({ children, style }: PropsWithChildren<{ style?: Style
 }
 
 export function Pill({ label, active, onPress, icon, style }: { label: string; active?: boolean; onPress?: () => void; icon?: ReactNode; style?: StyleProp<ViewStyle> }) {
-  const isDark = useColorScheme() === 'dark';
+  const { isDark, colors } = useTheme();
 
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }, style]}>
       <View
         style={[
           styles.pill,
-          !active && {
-            backgroundColor: isDark ? '#1b2721' : theme.colors.surface,
-            borderColor: isDark ? 'rgba(255,255,255,0.1)' : theme.colors.border,
+          {
+            backgroundColor: active ? colors.primary : (isDark ? colors.surface : colors.surface),
+            borderColor: active ? colors.primary : (isDark ? colors.border : colors.border),
           },
-          active && styles.pillActive,
         ]}
       >
         {icon}
-        <AppText variant="label" color={active ? theme.colors.textOnDark : (isDark ? theme.colors.textOnDark : theme.colors.text)}>
+        <AppText variant="label" color={active ? colors.textOnDark : (isDark ? colors.textOnDark : colors.text)}>
           {label}
         </AppText>
       </View>
@@ -163,34 +164,35 @@ export function Pill({ label, active, onPress, icon, style }: { label: string; a
 }
 
 export function SectionHeader({ title, action }: { title: string; action?: string }) {
+  const { colors } = useTheme();
   return (
     <View style={styles.sectionHeader}>
       <AppText variant="heading">{title}</AppText>
-      {action ? <AppText variant="label" color={theme.colors.primary}>{action}</AppText> : null}
+      {action ? <AppText variant="label" color={colors.primary}>{action}</AppText> : null}
     </View>
   );
 }
 
 export function SearchInput({ value, onChangeText, placeholder }: { value: string; onChangeText: (text: string) => void; placeholder: string }) {
-  const isDark = useColorScheme() === 'dark';
+  const { isDark, colors } = useTheme();
 
   return (
     <View
       style={[
         styles.searchShell,
         {
-          backgroundColor: isDark ? '#1b2721' : theme.colors.surface,
-          borderColor: isDark ? 'rgba(255,255,255,0.1)' : theme.colors.border,
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
         },
       ]}
     >
-      {(() => { const IconComp = IconMap['Search']; return IconComp ? <IconComp size={18} color={theme.colors.textMuted} /> : null; })()}
+      {(() => { const IconComp = IconMap['Search']; return IconComp ? <IconComp size={18} color={colors.textMuted} /> : null; })()}
       <TextInput
         placeholder={placeholder}
-        placeholderTextColor={theme.colors.textMuted}
+        placeholderTextColor={colors.textMuted}
         value={value}
         onChangeText={onChangeText}
-        style={[styles.searchInput, { color: isDark ? theme.colors.textOnDark : theme.colors.text }]}
+        style={[styles.searchInput, { color: isDark ? colors.textOnDark : colors.text }]}
       />
     </View>
   );
@@ -213,6 +215,7 @@ export function WaveBars({ dark }: { dark?: boolean }) {
 }
 
 function AnimatedBar({ height, delay, dark }: { height: number; delay: number; dark?: boolean }) {
+  const { colors } = useTheme();
   const scale = useSharedValue(0.5);
 
   useEffect(() => {
@@ -230,10 +233,11 @@ function AnimatedBar({ height, delay, dark }: { height: number; delay: number; d
     transform: [{ scaleY: scale.value }],
   }));
 
-  return <Animated.View style={[styles.waveBar, { height, backgroundColor: dark ? '#8de2b2' : theme.colors.primary }, animatedStyle]} />;
+  return <Animated.View style={[styles.waveBar, { height, backgroundColor: dark ? '#8de2b2' : colors.primary }, animatedStyle]} />;
 }
 
 export function PulseMic({ size = 108 }: { size?: number }) {
+  const { colors } = useTheme();
   const pulse = useSharedValue(0.85);
 
   useEffect(() => {
@@ -256,15 +260,16 @@ export function PulseMic({ size = 108 }: { size?: number }) {
     <View style={{ width: size + 56, height: size + 56, alignItems: 'center', justifyContent: 'center' }}>
       <Animated.View style={[styles.pulseRing, { width: size + 56, height: size + 56, borderRadius: (size + 56) / 2 }, ringStyle]} />
       <Animated.View style={[styles.pulseRing, { width: size + 26, height: size + 26, borderRadius: (size + 26) / 2 }, ringStyle]} />
-      <LinearGradient colors={[theme.colors.primary, '#8ce0af']} style={[styles.micCore, { width: size, height: size, borderRadius: size / 2 }]}>
-        {(() => { const IconComp = IconMap['Mic']; return IconComp ? <IconComp size={size * 0.38} color={theme.colors.textOnDark} /> : null; })()}
+      <LinearGradient colors={[colors.primary, '#8ce0af']} style={[styles.micCore, { width: size, height: size, borderRadius: size / 2 }]}>
+        {(() => { const IconComp = IconMap['Mic']; return IconComp ? <IconComp size={size * 0.38} color={colors.textOnDark} /> : null; })()}
       </LinearGradient>
     </View>
   );
 }
 
 export function TypingDots({ isDark }: { isDark?: boolean }) {
-  const effectiveDark = isDark ?? (useColorScheme() === 'dark');
+  const { isDark: globalIsDark, colors } = useTheme();
+  const effectiveDark = isDark ?? globalIsDark;
 
   return (
     <View style={styles.typingShell}>
@@ -272,7 +277,7 @@ export function TypingDots({ isDark }: { isDark?: boolean }) {
         <Animated.View
           key={item}
           entering={FadeIn.delay(item * 120)}
-          style={[styles.typingDot, { backgroundColor: effectiveDark ? '#8de2b2' : theme.colors.primary }]}
+          style={[styles.typingDot, { backgroundColor: effectiveDark ? '#8de2b2' : colors.primary }]}
         />
       ))}
     </View>
@@ -300,10 +305,11 @@ export function ConcentricVisualizer() {
 }
 
 export function ProgressDots({ total, active }: { total: number; active: number }) {
+  const { colors } = useTheme();
   return (
     <View style={styles.progressDots}>
       {Array.from({ length: total }, (_, index) => (
-        <View key={index} style={[styles.progressDot, index === active && styles.progressDotActive]} />
+        <View key={index} style={[styles.progressDot, index === active && { ...styles.progressDotActive, backgroundColor: colors.primary }]} />
       ))}
     </View>
   );
@@ -311,7 +317,7 @@ export function ProgressDots({ total, active }: { total: number; active: number 
 
 export function AnaajTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
-  const isDark = useColorScheme() === 'dark';
+  const { isDark, colors } = useTheme();
   const tabIcons: Record<string, string> = {
     HomeTab: 'Home',
     ChatTab: 'MessageSquare',
@@ -344,18 +350,18 @@ export function AnaajTabBar({ state, descriptors, navigation }: BottomTabBarProp
               onPress={() => navigation.navigate(route.name)}
               style={styles.tabItem}
             >
-              <View style={[styles.tabIconWrap, isFocused && styles.tabIconActive]}>
+              <View style={[styles.tabIconWrap, isFocused && { backgroundColor: colors.primary }]}>
                 {(() => {
                   const IconComp = IconMap[tabIcons[route.name] ?? 'Circle'];
-                  return IconComp ? <IconComp size={20} color={isFocused ? theme.colors.textOnDark : isDark ? 'rgba(247,250,248,0.72)' : theme.colors.textMuted} /> : null;
+                  return IconComp ? <IconComp size={20} color={isFocused ? colors.textOnDark : isDark ? 'rgba(247,250,248,0.72)' : colors.textMuted} /> : null;
                 })()}
               </View>
               <AppText
                 variant="caption"
                 color={
                   isFocused
-                    ? (isDark ? '#8de2b2' : theme.colors.primaryDark)
-                    : (isDark ? 'rgba(247,250,248,0.62)' : theme.colors.textMuted)
+                    ? (isDark ? '#8de2b2' : colors.primaryDark)
+                    : (isDark ? 'rgba(247,250,248,0.62)' : colors.textMuted)
                 }
                 style={{ letterSpacing: 0.4 }}
               >
@@ -370,14 +376,15 @@ export function AnaajTabBar({ state, descriptors, navigation }: BottomTabBarProp
 }
 
 export function IconRow({ icon, title, subtitle, right }: { icon: string; title: string; subtitle?: string; right?: React.ReactNode }) {
+  const { isDark, colors } = useTheme();
   return (
     <View style={styles.iconRow}>
-      <View style={styles.iconBadge}>
-        {(() => { const IconComp = IconMap[icon]; return IconComp ? <IconComp size={20} color={theme.colors.primaryDark} /> : null; })()}
+      <View style={[styles.iconBadge, { backgroundColor: isDark ? 'rgba(82,183,129,0.2)' : 'rgba(82,183,129,0.12)' }]}>
+        {(() => { const IconComp = IconMap[icon]; return IconComp ? <IconComp size={20} color={colors.primaryDark} /> : null; })()}
       </View>
       <View style={{ flex: 1 }}>
         <AppText variant="label">{title}</AppText>
-        {subtitle ? <AppText color={theme.colors.textMuted}>{subtitle}</AppText> : null}
+        {subtitle ? <AppText color={colors.textMuted}>{subtitle}</AppText> : null}
       </View>
       {right}
     </View>
@@ -385,7 +392,7 @@ export function IconRow({ icon, title, subtitle, right }: { icon: string; title:
 }
 
 export function ScreenCard({ children, style }: PropsWithChildren<{ style?: StyleProp<ViewStyle> }>) {
-  const isDark = useColorScheme() === 'dark';
+  const { colors } = useTheme();
 
   return (
     <Animated.View
@@ -393,8 +400,8 @@ export function ScreenCard({ children, style }: PropsWithChildren<{ style?: Styl
       style={[
         styles.card,
         {
-          backgroundColor: isDark ? '#1b2721' : theme.colors.surface,
-          borderColor: isDark ? 'rgba(255,255,255,0.08)' : theme.colors.border,
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
           borderWidth: 1,
         },
         style,
@@ -439,13 +446,10 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    backgroundColor: theme.colors.surface,
     borderWidth: 1,
-    borderColor: theme.colors.border,
   },
   pillActive: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.primary,
+    // Handled in component
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -454,7 +458,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   searchShell: {
-    backgroundColor: theme.colors.surface,
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 14,
@@ -462,11 +465,9 @@ const styles = StyleSheet.create({
     gap: 10,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: theme.colors.border,
   },
   searchInput: {
     flex: 1,
-    color: theme.colors.text,
     fontSize: 15,
   },
   floatingOrb: {
@@ -538,7 +539,6 @@ const styles = StyleSheet.create({
   },
   progressDotActive: {
     width: 28,
-    backgroundColor: theme.colors.primary,
   },
   tabShell: {
     paddingHorizontal: 12,
@@ -568,7 +568,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   tabIconActive: {
-    backgroundColor: theme.colors.primary,
+    // Handled in component
   },
   iconRow: {
     flexDirection: 'row',
@@ -580,12 +580,10 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 14,
-    backgroundColor: 'rgba(82,183,129,0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   card: {
-    backgroundColor: theme.colors.surface,
     borderRadius: 26,
     padding: 16,
     ...theme.shadow.card,

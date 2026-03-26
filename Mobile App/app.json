@@ -27,7 +27,7 @@
     "android": {
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyCSzqN-yejmKk-nsYqX_rgpCG-NwHyeOTk"
+          "apiKey": ""
         }
       },
       "adaptiveIcon": {
@@ -73,6 +73,7 @@
     ],
     "extra": {
       "apiBaseUrl": "https://agritechbot-oqni.onrender.com",
+      "paymentWebBaseUrl": "https://anaajai.com",
       "eas": {
         "projectId": "009871c5-8998-4f87-afa8-1ce28889875e"
       }

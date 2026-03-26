@@ -15,7 +15,6 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
-  useColorScheme,
   View,
 } from 'react-native';
 
@@ -27,6 +26,7 @@ import { theme } from '../constants/theme';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
 import { ChatMessage } from '../types/api';
+import { useTheme } from '../providers/ThemeContext';
 
 const starterMessage: ChatMessage = {
   id: 'starter',
@@ -36,7 +36,7 @@ const starterMessage: ChatMessage = {
 };
 
 export function ChatScreen() {
-  const isDark = useColorScheme() === 'dark';
+  const { isDark, colors } = useTheme();
   const route = useRoute<RouteProp<MainTabParamList, 'ChatTab'>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const language = useAppStore((state) => state.language);
@@ -202,34 +202,34 @@ export function ChatScreen() {
   return (
     <Screen dark={isDark} padded={false}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <View style={[styles.header, { backgroundColor: isDark ? '#151d19' : '#eaf3ee' }]}>
+        <View style={[styles.header, { backgroundColor: isDark ? colors.backgroundAlt : '#eaf3ee', borderBottomColor: colors.border }]}>
           <View style={styles.headerLeft}>
-            <Pressable onPress={() => navigation.goBack()} style={styles.topIconButton}>
-              {(() => { const IconComp = IconMap['ArrowLeft']; return IconComp ? <IconComp size={20} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
+            <Pressable onPress={() => navigation.goBack()} style={[styles.topIconButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)' }]}>
+              {(() => { const IconComp = IconMap['ArrowLeft']; return IconComp ? <IconComp size={20} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
             </Pressable>
             <Image source={{ uri: designImages.chatAvatar }} style={styles.avatar} />
             <View>
-              <AppText variant="heading" color={isDark ? theme.colors.textOnDark : theme.colors.text}>
+              <AppText variant="heading" color={isDark ? colors.textOnDark : colors.text}>
                 {t(language, 'aiAssistant')}
               </AppText>
-              <AppText color={isDark ? '#8de2b2' : theme.colors.primaryDark}>{t(language, 'online')}</AppText>
+              <AppText color={isDark ? '#8de2b2' : colors.primaryDark}>{t(language, 'online')}</AppText>
             </View>
           </View>
           <View style={styles.headerActions}>
-            <Pressable style={styles.topIconButton}>
-              {(() => { const IconComp = IconMap['Search']; return IconComp ? <IconComp size={20} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
+            <Pressable style={[styles.topIconButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)' }]}>
+              {(() => { const IconComp = IconMap['Search']; return IconComp ? <IconComp size={20} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
             </Pressable>
-            <Pressable style={styles.topIconButton}>
-              {(() => { const IconComp = IconMap['MoreVertical']; return IconComp ? <IconComp size={20} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
+            <Pressable style={[styles.topIconButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)' }]}>
+              {(() => { const IconComp = IconMap['MoreVertical']; return IconComp ? <IconComp size={20} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
             </Pressable>
           </View>
         </View>
         <ScrollView
           ref={scrollRef}
           style={styles.messagesScroll}
-          contentContainerStyle={[styles.messages, { backgroundColor: isDark ? theme.colors.backgroundDark : theme.colors.background }]}
+          contentContainerStyle={[styles.messages, { backgroundColor: colors.background }]}
         >
-          <AppText color={isDark ? '#8aa598' : theme.colors.textMuted} style={styles.dateLabel}>
+          <AppText color={colors.textMuted} style={styles.dateLabel}>
             {t(language, 'today')}
           </AppText>
           {messages.map((message) => (
@@ -238,17 +238,17 @@ export function ChatScreen() {
                 style={[
                   styles.bubble,
                   message.role === 'user'
-                    ? styles.userBubble
-                    : [styles.aiBubble, { backgroundColor: isDark ? '#203028' : '#ffffff' }],
+                    ? [styles.userBubble, { backgroundColor: colors.primary }]
+                    : [styles.aiBubble, { backgroundColor: isDark ? colors.surface : '#ffffff', borderColor: colors.border, borderWidth: 1 }],
                 ]}
               >
-                <AppText color={message.role === 'user' ? theme.colors.textOnDark : (isDark ? theme.colors.textOnDark : theme.colors.text)}>
+                <AppText color={message.role === 'user' ? colors.textOnDark : (isDark ? colors.textOnDark : colors.text)}>
                   {message.content}
                 </AppText>
                 {message.role === 'assistant' && message.audioUrl ? (
                   <Pressable onPress={() => playAudio(message.audioUrl)} style={styles.audioButton}>
-                    {(() => { const IconComp = IconMap['PlayCircle']; return IconComp ? <IconComp size={18} color={theme.colors.primaryDark} /> : null; })()}
-                    <AppText variant="label" color={theme.colors.primaryDark}>
+                    {(() => { const IconComp = IconMap['PlayCircle']; return IconComp ? <IconComp size={18} color={colors.primaryDark} /> : null; })()}
+                    <AppText variant="label" color={colors.primaryDark}>
                       {t(language, 'audioPlayback')}
                     </AppText>
                   </Pressable>
@@ -258,7 +258,7 @@ export function ChatScreen() {
           ))}
           {askMutation.isPending || isStreaming || isHydratingHistory ? (
             <View style={styles.messageRow}>
-              <View style={[styles.aiBubble, { backgroundColor: isDark ? '#203028' : '#ffffff' }]}>
+              <View style={[styles.aiBubble, { backgroundColor: isDark ? colors.surface : '#ffffff', borderColor: colors.border, borderWidth: 1 }]}>
                 <TypingDots isDark={isDark} />
               </View>
             </View>
@@ -271,27 +271,27 @@ export function ChatScreen() {
               ))}
           </View>
         </ScrollView>
-        <View style={[styles.footer, { backgroundColor: isDark ? '#151d19' : '#eaf3ee' }]}>
+        <View style={[styles.footer, { backgroundColor: isDark ? colors.backgroundAlt : '#eaf3ee', borderTopColor: colors.border }]}>
           {pickedImage ? (
             <View style={styles.imagePreviewRow}>
               <Image source={{ uri: pickedImage }} style={styles.previewImage} />
-              <AppText color={isDark ? theme.colors.textOnDark : theme.colors.text}>{t(language, 'imageAttached')}</AppText>
+              <AppText color={isDark ? colors.textOnDark : colors.text}>{t(language, 'imageAttached')}</AppText>
             </View>
           ) : null}
           <View style={styles.inputRow}>
-            <Pressable onPress={pickImage} style={styles.iconAction}>
-              {(() => { const IconComp = IconMap['ImagePlus']; return IconComp ? <IconComp size={20} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
+            <Pressable onPress={pickImage} style={[styles.iconAction, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)' }]}>
+              {(() => { const IconComp = IconMap['ImagePlus']; return IconComp ? <IconComp size={20} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
             </Pressable>
             <TextInput
               placeholder={t(language, 'typeHere')}
-              placeholderTextColor={isDark ? '#8aa598' : theme.colors.textMuted}
+              placeholderTextColor={colors.textMuted}
               value={input}
               onChangeText={setInput}
-              style={[styles.input, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : '#ffffff', color: isDark ? theme.colors.textOnDark : theme.colors.text }]}
+              style={[styles.input, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : '#ffffff', color: isDark ? colors.textOnDark : colors.text, borderColor: colors.border, borderWidth: 1 }]}
               multiline
             />
-            <Pressable onPress={() => navigation.navigate('Voice')} style={styles.iconAction}>
-              {(() => { const IconComp = IconMap['Mic']; return IconComp ? <IconComp size={20} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
+            <Pressable onPress={() => navigation.navigate('Voice')} style={[styles.iconAction, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)' }]}>
+              {(() => { const IconComp = IconMap['Mic']; return IconComp ? <IconComp size={20} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
             </Pressable>
             <GradientButton label="→" onPress={sendMessage} style={styles.sendButton} />
           </View>
@@ -309,9 +309,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#151d19',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
   },
   headerLeft: {
     flexDirection: 'row',
@@ -329,7 +327,6 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.08)',
   },
   avatar: {
     width: 40,
@@ -364,7 +361,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 8,
   },
   userBubble: {
-    backgroundColor: theme.colors.primary,
     borderTopRightRadius: 8,
   },
   audioButton: {
@@ -383,7 +379,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: 10,
-    backgroundColor: '#151d19',
+    borderTopWidth: 1,
     gap: 10,
   },
   imagePreviewRow: {
@@ -405,7 +401,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.08)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -414,8 +409,6 @@ const styles = StyleSheet.create({
     minHeight: 40,
     maxHeight: 100,
     borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    color: theme.colors.textOnDark,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },

@@ -8,7 +8,6 @@ export default function Sitemap() {
       title: 'Navigation',
       links: [
         { name: 'Home', path: '/' },
-        { name: 'AgriBot AI', path: '/chat' },
         { name: 'Contact', path: '/contact' },
         { name: 'Download App', path: '/download' },
       ]
@@ -74,9 +73,9 @@ export default function Sitemap() {
 
         <div className="mt-32 p-12 rounded-[3rem] bg-primary-container text-on-primary-container flex flex-col items-center text-center">
           <h3 className="text-3xl font-headline font-bold mb-4">Can't find what you're looking for?</h3>
-          <p className="mb-8 opacity-80">Our AI assistant is here to help you navigate our services and find agricultural answers instantly.</p>
-          <Link to="/chat" className="bg-primary text-on-primary px-8 py-4 rounded-2xl font-bold hover:scale-105 transition-transform shadow-xl">
-            Talk to AgriBot AI
+          <p className="mb-8 opacity-80">Reach the team directly or download the Android app for the authenticated AI assistant experience.</p>
+          <Link to="/contact" className="bg-primary text-on-primary px-8 py-4 rounded-2xl font-bold hover:scale-105 transition-transform shadow-xl">
+            Contact Support
           </Link>
         </div>
 

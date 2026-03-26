@@ -1,4 +1,4 @@
-import { IconMap } from '../components/IconMap';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 import { ImageBackground, StyleSheet, View } from 'react-native';
@@ -16,11 +16,12 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
 export function SplashScreen({ navigation }: Props) {
   const token = useAppStore((state) => state.token);
   const user = useAppStore((state) => state.user);
+  const hasCompletedOnboarding = useAppStore((state) => state.hasCompletedOnboarding);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!token) {
-        navigation.replace('LanguageOnboarding');
+        navigation.replace(hasCompletedOnboarding ? 'Login' : 'LanguageOnboarding');
         return;
       }
 
@@ -28,10 +29,7 @@ export function SplashScreen({ navigation }: Props) {
     }, 2200);
 
     return () => clearTimeout(timer);
-  }, [token, user, navigation]);
-
-  const BrainIcon = IconMap['Brain'];
-  const LeafIcon = IconMap['Leaf'];
+  }, [token, user, navigation, hasCompletedOnboarding]);
 
   return (
     <Screen dark padded={false}>
@@ -44,9 +42,9 @@ export function SplashScreen({ navigation }: Props) {
             <View style={styles.outerRing} />
             <View style={styles.middleRing} />
             <View style={styles.logoCard}>
-              {BrainIcon ? <BrainIcon size={40} color={theme.colors.primary} /> : null}
+              <MaterialCommunityIcons name="brain" size={40} color={theme.colors.primary} />
               <View style={styles.ecoBadge}>
-                {LeafIcon ? <LeafIcon size={14} color={theme.colors.textOnDark} /> : null}
+                <Ionicons name="leaf" size={14} color={theme.colors.textOnDark} />
               </View>
             </View>
           </View>

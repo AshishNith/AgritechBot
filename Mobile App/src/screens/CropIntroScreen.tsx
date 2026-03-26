@@ -4,8 +4,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { AppText, GradientButton, ProgressDots, Screen, ScreenCard } from '../components/ui';
 import { designImages } from '../constants/designData';
-import { theme } from '../constants/theme';
 import { RootStackParamList } from '../navigation/types';
+import { useTheme } from '../providers/ThemeContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'CropIntro'>;
 
@@ -22,6 +22,8 @@ const featureCards: Array<{
 ];
 
 export function CropIntroScreen({ navigation }: Props) {
+  const { colors } = useTheme();
+
   return (
     <Screen scrollable>
       <ImageBackground source={{ uri: designImages.cropIntro }} style={styles.hero} imageStyle={{ borderRadius: 30 }}>
@@ -31,19 +33,19 @@ export function CropIntroScreen({ navigation }: Props) {
         <AppText variant="title" style={styles.centered}>
           Get Expert AI Advice
         </AppText>
-        <AppText color={theme.colors.textMuted} style={styles.centered}>
+        <AppText color={colors.textMuted} style={styles.centered}>
           विशेषज्ञ एआई सलाह प्राप्त करें
         </AppText>
         <View style={styles.grid}>
           {featureCards.map((card) => (
-            <ScreenCard key={card.title} style={[styles.featureCard, card.active && styles.featureCardActive]}>
-              <View style={[styles.iconBox, card.active && styles.iconBoxActive]}>
-                {(() => { const IconComp = IconMap[card.icon]; return IconComp ? <IconComp size={24} color={card.active ? theme.colors.textOnDark : theme.colors.primaryDark} /> : null; })()}
+            <ScreenCard key={card.title} style={[styles.featureCard, card.active && [styles.featureCardActive, { backgroundColor: colors.primary }]]}>
+              <View style={[styles.iconBox, card.active && [styles.iconBoxActive, { backgroundColor: 'rgba(255,255,255,0.16)' }]]}>
+                {(() => { const IconComp = IconMap[card.icon]; return IconComp ? <IconComp size={24} color={card.active ? colors.textOnDark : colors.primaryDark} /> : null; })()}
               </View>
-              <AppText variant="label" color={card.active ? theme.colors.textOnDark : theme.colors.text}>
+              <AppText variant="label" color={card.active ? colors.textOnDark : colors.text}>
                 {card.title}
               </AppText>
-              <AppText color={card.active ? '#d9f3e4' : theme.colors.textMuted}>{card.subtitle}</AppText>
+              <AppText color={card.active ? '#d9f3e4' : colors.textMuted}>{card.subtitle}</AppText>
             </ScreenCard>
           ))}
         </View>
@@ -78,12 +80,12 @@ const styles = StyleSheet.create({
   },
   featureCard: {
     width: '47.5%',
-    minHeight: 150,
+    minHeight: 151,
     gap: 12,
     justifyContent: 'space-between',
   },
   featureCardActive: {
-    backgroundColor: theme.colors.primary,
+    // Background set dynamically
   },
   iconBox: {
     width: 46,
@@ -94,7 +96,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(82,183,129,0.14)',
   },
   iconBoxActive: {
-    backgroundColor: 'rgba(255,255,255,0.16)',
+    // Background set dynamically
   },
   bottom: {
     marginTop: 28,

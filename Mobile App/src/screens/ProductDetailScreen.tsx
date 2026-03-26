@@ -1,24 +1,24 @@
 import { IconMap } from '../components/IconMap';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, Pressable, ScrollView, StyleSheet, View, Alert, Share, useColorScheme } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, View, Alert, Share } from 'react-native';
 import { useEffect, useMemo, useState } from 'react';
 
 import { apiService } from '../api/services';
 import { AppText, GradientButton, Pill, Screen, ScreenCard } from '../components/ui';
-import { designImages, marketplaceFallback, sampleAddress } from '../constants/designData';
+import { designImages, marketplaceFallback } from '../constants/designData';
 import { t } from '../constants/localization';
-import { theme } from '../constants/theme';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
 import { useMarketplaceStore } from '../store/useMarketplaceStore';
+import { useTheme } from '../providers/ThemeContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProductDetail'>;
 
 export function ProductDetailScreen({ route }: Props) {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const isDark = useColorScheme() === 'dark';
+  const { isDark, colors } = useTheme();
   const token = useAppStore((state) => state.token);
   const language = useAppStore((state) => state.language);
   const featuredProduct = useAppStore((state) => state.featuredProduct);
@@ -68,16 +68,6 @@ export function ProductDetailScreen({ route }: Props) {
 
   const activeImage = galleryImages[activeImageIndex] ?? designImages.productHero;
 
-  const createOrderMutation = useMutation({
-    mutationFn: () =>
-      apiService.createOrder({
-        items: [{ productId: product.id, quantity: 1 }],
-        deliveryAddress: sampleAddress,
-      }),
-    onSuccess: () => Alert.alert(t(language, 'orderCreated'), t(language, 'orderCreatedSuccess')),
-    onError: () => Alert.alert(t(language, 'orderFailed'), t(language, 'orderFailedAuth')),
-  });
-
   const handleBuyNow = () => {
     if (!token) {
       Alert.alert(t(language, 'loginRequired'), t(language, 'verifyOtpFirst'));
@@ -85,7 +75,8 @@ export function ProductDetailScreen({ route }: Props) {
       return;
     }
 
-    createOrderMutation.mutate();
+    addToCart(product, 1);
+    navigation.navigate('Checkout');
   };
 
   const handleShareProduct = async () => {
@@ -116,19 +107,19 @@ export function ProductDetailScreen({ route }: Props) {
     <Screen padded={false}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
         <View style={styles.header}>
-          <Pressable onPress={() => navigation.goBack()} style={styles.headerIconButton}>
-            {(() => { const IconComp = IconMap['ArrowLeft']; return IconComp ? <IconComp size={20} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
+          <Pressable onPress={() => navigation.goBack()} style={[styles.headerIconButton, { borderColor: colors.border, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(82,183,129,0.08)' }]}>
+            {(() => { const IconComp = IconMap['ArrowLeft']; return IconComp ? <IconComp size={20} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
           </Pressable>
           <AppText variant="label" style={styles.headerTitle}>{t(language, 'productDetails')}</AppText>
           <View style={styles.headerActions}>
-            <Pressable onPress={handleShareProduct} style={styles.headerIconButton}>
-              {(() => { const IconComp = IconMap['Share2']; return IconComp ? <IconComp size={19} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
+            <Pressable onPress={handleShareProduct} style={[styles.headerIconButton, { borderColor: colors.border, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(82,183,129,0.08)' }]}>
+              {(() => { const IconComp = IconMap['Share2']; return IconComp ? <IconComp size={19} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
             </Pressable>
-            <Pressable onPress={() => navigation.navigate('Cart')} style={styles.headerIconButton}>
-              {(() => { const IconComp = IconMap['ShoppingCart']; return IconComp ? <IconComp size={20} color={isDark ? theme.colors.textOnDark : theme.colors.text} /> : null; })()}
+            <Pressable onPress={() => navigation.navigate('Cart')} style={[styles.headerIconButton, { borderColor: colors.border, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(82,183,129,0.08)' }]}>
+              {(() => { const IconComp = IconMap['ShoppingCart']; return IconComp ? <IconComp size={20} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
               {cartCount > 0 ? (
-                <View style={styles.cartBadge}>
-                  <AppText variant="caption" color={theme.colors.textOnDark} style={styles.cartBadgeText}>
+                <View style={[styles.cartBadge, { backgroundColor: colors.primary }]}>
+                  <AppText variant="caption" color={colors.textOnDark} style={styles.cartBadgeText}>
                     {cartCount > 99 ? '99+' : `${cartCount}`}
                   </AppText>
                 </View>
@@ -137,15 +128,15 @@ export function ProductDetailScreen({ route }: Props) {
           </View>
         </View>
         <View style={styles.galleryWrap}>
-          <View style={styles.heroImageFrame}>
+          <View style={[styles.heroImageFrame, { borderColor: colors.border }]}>
             <Image source={{ uri: activeImage }} style={styles.heroImage} />
             {galleryImages.length > 1 ? (
               <>
                 <Pressable onPress={handlePrevImage} style={[styles.imageNavButton, styles.imageNavButtonLeft]}>
-                  {(() => { const IconComp = IconMap['ChevronLeft']; return IconComp ? <IconComp size={20} color={theme.colors.text} /> : null; })()}
+                  {(() => { const IconComp = IconMap['ChevronLeft']; return IconComp ? <IconComp size={20} color={colors.text} /> : null; })()}
                 </Pressable>
                 <Pressable onPress={handleNextImage} style={[styles.imageNavButton, styles.imageNavButtonRight]}>
-                  {(() => { const IconComp = IconMap['ChevronRight']; return IconComp ? <IconComp size={20} color={theme.colors.text} /> : null; })()}
+                  {(() => { const IconComp = IconMap['ChevronRight']; return IconComp ? <IconComp size={20} color={colors.text} /> : null; })()}
                 </Pressable>
               </>
             ) : null}
@@ -161,7 +152,8 @@ export function ProductDetailScreen({ route }: Props) {
                 onPress={() => setActiveImageIndex(index)}
                 style={[
                   styles.thumbnailWrap,
-                  index === activeImageIndex && styles.thumbnailWrapActive,
+                  { borderColor: colors.border },
+                  index === activeImageIndex && [styles.thumbnailWrapActive, { borderColor: colors.primary }],
                 ]}
               >
                 <Image source={{ uri: image }} style={styles.thumbnailImage} />
@@ -178,16 +170,16 @@ export function ProductDetailScreen({ route }: Props) {
             {localizedName}
           </AppText>
           {product.brand ? (
-            <AppText color={theme.colors.textMuted} style={{ marginTop: 4 }}>{product.brand}</AppText>
+            <AppText color={colors.textMuted} style={{ marginTop: 4 }}>{product.brand}</AppText>
           ) : null}
           <View style={styles.priceRow}>
             <AppText variant="heading">₹{effectivePrice.toFixed(2)}</AppText>
             {listPrice > effectivePrice ? (
-              <AppText color={theme.colors.textMuted} style={styles.oldPrice}>
+              <AppText color={colors.textMuted} style={styles.oldPrice}>
                 ₹{listPrice.toFixed(2)}
               </AppText>
             ) : null}
-            <AppText color={theme.colors.textMuted}>/ {product.pricing?.unit ?? product.unit}</AppText>
+            <AppText color={colors.textMuted}>/ {product.pricing?.unit ?? product.unit}</AppText>
           </View>
           <View style={styles.languageRow}>
             <Pill label={language} active />
@@ -195,23 +187,23 @@ export function ProductDetailScreen({ route }: Props) {
           <View style={styles.statsGrid}>
             <ScreenCard style={styles.statCard}>
               <AppText variant="heading">{ratingAverage.toFixed(1)}</AppText>
-              <AppText color={theme.colors.textMuted}>{ratingCount} {t(language, 'reviews')}</AppText>
+              <AppText color={colors.textMuted}>{ratingCount} {t(language, 'reviews')}</AppText>
             </ScreenCard>
             <ScreenCard style={styles.statCard}>
               <AppText variant="heading">{product.quantity}+</AppText>
-              <AppText color={theme.colors.textMuted}>{t(language, 'unitsInStock')}</AppText>
+              <AppText color={colors.textMuted}>{t(language, 'unitsInStock')}</AppText>
             </ScreenCard>
           </View>
           <AppText variant="heading" style={{ marginTop: 20 }}>
             {t(language, 'whatItDoes')}
           </AppText>
-          <AppText color={theme.colors.textMuted} style={{ marginTop: 8 }}>
+          <AppText color={colors.textMuted} style={{ marginTop: 8 }}>
             {localizedDescription}
           </AppText>
           {product.farmerFriendlyInfo?.whyUse ? (
             <ScreenCard style={{ marginTop: 12 }}>
               <AppText variant="label">{t(language, 'whyUse')}</AppText>
-              <AppText color={theme.colors.textMuted} style={{ marginTop: 6 }}>
+              <AppText color={colors.textMuted} style={{ marginTop: 6 }}>
                 {product.farmerFriendlyInfo.whyUse}
               </AppText>
             </ScreenCard>
@@ -226,7 +218,7 @@ export function ProductDetailScreen({ route }: Props) {
               product.aiMetadata?.useCases?.length ? `${t(language, 'useCases')}: ${product.aiMetadata.useCases.slice(0, 2).join(', ')}` : t(language, 'cropSupport'),
             ].map((item) => (
               <View key={item} style={styles.benefitRow}>
-                <View style={styles.benefitDot} />
+                <View style={[styles.benefitDot, { backgroundColor: colors.primary }]} />
                 <AppText>{item}</AppText>
               </View>
             ))}
@@ -241,8 +233,8 @@ export function ProductDetailScreen({ route }: Props) {
               product.inventory?.deliveryTime ? `${t(language, 'expectedDelivery')}: ${product.inventory.deliveryTime}` : t(language, 'repeatUsage'),
             ].map((step, index) => (
               <View key={step} style={styles.stepRow}>
-                <View style={styles.stepBadge}>
-                  <AppText color={theme.colors.textOnDark} variant="label">
+                <View style={[styles.stepBadge, { backgroundColor: colors.primary }]}>
+                  <AppText color={colors.textOnDark} variant="label">
                     {index + 1}
                   </AppText>
                 </View>
@@ -260,7 +252,7 @@ export function ProductDetailScreen({ route }: Props) {
                 {product.reviews.slice(0, 3).map((review) => (
                   <ScreenCard key={`${review.user}-${review.date}`}>
                     <AppText variant="label">{review.user}</AppText>
-                    <AppText color={theme.colors.textMuted} style={{ marginTop: 4 }}>{t(language, 'rating')}: {review.rating}/5</AppText>
+                    <AppText color={colors.textMuted} style={{ marginTop: 4 }}>{t(language, 'rating')}: {review.rating}/5</AppText>
                     <AppText style={{ marginTop: 6 }}>{review.comment}</AppText>
                   </ScreenCard>
                 ))}
@@ -274,7 +266,7 @@ export function ProductDetailScreen({ route }: Props) {
           styles.bottomBar,
           {
             backgroundColor: isDark ? 'rgba(16,22,18,0.95)' : 'rgba(255,255,255,0.95)',
-            borderTopColor: isDark ? 'rgba(255,255,255,0.1)' : theme.colors.border,
+            borderTopColor: colors.border,
           },
         ]}
       >
@@ -286,7 +278,7 @@ export function ProductDetailScreen({ route }: Props) {
               addToCart(product, 1);
               Alert.alert(t(language, 'added'), t(language, 'productAddedToCart'));
             }}
-            leftIcon={(() => { const IconComp = IconMap['ShoppingBag']; return IconComp ? <IconComp size={18} color={theme.colors.primaryDark} style={{ marginRight: 6 }} /> : null; })()}
+            leftIcon={(() => { const IconComp = IconMap['ShoppingBag']; return IconComp ? <IconComp size={18} color={colors.primaryDark} style={{ marginRight: 6 }} /> : null; })()}
             style={{ flex: 1 }}
           />
           <GradientButton label={t(language, 'buyNow')} onPress={handleBuyNow} style={{ flex: 1 }} />
@@ -319,10 +311,8 @@ const styles = StyleSheet.create({
     height: 38,
     borderRadius: 19,
     borderWidth: 1,
-    borderColor: 'rgba(82,183,129,0.35)',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(82,183,129,0.08)',
   },
   cartBadge: {
     position: 'absolute',
@@ -332,7 +322,6 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 9,
     paddingHorizontal: 4,
-    backgroundColor: theme.colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
@@ -352,7 +341,6 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(82,183,129,0.25)',
   },
   heroImage: {
     width: '100%',
@@ -387,10 +375,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(130,150,138,0.45)',
   },
   thumbnailWrapActive: {
-    borderColor: theme.colors.primary,
     borderWidth: 2,
   },
   thumbnailImage: {
@@ -437,7 +423,6 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 10,
-    backgroundColor: theme.colors.primary,
   },
   stepRow: {
     flexDirection: 'row',
@@ -450,7 +435,6 @@ const styles = StyleSheet.create({
     borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.colors.primary,
   },
   bottomBar: {
     position: 'absolute',

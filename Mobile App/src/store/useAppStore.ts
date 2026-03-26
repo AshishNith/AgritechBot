@@ -1,6 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { AppLanguage, Product, UserProfile } from '../types/api';
 
@@ -35,7 +35,7 @@ export const useAppStore = create<AppState>()(
       language: 'English',
       phoneDraft: '+91',
       hasCompletedOnboarding: false,
-      selectedCrops: ['गेहूं'],
+      selectedCrops: [],
       featuredProduct: null,
       notificationsEnabled: true,
       unreadNotificationCount: 0,
@@ -50,15 +50,15 @@ export const useAppStore = create<AppState>()(
       setNotificationsEnabled: (notificationsEnabled) => set({ notificationsEnabled }),
       setUnreadNotificationCount: (unreadNotificationCount) => set({ unreadNotificationCount }),
       signOut: () =>
-        set({
+        set((state) => ({
           token: null,
           user: null,
-          hasCompletedOnboarding: false,
+          hasCompletedOnboarding: state.hasCompletedOnboarding,
           phoneDraft: '+91',
           featuredProduct: null,
-          selectedCrops: ['गेहूं'],
+          selectedCrops: [],
           unreadNotificationCount: 0,
-        }),
+        })),
     }),
     {
       name: 'anaaj-app-store',

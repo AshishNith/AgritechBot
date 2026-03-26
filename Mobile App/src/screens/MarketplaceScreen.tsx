@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, View, useColorScheme } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useMemo, useState } from 'react';
 
 import { apiService } from '../api/services';
@@ -12,12 +12,13 @@ import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
 import { useMarketplaceStore } from '../store/useMarketplaceStore';
 import { Product } from '../types/api';
+import { useTheme } from '../providers/ThemeContext';
 
 const priorityCategories = ['Fertilizers', 'Seeds', 'Tools', 'Pesticides'];
 
 export function MarketplaceScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const isDark = useColorScheme() === 'dark';
+  const { isDark, colors } = useTheme();
   const language = useAppStore((state) => state.language);
   const setFeaturedProduct = useAppStore((state) => state.setFeaturedProduct);
   const addToCart = useMarketplaceStore((state) => state.addToCart);
@@ -81,10 +82,10 @@ export function MarketplaceScreen() {
       <View style={styles.headerRow}>
         <View>
           <AppText variant="heading">{t(language, 'marketTitle')}</AppText>
-          <AppText color={theme.colors.textMuted}>{t(language, 'marketSubtitle')}</AppText>
+          <AppText color={colors.textMuted}>{t(language, 'marketSubtitle')}</AppText>
         </View>
-        <Pressable style={styles.cartIndicator} onPress={() => navigation.navigate('Cart')}>
-          <AppText variant="label" color={theme.colors.textOnDark}>{t(language, 'cart')} {cartCount}</AppText>
+        <Pressable style={[styles.cartIndicator, { backgroundColor: colors.primary }]} onPress={() => navigation.navigate('Cart')}>
+          <AppText variant="label" color={colors.textOnDark}>{t(language, 'cart')} {cartCount}</AppText>
         </Pressable>
       </View>
       <View style={{ marginTop: 18 }}>
@@ -97,19 +98,19 @@ export function MarketplaceScreen() {
       </ScrollView>
       {isLoading ? (
         <View style={styles.loadingWrap}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
         <>
           {aiPick ? (
-            <ScreenCard style={styles.recommendationCard}>
-              <AppText variant="caption" color="#dff5e9">
+            <ScreenCard style={[styles.recommendationCard, { backgroundColor: colors.primaryDark }]}>
+              <AppText variant="caption" color="rgba(255,255,255,0.85)">
                 {t(language, 'aiPick')}
               </AppText>
-              <AppText variant="title" color={theme.colors.textOnDark} style={{ marginTop: 8 }}>
+              <AppText variant="title" color={colors.textOnDark} style={{ marginTop: 8 }}>
                 {aiPick.name}
               </AppText>
-              <AppText color="#dff5e9" style={{ marginTop: 8 }}>
+              <AppText color="rgba(255,255,255,0.85)" style={{ marginTop: 8 }}>
                 {aiPick.farmerFriendlyInfo?.whyUse ?? t(language, 'marketSubtitle')}
               </AppText>
               <Pressable
@@ -119,7 +120,7 @@ export function MarketplaceScreen() {
                 }}
                 style={styles.aiCardAction}
               >
-                <AppText variant="label" color={theme.colors.primaryDark}>
+                <AppText variant="label" color={colors.primaryDark}>
                   {t(language, 'viewNow')}
                 </AppText>
               </Pressable>
@@ -173,15 +174,15 @@ export function MarketplaceScreen() {
                     style={[
                       styles.toolRow,
                       {
-                        backgroundColor: isDark ? '#1b2721' : theme.colors.surface,
-                        borderColor: isDark ? 'rgba(255,255,255,0.08)' : theme.colors.border,
+                        backgroundColor: colors.surface,
+                        borderColor: colors.border,
                       },
                     ]}
                   >
                     <Image source={{ uri: product.images[0] }} style={styles.toolImage} />
                     <View style={{ flex: 1 }}>
                       <AppText variant="label">{product.name}</AppText>
-                      <AppText color={theme.colors.textMuted} numberOfLines={2}>
+                      <AppText color={colors.textMuted} numberOfLines={2}>
                         {product.description}
                       </AppText>
                     </View>
@@ -213,7 +214,7 @@ export function MarketplaceScreen() {
           {filteredProducts.length === 0 && (
             <ScreenCard style={styles.emptyWrap}>
               <AppText variant="label">{t(language, 'noProductsFound')}</AppText>
-              <AppText color={theme.colors.textMuted} style={{ marginTop: 6 }}>
+              <AppText color={colors.textMuted} style={{ marginTop: 6 }}>
                 {t(language, 'tryDifferentFilters')}
               </AppText>
             </ScreenCard>
@@ -237,7 +238,7 @@ function ProductFlowCard({
   onPress: () => void;
   onAddToCart: () => void;
 }) {
-  const isDark = useColorScheme() === 'dark';
+  const { colors } = useTheme();
 
   return (
     <Pressable
@@ -245,19 +246,19 @@ function ProductFlowCard({
       style={[
         styles.flowCard,
         {
-          backgroundColor: isDark ? '#1b2721' : theme.colors.surface,
-          borderColor: isDark ? 'rgba(255,255,255,0.08)' : theme.colors.border,
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
         },
       ]}
     >
       <Image source={{ uri: image || 'https://via.placeholder.com/220' }} style={styles.flowImage} />
       <AppText variant="label">{name}</AppText>
       <View style={styles.cardFooter}>
-        <AppText color={theme.colors.primaryDark} variant="label">
+        <AppText color={colors.primaryDark} variant="label">
           ₹{price}
         </AppText>
-        <Pressable onPress={onAddToCart} style={styles.addButton}>
-          <AppText variant="label" color={theme.colors.textOnDark}>+</AppText>
+        <Pressable onPress={onAddToCart} style={[styles.addButton, { backgroundColor: colors.primary }]}>
+          <AppText variant="label" color={colors.textOnDark}>+</AppText>
         </Pressable>
       </View>
     </Pressable>
@@ -271,7 +272,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cartIndicator: {
-    backgroundColor: theme.colors.primary,
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -285,7 +285,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   recommendationCard: {
-    backgroundColor: theme.colors.primaryDark,
     marginBottom: 24,
   },
   aiCardAction: {
@@ -326,7 +325,6 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: theme.colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },

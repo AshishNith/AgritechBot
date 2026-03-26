@@ -1,19 +1,19 @@
-import { StyleSheet, View, Pressable, useColorScheme } from 'react-native';
+import { StyleSheet, View, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackScreenProps, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { IconMap } from '../components/IconMap';
 
 import { AppText, Screen, GradientButton } from '../components/ui';
-import { theme } from '../constants/theme';
 import { t } from '../constants/localization';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
+import { useTheme } from '../providers/ThemeContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OrderSuccess'>;
 
 export function OrderSuccessScreen({ route }: Props) {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const isDark = useColorScheme() === 'dark';
+  const { isDark, colors } = useTheme();
   const language = useAppStore((state) => state.language);
   const { orderId } = route.params;
 
@@ -33,7 +33,7 @@ export function OrderSuccessScreen({ route }: Props) {
       <View style={styles.container}>
         {/* Success Icon */}
         <View style={styles.iconContainer}>
-          {CheckIcon ? <CheckIcon size={80} color={theme.colors.primary} /> : null}
+          {CheckIcon ? <CheckIcon size={80} color={colors.primary} /> : null}
         </View>
 
         {/* Success Message */}
@@ -41,13 +41,13 @@ export function OrderSuccessScreen({ route }: Props) {
           {t(language, 'orderSuccess')}
         </AppText>
 
-        <AppText color={theme.colors.textMuted} style={styles.subtitle}>
+        <AppText color={colors.textMuted} style={styles.subtitle}>
           {t(language, 'orderSuccessSubtitle')}
         </AppText>
 
         {/* Order ID */}
-        <View style={[styles.orderIdContainer, isDark ? styles.orderIdContainerDark : styles.orderIdContainerLight]}>
-          <AppText color={theme.colors.textMuted} style={{ fontSize: 12 }}>
+        <View style={[styles.orderIdContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : colors.surface, borderColor: colors.border }]}>
+          <AppText color={colors.textMuted} style={{ fontSize: 12 }}>
             {t(language, 'orderId')}
           </AppText>
           <AppText variant="label" style={{ marginTop: 8 }}>
@@ -56,14 +56,14 @@ export function OrderSuccessScreen({ route }: Props) {
         </View>
 
         {/* Information Box */}
-        <View style={styles.infoBox}>
+        <View style={[styles.infoBox, { backgroundColor: isDark ? 'rgba(82,183,129,0.15)' : 'rgba(82,183,129,0.08)', borderColor: 'rgba(82,183,129,0.2)' }]}>
           {TruckIcon ? (
-            <TruckIcon size={24} color={theme.colors.primary} style={{ marginBottom: 8 }} />
+            <TruckIcon size={24} color={colors.primary} style={{ marginBottom: 8 }} />
           ) : null}
           <AppText variant="label" style={{ marginBottom: 4 }}>
             {t(language, 'deliveryInfo')}
           </AppText>
-          <AppText color={theme.colors.textMuted} style={{ fontSize: 12, textAlign: 'center' }}>
+          <AppText color={colors.textMuted} style={{ fontSize: 12, textAlign: 'center' }}>
             {t(language, 'deliveryInfoSubtitle')}
           </AppText>
         </View>
@@ -77,9 +77,9 @@ export function OrderSuccessScreen({ route }: Props) {
 
           <Pressable
             onPress={handleContinueShopping}
-            style={styles.secondaryButton}
+            style={[styles.secondaryButton, { borderColor: colors.primary }]}
           >
-            <AppText color={theme.colors.primary} style={{ textAlign: 'center' }}>
+            <AppText color={colors.primary} style={{ textAlign: 'center', fontWeight: '600' }}>
               {t(language, 'continueShopping')}
             </AppText>
           </Pressable>
@@ -94,6 +94,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingTop: 40,
   },
   iconContainer: {
     marginBottom: 24,
@@ -109,37 +110,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   orderIdContainer: {
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 18,
+    padding: 20,
     marginBottom: 16,
     borderWidth: 1,
     width: '100%',
-  },
-  orderIdContainerDark: {
-    backgroundColor: '#1b2721',
-    borderColor: 'rgba(255,255,255,0.12)',
-  },
-  orderIdContainerLight: {
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.border,
+    alignItems: 'center',
   },
   infoBox: {
-    backgroundColor: `${theme.colors.primary}15`,
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 18,
+    padding: 20,
     marginBottom: 32,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: `${theme.colors.primary}30`,
+    width: '100%',
   },
   buttonContainer: {
     width: '100%',
     gap: 12,
   },
   secondaryButton: {
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderWidth: 1,
-    borderColor: theme.colors.primary,
-    borderRadius: 8,
+    borderRadius: 12,
   },
 });

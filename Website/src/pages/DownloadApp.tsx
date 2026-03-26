@@ -1,7 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { getAndroidDownloadUrl } from '../utils/runtime';
 
 export default function DownloadApp() {
+  const androidDownloadUrl = getAndroidDownloadUrl();
+
   return (
     <div className="pt-32 pb-24 min-h-screen bg-surface flex flex-col items-center">
       <div className="max-w-5xl w-full mx-auto px-6 lg:px-8">
@@ -50,21 +53,31 @@ export default function DownloadApp() {
             
             <h3 className="text-3xl font-bold text-primary mb-4">Android (APK)</h3>
             <p className="text-on-surface-variant mb-8 leading-relaxed">
-              Download the official production APK directly. Fully optimized for Android 10 and above, featuring offline language models and instant voice queries.
+              Download the current Android release directly when a signed production artifact is available. The link below is controlled by deployment configuration so the website does not advertise a stale build.
             </p>
-            
-            <a 
-              href="https://expo.dev/artifacts/eas/5Y55N8DQD7briRjoqYhucp.apk" 
-              download
-              className="w-full flex items-center justify-center gap-3 bg-primary text-on-primary py-4 rounded-xl font-bold text-lg hover:bg-emerald-900 hover:scale-[1.02] transition-all shadow-lg select-none"
-            >
-              <span className="material-symbols-outlined">download</span>
-              Download APK
-            </a>
+
+            {androidDownloadUrl ? (
+              <a
+                href={androidDownloadUrl}
+                download
+                className="w-full flex items-center justify-center gap-3 bg-primary text-on-primary py-4 rounded-xl font-bold text-lg hover:bg-emerald-900 hover:scale-[1.02] transition-all shadow-lg select-none"
+              >
+                <span className="material-symbols-outlined">download</span>
+                Download Android Build
+              </a>
+            ) : (
+              <button
+                disabled
+                className="w-full flex items-center justify-center gap-3 bg-stone-200 text-stone-500 py-4 rounded-xl font-bold text-lg cursor-not-allowed"
+              >
+                <span className="material-symbols-outlined">schedule</span>
+                Android release link coming soon
+              </button>
+            )}
             
             <div className="mt-6 flex items-center gap-2 text-sm text-on-surface-variant bg-surface-container p-4 rounded-xl">
               <span className="material-symbols-outlined text-tertiary-fixed text-lg">info</span>
-              <span>Requires allowing "Install from unknown sources" in your settings.</span>
+              <span>Install instructions depend on how the current Android artifact is distributed.</span>
             </div>
           </motion.div>
 
@@ -122,23 +135,23 @@ export default function DownloadApp() {
               <span className="bg-primary-container text-on-primary-container px-3 py-1 rounded-lg font-bold text-sm">v1.0.0</span>
               <span className="text-on-surface-variant font-medium text-sm">March 26, 2026</span>
             </div>
-            <h3 className="text-xl font-bold text-primary mb-4">Initial Production Release</h3>
+            <h3 className="text-xl font-bold text-primary mb-4">Current launch baseline</h3>
             <ul className="space-y-3 text-on-surface-variant">
               <li className="flex gap-3">
                 <span className="material-symbols-outlined text-tertiary-fixed text-xl shrink-0">check_circle</span>
-                <span>Fully integrated Lucide SVGs for reliable offline and production vector icons.</span>
+                <span>Android app, backend API, and public website are aligned around launch-safe behavior.</span>
               </li>
               <li className="flex gap-3">
                 <span className="material-symbols-outlined text-tertiary-fixed text-xl shrink-0">check_circle</span>
-                <span>Real-time voice bot interactions in Hindi, Punjabi, Marathi, and Gujarati.</span>
+                <span>Public site messaging now reflects actual live capabilities instead of demo-only interactions.</span>
               </li>
               <li className="flex gap-3">
                 <span className="material-symbols-outlined text-tertiary-fixed text-xl shrink-0">check_circle</span>
-                <span>Performance optimizations to ensure fast boot times on low-end Android devices.</span>
+                <span>Checkout and subscription flows are designed around verified payment confirmation.</span>
               </li>
               <li className="flex gap-3">
                 <span className="material-symbols-outlined text-tertiary-fixed text-xl shrink-0">check_circle</span>
-                <span>Marketplace features to connect farmers with top-rated local vendors.</span>
+                <span>Release links are now deployment-driven instead of hardcoded in the repo.</span>
               </li>
             </ul>
           </div>

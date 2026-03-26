@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
 import { Subscription, TIER_FEATURES } from '../models/Subscription';
 import { User } from '../models/User';
+import { env } from '../config/env';
 
 const createSubscriptionSchema = z.object({
   tier: z.enum(['basic', 'premium']),
@@ -13,6 +14,12 @@ const createSubscriptionSchema = z.object({
  * Create or upgrade a subscription.
  */
 export async function createSubscription(request: FastifyRequest, reply: FastifyReply) {
+  if (env.PAYMENTS_ENABLED) {
+    return reply.status(400).send({
+      error: 'Direct subscription activation is disabled. Create and verify a payment order before activating a plan.',
+    });
+  }
+
   const parsed = createSubscriptionSchema.safeParse(request.body);
   if (!parsed.success) {
     return reply.status(400).send({ error: parsed.error.flatten().fieldErrors });
@@ -73,5 +80,10 @@ export async function getSubscriptionStatus(request: FastifyRequest, reply: Fast
     });
   }
 
-  return reply.send({ subscription });
+  return reply.send({
+    tier: subscription.tier,
+    status: subscription.status,
+    features: subscription.features,
+    subscription,
+  });
 }

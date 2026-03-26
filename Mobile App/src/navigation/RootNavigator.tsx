@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useColorScheme } from 'react-native';
+import { useTheme } from '../providers/ThemeContext';
 
 import { AnaajTabBar } from '../components/ui';
 import { theme } from '../constants/theme';
@@ -50,8 +50,7 @@ function MainTabs() {
 }
 
 export function RootNavigator() {
-  const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
+  const { isDark, colors: themeColors } = useTheme();
 
   return (
     <NavigationContainer
@@ -59,11 +58,11 @@ export function RootNavigator() {
         ...(isDark ? DarkTheme : DefaultTheme),
         colors: {
           ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
-          background: isDark ? theme.colors.backgroundDark : theme.colors.background,
-          primary: theme.colors.primary,
-          card: isDark ? '#18221c' : theme.colors.surface,
-          text: isDark ? theme.colors.textOnDark : theme.colors.text,
-          border: isDark ? 'rgba(255,255,255,0.08)' : theme.colors.border,
+          background: themeColors.background,
+          primary: themeColors.primary,
+          card: isDark ? themeColors.surface : themeColors.surface,
+          text: isDark ? themeColors.textOnDark : themeColors.text,
+          border: isDark ? 'rgba(255,255,255,0.08)' : themeColors.border,
         },
       }}
     >
@@ -72,7 +71,7 @@ export function RootNavigator() {
         screenOptions={{
           headerShown: false,
           animation: 'fade',
-          contentStyle: { backgroundColor: isDark ? theme.colors.backgroundDark : theme.colors.background },
+          contentStyle: { backgroundColor: themeColors.background },
         }}
       >
         <Stack.Screen name="Splash" getComponent={() => require('../screens/SplashScreen').SplashScreen} />

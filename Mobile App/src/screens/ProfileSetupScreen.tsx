@@ -1,4 +1,4 @@
-import { IconMap } from '../components/IconMap';
+import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, TextInput, View, ActivityIndicator, Modal, ScrollView } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
@@ -106,9 +106,6 @@ export function ProfileSetupScreen({ navigation }: Props) {
     createProfileMutation.mutate();
   };
 
-  const AlertCircleIcon = IconMap['AlertCircle'];
-  const LeafIcon = IconMap['Leaf'];
-
   return (
     <Screen scrollable>
       <AppText variant="caption" color={theme.colors.primaryDark}>
@@ -121,7 +118,7 @@ export function ProfileSetupScreen({ navigation }: Props) {
 
       {error && (
         <View style={[styles.errorBox, { marginTop: 16 }]}>
-          {AlertCircleIcon ? <AlertCircleIcon size={16} color={theme.colors.danger} /> : null}
+          <Ionicons name="alert-circle" size={16} color={theme.colors.danger} />
           <AppText color={theme.colors.danger} style={{ flex: 1, marginLeft: 8 }}>
             {error}
           </AppText>
@@ -156,7 +153,7 @@ export function ProfileSetupScreen({ navigation }: Props) {
               disabled={createProfileMutation.isPending}
               style={[styles.cropCard, active && styles.cropCardActive]}
             >
-              {LeafIcon ? <LeafIcon size={22} color={active ? theme.colors.textOnDark : theme.colors.primaryDark} /> : null}
+              <Ionicons name="leaf" size={22} color={active ? theme.colors.textOnDark : theme.colors.primaryDark} />
               <AppText variant="label" color={active ? theme.colors.textOnDark : theme.colors.text}>
                 {crop}
               </AppText>

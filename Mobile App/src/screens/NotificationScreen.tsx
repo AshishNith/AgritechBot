@@ -1,13 +1,13 @@
 import { IconMap } from '../components/IconMap';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, View, useColorScheme } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { useState, useCallback, useEffect } from 'react';
 
 import { apiService } from '../api/services';
 import { AppText, GradientButton, Screen, ScreenCard } from '../components/ui';
-import { theme } from '../constants/theme';
 import { useAppStore } from '../store/useAppStore';
 import { AppNotification, NotificationType } from '../types/api';
+import { useTheme } from '../providers/ThemeContext';
 
 const TABS: { label: string; type?: NotificationType }[] = [
   { label: 'All' },
@@ -15,14 +15,6 @@ const TABS: { label: string; type?: NotificationType }[] = [
   { label: 'Weather', type: 'weather' },
   { label: 'AI Suggestions', type: 'ai_suggestion' },
 ];
-
-const TYPE_COLORS: Record<NotificationType, string> = {
-  crop_alert: 'rgba(239,68,68,0.14)',
-  weather: 'rgba(37,99,235,0.12)',
-  ai_suggestion: 'rgba(82,183,129,0.14)',
-  order: 'rgba(245,158,11,0.14)',
-  system: 'rgba(139,92,246,0.12)',
-};
 
 const TYPE_ICONS: Record<NotificationType, any> = {
   crop_alert: 'Leaf',
@@ -44,7 +36,7 @@ function timeAgo(dateStr: string): string {
 }
 
 export function NotificationScreen() {
-  const isDark = useColorScheme() === 'dark';
+  const { isDark, colors } = useTheme();
   const [activeTab, setActiveTab] = useState(0);
   const queryClient = useQueryClient();
   const setUnreadCount = useAppStore((s) => s.setUnreadNotificationCount);
@@ -89,15 +81,25 @@ export function NotificationScreen() {
   const notifications = data?.notifications ?? [];
   const unreadCount = data?.unreadCount ?? 0;
 
+  const getIconBg = (type: NotificationType) => {
+    switch (type) {
+      case 'crop_alert': return isDark ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.14)';
+      case 'weather': return isDark ? 'rgba(37,99,235,0.15)' : 'rgba(37,99,235,0.12)';
+      case 'ai_suggestion': return isDark ? 'rgba(82,183,129,0.2)' : 'rgba(82,183,129,0.14)';
+      case 'order': return isDark ? 'rgba(245,158,11,0.2)' : 'rgba(245,158,11,0.14)';
+      default: return isDark ? 'rgba(139,92,246,0.15)' : 'rgba(139,92,246,0.12)';
+    }
+  };
+
   return (
     <Screen scrollable refreshControl={
-      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.colors.primary} />
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
     }>
       <View style={styles.header}>
         <AppText variant="heading">Notifications</AppText>
         {unreadCount > 0 && (
           <Pressable onPress={() => markAllReadMutation.mutate()}>
-            <AppText color={theme.colors.primary} variant="label">
+            <AppText color={colors.primary} variant="label">
               {markAllReadMutation.isPending ? 'Clearing...' : 'Mark All Read'}
             </AppText>
           </Pressable>
@@ -109,11 +111,11 @@ export function NotificationScreen() {
           <Pressable
             key={tab.label}
             onPress={() => setActiveTab(index)}
-            style={[styles.tab, index === activeTab && styles.tabActive]}
+            style={[styles.tab, { backgroundColor: isDark ? colors.surface : colors.backgroundAlt }, index === activeTab && [styles.tabActive, { backgroundColor: colors.primary }]]}
           >
             <AppText
               variant="label"
-              color={index === activeTab ? theme.colors.textOnDark : theme.colors.textMuted}
+              color={index === activeTab ? colors.textOnDark : colors.textMuted}
             >
               {tab.label}
             </AppText>
@@ -123,8 +125,8 @@ export function NotificationScreen() {
 
       {isLoading && (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-          <AppText color={theme.colors.textMuted} style={{ marginTop: 12 }}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <AppText color={colors.textMuted} style={{ marginTop: 12 }}>
             Loading notifications...
           </AppText>
         </View>
@@ -132,8 +134,8 @@ export function NotificationScreen() {
 
       {isError && !isLoading && (
         <View style={styles.centered}>
-          {(() => { const IconComp = IconMap['AlertCircle']; return IconComp ? <IconComp size={48} color={theme.colors.danger} /> : null; })()}
-          <AppText color={theme.colors.textMuted} style={{ marginTop: 12 }}>
+          {(() => { const IconComp = IconMap['AlertCircle']; return IconComp ? <IconComp size={48} color={colors.danger} /> : null; })()}
+          <AppText color={colors.textMuted} style={{ marginTop: 12 }}>
             Failed to load notifications.
           </AppText>
           <GradientButton label="Retry" onPress={() => refetch()} secondary style={{ marginTop: 16 }} />
@@ -142,8 +144,8 @@ export function NotificationScreen() {
 
       {!isLoading && !isError && notifications.length === 0 && (
         <View style={styles.centered}>
-          {(() => { const IconComp = IconMap['BellOff']; return IconComp ? <IconComp size={48} color={theme.colors.textMuted} /> : null; })()}
-          <AppText color={theme.colors.textMuted} style={{ marginTop: 12 }}>
+          {(() => { const IconComp = IconMap['BellOff']; return IconComp ? <IconComp size={48} color={colors.textMuted} /> : null; })()}
+          <AppText color={colors.textMuted} style={{ marginTop: 12 }}>
             No notifications yet
           </AppText>
         </View>
@@ -163,22 +165,21 @@ export function NotificationScreen() {
               <ScreenCard
                 style={[
                   styles.alertCard,
-                  !item.read && styles.alertCardUnread,
-                  !item.read && isDark && styles.alertCardUnreadDark,
+                  !item.read && [styles.alertCardUnread, { borderLeftColor: colors.primary, backgroundColor: isDark ? 'rgba(82,183,129,0.08)' : 'rgba(82,183,129,0.05)' }],
                 ]}
               >
-                <View style={[styles.alertIcon, { backgroundColor: TYPE_COLORS[item.type] }]}>
-                  {(() => { const IconComp = IconMap[TYPE_ICONS[item.type]]; return IconComp ? <IconComp size={22} color={theme.colors.primary} /> : null; })()}
+                <View style={[styles.alertIcon, { backgroundColor: getIconBg(item.type) }]}>
+                  {(() => { const IconComp = IconMap[TYPE_ICONS[item.type]]; return IconComp ? <IconComp size={22} color={colors.primary} /> : null; })()}
                 </View>
                 <View style={{ flex: 1 }}>
                   <View style={styles.alertHeader}>
                     <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <AppText variant="label">{item.title}</AppText>
-                      {!item.read && <View style={styles.unreadDot} />}
+                      {!item.read && <View style={[styles.unreadDot, { backgroundColor: colors.primary }]} />}
                     </View>
-                    <AppText color={theme.colors.textMuted}>{timeAgo(item.createdAt)}</AppText>
+                    <AppText color={colors.textMuted}>{timeAgo(item.createdAt)}</AppText>
                   </View>
-                  <AppText color={theme.colors.textMuted}>{item.body}</AppText>
+                  <AppText color={colors.textMuted}>{item.body}</AppText>
                   {item.actionLabel && (
                     <GradientButton label={item.actionLabel} secondary style={{ marginTop: 14 }} />
                   )}
@@ -190,8 +191,8 @@ export function NotificationScreen() {
       )}
 
       {!isLoading && !isError && notifications.length > 0 && (
-        <ScreenCard style={styles.suggestionCard}>
-          <AppText variant="label" color={theme.colors.textOnDark}>
+        <ScreenCard style={[styles.suggestionCard, { backgroundColor: colors.primaryDark }]}>
+          <AppText variant="label" color={colors.textOnDark}>
             Stay Updated
           </AppText>
           <AppText color="#ddf4e8" style={{ marginTop: 8 }}>
@@ -220,10 +221,9 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     paddingVertical: 10,
     alignItems: 'center',
-    backgroundColor: theme.colors.surfaceMuted,
   },
   tabActive: {
-    backgroundColor: theme.colors.primary,
+    // Background set dynamically
   },
   alertCard: {
     flexDirection: 'row',
@@ -231,11 +231,6 @@ const styles = StyleSheet.create({
   },
   alertCardUnread: {
     borderLeftWidth: 3,
-    borderLeftColor: theme.colors.primary,
-    backgroundColor: 'rgba(82,183,129,0.05)',
-  },
-  alertCardUnreadDark: {
-    backgroundColor: 'rgba(82,183,129,0.08)',
   },
   alertIcon: {
     width: 44,
@@ -254,7 +249,6 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: theme.colors.primary,
   },
   centered: {
     alignItems: 'center',
@@ -263,7 +257,6 @@ const styles = StyleSheet.create({
   },
   suggestionCard: {
     marginTop: 18,
-    backgroundColor: theme.colors.primaryDark,
     paddingBottom: 120,
   },
 });

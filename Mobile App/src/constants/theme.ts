@@ -2,29 +2,52 @@ import { Dimensions, Platform, TextStyle, ViewStyle } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
+const lightColors = {
+  primary: '#52b781',
+  primaryDark: '#1f7b54',
+  accent: '#c8f169',
+  background: '#f6f7f7',
+  backgroundAlt: '#eef2ef',
+  surface: '#ffffff',
+  surfaceMuted: '#f0f5f1',
+  text: '#102117',
+  textMuted: '#6b7a71',
+  textOnDark: '#f7faf8',
+  border: '#d8e2db',
+  success: '#52b781',
+  warning: '#f59e0b',
+  danger: '#ef4444',
+  info: '#2563eb',
+  shadow: '#0d170f',
+  overlay: 'rgba(16, 33, 23, 0.55)',
+  glass: 'rgba(255,255,255,0.14)',
+};
+
+const darkColors = {
+  primary: '#52b781',
+  primaryDark: '#75cf9e',
+  accent: '#c8f169',
+  background: '#0b120e',
+  backgroundAlt: '#151d19',
+  surface: '#1d2a24',
+  surfaceMuted: '#121a16',
+  text: '#f7faf8',
+  textMuted: '#9aa8a0',
+  textOnDark: '#f7faf8',
+  border: '#2a3a31',
+  success: '#52b781',
+  warning: '#fbb32b',
+  danger: '#ff5f5f',
+  info: '#3b82f6',
+  shadow: '#000000',
+  overlay: 'rgba(0, 0, 0, 0.75)',
+  glass: 'rgba(255,255,255,0.08)',
+};
+
 export const theme = {
-  colors: {
-    primary: '#52b781',
-    primaryDark: '#1f7b54',
-    accent: '#c8f169',
-    background: '#f6f7f7',
-    backgroundAlt: '#eef2ef',
-    backgroundDark: '#151d19',
-    backgroundDarkest: '#0b120e',
-    surface: '#ffffff',
-    surfaceMuted: '#f0f5f1',
-    text: '#102117',
-    textMuted: '#6b7a71',
-    textOnDark: '#f7faf8',
-    border: '#d8e2db',
-    success: '#52b781',
-    warning: '#f59e0b',
-    danger: '#ef4444',
-    info: '#2563eb',
-    shadow: '#0d170f',
-    overlay: 'rgba(16, 33, 23, 0.55)',
-    glass: 'rgba(255,255,255,0.14)',
-  },
+  colors: lightColors, // Default
+  darkColors: darkColors,
+  lightColors: lightColors,
   typography: {
     display: {
       fontSize: 32,
@@ -100,3 +123,4 @@ export const theme = {
 };
 
 export type AppTheme = typeof theme;
+export type ThemeColors = typeof lightColors;

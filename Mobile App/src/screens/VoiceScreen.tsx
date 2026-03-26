@@ -1,4 +1,3 @@
-
 import { IconMap } from '../components/IconMap';
 import { useMutation } from '@tanstack/react-query';
 import { Audio } from 'expo-av';
@@ -8,13 +7,14 @@ import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { apiService } from '../api/services';
 import { AppText, ConcentricVisualizer, GradientButton, Screen, WaveBars } from '../components/ui';
-import { theme } from '../constants/theme';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
+import { useTheme } from '../providers/ThemeContext';
 
 export function VoiceScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { colors } = useTheme();
   const language = useAppStore((state) => state.language);
   const { isRecording, startRecording, stopRecording } = useAudioRecorder();
 
@@ -60,18 +60,16 @@ export function VoiceScreen() {
   return (
     <Screen dark>
       <View style={styles.topBar}>
-        <Pressable onPress={() => navigation.goBack()}>
-          {(() => { const IconComp = IconMap['X']; return IconComp ? <IconComp size={28} color={theme.colors.textOnDark} /> : null; })()}
+        <Pressable onPress={() => navigation.goBack()} style={[styles.headerButton, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
+          {(() => { const IconComp = IconMap['X']; return IconComp ? <IconComp size={24} color={colors.textOnDark} /> : null; })()}
         </Pressable>
-        <Pressable onPress={() => navigation.navigate('ImageScan')}>
-          {(() => { const IconComp = IconMap['Scan']; return IconComp ? <IconComp size={24} color={theme.colors.textOnDark} /> : null; })()}
-        </Pressable>
+        <View style={styles.headerSpacer} />
       </View>
       <View style={styles.center}>
-        <AppText variant="display" color={theme.colors.textOnDark}>
-          Listening...
+        <AppText variant="display" color={colors.textOnDark}>
+          {isRecording ? 'Listening...' : 'Ready'}
         </AppText>
-        <AppText color="#b5d8c4" style={{ marginTop: 12 }}>
+        <AppText color="#b5d8c4" style={{ marginTop: 12, textAlign: 'center' }}>
           Ask your crop question in {language}
         </AppText>
         <ConcentricVisualizer />
@@ -79,8 +77,8 @@ export function VoiceScreen() {
       </View>
       <View style={styles.bottom}>
         <GradientButton label={isRecording ? 'Stop & Send' : 'Start Recording'} onPress={handleRecordPress} />
-        <AppText color="#87caaa" style={{ textAlign: 'center', marginTop: 14 }}>
-          Record audio, send to backend, and play the AI response automatically.
+        <AppText color="#87caaa" style={{ textAlign: 'center', marginTop: 18, fontSize: 13, paddingHorizontal: 20 }}>
+          Record audio to get instant AI farming advice in your native language.
         </AppText>
       </View>
     </Screen>
@@ -93,6 +91,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 8,
+  },
+  headerButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerSpacer: {
+    width: 44,
+    height: 44,
   },
   center: {
     flex: 1,
