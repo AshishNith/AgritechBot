@@ -1,26 +1,43 @@
 import { IconMap } from '../components/IconMap';
 import { useMutation } from '@tanstack/react-query';
+import axios from 'axios';
 import { Audio } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { apiService } from '../api/services';
 import { AppText, ConcentricVisualizer, GradientButton, Screen, WaveBars } from '../components/ui';
-import { useAudioRecorder } from '../hooks/useAudioRecorder';
+import { RecordedAudioClip, useAudioRecorder } from '../hooks/useAudioRecorder';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
 import { useTheme } from '../providers/ThemeContext';
+import { useI18n } from '../hooks/useI18n';
+import { t as tx } from '../constants/localization';
 
 export function VoiceScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { colors } = useTheme();
+  const { t } = useI18n();
   const language = useAppStore((state) => state.language);
   const { isRecording, startRecording, stopRecording } = useAudioRecorder();
+  const [latestTranscript, setLatestTranscript] = useState<string | null>(null);
+  const [latestAnswer, setLatestAnswer] = useState<string | null>(null);
+  const playbackRef = useRef<Audio.Sound | null>(null);
+
+  useEffect(() => {
+    return () => {
+      playbackRef.current?.unloadAsync().catch(() => undefined);
+    };
+  }, []);
 
   const voiceMutation = useMutation({
-    mutationFn: (audioUri: string) => apiService.sendVoice(audioUri, language),
+    mutationFn: (audioClip: RecordedAudioClip) => apiService.sendVoiceMessage(audioClip, language),
     onSuccess: async (data) => {
+      setLatestTranscript(data.transcript ?? null);
+      setLatestAnswer(data.answer);
+
       if (data.audioUrl || data.audioBase64 || data.audio) {
         try {
           await Audio.setAudioModeAsync({
@@ -28,7 +45,9 @@ export function VoiceScreen() {
             playsInSilentModeIOS: true,
           });
 
+          await playbackRef.current?.unloadAsync();
           const sound = new Audio.Sound();
+          playbackRef.current = sound;
           const base64Audio = data.audioBase64 ?? data.audio;
           const uri = data.audioUrl ?? (base64Audio ? `data:audio/mp3;base64,${base64Audio}` : undefined);
 
@@ -37,23 +56,51 @@ export function VoiceScreen() {
             await sound.playAsync();
           }
         } catch {
-          Alert.alert('Playback failed', 'Voice response arrived, but audio playback failed on device.');
+          Alert.alert(t('playbackFailed'), t('voicePlaybackFailed'));
         }
       }
-      Alert.alert('Voice response', data.answer);
+
+      navigation.navigate('MainTabs', {
+        screen: 'ChatTab',
+        params: { chatId: data.chatId },
+      });
     },
-    onError: () => Alert.alert('Voice request failed', 'The backend voice route is unavailable or requires authentication.'),
+    onError: (error) => {
+      let message = t('voiceRouteUnavailable');
+
+      if (axios.isAxiosError(error)) {
+        if (error.code === 'ECONNABORTED') {
+          message = 'Voice request timed out. Please wait a bit and try again.';
+        } else if (error.response?.status === 401) {
+          message = tx(language, 'sessionExpired');
+        } else if (typeof error.response?.data === 'object' && error.response?.data) {
+          const payload = error.response.data as {
+            error?: unknown;
+            message?: unknown;
+          };
+          message = String(payload.error || payload.message || message);
+        } else if (error.message) {
+          message = error.message;
+        }
+      }
+
+      Alert.alert(t('voiceRequestFailed'), message);
+    },
   });
 
   const handleRecordPress = async () => {
     if (!isRecording) {
-      await startRecording();
+      try {
+        await startRecording();
+      } catch {
+        Alert.alert(tx(language, 'microphoneNotAvailable'), tx(language, 'enableMicrophone'));
+      }
       return;
     }
 
-    const uri = await stopRecording();
-    if (uri) {
-      voiceMutation.mutate(uri);
+    const clip = await stopRecording();
+    if (clip) {
+      voiceMutation.mutate(clip);
     }
   };
 
@@ -67,16 +114,40 @@ export function VoiceScreen() {
       </View>
       <View style={styles.center}>
         <AppText variant="display" color={colors.textOnDark}>
-          {isRecording ? 'Listening...' : 'Ready'}
+          {voiceMutation.isPending ? t('thinking') : isRecording ? t('listening') : t('ready')}
         </AppText>
         <AppText color="#b5d8c4" style={{ marginTop: 12, textAlign: 'center' }}>
-          Ask your crop question in {language}
+          {t('askYourCropQuestionIn')} {language}
         </AppText>
         <ConcentricVisualizer />
         <WaveBars dark />
+        {latestTranscript ? (
+          <View style={styles.responseCard}>
+            <AppText variant="label" color={colors.textOnDark}>
+              {t('recordVoice')}
+            </AppText>
+            <AppText color="#d7efe2" style={styles.responseBody}>
+              {latestTranscript}
+            </AppText>
+            {latestAnswer ? (
+              <>
+                <AppText variant="label" color={colors.textOnDark} style={styles.answerLabel}>
+                  {t('voiceResponse')}
+                </AppText>
+                <AppText color="#d7efe2" style={styles.responseBody}>
+                  {latestAnswer}
+                </AppText>
+              </>
+            ) : null}
+          </View>
+        ) : null}
       </View>
       <View style={styles.bottom}>
-        <GradientButton label={isRecording ? 'Stop & Send' : 'Start Recording'} onPress={handleRecordPress} />
+        <GradientButton
+          label={voiceMutation.isPending ? t('thinking') : isRecording ? t('stopAndSend') : t('startRecording')}
+          onPress={handleRecordPress}
+          disabled={voiceMutation.isPending}
+        />
         <AppText color="#87caaa" style={{ textAlign: 'center', marginTop: 18, fontSize: 13, paddingHorizontal: 20 }}>
           Record audio to get instant AI farming advice in your native language.
         </AppText>
@@ -108,6 +179,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 18,
+  },
+  responseCard: {
+    width: '100%',
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    padding: 16,
+    gap: 8,
+  },
+  responseBody: {
+    lineHeight: 22,
+  },
+  answerLabel: {
+    marginTop: 4,
   },
   bottom: {
     paddingBottom: 28,

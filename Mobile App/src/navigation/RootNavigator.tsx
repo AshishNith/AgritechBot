@@ -5,44 +5,48 @@ import { useTheme } from '../providers/ThemeContext';
 
 import { AnaajTabBar } from '../components/ui';
 import { theme } from '../constants/theme';
+import { useI18n } from '../hooks/useI18n';
 import { MainTabParamList, RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 function MainTabs() {
+  const { t } = useI18n();
+
   return (
     <Tab.Navigator
       initialRouteName="HomeTab"
       screenOptions={{
         headerShown: false,
         lazy: true,
+        tabBarHideOnKeyboard: true,
       }}
       tabBar={(props) => <AnaajTabBar {...props} />}
     >
       <Tab.Screen
         name="HomeTab"
-        options={{ title: 'Home' }}
+        options={{ title: t('homeTab') }}
         getComponent={() => require('../screens/HomeScreen').HomeScreen}
       />
       <Tab.Screen
         name="ChatTab"
-        options={{ title: 'Chat' }}
+        options={{ title: t('chatTab') }}
         getComponent={() => require('../screens/ChatScreen').ChatScreen}
       />
       <Tab.Screen
         name="MarketplaceTab"
-        options={{ title: 'Marketplace' }}
+        options={{ title: t('marketplaceTab') }}
         getComponent={() => require('../screens/MarketplaceScreen').MarketplaceScreen}
       />
       <Tab.Screen
         name="HistoryTab"
-        options={{ title: 'History' }}
+        options={{ title: t('historyTab') }}
         getComponent={() => require('../screens/HistoryScreen').HistoryScreen}
       />
       <Tab.Screen
         name="ProfileTab"
-        options={{ title: 'Profile' }}
+        options={{ title: t('profileTab') }}
         getComponent={() => require('../screens/ProfileScreen').ProfileScreen}
       />
     </Tab.Navigator>

@@ -1,0 +1,320 @@
+{
+  "cropDiseases": [
+    {
+      "crop": "wheat",
+      "disease": "Yellow Rust",
+      "symptoms": "Yellow linear pustules on leaves, reduced vigour, shrivelled grains.",
+      "cause": "Fungal infection favoured by cool and humid weather.",
+      "treatment": "Spray a recommended triazole fungicide at first appearance and repeat based on label guidance.",
+      "prevention": "Use resistant varieties, balanced nitrogen, and avoid dense late crop."
+    },
+    {
+      "crop": "wheat",
+      "disease": "Loose Smut",
+      "symptoms": "Earheads replaced by black powdery spores.",
+      "cause": "Seed-borne fungal infection.",
+      "treatment": "There is no curative treatment after emergence.",
+      "prevention": "Use treated certified seed and resistant varieties."
+    },
+    {
+      "crop": "rice",
+      "disease": "Blast",
+      "symptoms": "Spindle-shaped lesions on leaves and neck rot on panicles.",
+      "cause": "Magnaporthe infection under humidity and excess nitrogen.",
+      "treatment": "Spray a recommended fungicide and manage standing water carefully.",
+      "prevention": "Use resistant varieties, avoid excess nitrogen, and maintain spacing."
+    },
+    {
+      "crop": "rice",
+      "disease": "Bacterial Leaf Blight",
+      "symptoms": "Yellowing from leaf tips with wavy margins and drying leaves.",
+      "cause": "Bacterial infection spread by rain splash and wounds.",
+      "treatment": "Use copper-based bactericide only where recommended locally and avoid field-to-field spread.",
+      "prevention": "Use clean seed, balanced fertilization, and avoid excess nitrogen."
+    },
+    {
+      "crop": "cotton",
+      "disease": "Alternaria Leaf Spot",
+      "symptoms": "Brown circular spots with concentric rings on older leaves.",
+      "cause": "Fungal infection in humid weather.",
+      "treatment": "Remove heavily infected debris and spray a recommended fungicide if severe.",
+      "prevention": "Crop rotation, residue management, and balanced nutrition."
+    },
+    {
+      "crop": "cotton",
+      "disease": "Bacterial Blight",
+      "symptoms": "Angular leaf spots, black arm on stems, boll lesions.",
+      "cause": "Seed-borne and splash-dispersed bacteria.",
+      "treatment": "There is limited curative control; focus on sanitation and local advisory.",
+      "prevention": "Use acid-delinted treated seed and tolerant varieties."
+    },
+    {
+      "crop": "tomato",
+      "disease": "Early Blight",
+      "symptoms": "Target-like concentric spots on older leaves and stem lesions.",
+      "cause": "Alternaria fungus favoured by warm humidity.",
+      "treatment": "Spray a recommended protectant or systemic fungicide and remove affected leaves.",
+      "prevention": "Mulching, lower leaf pruning, crop rotation, and drip irrigation."
+    },
+    {
+      "crop": "tomato",
+      "disease": "Late Blight",
+      "symptoms": "Water-soaked lesions, white growth under humid conditions, fruit rot.",
+      "cause": "Phytophthora infection during cool wet spells.",
+      "treatment": "Immediate fungicide spray and removal of infected plants where severe.",
+      "prevention": "Avoid overhead irrigation and ensure good airflow."
+    },
+    {
+      "crop": "potato",
+      "disease": "Late Blight",
+      "symptoms": "Dark lesions on leaves and stems with rapid field spread.",
+      "cause": "Phytophthora infestans in cool wet weather.",
+      "treatment": "Protective and systemic fungicides as per local recommendation.",
+      "prevention": "Use healthy seed tubers and prophylactic sprays in conducive weather."
+    },
+    {
+      "crop": "potato",
+      "disease": "Early Blight",
+      "symptoms": "Brown lesions with concentric rings and premature defoliation.",
+      "cause": "Alternaria fungus.",
+      "treatment": "Timely fungicide spray and improved plant nutrition.",
+      "prevention": "Crop rotation and residue destruction."
+    },
+    {
+      "crop": "soybean",
+      "disease": "Rust",
+      "symptoms": "Tiny brown pustules on leaf underside and rapid yellowing.",
+      "cause": "Fungal infection spread by wind.",
+      "treatment": "Spray a recommended fungicide early after detection.",
+      "prevention": "Regular scouting and timely sowing."
+    },
+    {
+      "crop": "soybean",
+      "disease": "Anthracnose",
+      "symptoms": "Dark sunken lesions on stems and pods, poor seed quality.",
+      "cause": "Colletotrichum fungus.",
+      "treatment": "Seed treatment and field fungicide where advised.",
+      "prevention": "Disease-free seed and crop rotation."
+    },
+    {
+      "crop": "maize",
+      "disease": "Turcicum Leaf Blight",
+      "symptoms": "Long cigar-shaped grey lesions on leaves.",
+      "cause": "Exserohilum fungal infection under cool humid conditions.",
+      "treatment": "Fungicide spray if disease appears before tasseling and pressure is high.",
+      "prevention": "Resistant hybrids and residue management."
+    },
+    {
+      "crop": "maize",
+      "disease": "Maydis Leaf Blight",
+      "symptoms": "Small rectangular brown lesions that expand and merge.",
+      "cause": "Bipolaris maydis fungus.",
+      "treatment": "Timely fungicide under severe incidence.",
+      "prevention": "Hybrid selection and field sanitation."
+    },
+    {
+      "crop": "chilli",
+      "disease": "Leaf Curl",
+      "symptoms": "Upward curling leaves, stunting, poor fruit set.",
+      "cause": "Viral disease spread by whitefly.",
+      "treatment": "Rouge infected plants early and manage whitefly vector.",
+      "prevention": "Yellow sticky traps, barrier crops, and vector control."
+    },
+    {
+      "crop": "mustard",
+      "disease": "Alternaria Blight",
+      "symptoms": "Dark spots on leaves, stems, and siliquae.",
+      "cause": "Alternaria fungus.",
+      "treatment": "Recommended fungicide sprays during humid spells.",
+      "prevention": "Seed treatment and wider spacing."
+    },
+    {
+      "crop": "mustard",
+      "disease": "White Rust",
+      "symptoms": "White blister-like pustules on underside of leaves and staghead.",
+      "cause": "Albugo infection.",
+      "treatment": "Fungicide if early incidence is observed.",
+      "prevention": "Crop rotation and clean seed."
+    },
+    {
+      "crop": "gram",
+      "disease": "Fusarium Wilt",
+      "symptoms": "Sudden drooping and yellowing with vascular discoloration.",
+      "cause": "Soil-borne Fusarium fungus.",
+      "treatment": "No effective rescue after severe wilt.",
+      "prevention": "Resistant varieties, seed treatment, and long rotation."
+    },
+    {
+      "crop": "gram",
+      "disease": "Ascochyta Blight",
+      "symptoms": "Circular lesions on leaves, stems, and pods.",
+      "cause": "Ascochyta rabiei fungus.",
+      "treatment": "Protective fungicide after first signs in cool humid periods.",
+      "prevention": "Disease-free seed and field sanitation."
+    },
+    {
+      "crop": "banana",
+      "disease": "Sigatoka Leaf Spot",
+      "symptoms": "Yellow streaks turning into elongated brown spots.",
+      "cause": "Fungal infection in humid plantations.",
+      "treatment": "Remove old leaves and spray a recommended fungicide.",
+      "prevention": "Good aeration, sanitation, and balanced potassium."
+    }
+  ],
+  "pests": [
+    {
+      "name": "Fall Armyworm",
+      "crops": ["maize"],
+      "symptoms": "Windowing on leaves, whorl feeding, frass in funnel.",
+      "management": "Scout early, destroy egg masses, encourage natural enemies, and use recommended insecticide only when threshold is crossed."
+    },
+    {
+      "name": "Brown Planthopper",
+      "crops": ["rice"],
+      "symptoms": "Hopper burn patches, insects at plant base.",
+      "management": "Avoid excess nitrogen, drain field temporarily, and use targeted insecticide if infestation is high."
+    },
+    {
+      "name": "Pink Bollworm",
+      "crops": ["cotton"],
+      "symptoms": "Rosette flowers, damaged bolls, larvae inside locules.",
+      "management": "Timely sowing, pheromone traps, crop residue destruction, and advised insecticide rotation."
+    },
+    {
+      "name": "Whitefly",
+      "crops": ["cotton", "chilli", "tomato"],
+      "symptoms": "Leaf yellowing, honeydew, sooty mould, virus spread.",
+      "management": "Yellow sticky traps, avoid overuse of nitrogen, and rotate insecticides by mode of action."
+    },
+    {
+      "name": "Aphid",
+      "crops": ["mustard", "vegetables", "wheat"],
+      "symptoms": "Curling leaves, sticky honeydew, weak growth.",
+      "management": "Conserve ladybird beetles, water spray on light attack, and use a selective insecticide if severe."
+    },
+    {
+      "name": "Jassid",
+      "crops": ["cotton", "okra"],
+      "symptoms": "Leaf edge yellowing and hopper burn.",
+      "management": "Seed treatment, tolerant varieties, and threshold-based spray."
+    },
+    {
+      "name": "Thrips",
+      "crops": ["onion", "chilli", "cotton"],
+      "symptoms": "Silvery streaks, leaf curling, reduced vigour.",
+      "management": "Blue sticky traps, avoid dusty stress, and rotate insecticides carefully."
+    },
+    {
+      "name": "Helicoverpa Armigera",
+      "crops": ["gram", "tomato", "cotton"],
+      "symptoms": "Pod and fruit boring with round holes and excreta.",
+      "management": "Pheromone traps, bird perches, NPV or Bt-based options, and threshold-based spray."
+    },
+    {
+      "name": "Stem Borer",
+      "crops": ["rice", "maize"],
+      "symptoms": "Dead hearts and white earheads.",
+      "management": "Clip seedling tips where applicable, destroy stubbles, and apply granules only as recommended."
+    },
+    {
+      "name": "Mealybug",
+      "crops": ["cotton", "fruits", "vegetables"],
+      "symptoms": "Cottony colonies, leaf deformation, honeydew.",
+      "management": "Destroy alternate hosts, use sticky barriers, and encourage predators."
+    }
+  ],
+  "fertilizers": [
+    {
+      "crop": "wheat",
+      "guide": "Typical balanced plan uses basal phosphorus and potassium with split nitrogen at sowing, CRI, and later growth stage based on soil test."
+    },
+    {
+      "crop": "rice",
+      "guide": "Basal phosphorus and potassium with split nitrogen across transplanting, tillering, and panicle initiation, adjusted by water and variety."
+    },
+    {
+      "crop": "cotton",
+      "guide": "Apply phosphorus and potash near sowing and split nitrogen through square and boll development. Avoid excessive nitrogen."
+    },
+    {
+      "crop": "vegetables",
+      "guide": "Use compost or FYM before planting, then crop-specific NPK through basal and fertigation or side-dressings."
+    },
+    {
+      "crop": "general",
+      "guide": "Always prefer soil-test based doses. Organic sources like FYM, vermicompost, neem cake, and green manuring improve soil health."
+    }
+  ],
+  "seasons": {
+    "rabi": {
+      "months": [10, 11, 12, 1, 2, 3],
+      "crops": ["wheat", "mustard", "gram", "barley", "pea"]
+    },
+    "kharif": {
+      "months": [6, 7, 8, 9],
+      "crops": ["rice", "maize", "cotton", "soybean", "groundnut", "bajra"]
+    },
+    "zaid": {
+      "months": [3, 4, 5],
+      "crops": ["watermelon", "cucumber", "muskmelon", "fodder maize", "vegetables"]
+    }
+  },
+  "governmentSchemes": [
+    {
+      "name": "PM-KISAN",
+      "benefit": "Income support to eligible farmer families in installments.",
+      "note": "Eligibility and status should be checked on official government portals."
+    },
+    {
+      "name": "Pradhan Mantri Fasal Bima Yojana",
+      "benefit": "Crop insurance support against yield losses from notified risks.",
+      "note": "Coverage, deadlines, and claim process depend on notified crop, season, and district."
+    },
+    {
+      "name": "Soil Health Card",
+      "benefit": "Soil testing support and nutrient recommendations.",
+      "note": "Useful for crop-specific nutrient planning and balanced fertilizer use."
+    },
+    {
+      "name": "Kisan Credit Card",
+      "benefit": "Short-term credit support for crop and allied activities.",
+      "note": "Terms vary by bank and farmer eligibility."
+    }
+  ],
+  "soilTypes": [
+    {
+      "type": "Alluvial",
+      "management": "Generally fertile, responds well to balanced NPK and micronutrient correction where zinc or sulphur is low."
+    },
+    {
+      "type": "Black",
+      "management": "High clay and moisture holding, avoid over-irrigation, improve drainage, and manage cracking with residue retention."
+    },
+    {
+      "type": "Red",
+      "management": "Often low in nitrogen and organic matter, benefit from FYM, split nutrients, and moisture conservation."
+    },
+    {
+      "type": "Laterite",
+      "management": "Often acidic and low fertility, needs liming where recommended and regular organic matter addition."
+    }
+  ],
+  "irrigation": [
+    {
+      "method": "Drip",
+      "guidance": "Best for water saving and fertigation in horticulture, vegetables, cotton, and orchards."
+    },
+    {
+      "method": "Sprinkler",
+      "guidance": "Useful in light soils and undulating land for many field crops where wind is manageable."
+    },
+    {
+      "method": "Flood",
+      "guidance": "Common but less efficient. Use field leveling and irrigation scheduling to reduce losses."
+    },
+    {
+      "method": "Furrow",
+      "guidance": "Suitable for row crops when drainage and bed layout are maintained properly."
+    }
+  ]
+}

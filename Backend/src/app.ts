@@ -15,12 +15,14 @@ import { subscriptionRoutes } from './routes/subscriptionRoutes';
 import { adminRoutes } from './routes/adminRoutes';
 import { notificationRoutes } from './routes/notificationRoutes';
 import { paymentRoutes } from './routes/paymentRoutes';
+import { chatV1Routes } from './chat/routes/chat.routes';
 import { logger } from './utils/logger';
 import { env } from './config/env';
 import { redis } from './config/redis';
 import { workerMetrics } from './services/queue/worker';
 import { getQueueHealth } from './services/queue/queue';
 import { cache } from './services/cache/redisCache';
+import { getChatHealthMetrics } from './chat/services/chatMetrics.service';
 
 // ── App version from package.json ──
 const APP_VERSION = '1.0.0';
@@ -127,6 +129,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   // ── Health Check (extended with Redis + worker metrics) ──
   app.get('/health', async () => {
     const redisStatus = redis.status === 'ready' ? 'ok' : redis.status;
+    const chatMetrics = await getChatHealthMetrics();
     return {
       status: 'ok',
       version: APP_VERSION,
@@ -141,6 +144,7 @@ export async function buildApp(): Promise<FastifyInstance> {
         avgChatMs: workerMetrics.avgChatMs,
         avgVoiceMs: workerMetrics.avgVoiceMs,
       },
+      chat: chatMetrics,
     };
   });
 
@@ -173,6 +177,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   // ── API Routes (versioned under /api/v1 + backward-compatible /api) ──
   await app.register(authRoutes);
   await app.register(chatRoutes);
+  await app.register(chatV1Routes);
   await app.register(voiceRoutes);
   await app.register(userRoutes);
   await app.register(marketplaceRoutes);

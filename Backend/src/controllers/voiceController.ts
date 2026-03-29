@@ -34,6 +34,8 @@ export async function voiceAsk(request: FastifyRequest, reply: FastifyReply) {
   }
   const audioBuffer = Buffer.concat(chunks);
   const audioBase64 = audioBuffer.toString('base64');
+  const mimeType = data.mimetype || 'audio/m4a';
+  const fileName = data.filename || 'voice-query.m4a';
 
   // Get or extract language from fields
   const language = (data.fields as Record<string, { value?: string }>)?.language?.value;
@@ -47,7 +49,7 @@ export async function voiceAsk(request: FastifyRequest, reply: FastifyReply) {
   const chatId = String(chat._id);
 
   if (!isQueueAvailable()) {
-    const sttResult = await speechToText(audioBase64, language);
+    const sttResult = await speechToText(audioBase64, language, mimeType, fileName);
     const resolvedLanguage = language || detectLanguage(sttResult.text).language;
 
     const ragContext = await retrieveContext(sttResult.text);
@@ -89,8 +91,10 @@ export async function voiceAsk(request: FastifyRequest, reply: FastifyReply) {
 
     return reply.send({
       chatId,
+      transcript: sttResult.text,
       text: sttResult.text,
       answer: llmResponse.content,
+      audioBase64: audioResponse,
       audio: audioResponse,
       mode: 'sync-fallback',
     });
@@ -102,6 +106,8 @@ export async function voiceAsk(request: FastifyRequest, reply: FastifyReply) {
     chatId,
     audioBase64,
     language,
+    mimeType,
+    fileName,
   });
 
   const job = await getVoiceQueue().getJob(jobId);

@@ -1,0 +1,131 @@
+{
+  "info": {
+    "name": "AnaajAI Chat API",
+    "_postman_id": "c3d89f54-3b75-4f94-b0ef-d2d89b32cfe5",
+    "description": "Postman collection for the Anaaj.ai session-based chat module under /api/v1/chat.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000" },
+    { "key": "token", "value": "" },
+    { "key": "sessionId", "value": "" },
+    { "key": "messageId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Create Session",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": "{{baseUrl}}/api/v1/chat/sessions"
+      }
+    },
+    {
+      "name": "List Sessions",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": "{{baseUrl}}/api/v1/chat/sessions?page=1&limit=20"
+      }
+    },
+    {
+      "name": "Get Session Detail",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": "{{baseUrl}}/api/v1/chat/sessions/{{sessionId}}?page=1&limit=50"
+      }
+    },
+    {
+      "name": "Rename Session",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Wheat rust follow-up\"\n}"
+        },
+        "url": "{{baseUrl}}/api/v1/chat/sessions/{{sessionId}}"
+      }
+    },
+    {
+      "name": "Archive Session",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": "{{baseUrl}}/api/v1/chat/sessions/{{sessionId}}"
+      }
+    },
+    {
+      "name": "Send Message",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \"My wheat leaves have yellow stripes. What could it be?\"\n}"
+        },
+        "url": "{{baseUrl}}/api/v1/chat/sessions/{{sessionId}}/message"
+      }
+    },
+    {
+      "name": "Stream Message",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \"Should I irrigate tomorrow if rain is expected?\"\n}"
+        },
+        "url": "{{baseUrl}}/api/v1/chat/sessions/{{sessionId}}/message/stream"
+      }
+    },
+    {
+      "name": "Get Session Messages",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": "{{baseUrl}}/api/v1/chat/sessions/{{sessionId}}/messages?limit=50"
+      }
+    },
+    {
+      "name": "Get Chat Context",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": "{{baseUrl}}/api/v1/chat/context"
+      }
+    },
+    {
+      "name": "Clear History",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": "{{baseUrl}}/api/v1/chat/sessions/{{sessionId}}/history"
+      }
+    }
+  ]
+}

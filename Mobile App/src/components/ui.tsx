@@ -3,10 +3,12 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { PropsWithChildren, ReactNode, useEffect } from 'react';
+import { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 import {
   Image,
   ImageSourcePropType,
+  Keyboard,
+  Platform,
   Pressable,
   ScrollView,
   StyleProp,
@@ -318,6 +320,7 @@ export function ProgressDots({ total, active }: { total: number; active: number 
 export function AnaajTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { isDark, colors } = useTheme();
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const tabIcons: Record<string, string> = {
     HomeTab: 'Home',
     ChatTab: 'MessageSquare',
@@ -325,6 +328,22 @@ export function AnaajTabBar({ state, descriptors, navigation }: BottomTabBarProp
     HistoryTab: 'Clock',
     ProfileTab: 'User',
   };
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSubscription = Keyboard.addListener(showEvent, () => setIsKeyboardVisible(true));
+    const hideSubscription = Keyboard.addListener(hideEvent, () => setIsKeyboardVisible(false));
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  if (isKeyboardVisible) {
+    return null;
+  }
 
   return (
     <View style={[styles.tabShell, { paddingBottom: Math.max(8, insets.bottom), backgroundColor: 'transparent' }]}>

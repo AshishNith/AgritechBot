@@ -9,6 +9,8 @@ import { LocationPicker } from '../components/LocationPicker';
 import { AppText, GradientButton, Pill, Screen, ScreenCard } from '../components/ui';
 import { designImages } from '../constants/designData';
 import { theme } from '../constants/theme';
+import { t } from '../constants/localization';
+import { useI18n } from '../hooks/useI18n';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
 
@@ -32,6 +34,8 @@ const INDIAN_LOCATIONS: Record<string, string[]> = {
 };
 
 export function ProfileSetupScreen({ navigation }: Props) {
+  const language = useAppStore((state) => state.language);
+  const { t: tx } = useI18n();
   const selectedCrops = useAppStore((state) => state.selectedCrops);
   const setSelectedCrops = useAppStore((state) => state.setSelectedCrops);
   const setUser = useAppStore((state) => state.setUser);
@@ -75,7 +79,7 @@ export function ProfileSetupScreen({ navigation }: Props) {
       navigation.replace('MainTabs');
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.error || 'Failed to save profile. Please try again.';
+      const message = error?.response?.data?.error || t(language, 'failedToUpdateProfile');
       setError(message);
     },
   });
@@ -84,22 +88,22 @@ export function ProfileSetupScreen({ navigation }: Props) {
     setError(null);
 
     if (!name.trim()) {
-      setError('Name is required');
+      setError(t(language, 'nameCannotBeEmpty'));
       return;
     }
 
     if (selectedCrops.length === 0) {
-      setError('Select at least one crop');
+      setError(tx('cropsGrown'));
       return;
     }
 
     if (!landSize || Number(landSize) <= 0) {
-      setError('Enter valid land size');
+      setError(tx('enterLandSize'));
       return;
     }
 
     if (!location.state || !location.district) {
-      setError('Select your location');
+      setError(t(language, 'selectLocation'));
       return;
     }
 
@@ -126,11 +130,11 @@ export function ProfileSetupScreen({ navigation }: Props) {
       )}
 
       <ScreenCard style={{ marginTop: 18 }}>
-        <AppText variant="label">Full Name</AppText>
+        <AppText variant="label">{t(language, 'name')}</AppText>
         <TextInput
           value={name}
           onChangeText={setName}
-          placeholder="Enter your name"
+          placeholder={tx('enterYourName')}
           placeholderTextColor={theme.colors.textMuted}
           editable={!createProfileMutation.isPending}
           style={styles.input}
@@ -163,13 +167,13 @@ export function ProfileSetupScreen({ navigation }: Props) {
       </View>
 
       <ScreenCard style={{ marginTop: 22 }}>
-        <AppText variant="label">Land Size</AppText>
+        <AppText variant="label">{t(language, 'landSize')}</AppText>
         <View style={styles.landRow}>
           <TextInput
             value={landSize}
             onChangeText={setLandSize}
             keyboardType="decimal-pad"
-            placeholder="Enter land size"
+            placeholder={tx('enterLandSize')}
             placeholderTextColor={theme.colors.textMuted}
             editable={!createProfileMutation.isPending}
             style={styles.landInput}
@@ -190,11 +194,11 @@ export function ProfileSetupScreen({ navigation }: Props) {
       <ScreenCard style={{ marginTop: 18 }}>
         <View style={styles.locationHeader}>
           <View>
-            <AppText variant="label">Location</AppText>
+            <AppText variant="label">{t(language, 'location')}</AppText>
             <AppText color={theme.colors.textMuted}>
               {location.state && location.district
                 ? `${location.district}, ${location.state}`
-                : 'Not selected'}
+                : tx('notSelected')}
             </AppText>
             {!!location.address && (
               <AppText color={theme.colors.textMuted} style={{ marginTop: 4 }}>
@@ -203,14 +207,14 @@ export function ProfileSetupScreen({ navigation }: Props) {
             )}
           </View>
           <Pressable onPress={() => setShowLocationPicker(true)} disabled={createProfileMutation.isPending}>
-            <AppText color={theme.colors.primary}>Change</AppText>
+            <AppText color={theme.colors.primary}>{tx('change')}</AppText>
           </Pressable>
         </View>
       </ScreenCard>
 
       <View style={styles.actions}>
         <GradientButton
-          label={createProfileMutation.isPending ? 'Saving...' : 'Complete Profile'}
+          label={createProfileMutation.isPending ? tx('saving') : tx('completeYourProfile')}
           onPress={validateAndSubmit}
           disabled={createProfileMutation.isPending}
           leftIcon={createProfileMutation.isPending ? <ActivityIndicator size={18} color={theme.colors.textOnDark} /> : undefined}
@@ -225,9 +229,9 @@ export function ProfileSetupScreen({ navigation }: Props) {
         <View style={styles.modalOverlay}>
           <View style={styles.locationModalContent}>
             <View style={styles.modalHeader}>
-              <AppText variant="heading">Select Location</AppText>
+              <AppText variant="heading">{t(language, 'selectLocation')}</AppText>
               <Pressable onPress={() => setShowLocationPicker(false)}>
-                <AppText color={theme.colors.primary}>Close</AppText>
+                <AppText color={theme.colors.primary}>{tx('close')}</AppText>
               </Pressable>
             </View>
 
@@ -239,10 +243,10 @@ export function ProfileSetupScreen({ navigation }: Props) {
               style={styles.mapPickerCta}
             >
               <AppText variant="label" color={theme.colors.primaryDark}>
-                Use Current Location / Pick on Map
+                {tx('useCurrentLocationOrPickOnMap')}
               </AppText>
               <AppText color={theme.colors.textMuted} style={{ marginTop: 2 }}>
-                No API key needed
+                {tx('noApiKeyNeeded')}
               </AppText>
             </Pressable>
 

@@ -16,10 +16,12 @@ import { theme } from '../constants/theme';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
 import { useTheme } from '../providers/ThemeContext';
+import { useI18n } from '../hooks/useI18n';
 
 export function HomeScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { isDark, colors } = useTheme();
+  const { t: tx } = useI18n();
   const user = useAppStore((state) => state.user);
   const language = useAppStore((state) => state.language);
   const setFeaturedProduct = useAppStore((state) => state.setFeaturedProduct);
@@ -169,7 +171,7 @@ export function HomeScreen() {
           />
         </View>
         <Pill
-          label={unreadCount > 0 ? `Alerts (${unreadCount})` : 'Alerts'}
+          label={unreadCount > 0 ? `${tx('alerts')} (${unreadCount})` : tx('alerts')}
           icon={(() => { const IconComp = IconMap['Bell']; return IconComp ? <IconComp size={16} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
           onPress={() => navigation.navigate('Notifications')}
           active={unreadCount > 0}
@@ -255,7 +257,7 @@ export function HomeScreen() {
         </AppText>
         <View style={styles.productMeta}>
           <AppText variant="label">₹{featured.price}</AppText>
-          <Pill label="Open" active onPress={() => navigation.navigate('ProductDetail', { productId: featured.id })} />
+          <Pill label={t(language, 'viewNow')} active onPress={() => navigation.navigate('ProductDetail', { productId: featured.id })} />
         </View>
       </ScreenCard>
       <View style={styles.micArea}>

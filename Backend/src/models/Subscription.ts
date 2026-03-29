@@ -7,6 +7,7 @@ export interface ISubscription extends Document {
   startDate: Date;
   endDate: Date;
   paymentId?: string;
+  queriesUsed: number;
   features: {
     dailyQueryLimit: number;
     voiceEnabled: boolean;
@@ -41,6 +42,10 @@ const subscriptionSchema = new Schema<ISubscription>(
       type: String,
       enum: ['active', 'expired', 'cancelled'],
       default: 'active',
+    },
+    queriesUsed: {
+      type: Number,
+      default: 0,
     },
     startDate: { type: Date, default: Date.now },
     endDate: { type: Date, required: true },

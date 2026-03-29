@@ -107,13 +107,15 @@ async function processChatJob(job: Job): Promise<{
 
 async function processVoiceJob(job: Job): Promise<{
   text: string;
+  transcript: string;
   answer: string;
+  audioBase64: string;
   audio: string;
 }> {
-  const { userId, chatId, audioBase64, language } = job.data as VoiceJobData;
+  const { userId, chatId, audioBase64, language, mimeType, fileName } = job.data as VoiceJobData;
 
   // 1. Speech to text
-  const sttResult = await speechToText(audioBase64, language);
+  const sttResult = await speechToText(audioBase64, language, mimeType, fileName);
   const detectedLang = language || detectLanguage(sttResult.text).language;
 
   // 2. Process as chat (check cache first)
@@ -158,7 +160,9 @@ async function processVoiceJob(job: Job): Promise<{
 
   return {
     text: sttResult.text,
+    transcript: sttResult.text,
     answer,
+    audioBase64: audioResponse,
     audio: audioResponse,
   };
 }

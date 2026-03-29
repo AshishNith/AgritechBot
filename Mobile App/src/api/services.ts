@@ -2,6 +2,7 @@ import { api } from './client';
 import {
   AskChatRequest,
   AskChatResponse,
+  ChatContextResponse,
   ChatMessagesResponse,
   AuthResponse,
   ChatHistoryResponse,
@@ -18,6 +19,7 @@ import {
   UserProfile,
   VoiceAskResponse,
 } from '../types/api';
+import { RecordedAudioClip } from '../hooks/useAudioRecorder';
 
 const mapProduct = (raw: any): Product => ({
   id: String(raw._id ?? raw.id),
@@ -150,32 +152,160 @@ export const apiService = {
     return data;
   },
   async askChat(payload: AskChatRequest) {
-    const { data } = await api.post<AskChatResponse>('/api/chat/ask', payload);
+    let sessionId = payload.chatId;
+
+    if (!sessionId) {
+      const { data: session } = await api.post<{ sessionId: string; title: string; createdAt: string }>(
+        '/api/v1/chat/sessions'
+      );
+      sessionId = session.sessionId;
+    }
+
+    const { data } = await api.post<{
+      messageId: string;
+      response: string;
+      tokensUsed: number;
+      processingTime: number;
+      modelVersion: string;
+      cacheHit: boolean;
+      audioBase64?: string;
+      audioMimeType?: string;
+    }>(`/api/v1/chat/sessions/${sessionId}/message`, {
+      text: payload.message,
+      language: payload.language,
+      imageBase64: payload.imageBase64,
+      imageMimeType: payload.imageMimeType,
+    });
+
+    return {
+      answer: data.response,
+      chatId: sessionId,
+      cached: data.cacheHit,
+      model: data.modelVersion,
+      mode: 'session-v1',
+      audioBase64: data.audioBase64,
+      audioMimeType: data.audioMimeType,
+      quickReplies: [],
+      recommendedProducts: [],
+    } satisfies AskChatResponse;
+  },
+  async createChatSession() {
+    const { data } = await api.post<{ sessionId: string; title: string; createdAt: string }>(
+      '/api/v1/chat/sessions'
+    );
+    return {
+      chatId: data.sessionId,
+      title: data.title,
+      createdAt: data.createdAt,
+    };
+  },
+  async renameChatSession(chatId: string, title: string) {
+    const { data } = await api.put<{ sessionId: string; title: string; updatedAt: string }>(
+      `/api/v1/chat/sessions/${chatId}`,
+      { title }
+    );
+    return data;
+  },
+  async archiveChatSession(chatId: string) {
+    const { data } = await api.delete<{ message: string }>(`/api/v1/chat/sessions/${chatId}`);
+    return data;
+  },
+  async clearChatHistory(chatId: string) {
+    const { data } = await api.delete<{ message: string }>(`/api/v1/chat/sessions/${chatId}/history`);
     return data;
   },
   async getChatHistory() {
-    const { data } = await api.get<ChatHistoryResponse>('/api/chat/history');
+    const { data } = await api.get<{
+      sessions: Array<{
+        sessionId: string;
+        title: string;
+        messageCount: number;
+        updatedAt: string;
+        lastMessageAt: string;
+        preview?: string;
+        status?: 'active' | 'archived';
+        metadata?: {
+          location?: string;
+          season?: string;
+          cropsDiscussed?: string[];
+          problemsSolved?: string[];
+        };
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+      };
+    }>('/api/v1/chat/sessions');
     return {
-      ...data,
-      chats: data.chats.map((chat: any) => ({
-        id: String(chat._id ?? chat.id),
+      pagination: data.pagination,
+      chats: data.sessions.map((chat) => ({
+        id: String(chat.sessionId),
         title: chat.title,
-        language: chat.language,
+        language: chat.metadata?.location || chat.metadata?.season || 'Anaaj.ai chat',
         messageCount: chat.messageCount,
         updatedAt: chat.updatedAt,
+        lastMessageAt: chat.lastMessageAt,
+        preview: chat.preview,
+        status: chat.status,
+        metadata: chat.metadata,
       })),
     } satisfies ChatHistoryResponse;
   },
   async getChatMessages(chatId: string) {
-    const { data } = await api.get<ChatMessagesResponse>(`/api/chat/${chatId}/messages`);
+    const { data } = await api.get<{
+      sessionId: string;
+      messages: Array<{
+        _id: string;
+        role: 'user' | 'assistant' | 'system';
+        content: {
+          text?: string;
+          type?: 'text' | 'image' | 'tool_call' | 'tool_result';
+        };
+        metadata?: {
+          language?: 'hi' | 'en' | 'gu' | 'pa';
+          audioBase64?: string;
+          audioMimeType?: string;
+          voiceInput?: boolean;
+        };
+        error?: {
+          code?: string;
+          message: string;
+        };
+        createdAt?: string;
+      }>;
+    }>(`/api/v1/chat/sessions/${chatId}/messages`);
     return {
-      ...data,
-      messages: data.messages.map((msg: any) => ({
-        ...msg,
-        id: String(msg._id ?? msg.id),
-        chatId: String(msg.chatId),
-      })),
+      chatId: data.sessionId,
+      messages: data.messages
+        .filter((msg) => msg.role !== 'system')
+        .map((msg) => ({
+          id: String(msg._id),
+          chatId: String(data.sessionId),
+          role: msg.role === 'assistant' ? 'assistant' : 'user',
+          content: msg.content?.text || '',
+          language:
+            msg.metadata?.language === 'hi'
+              ? 'Hindi'
+              : msg.metadata?.language === 'gu'
+                ? 'Gujarati'
+                : msg.metadata?.language === 'pa'
+                  ? 'Punjabi'
+                  : 'English',
+          audioUrl: msg.metadata?.audioBase64
+            ? `data:${msg.metadata.audioMimeType || 'audio/mp3'};base64,${msg.metadata.audioBase64}`
+            : undefined,
+          audioMimeType: msg.metadata?.audioMimeType,
+          voiceInput: msg.metadata?.voiceInput,
+          type: msg.content?.type,
+          error: msg.error,
+          createdAt: msg.createdAt,
+        })),
     } satisfies ChatMessagesResponse;
+  },
+  async getChatContext() {
+    const { data } = await api.get<ChatContextResponse>('/api/v1/chat/context');
+    return data;
   },
   async getProducts(search?: string, category?: string) {
     const { data } = await api.get<ProductListResponse>('/api/products', {
@@ -203,23 +333,56 @@ export const apiService = {
       })),
     } satisfies OrderListResponse;
   },
-  async sendVoice(audioUri: string, language: string) {
+  async sendVoice(audioClip: RecordedAudioClip, language: string) {
     const formData = new FormData();
     formData.append('language', language);
     formData.append('file', {
-      uri: audioUri,
-      name: 'voice-query.m4a',
-      type: 'audio/m4a',
+      uri: audioClip.uri,
+      name: audioClip.fileName,
+      type: audioClip.mimeType,
     } as any);
 
-    const { data } = await api.post<VoiceAskResponse & { audio?: string; text?: string }>('/api/voice/ask', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const { data } = await api.post<VoiceAskResponse & { audio?: string; text?: string }>(
+      '/api/voice/ask',
+      formData,
+      {
+        timeout: 90000,
+      }
+    );
 
     return {
       ...data,
+      transcript: data.transcript ?? data.text,
+      audioBase64: data.audioBase64 ?? data.audio,
+    } satisfies VoiceAskResponse;
+  },
+  async sendVoiceMessage(audioClip: RecordedAudioClip, language: string, chatId?: string) {
+    let sessionId = chatId;
+
+    if (!sessionId) {
+      const created = await this.createChatSession();
+      sessionId = created.chatId;
+    }
+
+    const formData = new FormData();
+    formData.append('language', language);
+    formData.append('file', {
+      uri: audioClip.uri,
+      name: audioClip.fileName,
+      type: audioClip.mimeType,
+    } as any);
+
+    const { data } = await api.post<VoiceAskResponse & { audio?: string; text?: string }>(
+      `/api/v1/chat/sessions/${sessionId}/voice`,
+      formData,
+      {
+        timeout: 90000,
+      }
+    );
+
+    return {
+      ...data,
+      chatId: sessionId,
       transcript: data.transcript ?? data.text,
       audioBase64: data.audioBase64 ?? data.audio,
     } satisfies VoiceAskResponse;

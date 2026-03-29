@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
 import { User } from '../models/User';
+import { invalidateFarmerContextCache } from '../chat/services/contextBuilder.service';
 
 const createProfileSchema = z.object({
   name: z.string().min(1).max(100),
@@ -77,6 +78,8 @@ export async function createProfile(request: FastifyRequest, reply: FastifyReply
     return reply.status(404).send({ error: 'User not found' });
   }
 
+  await invalidateFarmerContextCache(userId);
+
   return reply.send({
     message: 'Profile created successfully',
     user: {
@@ -109,6 +112,8 @@ export async function updateProfile(request: FastifyRequest, reply: FastifyReply
   if (!user) {
     return reply.status(404).send({ error: 'User not found' });
   }
+
+  await invalidateFarmerContextCache(userId);
 
   return reply.send({
     message: 'Profile updated',

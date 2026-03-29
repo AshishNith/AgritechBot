@@ -3,6 +3,16 @@ import { z } from 'zod';
 
 dotenv.config();
 
+const booleanFromEnv = z.preprocess((value) => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (['true', '1', 'yes', 'on'].includes(normalized)) return true;
+    if (['false', '0', 'no', 'off', ''].includes(normalized)) return false;
+  }
+  return value;
+}, z.boolean());
+
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(4000),
@@ -13,7 +23,7 @@ const envSchema = z.object({
   MONGODB_MAX_POOL_SIZE: z.coerce.number().default(50),
 
   // Redis
-  REDIS_ENABLED: z.coerce.boolean().default(true),
+  REDIS_ENABLED: booleanFromEnv.default(true),
   REDIS_HOST: z.string().default('localhost'),
   REDIS_PORT: z.coerce.number().default(6379),
   REDIS_PASSWORD: z.string().optional().default(''),
@@ -30,6 +40,9 @@ const envSchema = z.object({
   SARVAM_API_KEY: z.string().min(1),
   SARVAM_STT_URL: z.string().url(),
   SARVAM_TTS_URL: z.string().url(),
+  SARVAM_STT_MODEL: z.string().default('saaras:v2.5'),
+  SARVAM_TTS_MODEL: z.string().default('bulbul:v1'),
+  SARVAM_TTS_SPEAKER: z.string().default('anushka'),
 
   // Vector DB
   RAG_ENABLED: z.coerce.boolean().default(true),
@@ -45,11 +58,11 @@ const envSchema = z.object({
   QUEUE_CONCURRENCY: z.coerce.number().default(25),
   OTP_EXPIRY_MINUTES: z.coerce.number().default(5),
   CLUSTER_WORKERS: z.coerce.number().default(0), // 0 = auto-detect CPU count
-  OTP_PREVIEW_ENABLED: z.coerce.boolean().default(false),
-  NOTIFICATION_SEEDING_ENABLED: z.coerce.boolean().default(false),
+  OTP_PREVIEW_ENABLED: booleanFromEnv.default(false),
+  NOTIFICATION_SEEDING_ENABLED: booleanFromEnv.default(false),
 
   // Payments
-  PAYMENTS_ENABLED: z.coerce.boolean().default(false),
+  PAYMENTS_ENABLED: booleanFromEnv.default(false),
   RAZORPAY_KEY_ID: z.string().optional().default(''),
   RAZORPAY_KEY_SECRET: z.string().optional().default(''),
   RAZORPAY_WEBHOOK_SECRET: z.string().optional().default(''),

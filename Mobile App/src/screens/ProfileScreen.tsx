@@ -13,10 +13,12 @@ import { theme } from '../constants/theme';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
 import { useTheme } from '../providers/ThemeContext';
+import { useI18n } from '../hooks/useI18n';
 
 export function ProfileScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { isDark, themeMode, setThemeMode, colors } = useTheme();
+  const { t: tx } = useI18n();
   
   const user = useAppStore((state) => state.user);
   const language = useAppStore((state) => state.language);
@@ -41,6 +43,7 @@ export function ProfileScreen() {
   const [editError, setEditError] = useState<string | null>(null);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [showMapPicker, setShowMapPicker] = useState(false);
+  const [showLanguagePicker, setShowLanguagePicker] = useState(false);
 
   const cropOptions = ['गेहूं', 'चावल', 'कपास', 'सरसों'];
   const languages = ['English', 'Hindi', 'Gujarati', 'Punjabi'];
@@ -105,74 +108,74 @@ export function ProfileScreen() {
   return (
     <Screen scrollable>
       <View style={styles.header}>
-        <AppText variant="heading">Profile</AppText>
+        <AppText variant="heading">{t(language, 'profile')}</AppText>
         <Pressable onPress={() => navigation.navigate('Notifications')}>
-          <AppText color={theme.colors.primary}>Alerts</AppText>
+          <AppText color={theme.colors.primary}>{tx('alerts')}</AppText>
         </Pressable>
       </View>
       <ScreenCard style={styles.heroCard}>
         <Image source={{ uri: designImages.profilePortrait }} style={styles.avatar} />
         <AppText variant="heading" style={{ marginTop: 14 }}>
-          {user?.name || 'Complete your profile'}
+          {user?.name || tx('completeYourProfile')}
         </AppText>
-        <AppText color={theme.colors.textMuted}>{user?.phone || 'phone not available'}</AppText>
+        <AppText color={theme.colors.textMuted}>{user?.phone || tx('phoneNotAvailable')}</AppText>
         <View style={styles.badge}>
           <AppText variant="label" color={theme.colors.textOnDark}>
             {!user?.name 
-              ? 'Incomplete Profile' 
+              ? tx('incompleteProfile') 
               : user?.subscriptionTier === 'premium' 
-                ? 'Premium Member' 
+                ? tx('premiumMember') 
                 : user?.subscriptionTier === 'basic' 
-                  ? 'Basic Member' 
-                  : 'Free Member'}
+                  ? tx('basicMember') 
+                  : tx('freeMember')}
           </AppText>
         </View>
-        <GradientButton label="Edit Profile" secondary style={{ marginTop: 16 }} onPress={() => setEditModalVisible(true)} />
+        <GradientButton label={tx('editProfile')} secondary style={{ marginTop: 16 }} onPress={() => setEditModalVisible(true)} />
       </ScreenCard>
       <ScreenCard style={{ marginTop: 16 }}>
         <View style={styles.subHeader}>
           <View>
-            <AppText variant="label">Subscription Status</AppText>
+            <AppText variant="label">{tx('subscriptionStatus')}</AppText>
             <AppText color={theme.colors.textMuted}>
               {user?.subscriptionTier === 'premium' 
-                 ? 'Premium Plan (Active)' 
+                 ? tx('premiumPlanActive') 
                  : user?.subscriptionTier === 'basic' 
-                   ? 'Basic Plan (Active)' 
-                   : 'Free Plan'}
+                   ? tx('basicPlanActive') 
+                   : tx('freePlan')}
             </AppText>
           </View>
           <Pressable onPress={() => navigation.navigate('Subscription')}>
-            <AppText color={theme.colors.primary}>Manage</AppText>
+            <AppText color={theme.colors.primary}>{tx('manage')}</AppText>
           </Pressable>
         </View>
       </ScreenCard>
       <AppText variant="caption" color={theme.colors.textMuted} style={styles.sectionLabel}>
-        Commerce
+        {tx('commerce')}
       </AppText>
       <ScreenCard>
         <Pressable onPress={() => navigation.navigate('OrderHistory')}>
-          <IconRow icon="Truck" title="Track Orders" subtitle="Check status and delivery updates" />
+          <IconRow icon="Truck" title={tx('trackOrders')} subtitle={tx('checkStatusAndDeliveryUpdates')} />
         </Pressable>
         <Pressable onPress={() => navigation.navigate('OrderHistory')}>
-          <IconRow icon="ClipboardList" title="Order History" subtitle="View all past and current orders" />
+          <IconRow icon="ClipboardList" title={t(language, 'orderHistory')} subtitle={t(language, 'viewOrderHistory')} />
         </Pressable>
         <Pressable onPress={() => navigation.navigate('Cart')}>
-          <IconRow icon="ShoppingCart" title="My Cart" subtitle="Review items and checkout" />
+          <IconRow icon="ShoppingCart" title={tx('myCart')} subtitle={tx('reviewItemsAndCheckout')} />
         </Pressable>
         <Pressable onPress={() => navigation.navigate('Marketplace')}>
-          <IconRow icon="Store" title="Continue Shopping" subtitle="Browse seeds, tools and fertilizers" />
+          <IconRow icon="Store" title={t(language, 'continueShopping')} subtitle={t(language, 'searchPlaceholder')} />
         </Pressable>
       </ScreenCard>
       <AppText variant="caption" color={theme.colors.textMuted} style={styles.sectionLabel}>
-        Preferences
+        {tx('preferences')}
       </AppText>
       <ScreenCard>
-        <Pressable onPress={() => setEditModalVisible(true)}>
-          <IconRow icon="Languages" title="App Language" subtitle={language} />
+        <Pressable onPress={() => setShowLanguagePicker(true)}>
+          <IconRow icon="Languages" title={tx('appLanguage')} subtitle={language} />
         </Pressable>
         <IconRow 
           icon="MoonStar" 
-          title="Dark Appearance" 
+          title={tx('darkAppearance')} 
           right={
             <Switch 
               value={isDark} 
@@ -184,8 +187,8 @@ export function ProfileScreen() {
         <Pressable onPress={() => navigation.navigate('Notifications')}>
           <IconRow
             icon="Bell"
-            title="Notifications"
-            subtitle={notificationsEnabled ? 'On' : 'Off'}
+            title={tx('notifications')}
+            subtitle={notificationsEnabled ? tx('on') : tx('off')}
             right={
               <Switch
                 value={notificationsEnabled}
@@ -197,10 +200,10 @@ export function ProfileScreen() {
         </Pressable>
       </ScreenCard>
       <AppText variant="caption" color={theme.colors.textMuted} style={styles.sectionLabel}>
-        Security & Data
+        {tx('securityAndData')}
       </AppText>
       <ScreenCard>
-        <IconRow icon="ShieldCheck" title="Privacy Settings" />
+        <IconRow icon="ShieldCheck" title={tx('privacySettings')} />
         <Pressable onPress={() => {
           signOut();
           navigation.reset({
@@ -209,7 +212,7 @@ export function ProfileScreen() {
           });
         }} style={{ paddingVertical: 12 }}>
           <AppText variant="label" color={theme.colors.danger}>
-            Sign Out
+            {t(language, 'signOut')}
           </AppText>
         </Pressable>
       </ScreenCard>
@@ -219,21 +222,21 @@ export function ProfileScreen() {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, isDark ? styles.modalContentDark : styles.modalContentLight]}>
             <View style={styles.modalHeader}>
-              <AppText variant="heading">Edit Profile</AppText>
+              <AppText variant="heading">{tx('editProfile')}</AppText>
               <Pressable onPress={() => setEditModalVisible(false)}>
-                <AppText color={theme.colors.primary}>Close</AppText>
+                <AppText color={theme.colors.primary}>{tx('close')}</AppText>
               </Pressable>
             </View>
 
             <ScrollView style={{ maxHeight: '75%', marginTop: 16 }}>
               {/* Name */}
               <ScreenCard>
-                <AppText variant="label">Name</AppText>
+                <AppText variant="label">{t(language, 'name')}</AppText>
                 <TextInput
                   value={editedName}
                   onChangeText={setEditedName}
                   editable={!updateProfileMutation.isPending}
-                  placeholder="Enter your name"
+                  placeholder={tx('enterYourName')}
                   placeholderTextColor={theme.colors.textMuted}
                   style={[styles.editInput, isDark ? styles.editInputDark : styles.editInputLight]}
                 />
@@ -241,7 +244,7 @@ export function ProfileScreen() {
 
               {/* Language */}
               <ScreenCard style={{ marginTop: 12 }}>
-                <AppText variant="label">Language</AppText>
+                <AppText variant="label">{t(language, 'language')}</AppText>
                 <View style={styles.languageRow}>
                   {languages.map((lang) => (
                     <Pill
@@ -256,7 +259,7 @@ export function ProfileScreen() {
 
               {/* Crops */}
               <ScreenCard style={{ marginTop: 12 }}>
-                <AppText variant="label">Crops Grown</AppText>
+                <AppText variant="label">{tx('cropsGrown')}</AppText>
                 <View style={styles.cropsGrid}>
                   {cropOptions.map((crop) => {
                     const active = editedCrops.includes(crop);
@@ -289,14 +292,14 @@ export function ProfileScreen() {
 
               {/* Land Size */}
               <ScreenCard style={{ marginTop: 12 }}>
-                <AppText variant="label">Land Size</AppText>
+                <AppText variant="label">{t(language, 'landSize')}</AppText>
                 <View style={styles.landRow}>
                   <TextInput
                     value={editedLandSize}
                     onChangeText={setEditedLandSize}
                     keyboardType="decimal-pad"
                     editable={!updateProfileMutation.isPending}
-                    placeholder="Enter land size"
+                    placeholder={tx('enterLandSize')}
                     placeholderTextColor={theme.colors.textMuted}
                     style={[styles.editInput, isDark ? styles.editInputDark : styles.editInputLight, { flex: 1, marginRight: 8 }]}
                   />
@@ -317,11 +320,11 @@ export function ProfileScreen() {
               <ScreenCard style={{ marginTop: 12 }}>
                 <View style={styles.locationHeader}>
                   <View>
-                    <AppText variant="label">Location</AppText>
+                    <AppText variant="label">{t(language, 'location')}</AppText>
                     <AppText color={theme.colors.textMuted}>
                       {editedLocation.state && editedLocation.district
                         ? `${editedLocation.district}, ${editedLocation.state}`
-                        : 'Not selected'}
+                        : tx('notSelected')}
                     </AppText>
                     {!!editedLocation.address && (
                       <AppText color={theme.colors.textMuted} style={{ marginTop: 4 }}>
@@ -333,7 +336,7 @@ export function ProfileScreen() {
                     onPress={() => setShowLocationPicker(true)}
                     disabled={updateProfileMutation.isPending}
                   >
-                    <AppText color={theme.colors.primary}>Change</AppText>
+                    <AppText color={theme.colors.primary}>{tx('change')}</AppText>
                   </Pressable>
                 </View>
               </ScreenCard>
@@ -345,7 +348,7 @@ export function ProfileScreen() {
               )}
 
               <GradientButton
-                label={updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
+                label={updateProfileMutation.isPending ? tx('saving') : tx('saveChanges')}
                 onPress={handleEditProfile}
                 disabled={updateProfileMutation.isPending}
                 style={{ marginTop: 16 }}
@@ -361,9 +364,9 @@ export function ProfileScreen() {
         <View style={styles.modalOverlay}>
           <View style={[styles.locationModalContent, isDark ? styles.modalContentDark : styles.modalContentLight]}>
             <View style={styles.modalHeader}>
-              <AppText variant="heading">Select Location</AppText>
+              <AppText variant="heading">{t(language, 'selectLocation')}</AppText>
               <Pressable onPress={() => setShowLocationPicker(false)}>
-                <AppText color={theme.colors.primary}>Close</AppText>
+                <AppText color={theme.colors.primary}>{tx('close')}</AppText>
               </Pressable>
             </View>
 
@@ -375,10 +378,10 @@ export function ProfileScreen() {
               style={styles.mapPickerCta}
             >
               <AppText variant="label" color={theme.colors.primaryDark}>
-                Use Current Location / Pick on Map
+                {tx('useCurrentLocationOrPickOnMap')}
               </AppText>
               <AppText color={theme.colors.textMuted} style={{ marginTop: 2 }}>
-                No API key needed
+                {tx('noApiKeyNeeded')}
               </AppText>
             </Pressable>
 
@@ -444,6 +447,32 @@ export function ProfileScreen() {
             setShowMapPicker(false);
           }}
         />
+      </Modal>
+
+      <Modal visible={showLanguagePicker} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, isDark ? styles.modalContentDark : styles.modalContentLight]}>
+            <View style={styles.modalHeader}>
+              <AppText variant="heading">{tx('appLanguage')}</AppText>
+              <Pressable onPress={() => setShowLanguagePicker(false)}>
+                <AppText color={theme.colors.primary}>{tx('close')}</AppText>
+              </Pressable>
+            </View>
+            <View style={styles.languageRow}>
+              {languages.map((lang) => (
+                <Pill
+                  key={lang}
+                  label={lang}
+                  active={lang === language}
+                  onPress={() => {
+                    setLanguage(lang as any);
+                    setShowLanguagePicker(false);
+                  }}
+                />
+              ))}
+            </View>
+          </View>
+        </View>
       </Modal>
     </Screen>
   );

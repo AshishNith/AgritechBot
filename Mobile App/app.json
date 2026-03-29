@@ -49,7 +49,12 @@
       ]
     },
     "plugins": [
-      "expo-av",
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow Anaaj AI to use your microphone for voice queries."
+        }
+      ],
       "expo-asset",
       [
         "expo-font",

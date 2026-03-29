@@ -107,13 +107,22 @@ export interface ChatMessage {
   content: string;
   language?: string;
   audioUrl?: string;
+  audioMimeType?: string;
+  voiceInput?: boolean;
   createdAt?: string;
+  type?: 'text' | 'image' | 'tool_call' | 'tool_result';
+  error?: {
+    code?: string;
+    message: string;
+  };
 }
 
 export interface AskChatRequest {
   message: string;
   language?: string;
   chatId?: string;
+  imageBase64?: string;
+  imageMimeType?: string;
 }
 
 export interface AskChatResponse {
@@ -121,6 +130,8 @@ export interface AskChatResponse {
   chatId: string;
   cached?: boolean;
   audioUrl?: string;
+  audioBase64?: string;
+  audioMimeType?: string;
   quickReplies?: string[];
   recommendedProducts?: Product[];
   model?: string;
@@ -133,6 +144,15 @@ export interface ChatSummary {
   language: string;
   messageCount: number;
   updatedAt: string;
+  lastMessageAt?: string;
+  preview?: string;
+  status?: 'active' | 'archived';
+  metadata?: {
+    cropsDiscussed?: string[];
+    problemsSolved?: string[];
+    location?: string;
+    season?: string;
+  };
 }
 
 export interface ChatHistoryResponse {
@@ -147,6 +167,13 @@ export interface ChatHistoryResponse {
 export interface ChatMessagesResponse {
   messages: ChatMessage[];
   chatId: string;
+}
+
+export interface ChatContextResponse {
+  contextString: string;
+  season: string;
+  location: string;
+  version: number;
 }
 
 export interface ProductDetailResponse {
@@ -238,6 +265,7 @@ export interface VoiceAskResponse {
   audio?: string;
   audioUrl?: string;
   audioBase64?: string;
+  audioMimeType?: string;
   chatId: string;
 }
 

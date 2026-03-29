@@ -18,6 +18,8 @@ export interface VoiceJobData {
   chatId: string;
   audioBase64: string;
   language?: string;
+  mimeType?: string;
+  fileName?: string;
 }
 
 // ── Queue Configuration ──

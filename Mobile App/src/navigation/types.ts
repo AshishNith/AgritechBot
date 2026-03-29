@@ -1,3 +1,13 @@
+import type { NavigatorScreenParams } from '@react-navigation/native';
+
+export type MainTabParamList = {
+  HomeTab: undefined;
+  ChatTab: { chatId?: string } | undefined;
+  MarketplaceTab: undefined;
+  HistoryTab: undefined;
+  ProfileTab: undefined;
+};
+
 export type RootStackParamList = {
   Splash: undefined;
   LanguageOnboarding: undefined;
@@ -8,7 +18,7 @@ export type RootStackParamList = {
   ProfileSetup: undefined;
   ProfileCompletion: undefined;
   ProfileComplete: undefined;
-  MainTabs: undefined;
+  MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   Marketplace: undefined;
   ProductDetail: { productId?: string };
   Cart: undefined;
@@ -19,12 +29,4 @@ export type RootStackParamList = {
   Voice: undefined;
   ImageScan: undefined;
   Notifications: undefined;
-};
-
-export type MainTabParamList = {
-  HomeTab: undefined;
-  ChatTab: { chatId?: string } | undefined;
-  MarketplaceTab: undefined;
-  HistoryTab: undefined;
-  ProfileTab: undefined;
 };

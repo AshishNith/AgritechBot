@@ -4,6 +4,7 @@ import { connectRedis, disconnectRedis } from './config/redis';
 import { buildApp } from './app';
 import { startWorkers } from './services/queue/worker';
 import { logger } from './utils/logger';
+import { initializeKnowledgeBaseCache } from './chat/services/knowledgeBase.service';
 
 async function main(): Promise<void> {
   // Connect to databases
@@ -11,20 +12,24 @@ async function main(): Promise<void> {
   let redisConnected = false;
   
   // Attempt Redis connection (optional in development)
-  try {
-    await connectRedis();
-    redisConnected = true;
-  } catch (err) {
-    logger.warn({ err }, 'Redis connection failed. Queue/cache features unavailable, but core API will work.');
-    // We do NOT throw here in production anymore to allow graceful degradation.
-    // The server will still bind to Render's PORT and serve Auth/Healthcheck endpoints.
+  if (env.REDIS_ENABLED) {
+    try {
+      await connectRedis();
+      redisConnected = true;
+    } catch (err) {
+      logger.warn({ err }, 'Redis connection failed. Queue/cache features unavailable, but core API will work.');
+      // We do NOT throw here in production anymore to allow graceful degradation.
+      // The server will still bind to Render's PORT and serve Auth/Healthcheck endpoints.
+    }
+  } else {
+    logger.info('Redis disabled via REDIS_ENABLED=false. Queue/cache features are disabled.');
   }
 
   // Start queue workers only when Redis is available
   if (redisConnected) {
     startWorkers();
   } else {
-    logger.warn('Skipping queue worker startup because Redis is unavailable');
+    logger.info('Skipping queue worker startup because Redis is unavailable');
   }
 
   // Build and start Fastify
@@ -33,6 +38,10 @@ async function main(): Promise<void> {
   await app.listen({ port: env.PORT, host: env.HOST });
   logger.info(`Server running on http://${env.HOST}:${env.PORT}`);
   logger.info(`Environment: ${env.NODE_ENV}`);
+
+  void initializeKnowledgeBaseCache().catch((err) => {
+    logger.warn({ err }, 'Knowledge base cache warmup failed after server startup');
+  });
 
   // Graceful shutdown
   const shutdown = async (signal: string) => {

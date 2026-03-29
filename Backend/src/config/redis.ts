@@ -41,10 +41,40 @@ const REDIS_OPTIONS: RedisOptions = {
 let redisErrorLogged = false;
 let redisSubErrorLogged = false;
 
+function createDisabledRedisClient(): Redis {
+  const pipeline = {
+    set: () => pipeline,
+    incr: () => pipeline,
+    expire: () => pipeline,
+    exec: async () => [],
+  };
+
+  const client = {
+    status: 'end',
+    on: () => client,
+    connect: async () => undefined,
+    disconnect: () => undefined,
+    quit: async () => 'OK',
+    get: async () => null,
+    set: async () => 'OK',
+    del: async () => 0,
+    mget: async () => [],
+    dbsize: async () => 0,
+    info: async () => '',
+    pipeline: () => pipeline,
+  };
+
+  return client as unknown as Redis;
+}
+
 /**
  * Main Redis client — caching, rate limiting, general ops.
  */
 function createRedisClient(): Redis {
+  if (!env.REDIS_ENABLED) {
+    return createDisabledRedisClient();
+  }
+
   const client = new Redis(REDIS_OPTIONS);
 
   client.on('connect', () => logger.info('Redis connected'));
@@ -69,6 +99,10 @@ function createRedisClient(): Redis {
  * BullMQ requires a separate connection for pub/sub.
  */
 function createSubscriberClient(): Redis {
+  if (!env.REDIS_ENABLED) {
+    return createDisabledRedisClient();
+  }
+
   const client = new Redis(REDIS_OPTIONS);
   client.on('error', (err) => {
     if (env.NODE_ENV !== 'production' && (err as { code?: string }).code === 'ECONNREFUSED') {
@@ -88,7 +122,6 @@ export const redisSub = createSubscriberClient();
 
 export async function connectRedis(): Promise<void> {
   if (!env.REDIS_ENABLED) {
-    logger.warn('Redis disabled via REDIS_ENABLED=false. Queue/cache features are disabled.');
     return;
   }
 
