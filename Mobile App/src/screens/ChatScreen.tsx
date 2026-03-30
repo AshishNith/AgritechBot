@@ -5,7 +5,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import { Audio } from 'expo-av';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { Animated } from 'react-native';
 import {
   Alert,
   Image,
@@ -67,9 +68,30 @@ export function ChatScreen() {
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [lastFailedDraft, setLastFailedDraft] = useState<string | null>(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  // Voice status: idle | recording | transcribing | processing
+  const [voiceStatus, setVoiceStatus] = useState<'idle' | 'recording' | 'transcribing' | 'processing'>('idle');
   const scrollRef = useRef<ScrollView>(null);
   const activeSoundRef = useRef<Audio.Sound | null>(null);
+  const recordingModeRef = useRef<'transcribe' | 'voice' | null>(null);
+  const ignoreNextTapRef = useRef(false);
+  // Pulsing animation for mic button while recording
+  const micPulse = useRef(new Animated.Value(1)).current;
   const { isRecording, startRecording, stopRecording } = useAudioRecorder();
+
+  // Start pulsing animation when recording
+  useEffect(() => {
+    if (isRecording) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(micPulse, { toValue: 1.25, duration: 500, useNativeDriver: true }),
+          Animated.timing(micPulse, { toValue: 1, duration: 500, useNativeDriver: true }),
+        ])
+      ).start();
+    } else {
+      micPulse.stopAnimation();
+      Animated.timing(micPulse, { toValue: 1, duration: 150, useNativeDriver: true }).start();
+    }
+  }, [isRecording, micPulse]);
 
   const sessionsQuery = useQuery({
     queryKey: ['chat-history'],
@@ -348,8 +370,11 @@ export function ChatScreen() {
     await sound.playAsync();
   };
 
+  // ── Full voice pipeline: STT → AI → TTS ──────────────────────────────────
   const voiceMutation = useMutation({
     mutationFn: (audioClip: RecordedAudioClip) => apiService.sendVoiceMessage(audioClip, language, chatId),
+    onMutate: () => setVoiceStatus('processing'),
+    onSettled: () => setVoiceStatus('idle'),
     onSuccess: async (data) => {
       const voiceAudioUrl = data.audioUrl
         ?? (data.audioBase64 ? `data:${data.audioMimeType || 'audio/mp3'};base64,${data.audioBase64}` : undefined);
@@ -411,21 +436,93 @@ export function ChatScreen() {
     },
   });
 
-  const handleVoicePress = async () => {
-    if (!isRecording) {
+  // ── STT-only: transcribe → auto-fill input box ────────────────────────────
+  const transcribeMutation = useMutation({
+    mutationFn: (audioClip: RecordedAudioClip) => apiService.transcribeVoice(audioClip, language),
+    onMutate: () => setVoiceStatus('transcribing'),
+    onSettled: () => setVoiceStatus('idle'),
+    onSuccess: (data) => {
+      if (data.transcript) {
+        setInput((prev) => prev ? `${prev} ${data.transcript}` : data.transcript);
+      }
+    },
+    onError: () => {
+      Alert.alert(tx('voiceRequestFailed'), tx('voiceRouteUnavailable'));
+    },
+  });
+
+  const beginVoiceRecording = useCallback(
+    async (mode: 'transcribe' | 'voice') => {
       try {
+        recordingModeRef.current = mode;
+        setVoiceStatus('recording');
         await startRecording();
       } catch {
+        recordingModeRef.current = null;
+        setVoiceStatus('idle');
         Alert.alert(t(language, 'microphoneNotAvailable'), t(language, 'enableMicrophone'));
       }
+    },
+    [language, startRecording]
+  );
+
+  const finishVoiceRecording = useCallback(
+    async (mode: 'transcribe' | 'voice') => {
+      recordingModeRef.current = null;
+      setVoiceStatus(mode === 'voice' ? 'processing' : 'transcribing');
+      const clip = await stopRecording();
+
+      if (!clip) {
+        setVoiceStatus('idle');
+        return;
+      }
+
+      if (mode === 'voice') {
+        voiceMutation.mutate(clip);
+        return;
+      }
+
+      transcribeMutation.mutate(clip);
+    },
+    [stopRecording, transcribeMutation, voiceMutation]
+  );
+
+  const handleMicTap = useCallback(async () => {
+    if (voiceMutation.isPending || transcribeMutation.isPending) {
       return;
     }
 
-    const clip = await stopRecording();
-    if (clip) {
-      voiceMutation.mutate(clip);
+    if (ignoreNextTapRef.current) {
+      ignoreNextTapRef.current = false;
+      return;
     }
-  };
+
+    if (!isRecording) {
+      await beginVoiceRecording('transcribe');
+      return;
+    }
+
+    if (recordingModeRef.current === 'transcribe') {
+      await finishVoiceRecording('transcribe');
+    }
+  }, [beginVoiceRecording, finishVoiceRecording, isRecording, transcribeMutation.isPending, voiceMutation.isPending]);
+
+  const handleMicHoldStart = useCallback(async () => {
+    if (voiceMutation.isPending || transcribeMutation.isPending || isRecording) {
+      return;
+    }
+
+    ignoreNextTapRef.current = true;
+    await beginVoiceRecording('voice');
+  }, [beginVoiceRecording, isRecording, transcribeMutation.isPending, voiceMutation.isPending]);
+
+  const handleMicHoldEnd = useCallback(async () => {
+    if (recordingModeRef.current !== 'voice' || !isRecording) {
+      return;
+    }
+
+    await finishVoiceRecording('voice');
+  }, [finishVoiceRecording, isRecording]);
 
   const newChat = () => {
     setChatId(undefined);
@@ -642,7 +739,9 @@ export function ChatScreen() {
                 ]}
               >
                 <TypingDots isDark={isDark} />
-                <AppText color={colors.textMuted}>{tx('thinking')}</AppText>
+                <AppText color={colors.textMuted}>
+                  {voiceMutation.isPending ? t(language, 'processing') : tx('thinking')}
+                </AppText>
               </View>
             </View>
           )}
@@ -699,6 +798,48 @@ export function ChatScreen() {
             <Pill label={language} active />
           </View>
 
+          {/* Voice status banner */}
+          {voiceStatus !== 'idle' && (
+            <View
+              style={[
+                styles.voiceStatusBanner,
+                {
+                  backgroundColor: voiceStatus === 'recording'
+                    ? 'rgba(212, 95, 95, 0.12)'
+                    : 'rgba(82, 183, 129, 0.12)',
+                  borderColor: voiceStatus === 'recording'
+                    ? 'rgba(212, 95, 95, 0.3)'
+                    : colors.border,
+                },
+              ]}
+            >
+              {(() => {
+                const IconComp = voiceStatus === 'recording' ? IconMap['Mic'] : IconMap['Sparkles'];
+                return IconComp ? (
+                  <IconComp
+                    size={14}
+                    color={voiceStatus === 'recording' ? '#d45f5f' : colors.primary}
+                  />
+                ) : null;
+              })()}
+              <AppText
+                variant="caption"
+                color={voiceStatus === 'recording' ? '#d45f5f' : colors.primary}
+              >
+                {voiceStatus === 'recording'
+                  ? tx('listening')
+                  : voiceStatus === 'transcribing'
+                    ? 'Transcribing...'
+                    : t(language, 'processing')}
+              </AppText>
+              {voiceStatus === 'recording' && (
+                <AppText variant="caption" color={colors.textMuted}>
+                  {'Tap to fill input. Hold for AI reply.'}
+                </AppText>
+              )}
+            </View>
+          )}
+
           <View style={styles.inputRow}>
             <Pressable
               onPress={pickImage}
@@ -728,34 +869,50 @@ export function ChatScreen() {
               ]}
               multiline
             />
-            <Pressable
-              onPress={handleVoicePress}
-              style={[
-                styles.iconAction,
-                {
-                  backgroundColor: isRecording
-                    ? '#d45f5f'
-                    : isDark
-                      ? 'rgba(255,255,255,0.08)'
-                      : 'rgba(0,0,0,0.05)',
-                },
-              ]}
-            >
-              {(() => {
-                const IconComp = IconMap['Mic'];
-                return IconComp ? (
-                  <IconComp
-                    size={20}
-                    color={isRecording ? '#ffffff' : isDark ? colors.textOnDark : colors.text}
-                  />
-                ) : null;
-              })()}
-            </Pressable>
+            {/* Mic button: tap = STT to box | long-press = full voice reply */}
+            <Animated.View style={{ transform: [{ scale: micPulse }] }}>
+              <Pressable
+                onPress={handleMicTap}
+                onLongPress={handleMicHoldStart}
+                onPressOut={handleMicHoldEnd}
+                delayLongPress={400}
+                disabled={voiceMutation.isPending || transcribeMutation.isPending}
+                style={[
+                  styles.iconAction,
+                  {
+                    backgroundColor: isRecording
+                      ? '#d45f5f'
+                      : voiceMutation.isPending || transcribeMutation.isPending
+                        ? isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)'
+                        : isDark
+                          ? 'rgba(255,255,255,0.08)'
+                          : 'rgba(0,0,0,0.05)',
+                  },
+                ]}
+              >
+                {(() => {
+                  const IconComp = IconMap['Mic'];
+                  return IconComp ? (
+                    <IconComp
+                      size={20}
+                      color={
+                        isRecording
+                          ? '#ffffff'
+                          : voiceMutation.isPending || transcribeMutation.isPending
+                            ? colors.textMuted
+                            : isDark ? colors.textOnDark : colors.text
+                      }
+                    />
+                  ) : null;
+                })()}
+              </Pressable>
+            </Animated.View>
             <GradientButton label={t(language, 'sendMessage')} onPress={() => sendMessage()} style={styles.sendButton} />
           </View>
+
         </View>
 
-        <Modal
+          <Modal
           visible={sessionDrawerOpen}
           transparent
           animationType="slide"
@@ -1150,5 +1307,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  voiceStatusBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 4,
+    flexWrap: 'wrap',
   },
 });

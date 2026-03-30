@@ -16,6 +16,7 @@ import {
   sendMessageController,
   sendVoiceMessageController,
   streamMessageController,
+  voiceInputController,
 } from '../controllers/message.controller';
 
 export async function chatV1Routes(app: FastifyInstance): Promise<void> {
@@ -46,6 +47,13 @@ export async function chatV1Routes(app: FastifyInstance): Promise<void> {
       '/api/v1/chat/sessions/:sessionId/message/stream',
       { preHandler: [chatRateLimitMiddleware, queryLimitCheckMiddleware] },
       streamMessageController
+    );
+
+    // STT-only: transcribe audio → return text (no AI call, no TTS)
+    protectedApp.post(
+      '/api/v1/chat/voice-input',
+      { preHandler: [chatRateLimitMiddleware] },
+      voiceInputController
     );
   });
 }

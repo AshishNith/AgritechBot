@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getFarmerContext } from '../services/contextBuilder.service';
 import { sendChatMessage, sendVoiceMessage, streamChatMessage } from '../services/geminiChat.service';
 import { clearChatHistory, getSessionMessages } from '../services/sessionManager.service';
+import { speechToText } from '../../services/voice/sarvamSTT';
 
 const messageBodySchema = z.object({
   text: z.string().trim().min(1).max(5000),
@@ -129,4 +130,39 @@ export async function clearHistoryController(request: FastifyRequest, reply: Fas
   }
 
   return reply.send({ message: 'Chat history cleared', sessionId });
+}
+
+/**
+ * POST /api/v1/chat/voice-input
+ * STT-only: transcribe audio and return the text. No AI call, no TTS.
+ * Used for the "speak to type" flow where the user reviews and edits before sending.
+ */
+export async function voiceInputController(request: FastifyRequest, reply: FastifyReply) {
+  const data = await request.file();
+
+  if (!data) {
+    return reply.status(400).send({ error: 'Audio file is required' });
+  }
+
+  const chunks: Buffer[] = [];
+  for await (const chunk of data.file) {
+    chunks.push(chunk);
+  }
+
+  const audioBase64 = Buffer.concat(chunks).toString('base64');
+  const language = (data.fields as Record<string, { value?: string }>)?.language?.value as
+    | 'English'
+    | 'Hindi'
+    | 'Gujarati'
+    | 'Punjabi'
+    | undefined;
+  const mimeType = data.mimetype || 'audio/m4a';
+  const fileName = data.filename || 'voice-input.m4a';
+
+  const result = await speechToText(audioBase64, language, mimeType, fileName);
+
+  return reply.send({
+    transcript: result.text,
+    language: result.language,
+  });
 }

@@ -388,6 +388,28 @@ export const apiService = {
     } satisfies VoiceAskResponse;
   },
 
+  /**
+   * STT-only: transcribe audio and return the text.
+   * No AI call, no TTS. Use this to auto-fill the chat input box.
+   */
+  async transcribeVoice(audioClip: RecordedAudioClip, language: string): Promise<{ transcript: string; language: string }> {
+    const formData = new FormData();
+    formData.append('language', language);
+    formData.append('file', {
+      uri: audioClip.uri,
+      name: audioClip.fileName,
+      type: audioClip.mimeType,
+    } as any);
+
+    const { data } = await api.post<{ transcript: string; language: string }>(
+      '/api/v1/chat/voice-input',
+      formData,
+      { timeout: 30000 },
+    );
+
+    return data;
+  },
+
   // ── Notifications ──
   async getNotifications(type?: string) {
     const { data } = await api.get<NotificationListResponse>('/api/notifications', {

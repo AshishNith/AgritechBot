@@ -75,6 +75,18 @@ function parseRetryDelayMs(err: unknown): number {
   return 15_000;
 }
 
+function isTemporaryProviderError(err: unknown): boolean {
+  if (typeof err !== 'object' || err === null) return false;
+  const status = (err as { status?: number }).status;
+  const msg = ((err as { message?: string }).message || '').toLowerCase();
+  return (
+    status === 503 ||
+    msg.includes('service unavailable') ||
+    msg.includes('high demand') ||
+    msg.includes('temporarily unavailable')
+  );
+}
+
 function mapStoredMessageToGeminiContent(message: {
   role: 'user' | 'assistant' | 'system';
   content: {
@@ -211,6 +223,30 @@ function getFriendlyErrorMessage(language: ChatLanguageCode, code: string): stri
   }
 
   return 'The chat service is temporarily unavailable. Please try again shortly.';
+}
+
+function getSafeFriendlyErrorMessage(_language: ChatLanguageCode, code: string): string {
+  if (code === 'timeout') {
+    return 'The AI response is taking too long. Please try again in a moment.';
+  }
+
+  if (code === 'safety') {
+    return 'I cannot answer that request safely. Please rephrase the question.';
+  }
+
+  if (code === 'provider_unavailable') {
+    return 'The AI service is temporarily busy. Please try again shortly.';
+  }
+
+  return 'The chat service is temporarily unavailable. Please try again shortly.';
+}
+
+function getQuotaLimitedMessage(retryAfterSeconds: number): string {
+  return `Gemini API quota is currently limited. Please retry in ${retryAfterSeconds}s.`;
+}
+
+function getQuotaExceededMessage(retryAfterSeconds: number): string {
+  return `Gemini API quota exceeded. Please retry in ${retryAfterSeconds}s.`;
 }
 
 async function buildConversationContents(params: {
@@ -454,6 +490,12 @@ export async function sendChatMessage(params: {
   imageMimeType?: string;
 }) {
   if (Date.now() < quotaBlockedUntil) {
+    {
+      const retryMs = quotaBlockedUntil - Date.now();
+      const retryAfterSeconds = Math.max(1, Math.ceil(retryMs / 1000));
+      const message = getQuotaLimitedMessage(retryAfterSeconds);
+      throw new HttpError(message, 429, { retryAfterSeconds });
+    }
     const retryMs = quotaBlockedUntil - Date.now();
     const retryAfterSeconds = Math.max(1, Math.ceil(retryMs / 1000));
     const language = resolveChatLanguage(params.text, params.preferredLanguage);
@@ -573,6 +615,29 @@ export async function sendChatMessage(params: {
   } catch (error) {
     const processingTimeMs = Date.now() - startedAt;
     if (isQuotaError(error)) {
+      {
+        const delayMs = parseRetryDelayMs(error);
+        quotaBlockedUntil = Date.now() + delayMs;
+        const retryAfterSeconds = Math.max(1, Math.ceil(delayMs / 1000));
+        const msg = getQuotaExceededMessage(retryAfterSeconds);
+
+        await persistFailedExchange({
+          sessionId: params.sessionId,
+          farmerId: params.farmerId,
+          userText: params.text,
+          imageBase64: params.imageBase64,
+          language,
+          processingTimeMs,
+          errorCode: 'quota',
+          errorMessage: msg,
+        });
+
+        logger.warn(
+          { retryAfterSeconds, blockedUntil: new Date(quotaBlockedUntil).toISOString() },
+          'Gemini quota exceeded; enabling temporary cooldown'
+        );
+        throw new HttpError(msg, 429, { retryAfterSeconds });
+      }
       const delayMs = parseRetryDelayMs(error);
       quotaBlockedUntil = Date.now() + delayMs;
       const retryAfterSeconds = Math.max(1, Math.ceil(delayMs / 1000));
@@ -603,12 +668,33 @@ export async function sendChatMessage(params: {
       throw new HttpError(msg, 429, { retryAfterSeconds });
     }
 
+    if (isTemporaryProviderError(error)) {
+      const message = getSafeFriendlyErrorMessage(language, 'provider_unavailable');
+
+      await persistFailedExchange({
+        sessionId: params.sessionId,
+        farmerId: params.farmerId,
+        userText: params.text,
+        imageBase64: params.imageBase64,
+        language,
+        processingTimeMs,
+        errorCode: 'provider_unavailable',
+        errorMessage: message,
+      });
+
+      logger.warn(
+        { err: error, sessionId: params.sessionId, farmerId: params.farmerId },
+        'Gemini provider temporarily unavailable'
+      );
+      throw new HttpError(message, 503);
+    }
+
     const timeout =
       error instanceof GoogleGenerativeAIFetchError &&
       (error.status === 408 || /timeout/i.test(error.message));
     const safety = error instanceof GoogleGenerativeAIResponseError;
     const code = timeout ? 'timeout' : safety ? 'safety' : 'provider_error';
-    const message = getFriendlyErrorMessage(language, code);
+    const message = getSafeFriendlyErrorMessage(language, code);
 
     await persistFailedExchange({
       sessionId: params.sessionId,
