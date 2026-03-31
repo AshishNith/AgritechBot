@@ -24,7 +24,7 @@ export function MarketplaceScreen() {
   const addToCart = useMarketplaceStore((state) => state.addToCart);
   const cartCount = useMarketplaceStore((state) => state.getCartItemsCount());
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('All');
+  const [category, setCategory] = useState(t(language, 'viewAll'));
 
   const { data, isLoading } = useQuery({
     queryKey: ['products-marketplace', search],
@@ -41,20 +41,31 @@ export function MarketplaceScreen() {
   const products = data?.products ?? [];
 
   const categories = useMemo(() => {
+    const categoryMap: Record<string, string> = {
+      'Fertilizers': t(language, 'topFertilizers'),
+      'Seeds': t(language, 'essentialSeeds'),
+      'Tools': t(language, 'modernTools'),
+      'Pesticides': t(language, 'cropCare'),
+    };
     const dynamic = Array.from(new Set(products.map((item) => item.category).filter(Boolean)));
     const ordered = [
       ...priorityCategories.filter((item) => dynamic.includes(item)),
       ...dynamic.filter((item) => !priorityCategories.includes(item)),
     ];
-    return ['All', ...ordered];
-  }, [products]);
+    return [t(language, 'viewAll'), ...ordered];
+  }, [products, language]);
 
   const filteredProducts = useMemo(() => {
-    if (category === 'All') {
+    if (category === t(language, 'viewAll')) {
       return products;
     }
-    return products.filter((item) => item.category.toLowerCase() === category.toLowerCase());
-  }, [products, category]);
+    return products.filter((item) => item.category.toLowerCase() === category.toLowerCase() || 
+      (category === t(language, 'topFertilizers') && item.category.toLowerCase().includes('fert')) ||
+      (category === t(language, 'essentialSeeds') && item.category.toLowerCase().includes('seed')) ||
+      (category === t(language, 'modernTools') && item.category.toLowerCase().includes('tool')) ||
+      (category === t(language, 'cropCare') && item.category.toLowerCase().includes('pestic'))
+    );
+  }, [products, category, language]);
 
   const grouped = useMemo(
     () => ({
@@ -92,9 +103,17 @@ export function MarketplaceScreen() {
         <SearchInput value={search} onChangeText={setSearch} placeholder={t(language, 'searchPlaceholder')} />
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
-        {categories.map((item) => (
-          <Pill key={item} label={item} active={item === category} onPress={() => setCategory(item)} />
-        ))}
+        {categories.map((item) => {
+          const displayLabel = item === t(language, 'viewAll') ? item : (
+            item === 'Fertilizers' ? t(language, 'topFertilizers') :
+            item === 'Seeds' ? t(language, 'essentialSeeds') :
+            item === 'Tools' ? t(language, 'modernTools') :
+            item === 'Pesticides' ? t(language, 'cropCare') : item
+          );
+          return (
+            <Pill key={item} label={displayLabel} active={item === category} onPress={() => setCategory(item)} />
+          );
+        })}
       </ScrollView>
       {isLoading ? (
         <View style={styles.loadingWrap}>

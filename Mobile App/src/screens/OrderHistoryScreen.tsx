@@ -10,6 +10,7 @@ import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
 import { useTheme } from '../providers/ThemeContext';
 import { apiService } from '../api/services';
+import { OrderTrackingTimeline } from '../components/OrderTrackingTimeline';
 
 type Navigation = NativeStackNavigationProp<RootStackParamList>;
 
@@ -45,7 +46,7 @@ export function OrderHistoryScreen() {
     confirmed: t(language, 'statusConfirmed'),
     shipped: t(language, 'statusShipped'),
     delivered: t(language, 'statusDelivered'),
-    cancelled: 'Cancelled',
+    cancelled: t(language, 'orderFailed'),
   };
 
   const ShoppingCartIcon = IconMap['ShoppingCart'];
@@ -57,7 +58,7 @@ export function OrderHistoryScreen() {
         <View style={styles.emptyContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
           <AppText color={colors.textMuted} style={{ marginTop: 12 }}>
-            Loading order history...
+            {t(language, 'processing')}
           </AppText>
         </View>
       </Screen>
@@ -68,11 +69,11 @@ export function OrderHistoryScreen() {
     return (
       <Screen scrollable>
         <View style={styles.emptyContainer}>
-          <AppText variant="heading">Unable to load orders</AppText>
+          <AppText variant="heading">{t(language, 'orderFailed')}</AppText>
           <AppText color={colors.textMuted} style={{ marginTop: 8, textAlign: 'center' }}>
-            Your backend order history is currently unavailable.
+            {t(language, 'orderFailedAuth')}
           </AppText>
-          <GradientButton label="Retry" onPress={() => refetch()} style={{ marginTop: 24 }} />
+          <GradientButton label={t(language, 'retry')} onPress={() => refetch()} style={{ marginTop: 24 }} />
         </View>
       </Screen>
     );
@@ -137,7 +138,7 @@ export function OrderHistoryScreen() {
                 </View>
               </View>
 
-                <View style={[styles.itemsSummary, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : colors.surfaceMuted }]}>
+              <View style={[styles.itemsSummary, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : colors.surfaceMuted }]}>
                 {item.items.slice(0, 2).map((orderItem: { productId: string; name: string; quantity: number }) => (
                   <View key={`${orderItem.productId}-${orderItem.name}`} style={styles.itemRow}>
                     <AppText color={colors.textMuted} style={{ fontSize: 12 }}>
@@ -154,6 +155,11 @@ export function OrderHistoryScreen() {
                   </AppText>
                 ) : null}
               </View>
+
+              <OrderTrackingTimeline 
+                status={item.status} 
+                shippingMethod={item.shippingMethod} 
+              />
 
               <View style={[styles.orderFooter, { borderTopColor: colors.border }]}>
                 <View>

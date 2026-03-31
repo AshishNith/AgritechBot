@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, TextInput, View, ActivityIndicator, Modal, ScrollView } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
 import { apiService } from '../api/services';
@@ -16,23 +16,6 @@ import { useAppStore } from '../store/useAppStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProfileSetup'>;
 
-const cropOptions = ['गेहूं', 'चावल', 'कपास', 'सरसों'];
-const units = ['Acre', 'बीघा', 'Hectare'];
-
-// Indian states and major agricultural districts
-const INDIAN_LOCATIONS: Record<string, string[]> = {
-  'Punjab': ['Bathinda', 'Ludhiana', 'Amritsar', 'Gurdaspur', 'Jalandhar', 'Ferozpur'],
-  'Maharashtra': ['Pune', 'Nashik', 'Aurangabad', 'Nagpur', 'Ahmednagar', 'Kolhapur'],
-  'Madhya Pradesh': ['Indore', 'Bhopal', 'Jabalpur', 'Ujjain', 'Sehore', 'Vidisha'],
-  'Rajasthan': ['Jaipur', 'Jodhpur', 'Bikaner', 'Ajmer', 'Nagaur', 'Barmer'],
-  'Uttar Pradesh': ['Lucknow', 'Meerut', 'Varanasi', 'Noida', 'Kanpur', 'Mathura'],
-  'Karnataka': ['Bangalore', 'Mysore', 'Belgaum', 'Hubballi', 'Tumkur', 'Kolar'],
-  'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Tirunelveli', 'Namakkal', 'Villupuram'],
-  'Andhra Pradesh': ['Hyderabad', 'Visakhapatnam', 'Vijayawada', 'Tirupati', 'Guntur', 'Krishna'],
-  'Gujarat': ['Ahmedabad', 'Rajkot', 'Surat', 'Vadodara', 'Gandhinagar', 'Junagadh'],
-  'Haryana': ['Hisar', 'Rohtak', 'Faridabad', 'Yamunanagar', 'Panipat', 'Sonipat'],
-};
-
 export function ProfileSetupScreen({ navigation }: Props) {
   const language = useAppStore((state) => state.language);
   const { t: tx } = useI18n();
@@ -41,9 +24,22 @@ export function ProfileSetupScreen({ navigation }: Props) {
   const setUser = useAppStore((state) => state.setUser);
   const setHasCompletedOnboarding = useAppStore((state) => state.setHasCompletedOnboarding);
 
+  const cropOptions = useMemo(() => [
+    { label: tx('cropWheat'), value: 'Wheat' },
+    { label: tx('cropRice'), value: 'Rice' },
+    { label: tx('cropCotton'), value: 'Cotton' },
+    { label: tx('cropMustard'), value: 'Mustard' }
+  ], [tx]);
+
+  const units = useMemo(() => [
+    { label: tx('unitAcre'), value: 'Acre' },
+    { label: tx('unitBigha'), value: 'Bigha' },
+    { label: tx('unitHectare'), value: 'Hectare' }
+  ], [tx]);
+
   const [name, setName] = useState('');
   const [landSize, setLandSize] = useState('');
-  const [unit, setUnit] = useState(units[0]);
+  const [unit, setUnit] = useState(units[0].value);
   const [location, setLocation] = useState<{
     state: string;
     district: string;
@@ -55,11 +51,25 @@ export function ProfileSetupScreen({ navigation }: Props) {
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [showMapPicker, setShowMapPicker] = useState(false);
 
-  const toggleCrop = (crop: string) => {
+  // Indian states and major agricultural districts
+  const INDIAN_LOCATIONS: Record<string, string[]> = {
+    'Punjab': ['Bathinda', 'Ludhiana', 'Amritsar', 'Gurdaspur', 'Jalandhar', 'Ferozpur'],
+    'Maharashtra': ['Pune', 'Nashik', 'Aurangabad', 'Nagpur', 'Ahmednagar', 'Kolhapur'],
+    'Madhya Pradesh': ['Indore', 'Bhopal', 'Jabalpur', 'Ujjain', 'Sehore', 'Vidisha'],
+    'Rajasthan': ['Jaipur', 'Jodhpur', 'Bikaner', 'Ajmer', 'Nagaur', 'Barmer'],
+    'Uttar Pradesh': ['Lucknow', 'Meerut', 'Varanasi', 'Noida', 'Kanpur', 'Mathura'],
+    'Karnataka': ['Bangalore', 'Mysore', 'Belgaum', 'Hubballi', 'Tumkur', 'Kolar'],
+    'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Tirunelveli', 'Namakkal', 'Villupuram'],
+    'Andhra Pradesh': ['Hyderabad', 'Visakhapatnam', 'Vijayawada', 'Tirupati', 'Guntur', 'Krishna'],
+    'Gujarat': ['Ahmedabad', 'Rajkot', 'Surat', 'Vadodara', 'Gandhinagar', 'Junagadh'],
+    'Haryana': ['Hisar', 'Rohtak', 'Faridabad', 'Yamunanagar', 'Panipat', 'Sonipat'],
+  };
+
+  const toggleCrop = (cropValue: string) => {
     setSelectedCrops(
-      selectedCrops.includes(crop)
-        ? selectedCrops.filter((item) => item !== crop)
-        : [...selectedCrops, crop]
+      selectedCrops.includes(cropValue)
+        ? selectedCrops.filter((item) => item !== cropValue)
+        : [...selectedCrops, cropValue]
     );
   };
 
@@ -113,12 +123,12 @@ export function ProfileSetupScreen({ navigation }: Props) {
   return (
     <Screen scrollable>
       <AppText variant="caption" color={theme.colors.primaryDark}>
-        फसल विवरण
+        {tx('cropDetails')}
       </AppText>
       <View style={styles.progressBar}>
         <View style={styles.progressFill} />
       </View>
-      <AppText color={theme.colors.textMuted}>3/4 • 75% complete</AppText>
+      <AppText color={theme.colors.textMuted}>3/4 • 75% {tx('on')}</AppText>
 
       {error && (
         <View style={[styles.errorBox, { marginTop: 16 }]}>
@@ -142,24 +152,21 @@ export function ProfileSetupScreen({ navigation }: Props) {
       </ScreenCard>
 
       <AppText variant="title" style={{ marginTop: 18 }}>
-        आप कौन सी फसलें उगाते हैं?
-      </AppText>
-      <AppText color={theme.colors.textMuted} style={{ marginTop: 8 }}>
-        ਤੁਸੀਂ ਕਿਹੜੀਆਂ ਫਸਲਾਂ ਉਗਾਉਂਦੇ ਹੋ? / તમે કયા પાક ઉગાડો છો?
+        {tx('whatCropsDoYouGrow')}
       </AppText>
       <View style={styles.cropsGrid}>
         {cropOptions.map((crop) => {
-          const active = selectedCrops.includes(crop);
+          const active = selectedCrops.includes(crop.value);
           return (
             <Pressable
-              key={crop}
-              onPress={() => toggleCrop(crop)}
+              key={crop.value}
+              onPress={() => toggleCrop(crop.value)}
               disabled={createProfileMutation.isPending}
               style={[styles.cropCard, active && styles.cropCardActive]}
             >
               <Ionicons name="leaf" size={22} color={active ? theme.colors.textOnDark : theme.colors.primaryDark} />
               <AppText variant="label" color={active ? theme.colors.textOnDark : theme.colors.text}>
-                {crop}
+                {crop.label}
               </AppText>
             </Pressable>
           );
@@ -181,10 +188,10 @@ export function ProfileSetupScreen({ navigation }: Props) {
           <View style={styles.unitsRow}>
             {units.map((item) => (
               <Pill
-                key={item}
-                label={item}
-                active={item === unit}
-                onPress={() => setUnit(item)}
+                key={item.value}
+                label={item.label}
+                active={item.value === unit}
+                onPress={() => setUnit(item.value)}
               />
             ))}
           </View>
@@ -220,7 +227,7 @@ export function ProfileSetupScreen({ navigation }: Props) {
           leftIcon={createProfileMutation.isPending ? <ActivityIndicator size={18} color={theme.colors.textOnDark} /> : undefined}
         />
         <AppText color={theme.colors.textMuted} style={{ marginTop: 12, textAlign: 'center' }}>
-          Profile details are required to continue.
+          {tx('profileRequiredToContinue')}
         </AppText>
       </View>
 
@@ -389,11 +396,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 14,
-  },
-  mapImage: {
-    width: '100%',
-    height: 180,
-    borderRadius: 22,
   },
   actions: {
     marginTop: 24,

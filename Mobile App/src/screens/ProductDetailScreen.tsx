@@ -2,7 +2,8 @@ import { IconMap } from '../components/IconMap';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, Pressable, ScrollView, StyleSheet, View, Alert, Share } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, View, Alert, Share, Linking, TouchableOpacity } from 'react-native';
+import { LeafletMap } from '../components/LeafletMap';
 import { useEffect, useMemo, useState } from 'react';
 
 import { apiService } from '../api/services';
@@ -85,8 +86,16 @@ export function ProductDetailScreen({ route }: Props) {
         message: `${localizedName} - INR ${effectivePrice.toFixed(2)} / ${product.pricing?.unit ?? product.unit}`,
       });
     } catch {
-      Alert.alert('Share failed', 'Unable to share product details right now.');
+      Alert.alert(t(language, 'shareFailed'), t(language, 'unableToShare'));
     }
+  };
+  
+  const handleCallVendor = () => {
+    if (!product.seller?.phone) {
+      Alert.alert(t(language, 'contactUnavailable'), t(language, 'noPublicPhone'));
+      return;
+    }
+    Linking.openURL(`tel:${product.seller.phone}`);
   };
 
   const handlePrevImage = () => {
@@ -110,7 +119,7 @@ export function ProductDetailScreen({ route }: Props) {
           <Pressable onPress={() => navigation.goBack()} style={[styles.headerIconButton, { borderColor: colors.border, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(82,183,129,0.08)' }]}>
             {(() => { const IconComp = IconMap['ArrowLeft']; return IconComp ? <IconComp size={20} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
           </Pressable>
-          <AppText variant="label" style={styles.headerTitle}>{t(language, 'productDetails')}</AppText>
+          <AppText variant="label" style={{ marginLeft: 4 }}>{t(language, 'recommendedForYou')}</AppText>
           <View style={styles.headerActions}>
             <Pressable onPress={handleShareProduct} style={[styles.headerIconButton, { borderColor: colors.border, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(82,183,129,0.08)' }]}>
               {(() => { const IconComp = IconMap['Share2']; return IconComp ? <IconComp size={19} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
@@ -259,6 +268,66 @@ export function ProductDetailScreen({ route }: Props) {
               </View>
             </>
           ) : null}
+
+          <AppText variant="heading" style={{ marginTop: 32 }}>
+            {t(language, 'sellerInfo')}
+          </AppText>
+          <ScreenCard style={styles.sellerCard}>
+            <View style={styles.sellerHeader}>
+              <View style={[styles.sellerAvatar, { backgroundColor: colors.primary + '15' }]}>
+                {(() => { const UserIcon = IconMap['User']; return UserIcon ? <UserIcon size={24} color={colors.primary} /> : null; })()}
+              </View>
+              <View style={{ flex: 1 }}>
+                <AppText variant="label" style={{ fontSize: 16 }}>{product.seller?.name || t(language, 'verifiedSeller')}</AppText>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                  {(() => { const MapPin = IconMap['MapPin']; return MapPin ? <MapPin size={12} color={colors.textMuted} /> : null; })()}
+                  <AppText variant="caption" color={colors.textMuted}>{product.seller?.location || t(language, 'mandi')}</AppText>
+                </View>
+              </View>
+              <View style={[styles.ratingTag, { backgroundColor: colors.primary + '15' }]}>
+                {(() => { const Star = IconMap['Star']; return Star ? <Star size={12} color={colors.primary} fill={colors.primary} /> : null; })()}
+                <AppText variant="label" color={colors.primary}>{product.seller?.rating || '4.5'}</AppText>
+              </View>
+            </View>
+            
+            <View style={styles.sellerActions}>
+              <TouchableOpacity 
+                style={[styles.sellerActionButton, { backgroundColor: colors.surface }]}
+                onPress={handleCallVendor}
+              >
+                {(() => { const Phone = IconMap['Phone']; return Phone ? <Phone size={18} color={colors.primary} /> : null; })()}
+                <AppText color={colors.primary} style={{ fontWeight: '600' }}>{t(language, 'callSeller')}</AppText>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.sellerActionButton, { backgroundColor: colors.surface }]}
+                onPress={() => navigation.navigate('ChatList' as any)}
+              >
+                {(() => { const Message = IconMap['MessageCircle']; return Message ? <Message size={18} color={colors.primary} /> : null; })()}
+                <AppText color={colors.primary} style={{ fontWeight: '600' }}>{t(language, 'chatWithSeller')}</AppText>
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.miniMap}>
+              <LeafletMap 
+                latitude={31.7087} 
+                longitude={76.9320} 
+                isDark={isDark} 
+                height={160} 
+                zoom={13}
+                markers={[
+                  {
+                    latitude: 31.7087,
+                    longitude: 76.9320,
+                    title: product.seller?.name || 'Seller Location',
+                    type: 'vendor'
+                  }
+                ]}
+              />
+            </View>
+            <AppText variant="caption" color={colors.textMuted} style={{ marginTop: 12, textAlign: 'center' }}>
+              {t(language, 'pickupAvailable')}
+            </AppText>
+          </ScreenCard>
         </View>
       </ScrollView>
       <View
@@ -443,5 +512,53 @@ const styles = StyleSheet.create({
     bottom: 0,
     padding: 16,
     borderTopWidth: 1,
+  },
+  sellerCard: {
+    marginTop: 16,
+    padding: 16,
+  },
+  sellerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  sellerAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ratingTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  sellerActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 20,
+  },
+  sellerActionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: 'rgba(82,183,129,0.3)',
+  },
+  miniMap: {
+    marginTop: 20,
+    height: 160,
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
   },
 });

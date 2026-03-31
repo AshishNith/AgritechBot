@@ -192,6 +192,7 @@ export interface OrderRequest {
     state: string;
     pincode: string;
   };
+  shippingMethod?: 'delivery' | 'pickup';
 }
 
 export type SubscriptionTier = 'free' | 'basic' | 'premium';
@@ -288,4 +289,3 @@ export interface NotificationListResponse {
   notifications: AppNotification[];
   unreadCount: number;
 }
-

@@ -11,6 +11,7 @@ export interface IChatSession extends Document {
     problemsSolved: string[];
     location?: string;
     season?: string;
+    type: 'chat' | 'scan';
   };
   createdAt: Date;
   updatedAt: Date;
@@ -56,6 +57,12 @@ const chatSessionSchema = new Schema<IChatSession>(
       },
       location: String,
       season: String,
+      type: {
+        type: String,
+        enum: ['chat', 'scan'],
+        default: 'chat',
+        index: true,
+      },
     },
   },
   {

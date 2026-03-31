@@ -51,14 +51,9 @@ export function ImageScanScreen() {
     setAnalyzing(true);
     setResult(null);
     try {
-      const response = await apiService.askChat({
-        message: "Analyze this crop image for diseases. Provide the Problem Name, Severity, and Treatment. Be concise and professional.",
-        language: 'English',
-        imageBase64: base64,
-        imageMimeType: mimeType,
-      });
+      const response = await apiService.analyzeCrop(base64, mimeType, 'English');
 
-      setResult(response.answer);
+      setResult(response.diagnosis);
     } catch (error) {
       Alert.alert('Analysis Failed', 'Could not analyze the image. Please try again.');
     } finally {
@@ -79,6 +74,16 @@ export function ImageScanScreen() {
           })()}
         </Pressable>
         <AppText variant="title" style={{ marginLeft: 16 }}>Crop Diagnosis</AppText>
+        <View style={{ flex: 1 }} />
+        <Pressable
+          onPress={() => navigation.navigate('MainTabs', { screen: 'ChatTab' })}
+          style={[styles.headerButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : colors.surfaceMuted }]}
+        >
+          {(() => {
+            const IconComp = IconMap['History'];
+            return IconComp ? <IconComp size={20} color={colors.primary} /> : null;
+          })()}
+        </Pressable>
       </View>
 
       <View style={styles.content}>

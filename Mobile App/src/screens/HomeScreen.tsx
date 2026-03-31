@@ -3,14 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
 import { useEffect, useMemo, useState } from 'react';
 import * as Location from 'expo-location';
-import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
-import { Platform } from 'react-native';
 
 import { apiService } from '../api/services';
 import { AppText, GlassCard, Pill, PulseMic, Screen, ScreenCard } from '../components/ui';
+import { LeafletMap, MapMarker } from '../components/LeafletMap';
 import { homeWeatherCard, marketplaceFallback, quickChips } from '../constants/designData';
 import { t } from '../constants/localization';
 import { theme } from '../constants/theme';
@@ -45,7 +44,7 @@ export function HomeScreen() {
   const language = useAppStore((state) => state.language);
   const setFeaturedProduct = useAppStore((state) => state.setFeaturedProduct);
   const [liveCoords, setLiveCoords] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [liveLocationName, setLiveLocationName] = useState('Your Farm');
+  const [liveLocationName, setLiveLocationName] = useState(t(language, 'mandi'));
   const logoUrl = 'https://res.cloudinary.com/dvwpxb2oa/image/upload/v1773933014/FullWhiteLogo_nlnlbh.svg';
   const logoImageUrl = logoUrl.endsWith('.svg') ? logoUrl.replace(/\.svg$/, '.png') : logoUrl;
 
@@ -71,6 +70,14 @@ export function HomeScreen() {
   }, [unreadData?.unreadCount, setUnreadCount]);
 
   const featured = data?.products?.[0] ?? marketplaceFallback[0];
+
+  // Random recommendations
+  const recommendedProducts = useMemo(() => {
+    if (!data?.products) return marketplaceFallback;
+    const shuffled = [...data.products].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 6);
+  }, [data?.products]);
+
   const weatherCoordinates = useMemo(
     () => ({
       latitude: liveCoords?.latitude ?? user?.location?.latitude ?? 28.6139,
@@ -78,6 +85,31 @@ export function HomeScreen() {
     }),
     [liveCoords, user?.location?.latitude, user?.location?.longitude]
   );
+
+  // Generate random vendors for the map
+  const mockVendors = useMemo<MapMarker[]>(() => {
+    const { latitude, longitude } = weatherCoordinates;
+    return [
+      {
+        latitude: latitude + 0.005,
+        longitude: longitude + 0.003,
+        title: t(language, 'mandiSeedBank'),
+        type: 'vendor'
+      },
+      {
+        latitude: latitude - 0.004,
+        longitude: longitude + 0.006,
+        title: t(language, 'equipmentRental'),
+        type: 'vendor'
+      },
+      {
+        latitude: latitude + 0.002,
+        longitude: longitude - 0.005,
+        title: t(language, 'fertilizerStore'),
+        type: 'vendor'
+      }
+    ];
+  }, [weatherCoordinates]);
 
   console.log('--- Map Diagnostics ---', {
     latitude: weatherCoordinates.latitude,
@@ -97,22 +129,22 @@ export function HomeScreen() {
   });
 
   const weatherCodeMap: Record<number, string> = {
-    0: 'Clear sky',
-    1: 'Mainly clear',
-    2: 'Partly cloudy',
-    3: 'Overcast',
-    45: 'Fog',
-    48: 'Rime fog',
-    51: 'Light drizzle',
-    53: 'Drizzle',
-    55: 'Dense drizzle',
-    61: 'Light rain',
-    63: 'Rain',
-    65: 'Heavy rain',
-    71: 'Light snow',
-    73: 'Snow',
-    75: 'Heavy snow',
-    95: 'Thunderstorm',
+    0: t(language, 'ready'), // Clear sky -> Ready/Sunny
+    1: t(language, 'ready'), 
+    2: t(language, 'thinking'), // Cloudy
+    3: t(language, 'thinking'),
+    45: t(language, 'thinking'),
+    48: t(language, 'thinking'),
+    51: t(language, 'ready'), 
+    53: t(language, 'ready'),
+    55: t(language, 'ready'),
+    61: t(language, 'ready'),
+    63: t(language, 'ready'),
+    65: t(language, 'ready'),
+    71: t(language, 'ready'),
+    73: t(language, 'ready'),
+    75: t(language, 'ready'),
+    95: t(language, 'ready'),
   };
 
   const weatherTemperature = liveWeather?.current?.temperature_2m != null
@@ -131,12 +163,12 @@ export function HomeScreen() {
 
   const hour = new Date().getHours();
   const greeting = hour < 12
-    ? 'Good morning'
+    ? t(language, 'goodMorning')
     : hour < 17
-      ? 'Good afternoon'
+      ? t(language, 'goodAfternoon')
       : hour < 21
-        ? 'Good evening'
-        : 'Good night';
+        ? t(language, 'goodEvening')
+        : t(language, 'goodNight');
 
   useEffect(() => {
     let active = true;
@@ -229,17 +261,17 @@ export function HomeScreen() {
         <View style={styles.insightSplit}>
           <View style={styles.splitDivider} />
           <AppText color={colors.textMuted} style={{ flex: 1 }}>
-            Free weather feed: Humidity {weatherHumidity} | Wind {weatherWind}
+            {t(language, 'weatherFeed')}: {t(language, 'humidity')} {weatherHumidity} | {t(language, 'wind')} {weatherWind}
           </AppText>
         </View>
       </View>
 
       <GlassCard style={styles.weatherCard}>
-        <AppText variant="caption" color={colors.primary}>Soil Moisture</AppText>
+        <AppText variant="caption" color={colors.primary}>{t(language, 'soilMoisture')}</AppText>
         <View style={styles.soilRow}>
           <View>
             <AppText variant="heading">{soilMoisture}</AppText>
-            <AppText color={colors.textMuted}>{liveLocationName} Node</AppText>
+            <AppText color={colors.textMuted}>{liveLocationName}</AppText>
           </View>
           {(() => { const IconComp = IconMap['Droplets']; return IconComp ? <IconComp size={32} color={colors.primary} /> : null; })()}
         </View>
@@ -247,50 +279,68 @@ export function HomeScreen() {
 
       <ScreenCard style={styles.mapCard}>
         <View style={styles.mapHeader}>
-          <AppText variant="label">Farm Location Map</AppText>
+          <AppText variant="label">{t(language, 'farmMap')}</AppText>
           <AppText color={colors.textMuted}>{liveLocationName}</AppText>
         </View>
-        <MapView
-          provider={PROVIDER_GOOGLE}
-          style={styles.mapView}
-          initialRegion={{
+        <TouchableOpacity 
+          style={styles.mapContainer} 
+          activeOpacity={0.9}
+          onPress={() => navigation.navigate('FullMap', {
             latitude: weatherCoordinates.latitude,
             longitude: weatherCoordinates.longitude,
-            latitudeDelta: 0.1,
-            longitudeDelta: 0.1,
-          }}
-          scrollEnabled={true}
-          pitchEnabled={true}
-          rotateEnabled={true}
-          zoomEnabled={true}
-          showsUserLocation={true}
-          showsMyLocationButton={true}
+            locationName: liveLocationName,
+            markers: mockVendors
+          })}
         >
-          <Marker
-            coordinate={{
-              latitude: weatherCoordinates.latitude,
-              longitude: weatherCoordinates.longitude,
-            }}
-            title="Farm Location"
-            description={liveLocationName}
-            pinColor={colors.primary}
+          <LeafletMap 
+            latitude={weatherCoordinates.latitude} 
+            longitude={weatherCoordinates.longitude} 
+            isDark={isDark} 
+            height={180} 
+            zoom={14}
+            mapType="satellite"
+            markers={mockVendors}
           />
-        </MapView>
+        </TouchableOpacity>
       </ScreenCard>
 
-      <ScreenCard style={{ marginTop: 16 }}>
-        <AppText variant="label">{t(language, 'aiPick')}</AppText>
-        <AppText variant="heading" style={{ marginTop: 8 }}>
-          {featured.name}
-        </AppText>
-        <AppText color={colors.textMuted} style={{ marginTop: 6 }}>
-          {featured.description}
-        </AppText>
-        <View style={styles.productMeta}>
-          <AppText variant="label">₹{featured.price}</AppText>
-          <Pill label={t(language, 'viewNow')} active onPress={() => navigation.navigate('ProductDetail', { productId: featured.id })} />
-        </View>
-      </ScreenCard>
+      <View style={{ marginTop: 24, marginBottom: 8 }}>
+        <AppText variant="label" style={{ marginLeft: 4 }}>{t(language, 'recommendedForYou')}</AppText>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          contentContainerStyle={{ paddingVertical: 12, gap: 14 }}
+        >
+          {recommendedProducts.map((product) => (
+            <TouchableOpacity 
+              key={product.id}
+              activeOpacity={0.9}
+              onPress={() => navigation.navigate('ProductDetail', { productId: product.id })}
+            >
+              <GlassCard style={styles.recommendationCard}>
+                <Image 
+                  source={{ uri: product.images[0] || 'https://via.placeholder.com/150' }} 
+                  style={styles.recommendationImage} 
+                />
+                <View style={{ padding: 12 }}>
+                  <AppText variant="label" numberOfLines={1} style={{ fontSize: 13 }}>{product.name}</AppText>
+                  <AppText color={colors.primary} style={{ fontWeight: '700', marginTop: 4 }}>₹{product.price}</AppText>
+                  
+                  <View style={styles.recommendationFooter}>
+                    <AppText variant="caption" color={colors.textMuted}>{product.brand || 'Anaaj'}</AppText>
+                    <View style={[styles.ratingTag, { backgroundColor: colors.primary + '15' }]}>
+                      {(() => { const Star = IconMap['Star']; return Star ? <Star size={10} color={colors.primary} fill={colors.primary} /> : null; })()}
+                      <AppText variant="caption" color={colors.primary} style={{ fontSize: 10, fontWeight: '700' }}>
+                        {product.ratings?.average || '4.5'}
+                      </AppText>
+                    </View>
+                  </View>
+                </View>
+              </GlassCard>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
       <View style={styles.micArea}>
         <PulseMic />
         <AppText color={colors.textMuted} style={{ marginTop: 18 }}>{t(language, 'voiceFarmingHelp')}</AppText>
@@ -333,19 +383,27 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   mapCard: {
-    marginTop: 14,
+    marginTop: 16,
+    padding: 0,
     overflow: 'hidden',
+    height: 250,
   },
   mapHeader: {
+    padding: 16,
+    paddingBottom: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+  },
+  mapContainer: {
+    flex: 1,
+    height: 180,
+    width: '100%',
   },
   mapView: {
     width: '100%',
-    height: 190,
-    borderRadius: 14,
+    height: '100%',
+    backgroundColor: 'transparent',
   },
   weatherHeader: {
     flexDirection: 'row',
@@ -387,5 +445,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingBottom: 100,
     paddingTop: 12,
+  },
+  recommendationCard: {
+    width: 180,
+    padding: 0,
+    overflow: 'hidden',
+    borderRadius: 18,
+  },
+  recommendationImage: {
+    width: '100%',
+    height: 120,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+  },
+  recommendationFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  ratingTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
   },
 });

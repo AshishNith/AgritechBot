@@ -434,4 +434,34 @@ export const apiService = {
     const { data } = await api.put('/api/notifications/read-all');
     return data;
   },
+
+  // ── Image Analysis ──
+  async analyzeCrop(imageBase64: string, imageMimeType: string, language?: string) {
+    const { data } = await api.post<{
+      id: string;
+      diagnosis: string;
+      createdAt: string;
+    }>('/api/v1/image-analysis/analyze', {
+      imageBase64,
+      imageMimeType,
+      language,
+    });
+    return data;
+  },
+  async getScanHistory() {
+    const { data } = await api.get<{
+      history: Array<{
+        _id: string;
+        diagnosis: string;
+        status: string;
+        createdAt: string;
+        imageBase64?: string;
+        metadata?: {
+          language?: string;
+          cropType?: string;
+        };
+      }>;
+    }>('/api/v1/image-analysis/history');
+    return data.history;
+  },
 };

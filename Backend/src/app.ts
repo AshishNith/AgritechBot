@@ -15,6 +15,7 @@ import { subscriptionRoutes } from './routes/subscriptionRoutes';
 import { adminRoutes } from './routes/adminRoutes';
 import { notificationRoutes } from './routes/notificationRoutes';
 import { paymentRoutes } from './routes/paymentRoutes';
+import { imageAnalysisRoutes } from './routes/imageAnalysisRoutes';
 import { chatV1Routes } from './chat/routes/chat.routes';
 import { logger } from './utils/logger';
 import { env } from './config/env';
@@ -193,6 +194,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(adminRoutes);
   await app.register(notificationRoutes);
   await app.register(paymentRoutes);
+  await app.register(imageAnalysisRoutes);
 
   logger.info(`All routes registered [env=${env.NODE_ENV}]`);
 

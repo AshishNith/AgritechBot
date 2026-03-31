@@ -1,4 +1,4 @@
-import { StyleSheet, View, TextInput, ScrollView, Pressable, Alert, Linking } from 'react-native';
+import { StyleSheet, View, TextInput, ScrollView, Pressable, Alert, Linking, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useMutation } from '@tanstack/react-query';
@@ -32,6 +32,7 @@ export function CheckoutScreen() {
     state: user?.location?.state || '',
     pincode: '',
   });
+  const [shippingMethod, setShippingMethod] = useState<'delivery' | 'pickup'>('delivery');
   const [pendingPayment, setPendingPayment] = useState<{
     paymentOrderId: string;
     checkoutToken: string;
@@ -40,7 +41,7 @@ export function CheckoutScreen() {
 
   const total = getCartTotal();
   const tax = total * 0.05;
-  const shipping = 50;
+  const shipping = shippingMethod === 'delivery' ? 50 : 0;
   const finalTotal = total + tax + shipping;
 
   const validationError = useMemo(() => {
@@ -72,6 +73,7 @@ export function CheckoutScreen() {
           state: formData.state,
           pincode: formData.pincode,
         },
+        shippingMethod,
       });
     },
     onSuccess: async (data) => {
@@ -83,7 +85,7 @@ export function CheckoutScreen() {
 
       const supported = await Linking.canOpenURL(data.checkoutUrl);
       if (!supported) {
-        Alert.alert('Checkout unavailable', 'Unable to open the secure checkout page on this device.');
+        Alert.alert(t(language, 'checkoutUnavailable'), t(language, 'unableToOpenCheckout'));
         return;
       }
 
@@ -110,14 +112,14 @@ export function CheckoutScreen() {
       }
 
       if (data.status === 'failed') {
-        Alert.alert('Payment failed', data.error || 'The payment could not be verified.');
+        Alert.alert(t(language, 'paymentFailed'), data.error || t(language, 'orderFailedAuth'));
         return;
       }
 
-      Alert.alert('Payment pending', 'We have not received payment confirmation yet. Complete checkout in the browser, then tap refresh again.');
+      Alert.alert(t(language, 'paymentPending'), t(language, 'completePaymentInBrowser'));
     },
     onError: (error: any) => {
-      Alert.alert('Payment check failed', error.message || 'Unable to check payment status right now.');
+      Alert.alert(t(language, 'paymentCheckFailed'), error.message || t(language, 'orderFailedAuth'));
     },
   });
 
@@ -134,6 +136,33 @@ export function CheckoutScreen() {
             {t(language, 'deliveryDetails')}
           </AppText>
           <View style={{ width: 42 }} />
+        </View>
+
+        <View style={styles.methodToggleRow}>
+          <TouchableOpacity 
+            onPress={() => setShippingMethod('delivery')}
+            style={[
+              styles.methodToggle, 
+              { backgroundColor: shippingMethod === 'delivery' ? colors.primary : colors.surfaceMuted }
+            ]}
+          >
+            {(() => { const Truck = IconMap['Truck']; return Truck ? <Truck size={18} color={shippingMethod === 'delivery' ? '#fff' : colors.textMuted} /> : null; })()}
+            <AppText color={shippingMethod === 'delivery' ? '#fff' : colors.textMuted} variant="label">
+              {t(language, 'delivery')}
+            </AppText>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={() => setShippingMethod('pickup')}
+            style={[
+              styles.methodToggle, 
+              { backgroundColor: shippingMethod === 'pickup' ? colors.primary : colors.surfaceMuted }
+            ]}
+          >
+            {(() => { const Package = IconMap['PackageOpen']; return Package ? <Package size={18} color={shippingMethod === 'pickup' ? '#fff' : colors.textMuted} /> : null; })()}
+            <AppText color={shippingMethod === 'pickup' ? '#fff' : colors.textMuted} variant="label">
+              {t(language, 'selfPickup')}
+            </AppText>
+          </TouchableOpacity>
         </View>
 
         <ScreenCard style={{ marginTop: 16 }}>
@@ -221,17 +250,17 @@ export function CheckoutScreen() {
 
         {pendingPayment ? (
           <ScreenCard style={{ marginTop: 16 }}>
-            <AppText variant="label">Secure payment session created</AppText>
+            <AppText variant="label">{t(language, 'securePaymentSession')}</AppText>
             <AppText color={colors.textMuted} style={{ marginTop: 8 }}>
-              Complete the payment in your browser, then return here and refresh the payment status.
+              {t(language, 'completePaymentInBrowser')}
             </AppText>
             <View style={{ gap: 12, marginTop: 16 }}>
               <GradientButton
-                label="Reopen Secure Checkout"
+                label={t(language, 'reopenCheckout')}
                 onPress={() => Linking.openURL(pendingPayment.checkoutUrl)}
               />
               <GradientButton
-                label={refreshPaymentMutation.isPending ? 'Checking payment...' : 'I Completed Payment'}
+                label={refreshPaymentMutation.isPending ? t(language, 'checkingPayment') : t(language, 'iCompletedPayment')}
                 secondary
                 onPress={() => refreshPaymentMutation.mutate()}
                 disabled={refreshPaymentMutation.isPending}
@@ -260,7 +289,7 @@ export function CheckoutScreen() {
         </View>
 
         <GradientButton
-          label={createPaymentMutation.isPending ? 'Opening secure checkout...' : 'Pay Securely'}
+          label={createPaymentMutation.isPending ? t(language, 'openingSecureCheckout') : t(language, 'paySecurely')}
           onPress={() => createPaymentMutation.mutate()}
           disabled={createPaymentMutation.isPending || !!validationError}
           style={{ marginTop: 24 }}
@@ -315,5 +344,19 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderLeftWidth: 3,
     borderLeftColor: '#ef4444',
+  },
+  methodToggleRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 18,
+  },
+  methodToggle: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    height: 50,
+    borderRadius: 14,
   },
 });

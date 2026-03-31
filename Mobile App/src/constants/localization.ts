@@ -24,6 +24,29 @@ export type TranslationKey =
   | 'discount'
   | 'total'
   | 'deliveryDetails'
+  | 'perKg'
+  | 'premiumPlan'
+  | 'unlockFullPotential'
+  | 'advancedAIExperience'
+  | 'advancedAI'
+  | 'deeperReasoning'
+  | 'personalizedAdvisory'
+  | 'tailoredSuggestions'
+  | 'fasterResponses'
+  | 'priorityProcessing'
+  | 'annualPlan'
+  | 'monthlyPlan'
+  | 'perYear'
+  | 'perMonth'
+  | 'save40'
+  | 'secureCheckoutReady'
+  | 'finishPaymentPrompt'
+  | 'reopenSecureCheckout'
+  | 'checkingPaymentStatus'
+  | 'iCompletedPayment'
+  | 'openingSecureCheckout'
+  | 'continueToSecurePayment'
+  | 'plansActivateAfterVerification'
   | 'personalInfo'
   | 'name'
   | 'phone'
@@ -186,7 +209,94 @@ export type TranslationKey =
   | 'newChat'
   | 'seasonLabel'
   | 'retry'
-  | 'toolResult';
+  | 'toolResult'
+  | 'recommendedForYou'
+  | 'sellerInfo'
+  | 'callSeller'
+  | 'chatWithSeller'
+  | 'pickupAvailable'
+  | 'verifiedSeller'
+  | 'mandi'
+  | 'alerts'
+  | 'shareFailed'
+  | 'unableToShare'
+  | 'contactUnavailable'
+  | 'noPublicPhone'
+  | 'farmMap'
+  | 'soilMoisture'
+  | 'humidity'
+  | 'wind'
+  | 'weatherFeed'
+  | 'goodAfternoon'
+  | 'goodEvening'
+  | 'goodNight'
+  | 'mandiSeedBank'
+  | 'equipmentRental'
+  | 'fertilizerStore'
+  | 'delivery'
+  | 'selfPickup'
+  | 'paySecurely'
+  | 'checkoutUnavailable'
+  | 'unableToOpenCheckout'
+  | 'paymentFailed'
+  | 'paymentPending'
+  | 'paymentCheckFailed'
+  | 'completeYourProfile'
+  | 'phoneNotAvailable'
+  | 'incompleteProfile'
+  | 'premiumMember'
+  | 'basicMember'
+  | 'freeMember'
+  | 'editProfile'
+  | 'subscriptionStatus'
+  | 'premiumPlanActive'
+  | 'basicPlanActive'
+  | 'freePlan'
+  | 'manage'
+  | 'commerce'
+  | 'trackOrders'
+  | 'checkStatusAndDeliveryUpdates'
+  | 'myCart'
+  | 'reviewItemsAndCheckout'
+  | 'preferences'
+  | 'appLanguage'
+  | 'darkAppearance'
+  | 'on'
+  | 'off'
+  | 'securityAndData'
+  | 'privacySettings'
+  | 'close'
+  | 'enterYourName'
+  | 'cropsGrown'
+  | 'enterLandSize'
+  | 'notSelected'
+  | 'change'
+  | 'useCurrentLocationOrPickOnMap'
+  | 'noApiKeyNeeded'
+  | 'saveChanges'
+  | 'orContinueWith'
+  | 'google'
+  | 'termsAndPrivacy'
+  | 'otpPreview'
+  | 'yourOtp'
+  | 'otpDisabled'
+  | 'agriAssistant'
+  | 'optimizingFields'
+  | 'poweredByAgri'
+  | 'soilHealth'
+  | 'nutrientAnalysis'
+  | 'pestControl'
+  | 'smartDetection'
+  | 'yieldForecast'
+  | 'marketPrediction'
+  | 'cropType'
+  | 'personalizedSelection'
+  | 'expertAiAdvice'
+  | 'continueToAdvisor'
+  | 'krishiVani'
+  | 'talkToCrops'
+  | 'askInNative'
+  | 'continueButton';
 
 
 const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
@@ -214,6 +324,28 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     discount: 'Discount',
     total: 'Total',
     deliveryDetails: 'Delivery Details',
+    perKg: 'per kg',
+    premiumPlan: 'Premium Plan',
+    unlockFullPotential: 'Unlock full potential',
+    advancedAIExperience: 'Experience advanced AI with multilingual guidance',
+    advancedAI: 'Advanced AI',
+    deeperReasoning: 'Deeper reasoning capabilities',
+    personalizedAdvisory: 'Personalized advisory',
+    tailoredSuggestions: 'Tailored suggestions',
+    fasterResponses: 'Faster responses',
+    priorityProcessing: 'Priority processing',
+    annualPlan: 'Annual Plan',
+    monthlyPlan: 'Monthly Plan',
+    perYear: 'per year',
+    perMonth: 'per month',
+    save40: 'Save 40%',
+    secureCheckoutReady: 'Secure subscription checkout ready',
+    finishPaymentPrompt: 'Complete the payment in your browser, then return here and refresh the status.',
+    reopenSecureCheckout: 'Reopen Secure Checkout',
+    checkingPaymentStatus: 'Checking payment status...',
+    plansActivateAfterVerification: 'Plans activate only after payment verification.',
+    iCompletedPayment: 'I Completed Payment',
+    openingSecureCheckout: 'Opening secure checkout...',
     personalInfo: 'Personal Information',
     name: 'Name',
     phone: 'Phone Number',
@@ -377,6 +509,94 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     seasonLabel: 'Current Season',
     retry: 'Retry',
     toolResult: 'Tool Result',
+    recommendedForYou: 'Recommended for You',
+    sellerInfo: 'Seller Information',
+    callSeller: 'Call Seller',
+    chatWithSeller: 'Chat',
+    pickupAvailable: 'Pickup available at this location',
+    verifiedSeller: 'Anaaj Verified Seller',
+    mandi: 'Mandi, Himachal Pradesh',
+    alerts: 'Alerts',
+    shareFailed: 'Share failed',
+    unableToShare: 'Unable to share product details right now.',
+    contactUnavailable: 'Contact Unavailable',
+    noPublicPhone: 'This seller does not have a public contact number.',
+    farmMap: 'Farm Location Map',
+    soilMoisture: 'Soil Moisture',
+    humidity: 'Humidity',
+    wind: 'Wind',
+    weatherFeed: 'Free weather feed',
+    goodAfternoon: 'Good afternoon',
+    goodEvening: 'Good evening',
+    goodNight: 'Good night',
+    mandiSeedBank: 'Mandi Seed Bank',
+    equipmentRental: 'Equipment Rental Co.',
+    fertilizerStore: 'Green Fertilizer Store',
+    delivery: 'Delivery',
+    selfPickup: 'Self Pickup',
+    paySecurely: 'Pay Securely',
+    checkoutUnavailable: 'Checkout unavailable',
+    unableToOpenCheckout: 'Unable to open the secure checkout page on this device.',
+    paymentFailed: 'Payment failed',
+    paymentPending: 'Payment pending',
+    paymentCheckFailed: 'Payment check failed',
+    completeYourProfile: 'Complete your Profile',
+    phoneNotAvailable: 'Phone not available',
+    incompleteProfile: 'Incomplete Profile',
+    premiumMember: 'Premium Member',
+    basicMember: 'Basic Member',
+    freeMember: 'Free Member',
+    editProfile: 'Edit Profile',
+    subscriptionStatus: 'Subscription Status',
+    premiumPlanActive: 'Premium Plan Active',
+    basicPlanActive: 'Basic Plan Active',
+    freePlan: 'Free Plan',
+    manage: 'Manage',
+    commerce: 'COMMERCE',
+    trackOrders: 'Track Orders',
+    checkStatusAndDeliveryUpdates: 'Check status and delivery updates',
+    myCart: 'My Cart',
+    reviewItemsAndCheckout: 'Review items and checkout',
+    preferences: 'PREFERENCES',
+    appLanguage: 'App Language',
+    darkAppearance: 'Dark Appearance',
+    on: 'On',
+    off: 'Off',
+    securityAndData: 'SECURITY & DATA',
+    privacySettings: 'Privacy Settings',
+    close: 'Close',
+    enterYourName: 'Enter your name',
+    cropsGrown: 'Crops Grown',
+    enterLandSize: 'Enter land size',
+    notSelected: 'Not Selected',
+    change: 'Change',
+    useCurrentLocationOrPickOnMap: 'Use Current Location or Pick on Map',
+    noApiKeyNeeded: 'No API keys needed',
+    saveChanges: 'Save Changes',
+    continueToSecurePayment: 'Continue to secure payment',
+    orContinueWith: 'or continue with',
+    google: 'Google',
+    termsAndPrivacy: 'Terms of Service & Privacy Policy',
+    otpPreview: 'OTP preview',
+    yourOtp: 'Your OTP:',
+    otpDisabled: 'OTP preview is disabled for this environment.',
+    agriAssistant: 'AI Agri Assistant',
+    optimizingFields: 'Optimizing Fields',
+    poweredByAgri: 'Powered by Advanced Agri-Intelligence',
+    soilHealth: 'Soil Health',
+    nutrientAnalysis: 'AI Nutrients Analysis',
+    pestControl: 'Pest Control',
+    smartDetection: 'Smart Detection',
+    yieldForecast: 'Yield Forecast',
+    marketPrediction: 'Market Prediction',
+    cropType: 'Crop Type',
+    personalizedSelection: 'Personalized Selection',
+    expertAiAdvice: 'Get Expert AI Advice',
+    continueToAdvisor: 'Continue to Advisor',
+    krishiVani: 'KrishiVani',
+    talkToCrops: 'Talk to your crops',
+    askInNative: 'Ask questions in native language and get AI advice.',
+    continueButton: 'Continue',
   },
   Hindi: {
     marketTitle: 'मार्केट',
@@ -402,6 +622,29 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     discount: 'छूट',
     total: 'कुल',
     deliveryDetails: 'डिलीवरी विवरण',
+    perKg: 'प्रति किलो',
+    premiumPlan: 'प्रीमियम प्लान',
+    unlockFullPotential: 'पूरी क्षमता को अनलॉक करें',
+    advancedAIExperience: 'बहुभाषी मार्गदर्शन के साथ उन्नत AI का अनुभव करें',
+    advancedAI: 'उन्नत AI',
+    deeperReasoning: 'गहरी तर्क क्षमता',
+    personalizedAdvisory: 'व्यक्तिगत सलाह',
+    tailoredSuggestions: 'आपकी जरूरत के अनुसार सुझाव',
+    fasterResponses: 'तेज जवाब',
+    priorityProcessing: 'प्राथमिकता के आधार पर प्रोसेसिंग',
+    annualPlan: 'वार्षिक प्लान',
+    monthlyPlan: 'मासिक प्लान',
+    perYear: 'प्रति वर्ष',
+    perMonth: 'प्रति माह',
+    save40: '40% बचाएं',
+    secureCheckoutReady: 'सुरक्षित सब्सक्रिप्शन चेकआउट तैयार है',
+    finishPaymentPrompt: 'ब्राउज़र में भुगतान पूरा करें, फिर यहां वापस आएं और स्थिति को रिफ्रेश करें।',
+    reopenSecureCheckout: 'सुरक्षित चेकआउट फिर से खोलें',
+    checkingPaymentStatus: 'भुगतान स्थिति की जांच की जा रही है...',
+    iCompletedPayment: 'मैंने भुगतान पूरा कर लिया है',
+    openingSecureCheckout: 'सुरक्षित चेकआउट खोला जा रहा है...',
+    continueToSecurePayment: 'सुरक्षित भुगतान के लिए जारी रखें',
+    plansActivateAfterVerification: 'प्लान केवल भुगतान की पुष्टि के बाद सक्रिय होते हैं।',
     personalInfo: 'व्यक्तिगत जानकारी',
     name: 'नाम',
     phone: 'फोन नंबर',
@@ -565,6 +808,93 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     seasonLabel: 'वर्तमान मौसम',
     retry: 'पुनः प्रयास करें',
     toolResult: 'टूल परिणाम',
+    recommendedForYou: 'आपके लिए अनुशंसित',
+    sellerInfo: 'विक्रेता की जानकारी',
+    callSeller: 'विक्रेता को कॉल करें',
+    chatWithSeller: 'चैट करें',
+    pickupAvailable: 'इस स्थान पर पिकअप उपलब्ध है',
+    verifiedSeller: 'अनाज सत्यापित विक्रेता',
+    mandi: 'मंडी, हिमाचल प्रदेश',
+    alerts: 'अलर्ट',
+    shareFailed: 'साझा करना विफल रहा',
+    unableToShare: 'अभी उत्पाद विवरण साझा करने में असमर्थ।',
+    contactUnavailable: 'संपर्क उपलब्ध नहीं है',
+    noPublicPhone: 'इस विक्रेता के पास सार्वजनिक संपर्क नंबर नहीं है।',
+    farmMap: 'खेत का नक्शा',
+    soilMoisture: 'मिट्टी की नमी',
+    humidity: 'नमी',
+    wind: 'हवा',
+    weatherFeed: 'मुफ्त मौसम फीड',
+    goodAfternoon: 'शुभ दोपहर',
+    goodEvening: 'शुभ संध्या',
+    goodNight: 'शुभ रात्रि',
+    mandiSeedBank: 'मंडी बीज बैंक',
+    equipmentRental: 'उपकरण किराया कंपनी',
+    fertilizerStore: 'ग्रीन फर्टिलाइजर स्टोर',
+    delivery: 'डिलीवरी',
+    selfPickup: 'स्वयं पिकअप',
+    paySecurely: 'सुरक्षित भुगतान करें',
+    checkoutUnavailable: 'चेकआउट अनुपलब्ध',
+    unableToOpenCheckout: 'इस डिवाइस पर सुरक्षित चेकआउट पेज खोलने में असमर्थ।',
+    paymentFailed: 'भुगतान विफल',
+    paymentPending: 'भुगतान लंबित',
+    paymentCheckFailed: 'भुगतान जाँच विफल रही',
+    completeYourProfile: 'अपनी प्रोफाइल पूरी करें',
+    phoneNotAvailable: 'फोन उपलब्ध नहीं है',
+    incompleteProfile: 'अधूरी प्रोफाइल',
+    premiumMember: 'प्रीमियम सदस्य',
+    basicMember: 'बेसिक सदस्य',
+    freeMember: 'मुफ्त सदस्य',
+    editProfile: 'प्रोफाइल संपादित करें',
+    subscriptionStatus: 'सब्सक्रिप्शन स्थिति',
+    premiumPlanActive: 'प्रीमियम प्लान सक्रिय',
+    basicPlanActive: 'बेसिक प्लान सक्रिय',
+    freePlan: 'मुफ्त प्लान',
+    manage: 'प्रबंधित करें',
+    commerce: 'वाणिज्य',
+    trackOrders: 'ऑर्डर ट्रैक करें',
+    checkStatusAndDeliveryUpdates: 'स्थिति और डिलीवरी अपडेट देखें',
+    myCart: 'मेरा कार्ट',
+    reviewItemsAndCheckout: 'आइटम की समीक्षा करें और चेकआउट करें',
+    preferences: 'प्राथमिकताएं',
+    appLanguage: 'ऐप की भाषा',
+    darkAppearance: 'डार्क मोड',
+    on: 'चालू',
+    off: 'बंद',
+    securityAndData: 'सुरक्षा और डेटा',
+    privacySettings: 'गोपनीयता सेटिंग्स',
+    close: 'बंद करें',
+    enterYourName: 'अपना नाम दर्ज करें',
+    cropsGrown: 'उगाई गई फसलें',
+    enterLandSize: 'भूमि का आकार दर्ज करें',
+    notSelected: 'चयनित नहीं',
+    change: 'बदलें',
+    useCurrentLocationOrPickOnMap: 'वर्तमान स्थान का उपयोग करें या नक्शे पर चुनें',
+    noApiKeyNeeded: 'किसी API कुंजी की आवश्यकता नहीं है',
+    saveChanges: 'परिवर्तन सहेजें',
+    orContinueWith: 'या इसके साथ जारी रखें',
+    google: 'गूगल',
+    termsAndPrivacy: 'सेवा की शर्तें और गोपनीयता नीति',
+    otpPreview: 'OTP पूर्वावलोकन',
+    yourOtp: 'आपका OTP:',
+    otpDisabled: 'इस वातावरण के लिए OTP पूर्वावलोकन अक्षम है।',
+    agriAssistant: 'एआई कृषि सहायक',
+    optimizingFields: 'खेतों का अनुकूलन',
+    poweredByAgri: 'उन्नत कृषि-इंटेलिजेंस द्वारा संचालित',
+    soilHealth: 'मिट्टी का स्वास्थ्य',
+    nutrientAnalysis: 'AI पोषक तत्व विश्लेषण',
+    pestControl: 'कीट नियंत्रण',
+    smartDetection: 'स्मार्ट पहचान',
+    yieldForecast: 'उपज का पूर्वानुमान',
+    marketPrediction: 'बाजार की भविष्यवाणी',
+    cropType: 'फसल का प्रकार',
+    personalizedSelection: 'व्यक्तिगत चयन',
+    expertAiAdvice: 'विशेषज्ञ एआई सलाह प्राप्त करें',
+    continueToAdvisor: 'सलाहकार के पास जाएं',
+    krishiVani: 'कृषिवाणी',
+    talkToCrops: 'अपनी फसलों से बात करें',
+    askInNative: 'अपनी भाषा में प्रश्न पूछें और एआई सलाह लें।',
+    continueButton: 'जारी रखें',
   },
   Gujarati: {
     marketTitle: 'ખેતી બજાર',
@@ -590,6 +920,29 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     discount: 'છૂટ',
     total: 'કુલ',
     deliveryDetails: 'ડિલીવરી વિગતો',
+    perKg: 'પ્રતિ કિલો',
+    premiumPlan: 'પ્રીમિયમ પ્લાન',
+    unlockFullPotential: 'સંપૂર્ણ ક્ષમતાને અનલોક કરો',
+    advancedAIExperience: 'બહુભાષી માર્ગદર્શન સાથે અદ્યતન AI નો અનુભવ કરો',
+    advancedAI: 'અદ્યતન AI',
+    deeperReasoning: 'ઊંડી તર્ક ક્ષમતા',
+    personalizedAdvisory: 'વ્યક્તિગત સલાહ',
+    tailoredSuggestions: 'તમારી જરૂરિયાત મુજબ સૂચનો',
+    fasterResponses: 'ઝડપી પ્રતિસાદ',
+    priorityProcessing: 'પ્રાથમિકતાના આધારે પ્રોસેસિંગ',
+    annualPlan: 'વાર્ષિક પ્લાન',
+    monthlyPlan: 'માસિક પ્લાન',
+    perYear: 'પ્રતિ વર્ષ',
+    perMonth: 'પ્રતિ મહિને',
+    save40: '40% બચાવો',
+    secureCheckoutReady: 'સુરક્ષિત સબ્સ્ક્રિપ્શન ચેકઆઉટ તૈયાર છે',
+    finishPaymentPrompt: 'બ્રાઉઝરમાં ચુકવણી પૂર્ણ કરો, પછી અહીં પાછા ફરો અને સ્થિતિ રિફ્રેશ કરો.',
+    reopenSecureCheckout: 'સુરક્ષિત ચેકઆઉટ ફરીથી ખોલો',
+    checkingPaymentStatus: 'ચુકવણીની સ્થિતિ તપાસી રહ્યા છીએ...',
+    iCompletedPayment: 'મેં ચુકવણી પૂર્ણ કરી છે',
+    openingSecureCheckout: 'સુરક્ષિત ચેકઆઉટ ખોલી રહ્યા છીએ...',
+    continueToSecurePayment: 'સુરક્ષિત ચુકવણી માટે ચાલુ રાખો',
+    plansActivateAfterVerification: 'પ્લાન ફક્ત ચુકવણીની ચકાસણી પછી જ સક્રિય થાય છે.',
     personalInfo: 'વ્યક્તિગત માહિતી',
     name: 'નામ',
     phone: 'ફોન નંબર',
@@ -753,6 +1106,93 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     seasonLabel: 'વર્તમાન સિઝન',
     retry: 'ફરી પ્રયાસ કરો',
     toolResult: 'ટૂલ પરિણામ',
+    recommendedForYou: 'તમારા માટે ભલામણ કરેલ',
+    sellerInfo: 'વિક્રેતાની માહિતી',
+    callSeller: 'વિક્રેતાને કોલ કરો',
+    chatWithSeller: 'ચેટ કરો',
+    pickupAvailable: 'આ સ્થળે પિકઅપ ઉપલબ્ધ છે',
+    verifiedSeller: 'અનાજ ચકાસાયેલ વિક્રેતા',
+    mandi: 'મંડી, હિમાચલ પ્રદેશ',
+    alerts: 'અલર્ટ',
+    shareFailed: 'શેર કરવામાં નિષ્ફળ',
+    unableToShare: 'અત્યારે ઉત્પાદનની વિગતો શેર કરવામાં અસમર્થ.',
+    contactUnavailable: 'સંપર્ક અનુપલબ્ધ',
+    noPublicPhone: 'આ વિક્રેતા પાસે જાહેર સંપર્ક નંબર નથી.',
+    farmMap: 'ખેતરનો નકશો',
+    soilMoisture: 'જમીનનો ભેજ',
+    humidity: 'ભેજ',
+    wind: 'પવન',
+    weatherFeed: 'મફત હવામાન ફીડ',
+    goodAfternoon: 'શુભ બપોર',
+    goodEvening: 'શુભ સાંજ',
+    goodNight: 'શુભ રાત્રિ',
+    mandiSeedBank: 'મંડી સીડ બેંક',
+    equipmentRental: 'ઇક્વિપમેન્ટ રેન્ટલ કંપની',
+    fertilizerStore: 'ગ્રીન ફર્ટિલાઇઝર સ્ટોર',
+    delivery: 'ડિલિવરી',
+    selfPickup: 'સ્વયં પિકઅપ',
+    paySecurely: 'સુરક્ષિત ચુકવણી કરો',
+    checkoutUnavailable: 'ચેકઆઉટ અનુપલબ્ધ',
+    unableToOpenCheckout: 'આ ઉપકરણ પર સુરક્ષિત ચેકઆઉટ પૃષ્ઠ ખોલવામાં અસમર્થ.',
+    paymentFailed: 'ચુકવણી નિષ્ફળ',
+    paymentPending: 'ચુકવણી બાકી',
+    paymentCheckFailed: 'ચુકવણી તપાસ નિષ્ફળ ગઈ',
+    completeYourProfile: 'તમારી પ્રોફાઇલ પૂર્ણ કરો',
+    phoneNotAvailable: 'ફોન ઉપલબ્ધ નથી',
+    incompleteProfile: 'અધૂરી પ્રોફાઇલ',
+    premiumMember: 'પ્રીમિયમ સભ્ય',
+    basicMember: 'બેઝિક સભ્ય',
+    freeMember: 'મફત સભ્ય',
+    editProfile: 'પ્રોફાઇલ સંપાદિત કરો',
+    subscriptionStatus: 'સબ્સ્ક્રિપ્શન સ્થિતિ',
+    premiumPlanActive: 'પ્રીમિયમ પ્લાન સક્રિય',
+    basicPlanActive: 'બેઝિક પ્લાન સક્રિય',
+    freePlan: 'મફત પ્લાન',
+    manage: 'મેનેજ કરો',
+    commerce: 'વાણિજ્ય',
+    trackOrders: 'ઓર્ડર ટ્રેક કરો',
+    checkStatusAndDeliveryUpdates: 'સ્થિતિ અને ડિલિવરી અપડેટ્સ તપાસો',
+    myCart: 'મારું કાર્ટ',
+    reviewItemsAndCheckout: 'વસ્તુઓની સમીક્ષા કરો અને ચેકઆઉટ કરો',
+    preferences: 'પસંદગીઓ',
+    appLanguage: 'એપ્લિકેશનની ભાષા',
+    darkAppearance: 'ડાર્ક મોડ',
+    on: 'ચાલુ',
+    off: 'બંધ',
+    securityAndData: 'સુરક્ષા અને ડેટા',
+    privacySettings: 'ગોપનીયતા સેટિંગ્સ',
+    close: 'બંધ કરો',
+    enterYourName: 'તમારું નામ દાખલ કરો',
+    cropsGrown: 'ઉગાડવામાં આવેલી ફસલો',
+    enterLandSize: 'જમીનનું કદ દાખલ કરો',
+    notSelected: 'પસંદ કરેલ નથી',
+    change: 'બદલો',
+    useCurrentLocationOrPickOnMap: 'વર્તમાન સ્થાનનો ઉપયોગ કરો અથવા નકશા પર પસંદ કરો',
+    noApiKeyNeeded: 'કોઈ API કીની જરૂર નથી',
+    saveChanges: 'ફેરફારો સાચવો',
+    orContinueWith: 'અથવા આની સાથે આગળ વધો',
+    google: 'Google',
+    termsAndPrivacy: 'સેવાની શરતો અને ગોપનીયતા નીતિ',
+    otpPreview: 'OTP પ્રૂર્વાવલોકન',
+    yourOtp: 'તમારો OTP:',
+    otpDisabled: 'આ વાતાવરણ માટે OTP પ્રૂર્વાવલોકન અક્ષમ છે.',
+    agriAssistant: 'AI ખેતી મદદનીશ',
+    optimizingFields: 'ખેતરોનું અનુકૂલન',
+    poweredByAgri: 'અદ્યતન કૃષિ-ઈન્ટેલિજન્સ દ્વારા સંચਾਲિત',
+    soilHealth: 'જમીનનું સ્વાસ્થ્ય',
+    nutrientAnalysis: 'AI પોષક તત્વોનું વિશ્ਲੇષણ',
+    pestControl: 'જીવાત નિયંત્રણ',
+    smartDetection: 'સ્માર્ટ શોધ',
+    yieldForecast: 'ઉપજનું પૂર્વાનੁમાન',
+    marketPrediction: 'બજારની આગાહી',
+    cropType: 'પાકનો પ્રકાર',
+    personalizedSelection: 'વ્યક્તિગત પસંદગી',
+    expertAiAdvice: 'નિષ્ણાત AI સલાહ મેળવો',
+    continueToAdvisor: 'સલાહકાર પર આગળ વધો',
+    krishiVani: 'કૃષિવાણી',
+    talkToCrops: 'તમારા પાક સાથે વાત કરો',
+    askInNative: 'તમારી માતૃભાષામાં પ્રશ્નો પૂછો અને AI સલાહ મેળવો.',
+    continueButton: 'ચાલુ રાખો',
   },
   Punjabi: {
     marketTitle: 'ਮਾਰਕੀਟ',
@@ -778,6 +1218,29 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     discount: 'ਛੂਟ',
     total: 'ਕੁੱਲ',
     deliveryDetails: 'ਡਿਲਿਵਰੀ ਵੇਰਵੇ',
+    perKg: 'ਪ੍ਰਤੀ ਕਿਲੋ',
+    premiumPlan: 'ਪ੍ਰੀਮੀਅਮ ਪਲਾਨ',
+    unlockFullPotential: 'ਪੂਰੀ ਸਮਰੱਥਾ ਨੂੰ ਅਨਲੌਕ ਕਰੋ',
+    advancedAIExperience: 'ਬਹੁ-ਭਾਸ਼ਾਈ ਮਾਰਗਦਰਸ਼ਨ ਦੇ ਨਾਲ ਉੱਨਤ AI ਦਾ ਅਨੁਭਵ ਕਰੋ',
+    advancedAI: 'ਉੱਨਤ AI',
+    deeperReasoning: 'ਡੂੰਘੀ ਤਰਕ ਸਮਰੱਥਾ',
+    personalizedAdvisory: 'ਵਿਅਕਤੀਗਤ ਸਲਾਹ',
+    tailoredSuggestions: 'ਤੁਹਾਡੀ ਲੋੜ ਅਨੁਸਾਰ ਸੁਝਾਅ',
+    fasterResponses: 'ਤੇਜ਼ ਜਵਾਬ',
+    priorityProcessing: 'ਪਹਿਲ ਦੇ ਅਧਾਰ ਤੇ ਪ੍ਰੋਸੈਸਿੰਗ',
+    annualPlan: 'ਸਾਲਾਨਾ ਪਲਾਨ',
+    monthlyPlan: 'ਮਾਸਿਕ ਪਲਾਨ',
+    perYear: 'ਪ੍ਰਤੀ ਸਾਲ',
+    perMonth: 'ਪ੍ਰਤੀ ਮਹੀਨਾ',
+    save40: '40% ਬਚਾਓ',
+    secureCheckoutReady: 'ਸੁਰੱਖਿਅਤ ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਚੈੱਕਆਉਟ ਤਿਆਰ ਹੈ',
+    finishPaymentPrompt: 'ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਭੁਗਤਾਨ ਪੂਰਾ ਕਰੋ, ਫਿਰ ਇੱਥੇ ਵਾਪਸ ਆਓ ਅਤੇ ਸਥਿਤੀ ਨੂੰ ਰਿਫ੍ਰੈਸ਼ ਕਰੋ।',
+    reopenSecureCheckout: 'ਸੁਰੱਖਿਅਤ ਚੈੱਕਆਉਟ ਦੁਬਾਰਾ ਖੋਲ੍ਹੋ',
+    checkingPaymentStatus: 'ਭੁਗਤਾਨ ਸਥਿਤੀ ਦੀ ਜਾਂਚ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ...',
+    iCompletedPayment: 'ਮੈਂ ਭੁਗਤਾਨ ਪੂਰਾ ਕਰ ਲਿਆ ਹੈ',
+    openingSecureCheckout: 'ਸੁਰੱਖਿਅਤ ਚੈੱਕਆਉਟ ਖੋਲ੍ਹਿਆ ਜਾ ਰਿਹਾ ਹੈ...',
+    continueToSecurePayment: 'ਸੁਰੱਖਿਅਤ ਭੁਗਤਾਨ ਲਈ ਜਾਰੀ ਰੱਖੋ',
+    plansActivateAfterVerification: 'ਪਲਾਨ ਸਿਰਫ ਭੁਗਤਾਨ ਦੀ ਪੁਸ਼ਟੀ ਤੋਂ ਬਾਅਦ ਸਰਗਰਮ ਹੁੰਦੇ ਹਨ।',
     personalInfo: 'ਨਿੱਜੀ ਜਾਣਕਾਰੀ',
     name: 'ਨਾਮ',
     phone: 'ਫੋਨ ਨੰਬਰ',
@@ -941,6 +1404,93 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     seasonLabel: 'ਮੌਜੂਦਾ ਮੌਸਮ',
     retry: 'ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ',
     toolResult: 'ਟੂਲ ਨਤੀਜਾ',
+    recommendedForYou: 'ਤੁਹਾਡੇ ਲਈ ਸਿਫਾਰਸ਼ੀ',
+    sellerInfo: 'ਵਿਕਰੇਤਾ ਦੀ ਜਾਣਕਾਰੀ',
+    callSeller: 'ਵਿਕਰੇਤਾ ਨੂੰ ਕਾਲ ਕਰੋ',
+    chatWithSeller: 'ਚੈਟ ਕਰੋ',
+    pickupAvailable: 'ਇਸ ਸਥਾਨ ਤੇ ਪਿਕਅਪ ਉਪਲਬਧ ਹੈ',
+    verifiedSeller: 'ਅਨਾਜ ਤਸਦੀਕਸ਼ੁਦਾ ਵਿਕਰੇਤਾ',
+    mandi: 'ਮੰਡੀ, ਹਿਮਾਚਲ ਪ੍ਰਦੇਸ਼',
+    alerts: 'ਅਲਰਟ',
+    shareFailed: 'ਸ਼ੇਅર ਕਰਨਾ ਅਸਫਲ ਰਿਹਾ',
+    unableToShare: 'ਇਸ ਵੇਲੇ ਉਤਪਾਦ ਦੇ ਵੇਰਵੇ ਸ਼ੇਅਰ ਕਰਨ ਵਿੱਚ ਅਸਮਰੱਥ ਹੈ।',
+    contactUnavailable: 'ਸੰਪਰਕ ਉਪਲਬਧ ਨਹੀਂ ਹੈ',
+    noPublicPhone: 'ਇਸ ਵਿਕਰੇਤਾ ਕੋਲ ਜਨਤਕ ਸੰਪਰਕ ਨੰਬਰ ਨਹੀਂ ਹੈ।',
+    farmMap: 'ਖੇਤ ਦਾ ਨਕਸ਼ਾ',
+    soilMoisture: 'ਮਿੱਟੀ ਦੀ ਨਮੀ',
+    humidity: 'ਨਮੀ',
+    wind: 'ਹਵਾ',
+    weatherFeed: 'ਮੁਫਤ ਮੌਸਮ ਫੀਡ',
+    goodAfternoon: 'ਸ਼ੁਭ ਦੁਪਹਿਰ',
+    goodEvening: 'ਸ਼ੁਭ ਸ਼ਾਮ',
+    goodNight: 'ਸ਼ੁਭ ਰਾਤ',
+    mandiSeedBank: 'ਮੰਡੀ ਬੀਜ ਬੈਂਕ',
+    equipmentRental: 'ਉਪਕਰਣ ਕਿਰਾਇਆ ਕੰਪਨੀ',
+    fertilizerStore: 'ਗ੍ਰੀਨ ਫਰਟੀਲਾਈਜ਼ਰ ਸਟੋਰ',
+    delivery: 'ਡਿਲਿਵਰੀ',
+    selfPickup: 'ਖੁਦ ਪਿਕਅਪ',
+    paySecurely: 'ਸੁਰੱਖਿਅਤ ਭੁਗਤਾਨ ਕਰੋ',
+    checkoutUnavailable: 'ਚੈੱਕਆਉਟ ਉਪਲਬਧ ਨਹੀਂ ਹੈ',
+    unableToOpenCheckout: 'ਇਸ ਡਿਵਾਈਸ ਤੇ ਸੁਰੱਖਿਅਤ ਚੈੱਕਆਉਟ ਪੇਜ ਖੋਲ੍ਹਣ ਵਿੱਚ ਅਸਮਰੱਥ।',
+    paymentFailed: 'ਭੁਗਤਾਨ ਅਸਫਲ',
+    paymentPending: 'ਭੁਗਤਾਨ ਬਕਾਇਆ',
+    paymentCheckFailed: 'ਭੁਗਤਾਨ ਜਾਂਚ ਅਸਫਲ ਰਹੀ',
+    completeYourProfile: 'ਆਪਣੀ ਪ੍ਰੋਫਾਈਲ ਪੂਰੀ ਕਰੋ',
+    phoneNotAvailable: 'ਫੋਨ ਉਪਲਬਧ ਨਹੀਂ ਹੈ',
+    incompleteProfile: 'ਅਧੂਰੀ ਪ੍ਰੋਫਾਈਲ',
+    premiumMember: 'ਪ੍ਰੀਮੀਅਮ ਮੈਂਬਰ',
+    basicMember: 'ਬੇਸਿਕ ਮੈਂਬਰ',
+    freeMember: 'ਮੁਫਤ ਮੈਂਬਰ',
+    editProfile: 'ਪ੍ਰੋਫਾਈਲ ਸੋਧੋ',
+    subscriptionStatus: 'ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਸਥਿਤੀ',
+    premiumPlanActive: 'ਪ੍ਰੀਮੀਅਮ ਪਲਾਨ ਸਰਗਰਮ',
+    basicPlanActive: 'ਬੇਸਿਕ ਪਲਾਨ ਸਰਗਰਮ',
+    freePlan: 'ਮੁਫਤ ਪਲਾਨ',
+    manage: 'ਪ੍ਰਬੰਧਿਤ ਕਰੋ',
+    commerce: 'ਵਣਜ',
+    trackOrders: 'ਆਰਡਰ ਟ੍ਰੈਕ ਕਰੋ',
+    checkStatusAndDeliveryUpdates: 'ਸਥਿਤੀ ਅਤੇ ਡਿਲਿਵਰੀ ਅਪਡੇਟਾਂ ਦੀ ਜਾਂਚ ਕਰੋ',
+    myCart: 'ਮੇਰਾ ਕਾਰਟ',
+    reviewItemsAndCheckout: 'ਆਈਟਮਾਂ ਦੀ ਸਮੀਖਿਆ ਕਰੋ ਅਤੇ ਚੈੱਕਆਉਟ ਕਰੋ',
+    preferences: 'ਤਰਜੀਹਾਂ',
+    appLanguage: 'ਐਪ ਦੀ ਭਾਸ਼ਾ',
+    darkAppearance: 'ਡਾਰਕ ਮੋਡ',
+    on: 'ਚਾਲੂ',
+    off: 'ਬੰਦ',
+    securityAndData: 'ਸੁਰੱਖਿਆ ਅਤੇ ਡੇਟਾ',
+    privacySettings: 'ਪ੍ਰਾਈਵੇਸੀ ਸੈਟਿੰਗਾਂ',
+    close: 'ਬੰਦ ਕਰੋ',
+    enterYourName: 'ਆਪਣਾ ਨਾਮ ਦਰਜ ਕਰੋ',
+    cropsGrown: 'ਉਗਾਈਆਂ ਫਸਲਾਂ',
+    enterLandSize: 'ਜ਼ਮੀਨ ਦਾ ਆਕਾਰ ਦਰਜ ਕਰੋ',
+    notSelected: 'ਚੁਣਿਆ ਨਹੀਂ ਗਿਆ',
+    change: 'ਬਦਲੋ',
+    useCurrentLocationOrPickOnMap: 'ਮੌਜੂਦਾ ਟਿਕਾਣੇ ਦੀ ਵਰਤੋਂ ਕਰੋ ਜਾਂ ਨਕਸ਼ੇ ਤੇ ਚੁਣੋ',
+    noApiKeyNeeded: 'ਕਿਸੇ API ਕੁੰਜੀ ਦੀ ਲੋੜ ਨਹੀਂ ਹੈ',
+    saveChanges: 'ਬਦਲਾਅ ਸੇਵ ਕਰੋ',
+    orContinueWith: 'ਜਾਂ ਇਸ ਨਾਲ ਜਾਰੀ ਰੱਖੋ',
+    google: 'ਗੂਗਲ',
+    termsAndPrivacy: 'ਸੇਵਾ ਦੀਆਂ ਸ਼ਰਤਾਂ ਅਤੇ ਪ੍ਰਾਈਵੇਸੀ ਪਾਲਿਸੀ',
+    otpPreview: 'OTP ਪੂਰਵ ਦਰਸ਼ਨ',
+    yourOtp: 'ਤੁਹਾਡਾ OTP:',
+    otpDisabled: 'ਇਸ ਵਾਤਾਵਰਣ ਲਈ OTP ਪੂਰਵ ਦਰਸ਼ਨ ਅਯੋਗ ਹੈ।',
+    agriAssistant: 'AI ਖੇਤੀ ਸਹਾਇਕ',
+    optimizingFields: 'ਖੇਤਾਂ ਦਾ ਅਨੁਕੂਲਨ',
+    poweredByAgri: 'ਉੱਨਤ ਖੇਤੀ-ਇੰਟੈਲੀਜੈਂਸ ਦੁਆਰਾ ਸੰਚਾਲਿਤ',
+    soilHealth: 'ਮਿੱਟੀ ਦੀ ਸਿਹਤ',
+    nutrientAnalysis: 'AI ਪੋਸ਼ਕ ਤੱਤ ਵਿਸ਼ਲੇਸ਼ਣ',
+    pestControl: 'ਕੀੜੇਮਾਰ ਕੰਟਰੋਲ',
+    smartDetection: 'ਸਮਾਰਟ ਪਛਾਣ',
+    yieldForecast: 'ਝਾੜ ਦਾ ਪੂਰਵ ਅਨੁਮਾਨ',
+    marketPrediction: 'ਬਾਜ਼ਾਰ ਦੀ ਭਵਿੱਖਬਾਣੀ',
+    cropType: 'ਫਸਲ ਦੀ ਕਿਸਮ',
+    personalizedSelection: 'ਵਿਅਕਤੀਗਤ ਚੋਣ',
+    expertAiAdvice: 'ਮਾਹਰ AI ਸਲਾਹ ਲਓ',
+    continueToAdvisor: 'ਸਲਾਹਕਾਰ ਤੇ ਜਾਰੀ ਰੱਖੋ',
+    krishiVani: 'ਕ੍ਰਿਸ਼ੀਵਾਣੀ',
+    talkToCrops: 'ਆਪਣੀਆਂ ਫਸਲਾਂ ਨਾਲ ਗੱਲ ਕਰੋ',
+    askInNative: 'ਆਪਣੀ ਮਾਂ ਬੋਲੀ ਵਿੱਚ ਸਵਾਲ ਪੁੱਛੋ ਅਤੇ AI ਸਲਾਹ ਲਓ।',
+    continueButton: 'ਜਾਰੀ ਰੱਖੋ',
   },
 };
 

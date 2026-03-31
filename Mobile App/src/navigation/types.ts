@@ -29,4 +29,5 @@ export type RootStackParamList = {
   Voice: undefined;
   ImageScan: undefined;
   Notifications: undefined;
+  FullMap: { latitude: number; longitude: number; locationName: string; markers?: any[] };
 };

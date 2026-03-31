@@ -86,13 +86,22 @@ export async function listChatSessions(params: {
   const { farmerId, page, limit } = params;
   const skip = (page - 1) * limit;
 
+  const query = { 
+    farmerId, 
+    status: 'active', 
+    $or: [
+      { 'metadata.type': 'chat' },
+      { 'metadata.type': { $exists: false } }
+    ]
+  };
+
   const [sessions, total] = await Promise.all([
-    ChatSessionModel.find({ farmerId, status: 'active' })
+    ChatSessionModel.find(query)
       .sort({ lastMessageAt: -1, updatedAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean(),
-    ChatSessionModel.countDocuments({ farmerId, status: 'active' }),
+    ChatSessionModel.countDocuments(query),
   ]);
 
   const sessionIds = sessions.map((session) => session._id);

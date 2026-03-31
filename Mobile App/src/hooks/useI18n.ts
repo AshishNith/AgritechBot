@@ -65,7 +65,17 @@ type ExtraTranslationKey =
   | 'voiceRequestFailed'
   | 'voiceRouteUnavailable'
   | 'startRecording'
-  | 'stopAndSend';
+  | 'stopAndSend'
+  | 'cropWheat'
+  | 'cropRice'
+  | 'cropCotton'
+  | 'cropMustard'
+  | 'unitAcre'
+  | 'unitBigha'
+  | 'unitHectare'
+  | 'whatCropsDoYouGrow'
+  | 'profileRequiredToContinue'
+  | 'cropDetails';
 
 export type AppTranslationKey = TranslationKey | ExtraTranslationKey;
 
@@ -134,6 +144,16 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     voiceRouteUnavailable: 'The backend voice route is unavailable or requires authentication.',
     startRecording: 'Start Recording',
     stopAndSend: 'Stop & Send',
+    cropWheat: 'Wheat',
+    cropRice: 'Rice',
+    cropCotton: 'Cotton',
+    cropMustard: 'Mustard',
+    unitAcre: 'Acre',
+    unitBigha: 'Bigha',
+    unitHectare: 'Hectare',
+    whatCropsDoYouGrow: 'What crops do you grow?',
+    profileRequiredToContinue: 'Profile details are required to continue.',
+    cropDetails: 'Crop Details',
   },
   Hindi: {
     homeTab: 'होम',
@@ -199,6 +219,16 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     voiceRouteUnavailable: 'बैकएंड वॉइस रूट उपलब्ध नहीं है या प्रमाणीकरण चाहता है।',
     startRecording: 'रिकॉर्ड शुरू करें',
     stopAndSend: 'रोकें और भेजें',
+    cropWheat: 'गेहूं',
+    cropRice: 'चावल',
+    cropCotton: 'कपास',
+    cropMustard: 'सरसों',
+    unitAcre: 'एकड़',
+    unitBigha: 'बीघा',
+    unitHectare: 'हेक्टेयर',
+    whatCropsDoYouGrow: 'आप कौन सी फसलें उगाते हैं?',
+    profileRequiredToContinue: 'जारी रखने के लिए प्रोफाइल विवरण आवश्यक हैं।',
+    cropDetails: 'फसल विवरण',
   },
   Gujarati: {
     homeTab: 'હોમ',
@@ -264,6 +294,16 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     voiceRouteUnavailable: 'બેકએન્ડ વૉઇસ રૂટ ઉપલબ્ધ નથી અથવા ઓથેન્ટિકેશન જોઈએ.',
     startRecording: 'રેકોર્ડ શરૂ કરો',
     stopAndSend: 'બંધ કરો અને મોકલો',
+    cropWheat: 'ઘઉં',
+    cropRice: 'ચોખા',
+    cropCotton: 'કપાસ',
+    cropMustard: 'રાઈ',
+    unitAcre: 'એકર',
+    unitBigha: 'વીઘા',
+    unitHectare: 'હેક્ટર',
+    whatCropsDoYouGrow: 'તમે કયો પાક ઉગાડો છો?',
+    profileRequiredToContinue: 'આગળ વધવા માટે પ્રોફાઇલ વિગતો આવશ્યક છે.',
+    cropDetails: 'પાકની વિગતો',
   },
   Punjabi: {
     homeTab: 'ਹੋਮ',
@@ -329,6 +369,16 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     voiceRouteUnavailable: 'ਬੈਕਐਂਡ ਵੌਇਸ ਰੂਟ ਉਪਲਬਧ ਨਹੀਂ ਹੈ ਜਾਂ ਪ੍ਰਮਾਣੀਕਰਨ ਮੰਗਦਾ ਹੈ।',
     startRecording: 'ਰਿਕਾਰਡ ਸ਼ੁਰੂ ਕਰੋ',
     stopAndSend: 'ਰੋਕੋ ਅਤੇ ਭੇਜੋ',
+    cropWheat: 'ਗੇਹਾਂ',
+    cropRice: 'ਚੌਲ',
+    cropCotton: 'ਕਪਾਹ',
+    cropMustard: 'ਸਰ੍ਹੋਂ',
+    unitAcre: 'ਏਕੜ',
+    unitBigha: 'ਬੀਘਾ',
+    unitHectare: 'ਹੈਕਟੇਅਰ',
+    whatCropsDoYouGrow: 'ਤੁਸੀਂ ਕਿਹੜੀਆਂ ਫਸਲਾਂ ਉਗਾਉਂਦੇ ਹੋ?',
+    profileRequiredToContinue: 'ਜਾਰੀ ਰੱਖਣ ਲਈ ਪ੍ਰੋਫਾਈਲ ਵੇਰਵੇ ਲੋੜੀਂਦੇ ਹਨ।',
+    cropDetails: 'ਫਸਲ ਦੇ ਵੇਰਵੇ',
   },
 };
 

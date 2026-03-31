@@ -86,6 +86,7 @@ export function RootNavigator() {
         <Stack.Screen name="Voice" getComponent={() => require('../screens/VoiceScreen').VoiceScreen} />
         <Stack.Screen name="ImageScan" getComponent={() => require('../screens/ImageScanScreen').ImageScanScreen} />
         <Stack.Screen name="Notifications" getComponent={() => require('../screens/NotificationScreen').NotificationScreen} />
+        <Stack.Screen name="FullMap" getComponent={() => require('../screens/FullMapScreen').FullMapScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

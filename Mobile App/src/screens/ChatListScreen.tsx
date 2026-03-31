@@ -6,6 +6,7 @@ import {
   View,
   Pressable,
   Platform,
+  Image,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
@@ -18,22 +19,36 @@ import { useTheme } from '../providers/ThemeContext';
 import { RootStackParamList } from '../navigation/types';
 import { useI18n } from '../hooks/useI18n';
 import { IconMap } from '../components/IconMap';
+import { Alert } from 'react-native';
 
 export function ChatListScreen() {
   const { isDark, colors } = useTheme();
   const { t } = useI18n();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [search, setSearch] = useState('');
+  const [mode, setMode] = useState<'chats' | 'scans'>('chats');
 
-  const { data, isLoading, isRefetching, refetch } = useQuery({
+  const { data: chatData, isLoading: chatLoading, isRefetching: chatRefetching, refetch: chatRefetch } = useQuery({
     queryKey: ['chat-sessions'],
     queryFn: () => apiService.getChatHistory(),
+    enabled: mode === 'chats',
   });
 
-  const chats = data?.chats || [];
+  const { data: scanData, isLoading: scanLoading, isRefetching: scanRefetching, refetch: scanRefetch } = useQuery({
+    queryKey: ['scan-history'],
+    queryFn: () => apiService.getScanHistory(),
+    enabled: mode === 'scans',
+  });
+
+  const chats = chatData?.chats || [];
   const filteredChats = chats.filter((c) => 
     c.title?.toLowerCase().includes(search.toLowerCase()) ||
     c.preview?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const scans = scanData || [];
+  const filteredScans = scans.filter((s) => 
+    s.diagnosis?.toLowerCase().includes(search.toLowerCase())
   );
 
   const renderChatItem = ({ item }: { item: typeof chats[0] }) => {
@@ -75,8 +90,23 @@ export function ChatListScreen() {
       />
       
       <View style={styles.header}>
-        <AppText variant="heading" color={colors.text} style={{ fontSize: 28 }}>Inbox</AppText>
-        <AppText color={colors.textMuted}>Continue your previous chats</AppText>
+        <AppText variant="heading" color={colors.text} style={{ fontSize: 28 }}>Your History</AppText>
+        <AppText color={colors.textMuted}>Previously analyzed crops and chats</AppText>
+      </View>
+
+      <View style={styles.tabSwitcher}>
+        <Pressable 
+          onPress={() => setMode('chats')}
+          style={[styles.tabButton, mode === 'chats' && { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)', borderColor: colors.primary }]}
+        >
+          <AppText variant="label" color={mode === 'chats' ? colors.primary : colors.textMuted}>Messages</AppText>
+        </Pressable>
+        <Pressable 
+          onPress={() => setMode('scans')}
+          style={[styles.tabButton, mode === 'scans' && { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)', borderColor: colors.primary }]}
+        >
+          <AppText variant="label" color={mode === 'scans' ? colors.primary : colors.textMuted}>Crop Scans</AppText>
+        </Pressable>
       </View>
 
       <View style={styles.searchContainer}>
@@ -88,26 +118,64 @@ export function ChatListScreen() {
       </View>
 
       <FlatList
-        data={filteredChats}
-        keyExtractor={(item) => item.id}
-        renderItem={renderChatItem}
+        data={(mode === 'chats' ? filteredChats : filteredScans) as any[]}
+        keyExtractor={(item) => (mode === 'chats' ? (item as any).id : (item as any)._id)}
+        renderItem={mode === 'chats' ? renderChatItem : (({ item }) => {
+            const date = new Date((item as any).createdAt);
+            const timeStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            return (
+              <Pressable
+                onPress={() => {
+                  Alert.alert("Diagnosis History", (item as any).diagnosis);
+                }}
+                style={styles.chatItem}
+              >
+                <View style={[styles.chatItemInner, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)', borderColor: colors.border }]}>
+                  <View style={styles.scanThumbnailContainer}>
+                    {(item as any).imageBase64 ? (
+                      <Image 
+                        source={{ uri: `data:image/jpeg;base64,${(item as any).imageBase64}` }} 
+                        style={styles.scanThumbnail}
+                      />
+                    ) : (
+                      <View style={[styles.avatarCircle, { backgroundColor: colors.primary + '20' }]}>
+                         {(() => { const IconComp = IconMap['ShieldCheck']; return IconComp ? <IconComp size={22} color={colors.primary} /> : null; })()}
+                      </View>
+                    )}
+                  </View>
+                  <View style={styles.chatMain}>
+                    <View style={styles.chatTop}>
+                      <AppText variant="title" style={[styles.chatTitle, { color: colors.text }]} numberOfLines={1}>
+                         Crop Diagnosis
+                      </AppText>
+                      <AppText variant="caption" color={colors.textMuted}>{timeStr}</AppText>
+                    </View>
+                    <AppText numberOfLines={2} color={colors.textMuted} style={styles.chatPreview}>
+                      {(item as any).diagnosis?.substring(0, 80)}...
+                    </AppText>
+                  </View>
+                  {(() => { const IconComp = IconMap['ChevronRight']; return IconComp ? <IconComp size={18} color={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'} /> : null; })()}
+                </View>
+              </Pressable>
+            );
+        })}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl 
-            refreshing={isLoading || isRefetching} 
-            onRefresh={refetch} 
+            refreshing={mode === 'chats' ? chatLoading || chatRefetching : scanLoading || scanRefetching} 
+            onRefresh={mode === 'chats' ? chatRefetch : scanRefetch} 
             tintColor={colors.primary}
             colors={[colors.primary]}
           />
         }
         ListEmptyComponent={
-          !isLoading ? (
+          !(mode === 'chats' ? chatLoading : scanLoading) ? (
             <View style={styles.emptyContainer}>
               <View style={[styles.emptyCircle, { backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)' }]}>
-                {(() => { const IconComp = IconMap['Ghost']; return IconComp ? <IconComp size={48} color={isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} /> : null; })()}
+                {(() => { const IconComp = IconMap[mode === 'chats' ? 'Ghost' : 'Scan']; return IconComp ? <IconComp size={48} color={isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} /> : null; })()}
               </View>
-              <AppText color={colors.textMuted} style={{ marginTop: 16 }}>No chats found</AppText>
+              <AppText color={colors.textMuted} style={{ marginTop: 16 }}>{mode === 'chats' ? 'No chats found' : 'No scans found'}</AppText>
             </View>
           ) : null
         }
@@ -129,7 +197,29 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingHorizontal: 20,
+    marginBottom: 10,
+  },
+  tabSwitcher: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
     marginBottom: 20,
+    gap: 12,
+  },
+  tabButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  scanThumbnailContainer: {
+    marginRight: 12,
+  },
+  scanThumbnail: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0,0,0,0.05)',
   },
   searchContainer: {
     paddingHorizontal: 20,

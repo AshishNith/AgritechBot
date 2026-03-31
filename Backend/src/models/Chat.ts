@@ -5,6 +5,7 @@ export interface IChat extends Document {
   title: string;
   language: string;
   messageCount: number;
+  type: 'chat' | 'scan';
   lastMessageAt: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -30,6 +31,11 @@ const chatSchema = new Schema<IChat>(
     messageCount: {
       type: Number,
       default: 0,
+    },
+    type: {
+      type: String,
+      enum: ['chat', 'scan'],
+      default: 'chat',
     },
     lastMessageAt: {
       type: Date,

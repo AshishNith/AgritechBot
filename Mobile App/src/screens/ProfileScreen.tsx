@@ -1,7 +1,7 @@
 import { Switch, Image, Pressable, StyleSheet, View, Modal, TextInput, ActivityIndicator, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
 import { AppText, IconRow, GradientButton, Screen, ScreenCard, Pill } from '../components/ui';
@@ -17,7 +17,7 @@ import { useI18n } from '../hooks/useI18n';
 
 export function ProfileScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { isDark, themeMode, setThemeMode, colors } = useTheme();
+  const { isDark, setThemeMode, colors } = useTheme();
   const { t: tx } = useI18n();
   
   const user = useAppStore((state) => state.user);
@@ -27,6 +27,7 @@ export function ProfileScreen() {
   const signOut = useAppStore((state) => state.signOut);
   const notificationsEnabled = useAppStore((state) => state.notificationsEnabled);
   const setNotificationsEnabled = useAppStore((state) => state.setNotificationsEnabled);
+  
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editedName, setEditedName] = useState(user?.name || '');
   const [editedLanguage, setEditedLanguage] = useState(user?.language || 'English');
@@ -40,14 +41,26 @@ export function ProfileScreen() {
     longitude?: number;
     address?: string;
   }>(user?.location || { state: '', district: '' });
+  
   const [editError, setEditError] = useState<string | null>(null);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [showMapPicker, setShowMapPicker] = useState(false);
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
 
-  const cropOptions = ['गेहूं', 'चावल', 'कपास', 'सरसों'];
+  const cropOptions = useMemo(() => [
+    { label: tx('cropWheat'), value: 'Wheat' },
+    { label: tx('cropRice'), value: 'Rice' },
+    { label: tx('cropCotton'), value: 'Cotton' },
+    { label: tx('cropMustard'), value: 'Mustard' }
+  ], [tx]);
+
   const languages = ['English', 'Hindi', 'Gujarati', 'Punjabi'];
-  const units = ['Acre', 'बीघा', 'Hectare'];
+
+  const units = useMemo(() => [
+    { label: tx('unitAcre'), value: 'Acre' },
+    { label: tx('unitBigha'), value: 'Bigha' },
+    { label: tx('unitHectare'), value: 'Hectare' }
+  ], [tx]);
 
   // Indian states and major agricultural districts
   const INDIAN_LOCATIONS: Record<string, string[]> = {
@@ -113,6 +126,7 @@ export function ProfileScreen() {
           <AppText color={theme.colors.primary}>{tx('alerts')}</AppText>
         </Pressable>
       </View>
+
       <ScreenCard style={styles.heroCard}>
         <Image source={{ uri: designImages.profilePortrait }} style={styles.avatar} />
         <AppText variant="heading" style={{ marginTop: 14 }}>
@@ -132,6 +146,7 @@ export function ProfileScreen() {
         </View>
         <GradientButton label={tx('editProfile')} secondary style={{ marginTop: 16 }} onPress={() => setEditModalVisible(true)} />
       </ScreenCard>
+
       <ScreenCard style={{ marginTop: 16 }}>
         <View style={styles.subHeader}>
           <View>
@@ -149,6 +164,7 @@ export function ProfileScreen() {
           </Pressable>
         </View>
       </ScreenCard>
+
       <AppText variant="caption" color={theme.colors.textMuted} style={styles.sectionLabel}>
         {tx('commerce')}
       </AppText>
@@ -166,6 +182,7 @@ export function ProfileScreen() {
           <IconRow icon="Store" title={t(language, 'continueShopping')} subtitle={t(language, 'searchPlaceholder')} />
         </Pressable>
       </ScreenCard>
+
       <AppText variant="caption" color={theme.colors.textMuted} style={styles.sectionLabel}>
         {tx('preferences')}
       </AppText>
@@ -199,6 +216,7 @@ export function ProfileScreen() {
           />
         </Pressable>
       </ScreenCard>
+
       <AppText variant="caption" color={theme.colors.textMuted} style={styles.sectionLabel}>
         {tx('securityAndData')}
       </AppText>
@@ -262,13 +280,13 @@ export function ProfileScreen() {
                 <AppText variant="label">{tx('cropsGrown')}</AppText>
                 <View style={styles.cropsGrid}>
                   {cropOptions.map((crop) => {
-                    const active = editedCrops.includes(crop);
+                    const active = editedCrops.includes(crop.value);
                     return (
                       <Pressable
-                        key={crop}
+                        key={crop.value}
                         onPress={() =>
                           setEditedCrops(
-                            active ? editedCrops.filter((c) => c !== crop) : [...editedCrops, crop]
+                            active ? editedCrops.filter((c) => c !== crop.value) : [...editedCrops, crop.value]
                           )
                         }
                         disabled={updateProfileMutation.isPending}
@@ -282,7 +300,7 @@ export function ProfileScreen() {
                           variant="label"
                           color={active ? theme.colors.textOnDark : theme.colors.text}
                         >
-                          {crop}
+                          {crop.label}
                         </AppText>
                       </Pressable>
                     );
@@ -301,15 +319,15 @@ export function ProfileScreen() {
                     editable={!updateProfileMutation.isPending}
                     placeholder={tx('enterLandSize')}
                     placeholderTextColor={theme.colors.textMuted}
-                    style={[styles.editInput, isDark ? styles.editInputDark : styles.editInputLight, { flex: 1, marginRight: 8 }]}
+                    style={[styles.editInput, isDark ? styles.editInputDark : styles.editInputLight, { flex: 1, marginBottom: 12 }]}
                   />
                   <View style={styles.unitsRow}>
                     {units.map((unit) => (
                       <Pill
-                        key={unit}
-                        label={unit}
-                        active={unit === editedLandUnit}
-                        onPress={() => setEditedLandUnit(unit)}
+                        key={unit.value}
+                        label={unit.label}
+                        active={unit.value === editedLandUnit}
+                        onPress={() => setEditedLandUnit(unit.value)}
                       />
                     ))}
                   </View>
