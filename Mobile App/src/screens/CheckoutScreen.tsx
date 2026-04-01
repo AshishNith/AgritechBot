@@ -116,7 +116,7 @@ export function CheckoutScreen() {
         return;
       }
 
-      Alert.alert(t(language, 'paymentPending'), t(language, 'completePaymentInBrowser'));
+      Alert.alert(t(language, 'paymentPending'), t(language, 'finishPaymentPrompt'));
     },
     onError: (error: any) => {
       Alert.alert(t(language, 'paymentCheckFailed'), error.message || t(language, 'orderFailedAuth'));
@@ -250,17 +250,17 @@ export function CheckoutScreen() {
 
         {pendingPayment ? (
           <ScreenCard style={{ marginTop: 16 }}>
-            <AppText variant="label">{t(language, 'securePaymentSession')}</AppText>
+            <AppText variant="label">{t(language, 'secureCheckoutReady')}</AppText>
             <AppText color={colors.textMuted} style={{ marginTop: 8 }}>
-              {t(language, 'completePaymentInBrowser')}
+              {t(language, 'finishPaymentPrompt')}
             </AppText>
             <View style={{ gap: 12, marginTop: 16 }}>
               <GradientButton
-                label={t(language, 'reopenCheckout')}
+                label={t(language, 'reopenSecureCheckout')}
                 onPress={() => Linking.openURL(pendingPayment.checkoutUrl)}
               />
               <GradientButton
-                label={refreshPaymentMutation.isPending ? t(language, 'checkingPayment') : t(language, 'iCompletedPayment')}
+                label={refreshPaymentMutation.isPending ? t(language, 'checkingPaymentStatus') : t(language, 'iCompletedPayment')}
                 secondary
                 onPress={() => refreshPaymentMutation.mutate()}
                 disabled={refreshPaymentMutation.isPending}

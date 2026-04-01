@@ -22,7 +22,7 @@ import { truncateConversationToBudget } from '../utils/contextTruncator';
 import { HttpError } from '../utils/httpError';
 import { speechToText } from '../../services/voice/sarvamSTT';
 import { textToSpeech } from '../../services/voice/sarvamTTS';
-import { ChatHistoryCache } from './chatHistoryCache.service';
+import { ChatHistoryCache, type LeanChatMessage } from './chatHistoryCache.service';
 import { getQuickSuggestions, generateQuerySuggestions } from './querySuggestions.service';
 
 const gemini = new GoogleGenerativeAI(env.GEMINI_API_KEY);
@@ -104,16 +104,7 @@ function isTemporaryProviderError(err: unknown): boolean {
   );
 }
 
-function mapStoredMessageToGeminiContent(message: {
-  role: 'user' | 'assistant' | 'system';
-  content: {
-    type: 'text' | 'image' | 'tool_call' | 'tool_result';
-    text?: string;
-    toolName?: string;
-    toolInput?: Record<string, unknown>;
-    toolOutput?: Record<string, unknown>;
-  };
-}): Content {
+function mapStoredMessageToGeminiContent(message: LeanChatMessage): Content {
   if (message.content.type === 'tool_call') {
     return {
       role: 'model',

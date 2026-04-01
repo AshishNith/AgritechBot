@@ -48,7 +48,7 @@ export function ImageScanScreen({ route }: { route: any }) {
   const pickImage = async (useCamera: boolean = false) => {
     try {
       const options: ImagePicker.ImagePickerOptions = {
-        mediaTypes: ImagePicker.MediaType.Images,
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.7,
@@ -81,6 +81,16 @@ export function ImageScanScreen({ route }: { route: any }) {
       console.log('[ImageScan] Starting analysis...');
       const response = await apiService.analyzeCrop(base64, mimeType, currentLanguage);
       console.log('[ImageScan] Analysis response received:', !!response.diagnosis);
+      await apiService.saveLocalScanHistoryEntry({
+        _id: response.id,
+        diagnosis: response.diagnosis,
+        status: 'completed',
+        createdAt: response.createdAt,
+        thumbnailUrl: `data:${mimeType};base64,${base64}`,
+        metadata: {
+          language: currentLanguage,
+        },
+      });
       setResult(response.diagnosis);
       refetchHistory(); // Update history list after new scan
     } catch (error) {
@@ -238,7 +248,7 @@ export function ImageScanScreen({ route }: { route: any }) {
       </View>
 
       <View style={styles.content}>
-        {!image ? (
+        {!image && !result ? (
           <View style={styles.emptyState}>
             <GlassCard style={styles.uploadBox}>
               <View style={[styles.iconCircle, { backgroundColor: colors.primary + '15' }]}>
@@ -326,21 +336,33 @@ export function ImageScanScreen({ route }: { route: any }) {
           </View>
         ) : (
           <View style={styles.scanView}>
-            <View style={styles.imageWrap}>
-              <Image source={{ uri: image }} style={styles.previewImage} />
-              {analyzing && (
-                <View style={styles.analyzingOverlay}>
-                  <ActivityIndicator size="large" color={colors.primary} />
-                  <AppText variant="label" color="#fff" style={{ marginTop: 12 }}>AI is analyzing...</AppText>
-                </View>
-              )}
-            </View>
+            {image ? (
+              <View style={styles.imageWrap}>
+                <Image source={{ uri: image }} style={styles.previewImage} />
+                {analyzing && (
+                  <View style={styles.analyzingOverlay}>
+                    <ActivityIndicator size="large" color={colors.primary} />
+                    <AppText variant="label" color="#fff" style={{ marginTop: 12 }}>AI is analyzing...</AppText>
+                  </View>
+                )}
+              </View>
+            ) : (
+              <GlassCard style={styles.noImageCard}>
+                <AppText variant="label">Image preview unavailable</AppText>
+                <AppText color={colors.textMuted} style={{ marginTop: 6 }}>
+                  Diagnosis data is still available below.
+                </AppText>
+              </GlassCard>
+            )}
 
             {renderDiagnosisContent()}
 
             {!analyzing && (
               <Pressable
-                onPress={() => setImage(null)}
+                onPress={() => {
+                  setImage(null);
+                  setResult(null);
+                }}
                 style={styles.retakeBtn}
               >
                 <AppText color={colors.primary}>Retake Photo</AppText>
@@ -434,6 +456,10 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: 'hidden',
     backgroundColor: '#000',
+  },
+  noImageCard: {
+    padding: 18,
+    borderRadius: 18,
   },
   previewImage: {
     width: '100%',
