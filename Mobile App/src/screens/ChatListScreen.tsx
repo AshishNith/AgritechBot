@@ -140,12 +140,18 @@ export function ChatListScreen() {
               diagnosisData = { problem: 'Crop Diagnosis', summary: scan.diagnosis };
             }
 
+            const scanImageUri = scan.thumbnailUrl || (scan.imageBase64
+              ? (scan.imageBase64.startsWith('data:')
+                ? scan.imageBase64
+                : `data:image/jpeg;base64,${scan.imageBase64}`)
+              : null);
+
             return (
               <Pressable
                 onPress={() => {
                   // Navigate back to ImageScan with the saved result to show the professional UI
                   navigation.navigate('ImageScan' as any, { 
-                    image: `data:image/jpeg;base64,${scan.imageBase64}`,
+                    image: scanImageUri,
                     result: scan.diagnosis 
                   });
                 }}
@@ -153,13 +159,9 @@ export function ChatListScreen() {
               >
                 <View style={[styles.chatItemInner, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)', borderColor: colors.border }]}>
                   <View style={styles.scanThumbnailContainer}>
-                    {scan.imageBase64 ? (
+                    {scanImageUri ? (
                       <Image 
-                        source={{ 
-                          uri: scan.imageBase64.startsWith('data:') 
-                            ? scan.imageBase64 
-                            : `data:image/jpeg;base64,${scan.imageBase64}` 
-                        }} 
+                        source={{ uri: scanImageUri }} 
                         style={styles.scanThumbnail}
                       />
                     ) : (

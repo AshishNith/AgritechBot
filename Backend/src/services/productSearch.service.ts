@@ -106,7 +106,7 @@ export class ProductSearchService {
       ]);
 
       return {
-        products: products as IProduct[],
+        products: products as unknown as IProduct[],
         total,
         hasMore: total > offset + limit,
       };
@@ -194,7 +194,7 @@ export class ProductSearchService {
           .select('-reviews -__v')
           .lean();
 
-        if (related.length > 0) return related as IProduct[];
+        if (related.length > 0) return related as unknown as IProduct[];
       }
 
       // Fallback to same category
@@ -221,7 +221,7 @@ export class ProductSearchService {
         .select('-reviews -__v')
         .lean();
 
-      return products as IProduct[];
+      return products as unknown as IProduct[];
     } catch (error) {
       logger.error({ err: error, category }, 'Top rated products fetch failed');
       return [];

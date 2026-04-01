@@ -5,7 +5,7 @@ import { logger } from '../../utils/logger';
 const MESSAGE_CACHE_TTL = 300; // 5 minutes
 
 // Define a lean version of IChatMessage (without Mongoose methods)
-type LeanChatMessage = Omit<IChatMessage, keyof Document>;
+export type LeanChatMessage = Pick<IChatMessage, 'role' | 'content' | 'createdAt'>;
 
 /**
  * Optimized chat history fetcher with caching and pagination

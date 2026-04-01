@@ -5,6 +5,7 @@ import { ImageAnalysis } from '../models/ImageAnalysis';
 import { env } from '../config/env';
 import { logger } from '../utils/logger';
 import { DIAGNOSIS_PROMPT } from '../chat/data/diagnosisPrompt';
+import { randomUUID } from 'crypto';
 
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
 
@@ -165,29 +166,39 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
 
     // Create preview for history storage (using cleaned base64)
     const imagePreview = getImagePreview(cleanBase64);
-    
-    // We store the analysis with a preview image for history viewing
-    const analysis = await ImageAnalysis.create({
-      userId,
-      imageBase64: imagePreview, // Store preview for history
-      diagnosis: diagnosisJson, 
-      status: 'completed',
-      metadata: {
-        processingTimeMs: Date.now() - startTime,
-        modelVersion: env.GEMINI_MODEL,
-        language,
+    const analysisId = randomUUID();
+
+    // Save the analysis when Mongo is available, but do not fail the diagnosis if persistence times out.
+    try {
+      const analysis = await ImageAnalysis.create({
+        userId,
+        imageBase64: imagePreview,
+        diagnosis: diagnosisJson,
+        status: 'completed',
+        metadata: {
+          processingTimeMs: Date.now() - startTime,
+          modelVersion: env.GEMINI_MODEL,
+          language,
+          isStructured: true,
+        },
+      });
+
+      logger.info({ analysisId: analysis._id, userId }, 'Analysis saved to database');
+      return reply.send({
+        id: analysis._id,
+        diagnosis: diagnosisJson,
         isStructured: true,
-      },
-    });
-
-    logger.info({ analysisId: analysis._id, userId }, 'Analysis saved to database');
-
-    return reply.send({
-      id: analysis._id,
-      diagnosis: diagnosisJson,
-      isStructured: true,
-      createdAt: analysis.createdAt,
-    });
+        createdAt: analysis.createdAt,
+      });
+    } catch (saveError) {
+      logger.warn({ err: saveError, userId }, 'Analysis completed but failed to save to MongoDB; returning diagnosis anyway');
+      return reply.send({
+        id: analysisId,
+        diagnosis: diagnosisJson,
+        isStructured: true,
+        createdAt: new Date().toISOString(),
+      });
+    }
   } catch (error) {
     // Differentiate Gemini API errors
     const errorStr = error instanceof Error ? error.message : String(error);
@@ -232,7 +243,7 @@ export const getAnalysisHistory = async (request: FastifyRequest, reply: Fastify
 
     return reply.send({ history: formattedHistory });
   } catch (error) {
-    logger.error({ err: error, userId }, 'Failed to fetch analysis history');
-    return reply.status(500).send({ error: 'Failed to fetch history' });
+    logger.warn({ err: error, userId }, 'Analysis history unavailable; returning empty history');
+    return reply.send({ history: [] });
   }
 };

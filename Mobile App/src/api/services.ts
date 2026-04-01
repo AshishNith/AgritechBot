@@ -1,4 +1,5 @@
 import { api } from './client';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   AskChatRequest,
   AskChatResponse,
@@ -20,6 +21,42 @@ import {
   VoiceAskResponse,
 } from '../types/api';
 import { RecordedAudioClip } from '../hooks/useAudioRecorder';
+
+const SCAN_HISTORY_STORAGE_KEY = 'anaaj-scan-history-cache';
+
+type ScanHistoryItem = {
+  _id: string;
+  diagnosis: string;
+  status: string;
+  createdAt: string;
+  thumbnailUrl?: string | null;
+  metadata?: {
+    language?: string;
+    cropType?: string;
+  };
+};
+
+async function readLocalScanHistory(): Promise<ScanHistoryItem[]> {
+  try {
+    const raw = await AsyncStorage.getItem(SCAN_HISTORY_STORAGE_KEY);
+    if (!raw) return [];
+
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+async function writeLocalScanHistory(items: ScanHistoryItem[]): Promise<void> {
+  await AsyncStorage.setItem(SCAN_HISTORY_STORAGE_KEY, JSON.stringify(items.slice(0, 50)));
+}
+
+async function upsertLocalScanHistory(item: ScanHistoryItem): Promise<void> {
+  const current = await readLocalScanHistory();
+  const next = [item, ...current.filter((existing) => existing._id !== item._id)];
+  await writeLocalScanHistory(next);
+}
 
 const mapProduct = (raw: any): Product => ({
   id: String(raw._id ?? raw.id),
@@ -446,22 +483,32 @@ export const apiService = {
       imageMimeType,
       language,
     });
+
     return data;
   },
+  async saveLocalScanHistoryEntry(item: ScanHistoryItem) {
+    await upsertLocalScanHistory(item);
+  },
   async getScanHistory() {
-    const { data } = await api.get<{
-      history: Array<{
-        _id: string;
-        diagnosis: string;
-        status: string;
-        createdAt: string;
-        thumbnailUrl?: string | null; // New: ready-to-use data URL for display
-        metadata?: {
-          language?: string;
-          cropType?: string;
-        };
-      }>;
-    }>('/api/v1/image-analysis/history');
-    return data.history;
+    let backendHistory: ScanHistoryItem[] = [];
+
+    try {
+      const { data } = await api.get<{
+        history: ScanHistoryItem[];
+      }>('/api/v1/image-analysis/history');
+      backendHistory = data.history || [];
+    } catch {
+      backendHistory = [];
+    }
+
+    const localHistory = await readLocalScanHistory();
+    const merged = [...backendHistory, ...localHistory].reduce<ScanHistoryItem[]>((acc, item) => {
+      if (!acc.some((existing) => existing._id === item._id)) {
+        acc.push(item);
+      }
+      return acc;
+    }, []);
+
+    return merged.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   },
 };
