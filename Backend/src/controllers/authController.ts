@@ -78,6 +78,9 @@ export async function sendOtp(request: FastifyRequest, reply: FastifyReply) {
   await user.save();
 
   logger.info({ phone }, 'OTP generated successfully');
+  if (env.NODE_ENV !== 'production') {
+    logger.info({ phone, otp }, 'DEVELOPMENT: OTP is');
+  }
 
   const response: Record<string, unknown> = {
     message: 'OTP sent successfully',
