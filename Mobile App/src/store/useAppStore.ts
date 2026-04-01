@@ -14,6 +14,7 @@ interface AppState {
   featuredProduct: Product | null;
   notificationsEnabled: boolean;
   unreadNotificationCount: number;
+  hasPlayedGreeting: boolean;
   setToken: (token: string | null) => void;
   setUser: (user: UserProfile | null) => void;
   setLanguage: (language: AppLanguage) => void;
@@ -24,6 +25,7 @@ interface AppState {
   setFeaturedProduct: (product: Product | null) => void;
   setNotificationsEnabled: (enabled: boolean) => void;
   setUnreadNotificationCount: (count: number) => void;
+  setHasPlayedGreeting: (played: boolean) => void;
   signOut: () => void;
 }
 
@@ -40,6 +42,7 @@ export const useAppStore = create<AppState>()(
       featuredProduct: null,
       notificationsEnabled: true,
       unreadNotificationCount: 0,
+      hasPlayedGreeting: false,
       setToken: (token) => set({ token }),
       setUser: (user) => set({ user }),
       setLanguage: (language) => set({ language }),
@@ -50,6 +53,7 @@ export const useAppStore = create<AppState>()(
       setFeaturedProduct: (featuredProduct) => set({ featuredProduct }),
       setNotificationsEnabled: (notificationsEnabled) => set({ notificationsEnabled }),
       setUnreadNotificationCount: (unreadNotificationCount) => set({ unreadNotificationCount }),
+      setHasPlayedGreeting: (hasPlayedGreeting) => set({ hasPlayedGreeting }),
       signOut: () =>
         set((state) => ({
           token: null,

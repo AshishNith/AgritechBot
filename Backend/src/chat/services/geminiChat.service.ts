@@ -6,6 +6,7 @@ import {
   GoogleGenerativeAIResponseError,
 } from '@google/generative-ai';
 import type { FastifyReply } from 'fastify';
+import mongoose from 'mongoose';
 import { Subscription } from '../../models/Subscription';
 import { env } from '../../config/env';
 import { logger } from '../../utils/logger';
@@ -316,108 +317,54 @@ async function buildConversationContents(params: {
 async function runToolLoop(params: {
   model: ReturnType<GoogleGenerativeAI['getGenerativeModel']>;
   contents: Content[];
-  responseFunctionCalls: FunctionCall[];
-  sessionId: string;
-  farmerId: string;
-  language: ChatLanguageCode;
-}) {
-  // OPTIMIZATION: Execute all tools in parallel with individual error handling
-  const toolSettledResults = await Promise.allSettled(
-    params.responseFunctionCalls.map(async (call) => {
-      const toolInput = (call.args || {}) as Record<string, unknown>;
-      const toolOutput = await executeTool(call.name, toolInput);
-      return { call, toolInput, toolOutput };
+}): Promise<{ result: any; products: any[] }> {
+  const currentResponse = await params.model.generateContent({
+    contents: params.contents,
+  });
+
+  const collectedProducts: any[] = [];
+  const firstRoundCallContents: Content = { role: 'model', parts: [] };
+  const toolMessages: Content[] = [];
+
+  const firstRoundCalls = currentResponse.response.candidates?.[0]?.content?.parts?.filter(
+    (p: any) => p.functionCall
+  );
+
+  if (!firstRoundCalls || firstRoundCalls.length === 0) {
+    return { result: currentResponse, products: [] };
+  }
+
+  // Execute tools sequentially or in parallel? Parallel is better.
+  const settlement = await Promise.allSettled(
+    firstRoundCalls.map(async (part: any) => {
+      const call = part.functionCall;
+      const toolResult = await executeTool(call.name, call.args as Record<string, unknown>);
+      return { name: call.name, args: call.args, response: toolResult };
     })
   );
 
-  // Process results, handling failures gracefully
-  const toolResults: Array<{ call: FunctionCall; toolInput: Record<string, unknown>; toolOutput: Record<string, unknown> }> = [];
-  for (const result of toolSettledResults) {
-    if (result.status === 'fulfilled') {
-      toolResults.push(result.value);
-    } else {
-      // Log failed tool but continue with others
-      logger.error({ err: result.reason }, 'Tool execution failed');
-      // Find the corresponding call from original array
-      const index = toolSettledResults.indexOf(result);
-      const call = params.responseFunctionCalls[index];
-      if (call) {
-        toolResults.push({
-          call,
-          toolInput: (call.args || {}) as Record<string, unknown>,
-          toolOutput: { error: 'Tool execution failed', success: false },
-        });
+  for (const res of settlement) {
+    if (res.status === 'fulfilled') {
+      const { name, args, response } = res.value;
+      firstRoundCallContents.parts.push({ functionCall: { name, args } });
+      
+      // Collect product recommendations for UI
+      if (name === 'get_product_recommendations' && (response as any).products) {
+        collectedProducts.push(...((response as any).products || []));
       }
+
+      toolMessages.push({
+        role: 'user',
+        parts: [{ functionResponse: { name, response } }],
+      });
     }
   }
 
-  // OPTIMIZATION: Batch database writes
-  const messagesToCreate: Array<Record<string, unknown>> = [];
-  const toolMessages: Content[] = [];
-
-  for (const { call, toolInput, toolOutput } of toolResults) {
-    messagesToCreate.push(
-      {
-        sessionId: params.sessionId,
-        farmerId: params.farmerId,
-        role: 'assistant',
-        content: {
-          type: 'tool_call',
-          toolName: call.name,
-          toolInput,
-          text: `Tool call: ${call.name}`,
-        },
-        metadata: {
-          language: params.language,
-          modelVersion: env.GEMINI_MODEL,
-        },
-      },
-      {
-        sessionId: params.sessionId,
-        farmerId: params.farmerId,
-        role: 'user',
-        content: {
-          type: 'tool_result',
-          toolName: call.name,
-          toolOutput,
-          text: JSON.stringify(toolOutput),
-        },
-        metadata: {
-          language: params.language,
-          modelVersion: env.GEMINI_MODEL,
-        },
-      }
-    );
-
-    toolMessages.push({
-      role: 'function',
-      parts: [
-        {
-          functionResponse: {
-            name: call.name,
-            response: toolOutput,
-          },
-        },
-      ],
-    });
-  }
-
-  // Save all tool messages in one batch
-  await ChatMessageModel.create(messagesToCreate);
-
-  const firstRoundCallContents: Content = {
-    role: 'model',
-    parts: params.responseFunctionCalls.map((call) => ({
-      functionCall: {
-        name: call.name,
-        args: call.args || {},
-      },
-    })),
-  };
-
-  return params.model.generateContent({
+  const finalResult = await params.model.generateContent({
     contents: [...params.contents, firstRoundCallContents, ...toolMessages],
   });
+
+  return { result: finalResult, products: collectedProducts };
 }
 
 async function persistSuccessfulExchange(params: {
@@ -434,15 +381,16 @@ async function persistSuccessfulExchange(params: {
   location?: string;
   audioBase64?: string;
   audioMimeType?: string;
+  recommendedProducts?: any[];
 }) {
   await ChatMessageModel.create([
     {
-      sessionId: params.sessionId,
-      farmerId: params.farmerId,
+      sessionId: new mongoose.Types.ObjectId(params.sessionId),
+      farmerId: new mongoose.Types.ObjectId(params.farmerId),
       role: 'user',
       content: {
         type: params.imageBase64 ? 'image' : 'text',
-        text: params.userText,
+        text: params.userText || (params.imageBase64 ? 'Image context' : ''),
       },
       metadata: {
         inputTokens: params.inputTokens,
@@ -453,8 +401,8 @@ async function persistSuccessfulExchange(params: {
       },
     },
     {
-      sessionId: params.sessionId,
-      farmerId: params.farmerId,
+      sessionId: new mongoose.Types.ObjectId(params.sessionId),
+      farmerId: new mongoose.Types.ObjectId(params.farmerId),
       role: 'assistant',
       content: {
         type: 'text',
@@ -467,8 +415,10 @@ async function persistSuccessfulExchange(params: {
         modelVersion: env.GEMINI_MODEL,
         cacheHit: params.cacheHit,
         language: params.language,
+        location: params.location,
         audioBase64: params.audioBase64,
         audioMimeType: params.audioMimeType,
+        recommendedProducts: params.recommendedProducts,
       },
     },
   ]);
@@ -592,16 +542,14 @@ export async function sendChatMessage(params: {
       'AI response timed out. Please try again.'
     );
 
+    let recommendedProducts: any[] = [];
     const functionCalls = result.response.functionCalls();
     if (functionCalls?.length) {
-      result = await runToolLoop({
-        model,
-        contents: built.contents,
-        responseFunctionCalls: functionCalls,
-        sessionId: params.sessionId,
-        farmerId: params.farmerId,
-        language,
-      });
+     const { result: chatResult, products: recommendedProducts } = await runToolLoop({
+      model,
+      contents: built.contents,
+    });
+      result = chatResult;
     }
 
     const responseText = result.response.text().trim();
@@ -611,7 +559,7 @@ export async function sendChatMessage(params: {
     const cacheHit = Boolean(usage?.cachedContentTokenCount);
     let audioBase64: string | undefined;
     let audioMimeType: string | undefined;
-    const shouldGenerateVoice = built.isFirstMessage || params.forceVoiceReply;
+    const shouldGenerateVoice = true; // Part 4B: Always generate voice for AI replies
 
     // OPTIMIZATION: Run TTS and suggestions generation in parallel (non-blocking)
     const [ttsResult, suggestions] = await Promise.allSettled([
@@ -654,6 +602,7 @@ export async function sendChatMessage(params: {
       location: built.location,
       audioBase64,
       audioMimeType,
+      recommendedProducts,
     });
 
     // Invalidate chat cache after successful message
@@ -670,7 +619,8 @@ export async function sendChatMessage(params: {
       summaryUsed: built.summaryUsed,
       audioBase64,
       audioMimeType,
-      suggestedQueries: querySuggestions, // NEW: Return query suggestions
+      suggestedQueries: querySuggestions,
+      recommendedProducts, // Part 4D: Return products to UI
     };
   } catch (error) {
     const processingTimeMs = Date.now() - startedAt;

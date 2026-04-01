@@ -65,7 +65,29 @@ export function useAudioRecorder() {
     });
 
     const nextRecording = new Audio.Recording();
-    await nextRecording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+    const recordingOptions = {
+        android: {
+            extension: '.m4a',
+            outputFormat: Audio.AndroidOutputFormat.MPEG_4,
+            audioEncoder: Audio.AndroidAudioEncoder.AAC,
+            sampleRate: 16000,
+            numberOfChannels: 1,
+            bitRate: 64000,
+        },
+        ios: {
+            extension: '.m4a',
+            outputFormat: Audio.IOSOutputFormat.MPEG4AAC,
+            audioQuality: Audio.IOSAudioQuality.MIN,
+            sampleRate: 16000,
+            numberOfChannels: 1,
+            bitRate: 64000,
+            linearPCMBitDepth: 16,
+            linearPCMIsBigEndian: false,
+            linearPCMIsFloat: false,
+        },
+        web: {}
+    };
+    await nextRecording.prepareToRecordAsync(recordingOptions as any);
     await nextRecording.startAsync();
     setRecording(nextRecording);
     setIsRecording(true);

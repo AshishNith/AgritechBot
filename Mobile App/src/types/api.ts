@@ -104,13 +104,19 @@ export interface ChatMessage {
   id: string;
   chatId: string;
   role: 'user' | 'assistant';
-  content: string;
-  language?: string;
-  audioUrl?: string;
   audioMimeType?: string;
   voiceInput?: boolean;
   createdAt?: string;
+  content: string;
+  audioUrl?: string;
   type?: 'text' | 'image' | 'tool_call' | 'tool_result';
+  metadata?: {
+    toolName?: string;
+    toolInput?: any;
+    toolOutput?: any;
+    audioBase64?: string;
+    recommendedProducts?: Product[];
+  };
   error?: {
     code?: string;
     message: string;

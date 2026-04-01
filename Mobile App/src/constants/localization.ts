@@ -296,7 +296,9 @@ export type TranslationKey =
   | 'krishiVani'
   | 'talkToCrops'
   | 'askInNative'
-  | 'continueButton';
+  | 'continueButton'
+  | 'recommendedProducts'
+  | 'listen';
 
 
 const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
@@ -597,6 +599,8 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     talkToCrops: 'Talk to your crops',
     askInNative: 'Ask questions in native language and get AI advice.',
     continueButton: 'Continue',
+    recommendedProducts: 'Recommended Products',
+    listen: 'Listen',
   },
   Hindi: {
     marketTitle: 'मार्केट',
@@ -895,6 +899,8 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     talkToCrops: 'अपनी फसलों से बात करें',
     askInNative: 'अपनी भाषा में प्रश्न पूछें और एआई सलाह लें।',
     continueButton: 'जारी रखें',
+    recommendedProducts: 'अनुशंसित उत्पाद',
+    listen: 'सुनें',
   },
   Gujarati: {
     marketTitle: 'ખેતી બજાર',
@@ -1193,6 +1199,8 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     talkToCrops: 'તમારા પાક સાથે વાત કરો',
     askInNative: 'તમારી માતૃભાષામાં પ્રશ્નો પૂછો અને AI સલાહ મેળવો.',
     continueButton: 'ચાલુ રાખો',
+    recommendedProducts: 'ભલામણ કરેલ ઉત્પાદનો',
+    listen: 'સાંભળો',
   },
   Punjabi: {
     marketTitle: 'ਮਾਰਕੀਟ',
@@ -1491,6 +1499,8 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     talkToCrops: 'ਆਪਣੀਆਂ ਫਸਲਾਂ ਨਾਲ ਗੱਲ ਕਰੋ',
     askInNative: 'ਆਪਣੀ ਮਾਂ ਬੋਲੀ ਵਿੱਚ ਸਵਾਲ ਪੁੱਛੋ ਅਤੇ AI ਸਲਾਹ ਲਓ।',
     continueButton: 'ਜਾਰੀ ਰੱਖੋ',
+    recommendedProducts: 'ਸਿਫਾਰਸ਼ ਕੀਤੇ ਉਤਪਾਦ',
+    listen: 'ਸੁਣੋ',
   },
 };
 

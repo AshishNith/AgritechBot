@@ -196,11 +196,13 @@ export async function getChatSessionWithMessages(params: {
     ChatMessageModel.countDocuments({ sessionId }),
   ]);
 
-  const normalizedMessages: Array<Record<string, unknown>> = messages.map((message) => ({
+  const normalizedMessages: Array<Record<string, unknown>> = messages.map((message: any) => ({
     ...message,
     _id: String(message._id),
     sessionId: String(message.sessionId),
     farmerId: String(message.farmerId),
+    content: message.content?.text || '',
+    type: message.content?.type || 'text',
   }));
 
   return {
@@ -255,11 +257,13 @@ export async function getSessionMessages(params: {
     .limit(params.limit)
     .lean();
 
-  return messages.reverse().map((message) => ({
+  return messages.reverse().map((message: any) => ({
     ...message,
     _id: String(message._id),
     sessionId: String(message.sessionId),
     farmerId: String(message.farmerId),
+    content: message.content?.text || '',
+    type: message.content?.type || 'text',
   }));
 }
 

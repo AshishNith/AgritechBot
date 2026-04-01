@@ -34,6 +34,8 @@ import { languageOptions } from '../constants/designData';
 import { useI18n } from '../hooks/useI18n';
 import { theme } from '../constants/theme';
 import { RecordedAudioClip, useAudioRecorder } from '../hooks/useAudioRecorder';
+import { ChatMessageItem } from '../components/chat/ChatMessageItem';
+import { Product } from '../types/api';
 
 const starterId = 'starter';
 
@@ -54,6 +56,8 @@ export function ChatScreen() {
   const queryClient = useQueryClient();
   const language = useAppStore((state) => state.language);
   const setLanguage = useAppStore((state) => state.setLanguage);
+  const hasPlayedGreeting = useAppStore((state) => state.hasPlayedGreeting);
+  const setHasPlayedGreeting = useAppStore((state) => state.setHasPlayedGreeting);
   const [messages, setMessages] = useState<ChatMessage[]>([buildStarterMessage(language)]);
   const [input, setInput] = useState('');
   const [chatId, setChatId] = useState<string | undefined>(route?.params?.chatId);
@@ -200,6 +204,33 @@ export function ChatScreen() {
       activeSoundRef.current?.unloadAsync().catch(() => undefined);
     };
   }, []);
+
+  // ── Part 4C: Play Default Greeting Voice on first load ─────────────────────
+  useEffect(() => {
+    const playGreeting = async () => {
+      if (hasPlayedGreeting || chatId) return;
+
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          playsInSilentModeIOS: true,
+        });
+
+        const { sound } = await Audio.Sound.createAsync(
+          require('../../assets/InitialAudio.wav')
+        );
+        activeSoundRef.current = sound;
+        setHasPlayedGreeting(true);
+        await sound.playAsync();
+      } catch (error) {
+        console.warn('Failed to play greeting audio:', error);
+      }
+    };
+
+    // Small delay to ensure UI is ready
+    const timer = setTimeout(playGreeting, 1000);
+    return () => clearTimeout(timer);
+  }, [hasPlayedGreeting, chatId, setHasPlayedGreeting]);
 
   useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
@@ -714,91 +745,18 @@ export function ChatScreen() {
           </AppText>
 
           {displayedMessages.map((message) => (
-            <View
+            <ChatMessageItem
               key={message.id}
-              style={[styles.messageRow, message.role === 'user' && styles.messageRowUser]}
-            >
-              <Pressable
-                onPress={() =>
-                    setActiveTimestampId((current) => (current === message.id ? null : message.id))
-                  }
-                onLongPress={() => onMessageLongPress(message)}
-                style={[
-                  styles.bubble,
-                  message.role === 'user'
-                    ? [styles.userBubble, { backgroundColor: colors.primary }]
-                    : [
-                        styles.aiBubble,
-                        {
-                          backgroundColor: isDark ? colors.surface : colors.surfaceMuted,
-                          borderColor: colors.border,
-                          borderWidth: 1,
-                        },
-                      ],
-                  message.role === 'user' ? styles.userBubbleTail : styles.aiBubbleTail,
-                ]}
-              >
-                {message.type === 'tool_result' ? (
-                  <AppText
-                    variant="caption"
-                    color={message.role === 'user' ? colors.textOnDark : colors.textMuted}
-                    style={{ marginBottom: 6 }}
-                  >
-                    {tx('toolResult')}
-                  </AppText>
-                ) : null}
-                <AppText
-                  color={message.role === 'user' ? colors.textOnDark : isDark ? colors.textOnDark : colors.text}
-                  numberOfLines={0}
-                  selectable
-                  style={{ flexShrink: 1, flexWrap: 'wrap', fontSize: 16, lineHeight: 22 }}
-                >
-                  {message.content}
-                </AppText>
-                
-                <View style={styles.messageMeta}>
-                    {message.voiceInput && (
-                        <AppText
-                            variant="caption"
-                            color={message.role === 'user' ? 'rgba(255,255,255,0.7)' : colors.textMuted}
-                            style={{ marginRight: 6 }}
-                        >
-                            {tx('recordVoice')}
-                        </AppText>
-                    )}
-                    {(activeTimestampId === message.id || message.role === 'assistant') && message.createdAt && (
-                        <AppText
-                            variant="caption"
-                            color={message.role === 'user' ? 'rgba(255,255,255,0.6)' : colors.textMuted}
-                            style={styles.timestamp}
-                        >
-                            {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </AppText>
-                    )}
-                </View>
-
-                {message.role === 'assistant' && message.audioUrl ? (
-                  <Pressable onPress={() => playAudio(message.audioUrl)} style={[styles.audioButton, { backgroundColor: isDark ? 'rgba(82,183,129,0.1)' : 'rgba(82,183,129,0.05)' }]}>
-                    {(() => {
-                      const IconComp = IconMap['PlayCircle'];
-                      return IconComp ? <IconComp size={18} color={colors.primaryDark} /> : null;
-                    })()}
-                    <AppText variant="label" color={colors.primaryDark} style={{ fontSize: 13 }}>
-                      {t(language, 'audioPlayback')}
-                    </AppText>
-                  </Pressable>
-                ) : null}
-
-                {message.error ? (
-                  <GradientButton
-                    label={tx('retry')}
-                    secondary
-                    onPress={retryLastFailed}
-                    style={{ marginTop: 12 }}
-                  />
-                ) : null}
-              </Pressable>
-            </View>
+              message={message}
+              language={language}
+              onPress={() => setActiveTimestampId(current => current === message.id ? null : message.id)}
+              onLongPress={() => onMessageLongPress(message)}
+              activeTimestampId={activeTimestampId}
+              onPlayAudio={playAudio}
+              onProductPress={(product: Product) => {
+                navigation.navigate('ProductDetail', { productId: product.id });
+              }}
+            />
           ))}
 
           {(askMutation.isPending || voiceMutation.isPending || transcribeMutation.isPending || isHydratingHistory) && (
