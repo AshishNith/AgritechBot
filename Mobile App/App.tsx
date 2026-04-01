@@ -17,14 +17,22 @@ export default function App() {
   useEffect(() => {
     async function prepare() {
       try {
-        // Pre-load fonts, make any API calls you need here
-        // For now, we just wait a bit to ensure everything is mounted
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Pre-load assets/fonts if needed. 
+        // We add a small delay to ensure the native bridge is fully initialized.
+        await new Promise(resolve => setTimeout(resolve, 800));
       } catch (e) {
-        console.warn(e);
+        console.warn('Initialization error:', e);
       } finally {
-        // Tell the application to render
         setAppIsReady(true);
+        // Failsafe: Hide splash after 3.5 seconds even if onLayout fails.
+        // This prevents the user from being stuck indefinitely.
+        setTimeout(async () => {
+          try {
+            await SplashScreen.hideAsync();
+          } catch (e) {
+            // Splash might have been hidden by onLayout already
+          }
+        }, 3500);
       }
     }
 
@@ -33,8 +41,12 @@ export default function App() {
 
   const onLayoutRootView = useCallback(async () => {
     if (appIsReady) {
-      // This tells the splash screen to hide immediately!
-      await SplashScreen.hideAsync();
+      try {
+        // This tells the splash screen to hide immediately!
+        await SplashScreen.hideAsync();
+      } catch (e) {
+        console.warn('Failed to hide splash screen:', e);
+      }
     }
   }, [appIsReady]);
 
