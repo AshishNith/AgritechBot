@@ -1,5 +1,5 @@
 export function getAndroidDownloadUrl(): string {
-  return ((import.meta as any).env?.VITE_ANDROID_APP_URL as string | undefined)?.trim() || '';
+  return '/anaaj-ai.apk';
 }
 
 export function getApiBaseUrl(): string {

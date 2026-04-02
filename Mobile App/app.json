@@ -37,7 +37,7 @@
         "backgroundColor": "#10241b"
       },
       "package": "com.anaajai.mobile",
-      "versionCode": 2,
+      "usesCleartextTraffic": true,
       "permissions": [
         "CAMERA",
         "READ_MEDIA_IMAGES",
@@ -75,12 +75,12 @@
       ]
     ],
     "extra": {
-      "apiBaseUrl": "https://agritechbot-oqni.onrender.com",
+      "apiBaseUrl": "https://backend.goran.in",
       "paymentWebBaseUrl": "https://anaajai.com",
       "eas": {
-        "projectId": "009871c5-8998-4f87-afa8-1ce28889875e"
+        "projectId": "cc65912f-60eb-4ddb-ba4c-7c4fceae42da"
       }
     },
-    "owner": "ig_ashish.ranjan1"
+    "owner": "ig_ashish.ranjan2"
   }
 }

@@ -46,8 +46,8 @@ export default function DownloadApp() {
                 <span className="material-symbols-outlined text-4xl">android</span>
               </div>
               <div className="text-right">
-                <p className="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">Version 1.0.0</p>
-                <p className="text-xs text-stone-400 font-medium">Updated: March 2026</p>
+                <p className="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">Version 1.0.1</p>
+                <p className="text-xs text-stone-400 font-medium">Updated: April 2026</p>
               </div>
             </div>
             
@@ -132,8 +132,8 @@ export default function DownloadApp() {
           
           <div className="bg-surface-container-lowest p-8 md:p-10 rounded-3xl border border-outline-variant/20 shadow-sm mb-6">
             <div className="flex items-center gap-4 mb-6">
-              <span className="bg-primary-container text-on-primary-container px-3 py-1 rounded-lg font-bold text-sm">v1.0.0</span>
-              <span className="text-on-surface-variant font-medium text-sm">March 26, 2026</span>
+              <span className="bg-primary-container text-on-primary-container px-3 py-1 rounded-lg font-bold text-sm">v1.0.1</span>
+              <span className="text-on-surface-variant font-medium text-sm">April 02, 2026</span>
             </div>
             <h3 className="text-xl font-bold text-primary mb-4">Current launch baseline</h3>
             <ul className="space-y-3 text-on-surface-variant">
