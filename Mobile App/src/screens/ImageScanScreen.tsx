@@ -45,10 +45,35 @@ export function ImageScanScreen({ route }: { route: any }) {
     }, [refetchHistory])
   );
 
+  const requestImageAccess = async (useCamera: boolean) => {
+    const permission = useCamera
+      ? await ImagePicker.requestCameraPermissionsAsync()
+      : await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permission.granted) {
+      return true;
+    }
+
+    Alert.alert(
+      'Permission required',
+      useCamera
+        ? 'Camera access is required to capture crop images.'
+        : 'Photo library access is required to select crop images.'
+    );
+
+    return false;
+  };
+
   const pickImage = async (useCamera: boolean = false) => {
     try {
+      const hasPermission = await requestImageAccess(useCamera);
+
+      if (!hasPermission) {
+        return;
+      }
+
       const options: ImagePicker.ImagePickerOptions = {
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.7,
@@ -59,12 +84,15 @@ export function ImageScanScreen({ route }: { route: any }) {
         ? await ImagePicker.launchCameraAsync(options)
         : await ImagePicker.launchImageLibraryAsync(options);
 
-      if (!result.canceled && result.assets[0]) {
-        setImage(result.assets[0].uri);
+      const asset = result.canceled ? null : result.assets?.[0];
+
+      if (asset) {
+        setImage(asset.uri);
         setResult(null); // Reset result for new image
-        // Automatically start analysis if base64 is available
-        if (result.assets[0].base64) {
-          handleAnalyze(result.assets[0].base64, result.assets[0].mimeType || 'image/jpeg');
+        if (asset.base64) {
+          handleAnalyze(asset.base64, asset.mimeType || 'image/jpeg');
+        } else {
+          Alert.alert('Image unavailable', 'The selected image could not be prepared for analysis. Please try another image.');
         }
       }
     } catch (error) {
