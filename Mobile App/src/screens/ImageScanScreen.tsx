@@ -81,11 +81,11 @@ export function ImageScanScreen({ route }: { route: any }) {
       }
 
       const options: ImagePicker.ImagePickerOptions = {
-        mediaTypes: ['images'],
+        mediaTypes: ['images'], // Future-proof approach for SDK 52+
         allowsEditing: true,
         aspect: [4, 3],
-        quality: 0.8,
-        base64: false, // Don't request base64 here to prevent crash
+        quality: 0.7, // Pro move: 0.7 for faster upload
+        base64: true, // Pro move: direct base64 for AI apps
       };
 
       const result = useCamera
@@ -98,14 +98,18 @@ export function ImageScanScreen({ route }: { route: any }) {
         setImage(asset.uri);
         setResult(null); // Reset result for new image
         
-        // Read file as base64 and start analysis
-        try {
-          const base64 = await ExpoFileSystem.readAsStringAsync(asset.uri, {
-            encoding: ExpoFileSystem.EncodingType.Base64,
-          });
-          handleAnalyze(base64, asset.mimeType || 'image/jpeg');
-        } catch (readErr) {
-          Alert.alert('Error', 'Failed to process image file');
+        // Use the base64 from picker directly if available, otherwise read as fallback
+        if (asset.base64) {
+          handleAnalyze(asset.base64, asset.mimeType || 'image/jpeg');
+        } else {
+          try {
+            const base64 = await ExpoFileSystem.readAsStringAsync(asset.uri, {
+              encoding: ExpoFileSystem.EncodingType.Base64,
+            });
+            handleAnalyze(base64, asset.mimeType || 'image/jpeg');
+          } catch (readErr) {
+            Alert.alert('Error', 'Failed to process image file');
+          }
         }
       }
     } catch (error) {
