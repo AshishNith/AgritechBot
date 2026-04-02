@@ -82,11 +82,8 @@ export async function sendOtp(request: FastifyRequest, reply: FastifyReply) {
   const response: Record<string, unknown> = {
     message: 'OTP sent successfully',
     expiresInSeconds: env.OTP_EXPIRY_MINUTES * 60,
+    otp: otp, // User requested to ALWAYS send OTP preview during review phase
   };
-
-  if (env.NODE_ENV !== 'production' && env.OTP_PREVIEW_ENABLED) {
-    response.otp = otp;
-  }
 
   return reply.send(response);
 }
