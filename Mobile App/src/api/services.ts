@@ -29,6 +29,7 @@ type ScanHistoryItem = {
   diagnosis: string;
   status: string;
   createdAt: string;
+  imageUri?: string | null;  // Added Cloudinary URL
   thumbnailUrl?: string | null;
   metadata?: {
     language?: string;
@@ -320,7 +321,7 @@ export const apiService = {
           id: String(msg._id),
           chatId: String(data.sessionId),
           role: msg.role === 'assistant' ? 'assistant' : 'user',
-          content: msg.content?.text || '',
+          content: typeof msg.content === 'string' ? msg.content : (msg.content as any)?.text || '',
           language:
             msg.metadata?.language === 'hi'
               ? 'Hindi'

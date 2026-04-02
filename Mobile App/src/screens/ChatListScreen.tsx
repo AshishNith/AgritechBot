@@ -151,7 +151,7 @@ export function ChatListScreen() {
                 onPress={() => {
                   // Navigate back to ImageScan with the saved result to show the professional UI
                   navigation.navigate('ImageScan' as any, { 
-                    image: scanImageUri,
+                    image: scan.imageUri || scanImageUri, // Prefer high-res Cloudinary URL
                     result: scan.diagnosis 
                   });
                 }}

@@ -6,6 +6,7 @@ import { env } from '../config/env';
 import { logger } from '../utils/logger';
 import { DIAGNOSIS_PROMPT } from '../chat/data/diagnosisPrompt';
 import { randomUUID } from 'crypto';
+import { cloudinaryService } from '../services/cloudinaryService';
 
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
 
@@ -20,10 +21,6 @@ const VALID_IMAGE_MIME_TYPES = new Set([
 
 // Max image size: 5MB in base64
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-
-// Max preview size to store in DB (500KB base64 ≈ 375KB decoded image)
-// This allows most compressed photos to be stored
-const MAX_PREVIEW_SIZE = 500 * 1024;
 
 // Validate base64 format - handles both raw base64 and data URLs
 function isValidBase64(str: string): boolean {
@@ -48,35 +45,6 @@ function isValidBase64(str: string): boolean {
   
   // Length should be multiple of 4 (with padding)
   return cleanData.length % 4 === 0;
-}
-
-/**
- * Get a preview version of the image for storage
- * Small images are stored as-is. Large images are not stored to save DB space.
- * Note: For optimal thumbnails with large images, install 'sharp' package.
- */
-function getImagePreview(base64Data: string): string | undefined {
-  try {
-    // Remove data URL prefix if present
-    const cleanBase64 = base64Data.includes(',') ? base64Data.split(',')[1] : base64Data;
-    
-    // If image is small enough, store it directly
-    if (cleanBase64.length <= MAX_PREVIEW_SIZE) {
-      return cleanBase64;
-    }
-    
-    // For larger images, don't store (corrupted partial base64 won't render)
-    // The frontend should show a placeholder for missing images
-    logger.info(
-      { originalSize: cleanBase64.length, maxSize: MAX_PREVIEW_SIZE },
-      'Image too large to store preview - install sharp for proper resizing'
-    );
-    
-    return undefined;
-  } catch (error) {
-    logger.warn({ err: error }, 'Failed to create image preview');
-    return undefined;
-  }
 }
 
 // Zod schema for crop analysis request - with lenient validation
@@ -164,15 +132,17 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
       logger.warn('Failed to sanitize JSON response structure');
     }
 
-    // Create preview for history storage (using cleaned base64)
-    const imagePreview = getImagePreview(cleanBase64);
+    // Upload to Cloudinary for permanent storage
+    const uploadResult = await cloudinaryService.uploadImage(cleanBase64, `anaaj-ai/scans/${userId}`);
+    const imageUrl = uploadResult?.url;
+
     const analysisId = randomUUID();
 
-    // Save the analysis when Mongo is available, but do not fail the diagnosis if persistence times out.
+    // Save the analysis when Mongo is available
     try {
       const analysis = await ImageAnalysis.create({
         userId,
-        imageBase64: imagePreview,
+        imageUri: imageUrl, // Store Cloudinary URL
         diagnosis: diagnosisJson,
         status: 'completed',
         metadata: {
@@ -180,6 +150,7 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
           modelVersion: env.GEMINI_MODEL,
           language,
           isStructured: true,
+          cloudinaryPublicId: uploadResult?.publicId,
         },
       });
 
@@ -187,6 +158,7 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
       return reply.send({
         id: analysis._id,
         diagnosis: diagnosisJson,
+        imageUrl: imageUrl, // Return Cloudinary URL to frontend
         isStructured: true,
         createdAt: analysis.createdAt,
       });
@@ -228,17 +200,24 @@ export const getAnalysisHistory = async (request: FastifyRequest, reply: Fastify
   const userId = request.user!._id;
 
   try {
-    // Include imageBase64 which now contains small thumbnails
     const history = await ImageAnalysis.find({ userId })
       .sort({ createdAt: -1 })
       .limit(50)
       .lean();
 
-    // Format response with thumbnail as data URL for easy display
+    // Format response for mobile clients
     const formattedHistory = history.map((item) => ({
-      ...item,
-      thumbnailUrl: item.imageBase64 ? `data:image/jpeg;base64,${item.imageBase64}` : null,
-      imageBase64: undefined, // Don't expose raw base64 in response
+      _id: item._id,
+      imageUri: item.imageUri, // High-res Cloudinary URL
+      thumbnailUrl: null, // No longer storing/returning thumbnails to save DB space
+      diagnosis: item.diagnosis, 
+      status: item.status,
+      createdAt: item.createdAt,
+      metadata: {
+        ...item.metadata,
+        language: item.metadata?.language,
+        cropType: item.cropType, // Take from top-level
+      },
     }));
 
     return reply.send({ history: formattedHistory });

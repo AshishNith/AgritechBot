@@ -5,7 +5,7 @@ import { useState, useMemo } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
 import { apiService } from '../api/services';
-import { LocationPicker } from '../components/LocationPicker';
+import { LocationSelector } from '../components/LocationSelector';
 import { AppText, GradientButton, Pill, Screen, ScreenCard } from '../components/ui';
 import { designImages } from '../constants/designData';
 import { theme } from '../constants/theme';
@@ -49,21 +49,6 @@ export function ProfileSetupScreen({ navigation }: Props) {
   }>({ state: '', district: '' });
   const [error, setError] = useState<string | null>(null);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
-  const [showMapPicker, setShowMapPicker] = useState(false);
-
-  // Indian states and major agricultural districts
-  const INDIAN_LOCATIONS: Record<string, string[]> = {
-    'Punjab': ['Bathinda', 'Ludhiana', 'Amritsar', 'Gurdaspur', 'Jalandhar', 'Ferozpur'],
-    'Maharashtra': ['Pune', 'Nashik', 'Aurangabad', 'Nagpur', 'Ahmednagar', 'Kolhapur'],
-    'Madhya Pradesh': ['Indore', 'Bhopal', 'Jabalpur', 'Ujjain', 'Sehore', 'Vidisha'],
-    'Rajasthan': ['Jaipur', 'Jodhpur', 'Bikaner', 'Ajmer', 'Nagaur', 'Barmer'],
-    'Uttar Pradesh': ['Lucknow', 'Meerut', 'Varanasi', 'Noida', 'Kanpur', 'Mathura'],
-    'Karnataka': ['Bangalore', 'Mysore', 'Belgaum', 'Hubballi', 'Tumkur', 'Kolar'],
-    'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Tirunelveli', 'Namakkal', 'Villupuram'],
-    'Andhra Pradesh': ['Hyderabad', 'Visakhapatnam', 'Vijayawada', 'Tirupati', 'Guntur', 'Krishna'],
-    'Gujarat': ['Ahmedabad', 'Rajkot', 'Surat', 'Vadodara', 'Gandhinagar', 'Junagadh'],
-    'Haryana': ['Hisar', 'Rohtak', 'Faridabad', 'Yamunanagar', 'Panipat', 'Sonipat'],
-  };
 
   const toggleCrop = (cropValue: string) => {
     setSelectedCrops(
@@ -232,85 +217,20 @@ export function ProfileSetupScreen({ navigation }: Props) {
         </AppText>
       </View>
 
-      {/* Location Picker Modal */}
-      <Modal visible={showLocationPicker} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.locationModalContent}>
-            <View style={styles.modalHeader}>
-              <AppText variant="heading">{t(language, 'selectLocation')}</AppText>
-              <Pressable onPress={() => setShowLocationPicker(false)}>
-                <AppText color={theme.colors.primary}>{tx('close')}</AppText>
-              </Pressable>
-            </View>
-
-            <Pressable
-              onPress={() => {
-                setShowLocationPicker(false);
-                setShowMapPicker(true);
-              }}
-              style={styles.mapPickerCta}
-            >
-              <AppText variant="label" color={theme.colors.primaryDark}>
-                {tx('useCurrentLocationOrPickOnMap')}
-              </AppText>
-              <AppText color={theme.colors.textMuted} style={{ marginTop: 2 }}>
-                {tx('noApiKeyNeeded')}
-              </AppText>
-            </Pressable>
-
-            <ScrollView style={{ maxHeight: '70%', marginTop: 16 }}>
-              {Object.entries(INDIAN_LOCATIONS).map(([state, districts]) => (
-                <View key={state}>
-                  <AppText variant="label" style={{ paddingHorizontal: 12, marginTop: 12, marginBottom: 8 }}>
-                    {state}
-                  </AppText>
-                  {districts.map((district) => (
-                    <Pressable
-                      key={district}
-                      onPress={() => {
-                        setLocation({
-                          state,
-                          district,
-                          address: `${district}, ${state}`,
-                        });
-                        setShowLocationPicker(false);
-                      }}
-                      style={[
-                        styles.districtOption,
-                        location.state === state && location.district === district && styles.districtOptionSelected,
-                      ]}
-                    >
-                      <AppText
-                        color={
-                          location.state === state && location.district === district
-                            ? theme.colors.primary
-                            : theme.colors.text
-                        }
-                      >
-                        {district}
-                      </AppText>
-                    </Pressable>
-                  ))}
-                </View>
-              ))}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal visible={showMapPicker} animationType="slide">
-        <LocationPicker
-          initialLocation={location}
-          onCancel={() => setShowMapPicker(false)}
-          onLocationSelect={(pickedLocation) => {
+      {/* Enhanced Location Selector Modal */}
+      <Modal visible={showLocationPicker} animationType="slide">
+        <LocationSelector
+          onCancel={() => setShowLocationPicker(false)}
+          onSelect={(picked) => {
             setLocation({
-              state: pickedLocation.state,
-              district: pickedLocation.district,
-              latitude: pickedLocation.latitude,
-              longitude: pickedLocation.longitude,
-              address: pickedLocation.address,
+              state: picked.state,
+              district: picked.city, // Map city to district for backend consistency
+              latitude: picked.latitude,
+              longitude: picked.longitude,
+              address: picked.address,
             });
-            setShowMapPicker(false);
+            setShowLocationPicker(false);
+            console.log('[ProfileSetup] Location selected:', picked.city, picked.state);
           }}
         />
       </Modal>

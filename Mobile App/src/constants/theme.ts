@@ -99,6 +99,13 @@ export const theme = {
     round: 999,
   },
   shadow: {
+    sm: {
+      shadowColor: '#0d170f',
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      shadowOffset: { width: 0, height: 2 },
+      elevation: 2,
+    } satisfies ViewStyle,
     card: {
       shadowColor: '#0d170f',
       shadowOpacity: 0.09,

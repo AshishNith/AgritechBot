@@ -37,11 +37,12 @@ export function ChatMessageItem({
   const isUser = message.role === 'user';
 
   // Simple Markdown-like formatter for bold and bullets
-  const renderContent = (content: string) => {
+  const renderContent = (content: any) => {
     if (!content) return null;
+    const contentStr = String(content);
 
     // Split by newlines and process each line
-    const lines = content.split('\n');
+    const lines = contentStr.split('\n');
     return lines.map((line, idx) => {
       // Bold detection: **text**
       const parts = line.split(/(\*\*.*?\*\*)/);
@@ -49,7 +50,7 @@ export function ChatMessageItem({
       return (
         <AppText
           key={idx}
-          color={isUser ? colors.textOnDark : isDark ? colors.textOnDark : colors.text}
+          color={isUser ? colors.textOnDark : undefined}
           style={[
             styles.messageText,
             line.trim().startsWith('•') && styles.bulletLine,
@@ -61,7 +62,7 @@ export function ChatMessageItem({
               return (
                 <AppText
                   key={pIdx}
-                  color={isUser ? colors.textOnDark : isDark ? colors.textOnDark : colors.text}
+                  color={isUser ? colors.textOnDark : undefined}
                   style={{ fontWeight: 'bold' }}
                 >
                   {part.slice(2, -2)}

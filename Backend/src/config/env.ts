@@ -72,6 +72,11 @@ const envSchema = z.object({
   // Production-specific
   CORS_ORIGINS: z.string().optional().default(''),       // Comma-separated allowed origins
   LOG_LEVEL: z.string().optional().default(''),           // Override log level (debug, info, warn, error)
+
+  // Cloudinary
+  CLOUDINARY_CLOUD_NAME: z.string().optional().default(''),
+  CLOUDINARY_API_KEY: z.string().optional().default(''),
+  CLOUDINARY_API_SECRET: z.string().optional().default(''),
 });
 
 const parsed = envSchema.safeParse(process.env);

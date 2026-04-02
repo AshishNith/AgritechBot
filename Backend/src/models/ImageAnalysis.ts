@@ -3,7 +3,6 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 export interface IImageAnalysis extends Document {
   userId: Types.ObjectId;
   imageUri?: string;
-  imageBase64?: string; // Optional: if we store small previews or the full image
   diagnosis: string;
   cropType?: string;
   severity?: 'Low' | 'Moderate' | 'High';
@@ -28,10 +27,6 @@ const imageAnalysisSchema = new Schema<IImageAnalysis>(
     },
     imageUri: {
       type: String,
-    },
-    imageBase64: {
-      type: String,
-      required: false,
     },
     diagnosis: {
       type: String,

@@ -62,6 +62,21 @@ export function LocationPicker({
     setSelectedLocation,
   } = useLocationPicker(initialLocation);
 
+  const [mapReady, setMapReady] = useState(false);
+  const [mapLoadError, setMapLoadError] = useState(false);
+
+  // Set a timeout for map loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!mapReady && !mapLoadError) {
+        setMapLoadError(true);
+        console.warn('Map initialization timeout');
+      }
+    }, 10000); // 10 seconds timeout for map
+
+    return () => clearTimeout(timer);
+  }, [mapReady, mapLoadError]);
+
   const [region, setRegion] = useState({
     latitude: initialLocation?.latitude || 28.6139,
     longitude: initialLocation?.longitude || 77.209,
@@ -117,6 +132,8 @@ export function LocationPicker({
           mapType={mapType}
           initialRegion={selectedLocation}
           onRegionChangeComplete={handleRegionChangeComplete}
+          onMapReady={() => setMapReady(true)}
+          onMapLoaded={() => setMapReady(true)}
           showsUserLocation={hasPermission}
           showsMyLocationButton={true}
           toolbarEnabled={true}
@@ -128,16 +145,26 @@ export function LocationPicker({
           customMapStyle={isDark && mapType === 'standard' ? DARK_MAP_STYLE : []}
         />
         
-        {/* Premium Center Target */}
-        <View style={StyleSheet.absoluteFill} pointerEvents="none">
-          <View style={styles.markerFixed}>
-            <View style={[styles.pulseRing, { borderColor: colors.primary }]} />
-            <View style={[styles.markerMain, { backgroundColor: colors.primary }]}>
-              {(() => { const IconComp = IconMap['MapPin']; return IconComp ? <IconComp size={24} color="#fff" /> : null; })()}
-            </View>
-            <View style={styles.markerTip} />
+        {!mapReady && !mapLoadError && (
+          <View style={[styles.mapOverlay, { backgroundColor: colors.background }]}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <AppText style={{ marginTop: 16 }}>Loading Map...</AppText>
           </View>
-        </View>
+        )}
+
+        {mapLoadError && (
+          <View style={[styles.mapOverlay, { backgroundColor: colors.background }]}>
+            {(() => { const IconComp = IconMap['AlertCircle']; return IconComp ? <IconComp size={48} color={colors.danger} /> : null; })()}
+            <AppText variant="label" style={{ marginTop: 16, textAlign: 'center', paddingHorizontal: 40 }}>
+              Map failed to load. Please check your internet connection or try again later.
+            </AppText>
+            <GradientButton 
+              label="Try Again" 
+              onPress={() => setMapLoadError(false)} 
+              style={{ marginTop: 24, paddingHorizontal: 32 }}
+            />
+          </View>
+        )}
 
         {/* Action Controls */}
         <View style={styles.mapControls}>
@@ -375,5 +402,11 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 36 : 20,
     gap: 12,
     borderTopWidth: 0,
+  },
+  mapOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
   },
 });

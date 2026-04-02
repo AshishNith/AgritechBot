@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from 'react';
+import * as ExpoFileSystem from 'expo-file-system';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { Pressable, StyleSheet, View, Image, ScrollView, ActivityIndicator, Alert, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -24,6 +25,12 @@ export function ImageScanScreen({ route }: { route: any }) {
   const [image, setImage] = useState<string | null>(route.params?.image || null);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<string | null>(route.params?.result || null);
+
+  // Sync route params when navigating from history
+  useEffect(() => {
+    if (route.params?.image) setImage(route.params.image);
+    if (route.params?.result) setResult(route.params.result);
+  }, [route.params?.image, route.params?.result]);
 
   const { data: scanHistory = [], refetch: refetchHistory, error: historyError, isLoading: isHistoryLoading } = useQuery({
     queryKey: ['scan-history'],
@@ -65,6 +72,7 @@ export function ImageScanScreen({ route }: { route: any }) {
   };
 
   const pickImage = async (useCamera: boolean = false) => {
+    if (analyzing) return;
     try {
       const hasPermission = await requestImageAccess(useCamera);
 
@@ -76,8 +84,8 @@ export function ImageScanScreen({ route }: { route: any }) {
         mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
-        quality: 0.7,
-        base64: true,
+        quality: 0.8,
+        base64: false, // Don't request base64 here to prevent crash
       };
 
       const result = useCamera
@@ -89,10 +97,15 @@ export function ImageScanScreen({ route }: { route: any }) {
       if (asset) {
         setImage(asset.uri);
         setResult(null); // Reset result for new image
-        if (asset.base64) {
-          handleAnalyze(asset.base64, asset.mimeType || 'image/jpeg');
-        } else {
-          Alert.alert('Image unavailable', 'The selected image could not be prepared for analysis. Please try another image.');
+        
+        // Read file as base64 and start analysis
+        try {
+          const base64 = await ExpoFileSystem.readAsStringAsync(asset.uri, {
+            encoding: ExpoFileSystem.EncodingType.Base64,
+          });
+          handleAnalyze(base64, asset.mimeType || 'image/jpeg');
+        } catch (readErr) {
+          Alert.alert('Error', 'Failed to process image file');
         }
       }
     } catch (error) {
@@ -103,6 +116,7 @@ export function ImageScanScreen({ route }: { route: any }) {
   const { language: currentLanguage } = useI18n();
 
   const handleAnalyze = async (base64: string, mimeType: string) => {
+    if (analyzing) return;
     setAnalyzing(true);
     setResult(null); // Clear previous result immediately
     try {
@@ -112,9 +126,10 @@ export function ImageScanScreen({ route }: { route: any }) {
       await apiService.saveLocalScanHistoryEntry({
         _id: response.id,
         diagnosis: response.diagnosis,
+        imageUri: (response as any).imageUrl || null, // Capture high-res URL
         status: 'completed',
         createdAt: response.createdAt,
-        thumbnailUrl: `data:${mimeType};base64,${base64}`,
+        thumbnailUrl: (response as any).imageUrl || null, // Store Cloudinary URL instead of base64
         metadata: {
           language: currentLanguage,
         },
@@ -294,15 +309,17 @@ export function ImageScanScreen({ route }: { route: any }) {
                 <GradientButton
                   label="Take Photo"
                   onPress={() => pickImage(true)}
+                  disabled={analyzing}
                   leftIcon={(() => { const IconComp = IconMap['Camera']; return IconComp ? <IconComp size={18} color="#fff" /> : null; })()}
-                  style={{ flex: 1 }}
+                  style={{ flex: 1, opacity: analyzing ? 0.6 : 1 }}
                 />
                 <GradientButton
                   label="Upload"
                   secondary
                   onPress={() => pickImage(false)}
+                  disabled={analyzing}
                   leftIcon={(() => { const IconComp = IconMap['Upload']; return IconComp ? <IconComp size={18} color="#fff" /> : null; })()}
-                  style={{ flex: 1 }}
+                  style={{ flex: 1, opacity: analyzing ? 0.6 : 1 }}
                 />
               </View>
             </GlassCard>
@@ -320,20 +337,21 @@ export function ImageScanScreen({ route }: { route: any }) {
                   {scanHistory.slice(0, 5).map((scan: any, idx: number) => {
                     let diag: any = {};
                     try { diag = JSON.parse(scan.diagnosis); } catch (e) { }
-                    // Use thumbnailUrl from API response (already formatted as data URL)
-                    const imageUri = scan.thumbnailUrl || (scan.imageBase64 ? `data:image/jpeg;base64,${scan.imageBase64}` : null);
+                    // Use Cloudinary URL (imageUri) as first choice for history thumbs
+                    const displayUri = scan.imageUri || scan.thumbnailUrl || (scan.imageBase64 ? `data:image/jpeg;base64,${scan.imageBase64}` : null);
+                    
                     return (
                       <Animated.View key={scan._id} entering={FadeInRight.delay(idx * 100)}>
                         <Pressable
                           style={styles.historyItem}
                           onPress={() => {
-                            if (imageUri) setImage(imageUri);
+                            if (displayUri) setImage(displayUri);
                             setResult(scan.diagnosis);
                           }}
                         >
-                          {imageUri && (
+                          {displayUri && (
                             <Image
-                              source={{ uri: imageUri }}
+                              source={{ uri: displayUri }}
                               style={styles.historyThumb}
                             />
                           )}
