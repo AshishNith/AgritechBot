@@ -11,24 +11,25 @@ export default function Hero() {
   });
 
   const [images, setImages] = useState<HTMLImageElement[]>([]);
+  const imagesRef = useRef<HTMLImageElement[]>([]);
   const frameCount = 192; // Configured for 192 total frames
 
   // Preload images once component mounts
   useEffect(() => {
     const loadedImages: HTMLImageElement[] = [];
+    imagesRef.current = loadedImages;
     let loadCount = 0;
 
     for (let i = 1; i <= frameCount; i++) {
         const img = new Image();
-        // ezgif-frame-001.jpg up to 192
         const paddedIndex = i.toString().padStart(3, '0');
         img.src = `/frames/ezgif-frame-${paddedIndex}.jpg`;
         
         img.onload = () => {
             loadCount++;
-            // When the first frame loads, perform initial draw immediately
-            if (i === 1) requestAnimationFrame(() => drawFrame(0));
-            // Force state update after batches to reduce churn
+            if (i === 1) {
+                requestAnimationFrame(() => drawFrame(0));
+            }
             if (loadCount === frameCount || loadCount % 20 === 0) {
               setImages([...loadedImages]);
             }
@@ -36,16 +37,16 @@ export default function Hero() {
         loadedImages.push(img);
     }
     
-    // Set initial array reference
     setImages(loadedImages);
   }, []);
 
   const drawFrame = (index: number) => {
-    if (images.length > 0 && canvasRef.current) {
+    const currentImages = imagesRef.current.length > 0 ? imagesRef.current : images;
+    if (currentImages.length > 0 && canvasRef.current) {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         if (ctx) {
-            const img = images[index];
+            const img = currentImages[index];
             if (img && img.complete && img.naturalWidth !== 0) {
                 // Match resolution to screen size dynamically
                 canvas.width = window.innerWidth;
