@@ -87,3 +87,45 @@ export async function getSubscriptionStatus(request: FastifyRequest, reply: Fast
     subscription,
   });
 }
+
+/**
+ * POST /api/subscription/test-upgrade
+ * Dummy upgrade for client testing (no payments)
+ */
+export async function testUpgrade(request: FastifyRequest, reply: FastifyReply) {
+  const schema = z.object({
+    tier: z.enum(['basic', 'premium']),
+  });
+
+  const parsed = schema.safeParse(request.body);
+  if (!parsed.success) {
+    return reply.status(400).send({ error: parsed.error.flatten().fieldErrors });
+  }
+
+  const userId = request.user!._id;
+  const { tier } = parsed.data;
+
+  // Set 30 days of subscription
+  const endDate = new Date();
+  endDate.setDate(endDate.getDate() + 30);
+
+  const subscription = await Subscription.findOneAndUpdate(
+    { userId },
+    {
+      tier,
+      status: 'active',
+      startDate: new Date(),
+      endDate,
+      paymentId: `test_upgrade_${Date.now()}`,
+      features: TIER_FEATURES[tier],
+    },
+    { upsert: true, new: true }
+  );
+
+  await User.findByIdAndUpdate(userId, { subscriptionTier: tier });
+
+  return reply.send({
+    message: `Test upgrade to ${tier} successful`,
+    subscription,
+  });
+}

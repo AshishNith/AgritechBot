@@ -11,6 +11,8 @@ import PricingFAQ from '../components/PricingFAQ';
 import MapSection from '../components/MapSection';
 import FinalCTA from '../components/FinalCTA';
 
+import YouTubeSection from '../components/YouTubeSection';
+
 export default function Home() {
   return (
     <>
@@ -22,6 +24,7 @@ export default function Home() {
       <WeatherWidget />
       <Marketplace />
       <AppShowcase />
+      <YouTubeSection />
       <PricingFAQ />
       <MapSection />
       <FinalCTA />

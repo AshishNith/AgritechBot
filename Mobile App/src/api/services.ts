@@ -453,6 +453,16 @@ export const apiService = {
     return data;
   },
 
+  /**
+   * Dummy upgrade for testing (no payments)
+   */
+  async testUpgradeSubscription(tier: 'basic' | 'premium') {
+    const { data } = await api.post<{ message: string; subscription: any }>('/api/subscription/test-upgrade', {
+      tier,
+    });
+    return data;
+  },
+
   // ── Notifications ──
   async getNotifications(type?: string) {
     const { data } = await api.get<NotificationListResponse>('/api/notifications', {

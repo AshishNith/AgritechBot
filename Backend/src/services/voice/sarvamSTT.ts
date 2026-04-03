@@ -52,6 +52,8 @@ export async function speechToText(
     form.append('model', env.SARVAM_STT_MODEL);
     form.append('with_timestamps', 'false');
 
+    logger.debug({ url: env.SARVAM_STT_URL, model: env.SARVAM_STT_MODEL, langCode }, 'Calling Sarvam STT API');
+
     const response = await fetch(env.SARVAM_STT_URL, {
       method: 'POST',
       headers: {
@@ -63,17 +65,23 @@ export async function speechToText(
 
     if (!response.ok) {
       const errBody = await response.text();
+      logger.error({ status: response.status, errBody }, 'Sarvam STT Provider Error');
       throw new Error(`Sarvam STT error (${response.status}): ${errBody}`);
     }
 
     const data = (await response.json()) as { transcript?: string; text?: string };
+    
+    logger.info({ 
+      transcriptLength: (data.transcript || data.text || '').length,
+      hasTranscript: !!(data.transcript || data.text)
+    }, 'Sarvam STT success');
 
     return {
       text: data.transcript || data.text || '',
       language: language || 'Hindi',
     };
-  } catch (err) {
-    logger.error({ err }, 'Sarvam STT failed');
+  } catch (err: any) {
+    logger.error({ err: err.message, stack: err.stack }, 'Sarvam STT failed');
     throw err;
   }
 }

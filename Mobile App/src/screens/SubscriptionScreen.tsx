@@ -84,6 +84,21 @@ export function SubscriptionScreen() {
     },
   });
 
+  const testUpgradeMutation = useMutation({
+    mutationFn: () => apiService.testUpgradeSubscription(selectedPlan),
+    onSuccess: (data) => {
+      if (user) {
+        setUser({ ...user, subscriptionTier: selectedPlan });
+      }
+      Alert.alert('Success', `Directly upgraded to ${selectedPlan} for testing.`);
+      navigation.goBack();
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.error || 'Test upgrade failed.';
+      Alert.alert('Test Upgrade Error', msg);
+    },
+  });
+
   return (
     <Screen scrollable>
       <Image source={{ uri: designImages.premiumHero }} style={styles.hero} />
@@ -165,6 +180,19 @@ export function SubscriptionScreen() {
           ) : undefined
         }
       />
+
+      <View style={{ marginTop: 16 }}>
+        <AppText color={colors.textMuted} style={{ textAlign: 'center', marginBottom: 8 }}>
+          Internal Testing Only
+        </AppText>
+        <GradientButton
+          label={testUpgradeMutation.isPending ? 'Activating...' : `Test Upgrade to ${selectedPlan}`}
+          secondary
+          onPress={() => testUpgradeMutation.mutate()}
+          disabled={testUpgradeMutation.isPending}
+        />
+      </View>
+
       <AppText color={colors.textMuted} style={{ textAlign: 'center', marginTop: 12, paddingBottom: 120 }}>
         Plans activate only after payment verification.
       </AppText>
