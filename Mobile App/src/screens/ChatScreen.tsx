@@ -38,6 +38,7 @@ import { ChatMessageItem } from '../components/chat/ChatMessageItem';
 import { Product } from '../types/api';
 
 const starterId = 'starter';
+const MIN_TRANSCRIBE_DURATION_MS = 700;
 
 function buildStarterMessage(language: string): ChatMessage {
   return {
@@ -604,6 +605,12 @@ export function ChatScreen() {
 
       if (!clip) {
         setVoiceStatus('idle');
+        return;
+      }
+
+      if (mode === 'transcribe' && clip.durationMs < MIN_TRANSCRIBE_DURATION_MS) {
+        setVoiceStatus('idle');
+        Alert.alert('Recording too short', 'Please speak for a moment and try again.');
         return;
       }
 

@@ -1,10 +1,11 @@
 import { Audio } from 'expo-av';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface RecordedAudioClip {
   uri: string;
   fileName: string;
   mimeType: string;
+  durationMs: number;
 }
 
 function getMimeTypeFromUri(uri: string): string {
@@ -31,7 +32,7 @@ function getMimeTypeFromUri(uri: string): string {
   }
 }
 
-function buildRecordedClip(uri: string): RecordedAudioClip {
+function buildRecordedClip(uri: string, durationMs: number): RecordedAudioClip {
   const cleanUri = uri.split('?')[0];
   const fileName = cleanUri.split('/').pop() || `voice-query.${cleanUri.split('.').pop() || 'm4a'}`;
 
@@ -39,6 +40,7 @@ function buildRecordedClip(uri: string): RecordedAudioClip {
     uri,
     fileName,
     mimeType: getMimeTypeFromUri(cleanUri),
+    durationMs,
   };
 }
 
@@ -46,6 +48,7 @@ export function useAudioRecorder() {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [audioClip, setAudioClip] = useState<RecordedAudioClip | null>(null);
+  const recordingStartedAtRef = useRef<number | null>(null);
 
   const startRecording = useCallback(async () => {
     if (recording) {
@@ -89,6 +92,7 @@ export function useAudioRecorder() {
     };
     await nextRecording.prepareToRecordAsync(recordingOptions as any);
     await nextRecording.startAsync();
+    recordingStartedAtRef.current = Date.now();
     setRecording(nextRecording);
     setIsRecording(true);
   }, [recording]);
@@ -101,15 +105,17 @@ export function useAudioRecorder() {
     try {
       await recording.stopAndUnloadAsync();
       const uri = recording.getURI();
+      const durationMs = recordingStartedAtRef.current ? Date.now() - recordingStartedAtRef.current : 0;
 
       if (!uri) {
         return null;
       }
 
-      const clip = buildRecordedClip(uri);
+      const clip = buildRecordedClip(uri, durationMs);
       setAudioClip(clip);
       return clip;
     } finally {
+      recordingStartedAtRef.current = null;
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
         playsInSilentModeIOS: true,

@@ -1,10 +1,17 @@
 import { env } from '../../config/env';
 import { logger } from '../../utils/logger';
 import { getLanguageCode } from '../../utils/languageDetector';
+import { HttpError } from '../../chat/utils/httpError';
 
 interface STTResponse {
   text: string;
   language: string;
+}
+
+interface SarvamErrorBody {
+  error?: {
+    message?: string;
+  };
 }
 
 function fileExtensionForMimeType(mimeType: string): string {
@@ -66,7 +73,28 @@ export async function speechToText(
     if (!response.ok) {
       const errBody = await response.text();
       logger.error({ status: response.status, errBody }, 'Sarvam STT Provider Error');
-      throw new Error(`Sarvam STT error (${response.status}): ${errBody}`);
+      let providerMessage = `Sarvam STT error (${response.status})`;
+
+      try {
+        const parsed = JSON.parse(errBody) as SarvamErrorBody;
+        if (parsed.error?.message) {
+          providerMessage = parsed.error.message;
+        }
+      } catch {
+        if (errBody.trim()) {
+          providerMessage = errBody.trim();
+        }
+      }
+
+      if (response.status >= 400 && response.status < 500) {
+        if (/audio duration is 0/i.test(providerMessage)) {
+          throw new HttpError('Recording is too short. Please speak for a moment and try again.', 400);
+        }
+
+        throw new HttpError(providerMessage, 400);
+      }
+
+      throw new HttpError('Speech transcription provider is temporarily unavailable. Please try again.', 502);
     }
 
     const data = (await response.json()) as { transcript?: string; text?: string };
