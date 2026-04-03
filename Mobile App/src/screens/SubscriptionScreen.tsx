@@ -12,9 +12,10 @@ import { RootStackParamList } from '../navigation/types';
 import { useTheme } from '../providers/ThemeContext';
 
 const features = [
-  ['Advanced AI', 'Deeper reasoning'],
-  ['Personalized Advisory', 'Tailored suggestions'],
-  ['Faster Responses', 'Priority processing'],
+  ['AI Crop Doctor', '5 or 10 professional scans/mo'],
+  ['Krishi AI Chat', '35 or 55 smart messages/mo'],
+  ['Voice Assistance', 'Full voice-to-voice support'],
+  ['Priority Support', 'Expert help on priority'],
 ] as const;
 
 export function SubscriptionScreen() {
@@ -110,23 +111,24 @@ export function SubscriptionScreen() {
 
       <Pressable onPress={() => setSelectedPlan('premium')}>
         <ScreenCard style={[styles.pricingCard, selectedPlan === 'premium' && [styles.pricingCardActive, { borderColor: colors.primary, shadowColor: colors.primary }]]}>
-          <AppText variant="label">Annual Plan (Premium)</AppText>
+          <AppText variant="label">Premium Plan</AppText>
           <AppText variant="title" style={{ marginTop: 8 }}>
-            Rs 2,999/year
+            ₹199 / month
           </AppText>
-          {selectedPlan === 'premium' ? (
-            <AppText color={colors.primaryDark} style={{ fontWeight: '600', marginTop: 4 }}>
-              SAVE 40%
-            </AppText>
-          ) : null}
+          <AppText color={colors.textMuted} style={{ marginTop: 4 }}>
+            55 Chats + 10 Image Scans
+          </AppText>
         </ScreenCard>
       </Pressable>
 
       <Pressable onPress={() => setSelectedPlan('basic')}>
         <ScreenCard style={[styles.pricingCard, selectedPlan === 'basic' && [styles.pricingCardActive, { borderColor: colors.primary, shadowColor: colors.primary }]]}>
-          <AppText variant="label">Monthly Plan (Basic)</AppText>
+          <AppText variant="label">Basic Plan</AppText>
           <AppText variant="title" style={{ marginTop: 8 }}>
-            Rs 399/month
+            ₹149 / month
+          </AppText>
+          <AppText color={colors.textMuted} style={{ marginTop: 4 }}>
+            35 Chats + 5 Image Scans
           </AppText>
         </ScreenCard>
       </Pressable>

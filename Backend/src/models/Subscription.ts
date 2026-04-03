@@ -8,8 +8,10 @@ export interface ISubscription extends Document {
   endDate: Date;
   paymentId?: string;
   queriesUsed: number;
+  scansUsed: number;
   features: {
-    dailyQueryLimit: number;
+    chatLimit: number;
+    scanLimit: number;
     voiceEnabled: boolean;
     prioritySupport: boolean;
     marketplaceAccess: boolean;
@@ -19,9 +21,9 @@ export interface ISubscription extends Document {
 }
 
 const TIER_FEATURES = {
-  free: { dailyQueryLimit: 10, voiceEnabled: false, prioritySupport: false, marketplaceAccess: true },
-  basic: { dailyQueryLimit: 100, voiceEnabled: true, prioritySupport: false, marketplaceAccess: true },
-  premium: { dailyQueryLimit: -1, voiceEnabled: true, prioritySupport: true, marketplaceAccess: true },
+  free: { chatLimit: 5, scanLimit: 2, voiceEnabled: false, prioritySupport: false, marketplaceAccess: true },
+  basic: { chatLimit: 35, scanLimit: 5, voiceEnabled: true, prioritySupport: false, marketplaceAccess: true },
+  premium: { chatLimit: 55, scanLimit: 10, voiceEnabled: true, prioritySupport: true, marketplaceAccess: true },
 };
 
 const subscriptionSchema = new Schema<ISubscription>(
@@ -47,11 +49,16 @@ const subscriptionSchema = new Schema<ISubscription>(
       type: Number,
       default: 0,
     },
+    scansUsed: {
+      type: Number,
+      default: 0,
+    },
     startDate: { type: Date, default: Date.now },
     endDate: { type: Date, required: true },
     paymentId: String,
     features: {
-      dailyQueryLimit: { type: Number, default: 20 },
+      chatLimit: { type: Number, default: 5 },
+      scanLimit: { type: Number, default: 2 },
       voiceEnabled: { type: Boolean, default: false },
       prioritySupport: { type: Boolean, default: false },
       marketplaceAccess: { type: Boolean, default: true },

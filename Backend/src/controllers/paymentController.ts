@@ -56,7 +56,7 @@ const checkoutQuerySchema = z.object({
 });
 
 const SUBSCRIPTION_PRICING_PAISE = {
-  basic: 39900,
+  basic: 14900,
   premium: 299900,
 } as const;
 

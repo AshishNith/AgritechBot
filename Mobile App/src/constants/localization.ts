@@ -298,7 +298,10 @@ export type TranslationKey =
   | 'askInNative'
   | 'continueButton'
   | 'recommendedProducts'
-  | 'listen';
+  | 'listen'
+  | 'limitReached'
+  | 'cancel'
+  | 'upgradeNow';
 
 
 const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
@@ -601,6 +604,9 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     continueButton: 'Continue',
     recommendedProducts: 'Recommended Products',
     listen: 'Listen',
+    limitReached: 'Limit Reached',
+    cancel: 'Cancel',
+    upgradeNow: 'Upgrade Now',
   },
   Hindi: {
     marketTitle: 'मार्केट',
@@ -901,6 +907,9 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     continueButton: 'जारी रखें',
     recommendedProducts: 'अनुशंसित उत्पाद',
     listen: 'सुनें',
+    limitReached: 'सीमा समाप्त',
+    cancel: 'रद्द करें',
+    upgradeNow: 'अभी अपग्रेड करें',
   },
   Gujarati: {
     marketTitle: 'ખેતી બજાર',
@@ -1201,6 +1210,9 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     continueButton: 'ચાલુ રાખો',
     recommendedProducts: 'ભલામણ કરેલ ઉત્પાદનો',
     listen: 'સાંભળો',
+    limitReached: 'સીમા પૂર્ણ થઈ',
+    cancel: 'રદ કરો',
+    upgradeNow: 'હમણાં અપગ્રેડ કરો',
   },
   Punjabi: {
     marketTitle: 'ਮਾਰਕੀਟ',
@@ -1501,6 +1513,9 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     continueButton: 'ਜਾਰੀ ਰੱਖੋ',
     recommendedProducts: 'ਸਿਫਾਰਸ਼ ਕੀਤੇ ਉਤਪਾਦ',
     listen: 'ਸੁਣੋ',
+    limitReached: 'ਸੀਮਾ ਖ਼ਤਮ ਹੋ ਗਈ',
+    cancel: 'ਰੱਦ ਕਰੋ',
+    upgradeNow: 'ਹੁਣ ਅਪਗ੍ਰੇਡ ਕਰੋ',
   },
 };
 

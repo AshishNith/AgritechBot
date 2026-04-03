@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { z } from 'zod';
 import { ImageAnalysis } from '../models/ImageAnalysis';
+import { checkLimit, incrementUsage } from '../services/subscriptionService';
 import { env } from '../config/env';
 import { logger } from '../utils/logger';
 import { DIAGNOSIS_PROMPT } from '../chat/data/diagnosisPrompt';
@@ -88,6 +89,15 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
   const startTime = Date.now();
   const userId = request.user!._id;
 
+  // --- Subscription Limit Check ---
+  const limitCheck = await checkLimit(userId.toString(), 'scan');
+  if (!limitCheck.allowed) {
+    const errorMsg = limitCheck.reason === 'LIMIT_REACHED'
+      ? `Scan limit reached for your plan. Upgrade for more scans.`
+      : 'Subscription expired or not found. Please check your account.';
+    return reply.status(403).send({ error: errorMsg, code: 'SUBSCRIPTION_LIMIT_REACHED' });
+  }
+
   try {
     const model = genAI.getGenerativeModel({
       model: env.GEMINI_MODEL,
@@ -155,6 +165,10 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
       });
 
       logger.info({ analysisId: analysis._id, userId }, 'Analysis saved to database');
+      
+      // --- Increment Usage ---
+      await incrementUsage(userId.toString(), 'scan');
+
       return reply.send({
         id: analysis._id,
         diagnosis: diagnosisJson,

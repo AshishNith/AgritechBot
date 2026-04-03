@@ -13,6 +13,7 @@ import {
 import { cache, RedisCache } from '../services/cache/redisCache';
 import { detectLanguage } from '../utils/languageDetector';
 import { runChatWrapper } from '../services/ai/chatWrapper';
+import { checkLimit, incrementUsage } from '../services/subscriptionService';
 
 const askSchema = z.object({
   message: z.string().min(1).max(2000),
@@ -126,23 +127,6 @@ async function getRecommendedProducts(message: string) {
   }));
 }
 
-async function checkDailyLimit(userId: string): Promise<{ allowed: boolean; limit: number; used: number }> {
-  const sub = await Subscription.findOne({ userId });
-  const limit = sub ? sub.features.dailyQueryLimit : 10;
-  
-  if (limit === -1) return { allowed: true, limit, used: 0 };
-
-  const startOfDay = new Date();
-  startOfDay.setHours(0, 0, 0, 0);
-
-  const used = await Message.countDocuments({
-    userId,
-    role: 'user',
-    createdAt: { $gte: startOfDay },
-  });
-
-  return { allowed: used < limit, limit, used };
-}
 
 /**
  * POST /api/chat/ask
@@ -156,10 +140,12 @@ export async function askQuestion(request: FastifyRequest, reply: FastifyReply) 
 
   const { message, language: langInput, chatId: existingChatId } = parsed.data;
   const userId = String(request.user!._id);
-
-  const limitCheck = await checkDailyLimit(userId);
+  const limitCheck = await checkLimit(userId, 'chat');
   if (!limitCheck.allowed) {
-    return reply.status(403).send({ error: `Daily limit of ${limitCheck.limit} questions reached. Please upgrade to premium.` });
+    const errorMsg = limitCheck.reason === 'LIMIT_REACHED'
+      ? `Chat limit reached for your plan. Upgrade for more messages.`
+      : 'Subscription expired or not found. Please check your account.';
+    return reply.status(403).send({ error: errorMsg, code: 'SUBSCRIPTION_LIMIT_REACHED' });
   }
 
   // Detect language if "auto"
@@ -195,6 +181,9 @@ export async function askQuestion(request: FastifyRequest, reply: FastifyReply) 
       { chatId, userId, role: 'assistant', content: cached, language, metadata: { cached: true } },
     ]);
     await Chat.findByIdAndUpdate(chatId, { $inc: { messageCount: 2 }, lastMessageAt: new Date() });
+
+    // Increment usage
+    await incrementUsage(userId, 'chat');
 
     return reply.send({
       answer: cached,
@@ -255,6 +244,9 @@ export async function askQuestion(request: FastifyRequest, reply: FastifyReply) 
       lastMessageAt: new Date(),
     });
 
+    // Increment usage
+    await incrementUsage(userId, 'chat');
+
     return reply.send({
       answer: wrapperResult.answer,
       chatId,
@@ -286,6 +278,9 @@ export async function askQuestion(request: FastifyRequest, reply: FastifyReply) 
       getChatQueueEvents(),
       30_000 // 30s timeout
     );
+    // Increment usage
+    await incrementUsage(userId, 'chat');
+
     return reply.send({ ...result, chatId, quickReplies, recommendedProducts });
   } catch {
     return reply.status(504).send({
@@ -309,9 +304,14 @@ export async function streamChat(request: FastifyRequest, reply: FastifyReply) {
   const { message, language: langInput, chatId: existingChatId } = parsed.data;
   const userId = String(request.user!._id);
 
-  const limitCheck = await checkDailyLimit(userId);
+  const limitCheck = await checkLimit(userId, 'chat');
   if (!limitCheck.allowed) {
-    return reply.status(403).send({ error: `Daily limit of ${limitCheck.limit} questions reached. Please upgrade to premium.` });
+    return reply.status(403).send({ 
+      error: limitCheck.reason === 'LIMIT_REACHED' 
+        ? 'Chat limit reached for your plan. Upgrade for more messages.' 
+        : 'Subscription expired or not found.',
+      code: 'SUBSCRIPTION_LIMIT_REACHED' 
+    });
   }
 
   const language = normalizeLanguage(
@@ -399,6 +399,9 @@ export async function streamChat(request: FastifyRequest, reply: FastifyReply) {
       $inc: { messageCount: 2 },
       lastMessageAt: new Date(),
     });
+
+    // Increment usage
+    await incrementUsage(userId, 'chat');
 
     writeEvent('done', {
       chatId,

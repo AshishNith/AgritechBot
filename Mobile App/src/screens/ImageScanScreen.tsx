@@ -140,9 +140,22 @@ export function ImageScanScreen({ route }: { route: any }) {
       });
       setResult(response.diagnosis);
       refetchHistory(); // Update history list after new scan
-    } catch (error) {
+    } catch (error: any) {
       console.error('[ImageScan] Analysis error:', error);
-      Alert.alert('Analysis Failed', 'Could not analyze the image. Please try again.');
+      
+      if (error?.response?.status === 403) {
+        const backendMsg = error?.response?.data?.error || error?.response?.data?.message;
+        Alert.alert(
+          t('limitReached') || 'Limit Reached',
+          backendMsg || 'You have reached your scan limit. Please upgrade to continue.',
+          [
+            { text: t('cancel'), style: 'cancel' },
+            { text: t('upgradeNow') || 'Upgrade Now', onPress: () => navigation.navigate('Subscription') }
+          ]
+        );
+      } else {
+        Alert.alert('Analysis Failed', 'Could not analyze the image. Please try again.');
+      }
     } finally {
       setAnalyzing(false);
     }

@@ -296,6 +296,18 @@ export function ChatScreen() {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           message = t(language, 'sessionExpired');
+        } else if (error.response?.status === 403) {
+          // --- Subscription Limit Reached ---
+          const backendMsg = (error.response?.data as any)?.error || (error.response?.data as any)?.message;
+          Alert.alert(
+            t(language, 'limitReached') || 'Limit Reached',
+            backendMsg || 'You have reached your limit for this plan. Please upgrade to continue.',
+            [
+              { text: t(language, 'cancel'), style: 'cancel' },
+              { text: t(language, 'upgradeNow') || 'Upgrade Now', onPress: () => navigation.navigate('Subscription') }
+            ]
+          );
+          return; // Stop here, alert handled it
         } else if (
           typeof error.response?.data === 'object' &&
           error.response?.data &&
@@ -496,6 +508,17 @@ export function ChatScreen() {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           message = t(language, 'sessionExpired');
+        } else if (error.response?.status === 403) {
+          const backendMsg = (error.response?.data as any)?.error || (error.response?.data as any)?.message;
+          Alert.alert(
+            t(language, 'limitReached') || 'Limit Reached',
+            backendMsg || 'You have reached your limit for this plan. Please upgrade to continue.',
+            [
+              { text: t(language, 'cancel'), style: 'cancel' },
+              { text: t(language, 'upgradeNow') || 'Upgrade Now', onPress: () => navigation.navigate('Subscription') }
+            ]
+          );
+          return;
         } else if (error.code === 'ECONNABORTED') {
           message = 'Voice request timed out. Please try again.';
         } else if (typeof error.response?.data === 'object' && error.response?.data && 'error' in error.response.data) {
@@ -534,6 +557,17 @@ export function ChatScreen() {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           message = t(language, 'sessionExpired');
+        } else if (error.response?.status === 403) {
+          const backendMsg = (error.response?.data as any)?.error || (error.response?.data as any)?.message;
+          Alert.alert(
+            t(language, 'limitReached') || 'Limit Reached',
+            backendMsg || 'You have reached your limit for this plan. Please upgrade to continue.',
+            [
+              { text: t(language, 'cancel'), style: 'cancel' },
+              { text: t(language, 'upgradeNow') || 'Upgrade Now', onPress: () => navigation.navigate('Subscription') }
+            ]
+          );
+          return;
         } else if (error.code === 'ECONNABORTED') {
           message = 'Voice transcription timed out. Please try again.';
         } else if (typeof error.response?.data === 'object' && error.response?.data && 'error' in error.response.data) {

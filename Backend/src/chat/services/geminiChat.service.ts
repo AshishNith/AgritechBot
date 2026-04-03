@@ -8,6 +8,7 @@ import {
 import type { FastifyReply } from 'fastify';
 import mongoose from 'mongoose';
 import { Subscription } from '../../models/Subscription';
+import { checkLimit, incrementUsage } from '../../services/subscriptionService';
 import { env } from '../../config/env';
 import { logger } from '../../utils/logger';
 import { SYSTEM_PROMPT } from '../data/systemPrompt';
@@ -264,6 +265,27 @@ function getQuotaExceededMessage(language: ChatLanguageCode, retryAfterSeconds: 
   return `Gemini API quota exceeded. Please retry in ${retryAfterSeconds}s.`;
 }
 
+function getFriendlyLimitMessage(language: ChatLanguageCode, type: 'chat' | 'scan'): string {
+  if (language === 'hi') {
+    return type === 'chat' 
+      ? 'आपकी चैट सीमा समाप्त हो गई है। और संदेश भेजने के लिए प्रीमियम लें।' 
+      : 'आपकी स्कैन सीमा समाप्त हो गई है। और स्कैन करने के लिए प्रीमियम लें।';
+  }
+  if (language === 'gu') {
+    return type === 'chat'
+      ? 'તમારી ચેટ મર્યાદા પૂરી થઈ ગઈ છે. વધુ સંદેશા માટે પ્રીમિયમ લો.'
+      : 'તમારી સ્કેન મર્યાદા પૂરી થઈ ગઈ છે. વધુ સ્કેન માટે પ્રીમિયમ લો.';
+  }
+  if (language === 'pa') {
+    return type === 'chat'
+      ? 'ਤੁਹਾਡੀ ਚੈਟ ਸੀਮਾ ਖਤਮ ਹੋ ਗਈ ਹੈ। ਹੋਰ ਸੁਨੇਹਿਆਂ ਲਈ ਪ੍ਰੀਮੀਅਮ ਲਓ।'
+      : 'ਤੁਹਾਡੀ ਸਕੈਨ ਸੀਮਾ ਖਤਮ ਹੋ ਗਈ ਹੈ। ਹੋਰ ਸਕੈਨ ਲਈ ਪ੍ਰੀਮੀਅਮ ਲਓ।';
+  }
+  return type === 'chat'
+    ? 'Chat limit reached. Upgrade to Premium for more messages.'
+    : 'Scan limit reached. Upgrade to Premium for more scans.';
+}
+
 async function buildConversationContents(params: {
   sessionId: string;
   farmerId: string;
@@ -430,7 +452,7 @@ async function persistSuccessfulExchange(params: {
     assistantText: params.assistantText,
   });
 
-  await Subscription.findOneAndUpdate({ userId: params.farmerId }, { $inc: { queriesUsed: 1 } });
+  await incrementUsage(params.farmerId, 'chat');
 }
 
 async function persistFailedExchange(params: {
@@ -488,12 +510,18 @@ export async function sendChatMessage(params: {
   imageMimeType?: string;
   forceVoiceReply?: boolean;
 }) {
-  if (Date.now() < quotaBlockedUntil) {
-    const retryMs = quotaBlockedUntil - Date.now();
-    const retryAfterSeconds = Math.max(1, Math.ceil(retryMs / 1000));
-    const language = resolveChatLanguage(params.text, params.preferredLanguage);
-    const message = getQuotaLimitedMessage(language, retryAfterSeconds);
-    throw new HttpError(message, 429, { retryAfterSeconds });
+  const language = resolveChatLanguage(params.text, params.preferredLanguage);
+
+  // --- Subscription Limit Check ---
+  const limitCheck = await checkLimit(params.farmerId, 'chat');
+  if (!limitCheck.allowed) {
+    const errorMsg = limitCheck.reason === 'LIMIT_REACHED'
+      ? getFriendlyLimitMessage(language, 'chat')
+      : 'Subscription expired or not found. Please check your account.';
+    
+    // We pass the code in a way that HttpError/logger can see it if needed, 
+    // but the main thing is the status code 403.
+    throw new HttpError(errorMsg, 403);
   }
 
   const startedAt = Date.now();
@@ -502,7 +530,6 @@ export async function sendChatMessage(params: {
     throw new Error('Chat session not found');
   }
 
-  const language = resolveChatLanguage(params.text, params.preferredLanguage);
   const kbCacheName = await getKnowledgeBaseCacheName();
   const built = await buildConversationContents({
     sessionId: params.sessionId,
