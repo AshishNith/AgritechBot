@@ -1,0 +1,19 @@
+# EAS Build Ignore (Root)
+# Prevents EAS from uploading large non-mobile directories and the .git folder
+
+.git/
+Backend/
+Website/
+Design/
+
+# General ignores for monorepo-like structures
+**/node_modules/
+**/.expo/
+**/android/
+**/ios/
+**/dist/
+**/build/
+
+# Logs and environment
+**/*.log
+**/.env*
