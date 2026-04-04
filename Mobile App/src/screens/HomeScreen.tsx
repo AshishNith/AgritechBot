@@ -21,6 +21,8 @@ import { useI18n } from '../hooks/useI18n';
 import { AIAssistantWidget } from '../components/AIAssistantWidget';
 import { PlannerWidget } from '../components/planner/PlannerWidget';
 import { buildWeatherSuggestions } from '../utils/weatherSuggestions';
+import { HeroWeatherCard } from '../components/HeroWeatherCard';
+import { QuickActionGrid } from '../components/QuickActionGrid';
 
 const DARK_MAP_STYLE = [
   { "elementType": "geometry", "stylers": [{ "color": "#1d2c21" }] },
@@ -49,7 +51,10 @@ export function HomeScreen() {
   const setFeaturedProduct = useAppStore((state) => state.setFeaturedProduct);
   const [liveCoords, setLiveCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [liveLocationName, setLiveLocationName] = useState(t(language, 'mandi'));
-  const logoUrl = 'https://res.cloudinary.com/dvwpxb2oa/image/upload/v1773933014/FullWhiteLogo_nlnlbh.svg';
+  const lightLogo = 'https://res.cloudinary.com/dvwpxb2oa/image/upload/v1775306310/image-removebg-preview_ifr7nb.png';
+  const darkLogo = 'https://res.cloudinary.com/dvwpxb2oa/image/upload/v1774369551/Printable_Logo_nim1ca.svg';
+  
+  const logoUrl = isDark ? darkLogo : lightLogo;
   const logoImageUrl = logoUrl.endsWith('.svg') ? logoUrl.replace(/\.svg$/, '.png') : logoUrl;
 
   const { data } = useQuery({
@@ -115,12 +120,6 @@ export function HomeScreen() {
     ];
   }, [weatherCoordinates]);
 
-  console.log('--- Map Diagnostics ---', {
-    latitude: weatherCoordinates.latitude,
-    longitude: weatherCoordinates.longitude,
-    isDark
-  });
-
   const { data: liveWeather } = useQuery({
     queryKey: ['home-live-weather', weatherCoordinates.latitude, weatherCoordinates.longitude],
     queryFn: async () => {
@@ -133,36 +132,36 @@ export function HomeScreen() {
   });
 
   const weatherCodeMap: Record<number, string> = {
-    0: t(language, 'weatherClear'),
-    1: t(language, 'weatherClear'),
-    2: t(language, 'weatherPartlyCloudy'),
-    3: t(language, 'weatherCloudy'),
-    45: t(language, 'weatherFoggy'),
-    48: t(language, 'weatherFoggy'),
-    51: t(language, 'weatherRainy'),
-    53: t(language, 'weatherRainy'),
-    55: t(language, 'weatherRainy'),
-    61: t(language, 'weatherRainy'),
-    63: t(language, 'weatherRainy'),
-    65: t(language, 'weatherRainy'),
-    71: t(language, 'weatherClear'), // Mocking snow as clear/cold for now
-    73: t(language, 'weatherClear'),
-    75: t(language, 'weatherClear'),
-    95: t(language, 'weatherStormy'),
+    0: tx('weatherClear'),
+    1: tx('weatherClear'),
+    2: tx('weatherPartlyCloudy'),
+    3: tx('weatherCloudy'),
+    45: tx('weatherFoggy'),
+    48: tx('weatherFoggy'),
+    51: tx('weatherRainy'),
+    53: tx('weatherRainy'),
+    55: tx('weatherRainy'),
+    61: tx('weatherRainy'),
+    63: tx('weatherRainy'),
+    65: tx('weatherRainy'),
+    71: tx('weatherClear'),
+    73: tx('weatherClear'),
+    75: tx('weatherClear'),
+    95: tx('weatherStormy'),
   };
 
   const weatherTemperature = liveWeather?.current?.temperature_2m != null
-    ? `${Math.round(liveWeather.current.temperature_2m)}°C`
+    ? Math.round(liveWeather.current.temperature_2m)
     : homeWeatherCard.temperature;
   const weatherCondition = weatherCodeMap[liveWeather?.current?.weather_code] || homeWeatherCard.condition;
   const weatherHumidity = liveWeather?.current?.relative_humidity_2m != null
-    ? `${liveWeather.current.relative_humidity_2m}%`
+    ? liveWeather.current.relative_humidity_2m
     : homeWeatherCard.moisture;
   const weatherWind = liveWeather?.current?.wind_speed_10m != null
-    ? `${Math.round(liveWeather.current.wind_speed_10m)} km/h`
-    : '8 km/h';
+    ? Math.round(liveWeather.current.wind_speed_10m)
+    : 8;
   const soilMoisture = liveWeather?.hourly?.soil_moisture_0_to_7cm?.[0] != null
-    ? `${Math.round(liveWeather.hourly.soil_moisture_0_to_7cm[0])}%`
+    ? Math.round(liveWeather.hourly.soil_moisture_0_to_7cm[0])
     : weatherHumidity;
   const autoSuggestions = buildWeatherSuggestions({
     temperature: liveWeather?.current?.temperature_2m,
@@ -237,9 +236,14 @@ export function HomeScreen() {
         <View style={styles.brandWrap}>
           <Image
             source={{ uri: logoImageUrl }}
-            style={styles.logoImage}
+            style={isDark ? styles.logoImageDark : styles.logoImage}
             resizeMode="contain"
           />
+          {isDark && (
+            <AppText weight="bold" style={{ fontSize: 26, color: colors.textOnDark, marginLeft: 4, lineHeight: 32, flexShrink: 0 }}>
+              Anaaj.ai
+            </AppText>
+          )}
         </View>
         <Pill
           label={unreadCount > 0 ? `${tx('alerts')} (${unreadCount})` : tx('alerts')}
@@ -253,21 +257,16 @@ export function HomeScreen() {
         <AppText variant="display">{greeting}, {user?.name ?? 'Ram'}</AppText>
       </View>
 
-      <View style={styles.chipsRow}>
-        {quickChips.map((chip) => (
-          <Pill key={chip} label={chip} />
-        ))}
-      </View>
-
-      <WeatherDashboardWidget 
-        temp={weatherTemperature}
+      {/* New Hero Weather Card */}
+      <HeroWeatherCard
+        temperature={weatherTemperature}
         condition={weatherCondition}
-        location={liveLocationName}
+        locationName={liveLocationName}
         humidity={weatherHumidity}
-        wind={weatherWind}
+        windSpeed={weatherWind}
         soilMoisture={soilMoisture}
-        isRaining={liveWeather?.current?.weather_code > 60}
-        suggestions={autoSuggestions}
+        weatherCode={liveWeather?.current?.weather_code ?? 0}
+        advice={autoSuggestions[0]}
         onPress={() =>
           navigation.navigate('WeatherDashboard', {
             latitude: weatherCoordinates.latitude,
@@ -277,14 +276,7 @@ export function HomeScreen() {
         }
       />
 
-      <AIAssistantWidget 
-        onPress={() => navigation.navigate('SmartAssistant')}
-      />
-
-      <PlannerWidget 
-        onPress={() => navigation.navigate('Planner')}
-      />
-
+      {/* Farm Map Directly Below Weather */}
       <ScreenCard style={styles.mapCard}>
         <View style={styles.mapHeader}>
           <AppText variant="label">{t(language, 'farmMap')}</AppText>
@@ -312,6 +304,10 @@ export function HomeScreen() {
         </TouchableOpacity>
       </ScreenCard>
 
+      {/* AI Assistant */}
+     
+
+      {/* Recommendations */}
       <View style={{ marginTop: 24, marginBottom: 8 }}>
         <AppText variant="label" style={{ marginLeft: 4 }}>{t(language, 'recommendedForYou')}</AppText>
         <ScrollView 
@@ -349,6 +345,14 @@ export function HomeScreen() {
           ))}
         </ScrollView>
       </View>
+
+      {/* Quick Action Grid - Moved to last above mic */}
+      <View style={{ marginBottom: 12, marginTop: 24 }}>
+        <AppText variant="label" style={{ marginLeft: 4, marginBottom: 8 }}>{t(language, 'quickServices')}</AppText>
+        <QuickActionGrid />
+      </View>
+
+      {/* Mic Area */}
       <View style={styles.micArea}>
         <PulseMic />
         <AppText color={colors.textMuted} style={{ marginTop: 18 }}>{t(language, 'voiceFarmingHelp')}</AppText>
@@ -363,19 +367,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 18,
+    paddingHorizontal: 4,
   },
   brandWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    minHeight: 44,
   },
   logoImage: {
     width: 140,
     height: 42,
   },
+  logoImageDark: {
+    width: 36,
+    height: 36,
+  },
   header: {
-    marginTop: 16,
+    marginTop: 12,
+    marginBottom: 16,
   },
   weatherInsightPanel: {
     marginTop: 22,

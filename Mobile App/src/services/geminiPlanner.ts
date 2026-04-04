@@ -16,7 +16,7 @@ export async function generateCropSchedule(params: {
     console.warn('Gemini API key missing or invalid. Returning demo schedule.');
     return getDemoSchedule(cropName, fieldName);
   }
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
   const prompt = `
     You are an expert Indian agricultural advisor. Generate a detailed crop task schedule.
@@ -76,7 +76,7 @@ export async function getAIDailyInsight(params: {
       generatedAt: new Date().toISOString()
     };
   }
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
   const prompt = `
     You are an expert Indian agricultural advisor.

@@ -36,7 +36,7 @@ const envSchema = z.object({
 
   // AI Providers
   GEMINI_API_KEY: z.string().min(1),
-  GEMINI_MODEL: z.string().default('gemini-2.5-flash'),
+  GEMINI_MODEL: z.string().default('gemini-2.5-flash-lite'),
   GEMINI_SUGGESTIONS_MODEL: z.string().default('gemini-2.5-flash-lite'),
 
   // Voice

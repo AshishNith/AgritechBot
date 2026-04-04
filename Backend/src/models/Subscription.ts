@@ -21,9 +21,27 @@ export interface ISubscription extends Document {
 }
 
 const TIER_FEATURES = {
-  free: { chatLimit: 5, scanLimit: 2, voiceEnabled: false, prioritySupport: false, marketplaceAccess: true },
-  basic: { chatLimit: 35, scanLimit: 5, voiceEnabled: true, prioritySupport: false, marketplaceAccess: true },
-  premium: { chatLimit: 55, scanLimit: 10, voiceEnabled: true, prioritySupport: true, marketplaceAccess: true },
+  free: { 
+    chatLimit: 20, 
+    scanLimit: 2, 
+    voiceEnabled: false, 
+    prioritySupport: false, 
+    marketplaceAccess: true 
+  },
+  basic: { 
+    chatLimit: 100, 
+    scanLimit: 10, 
+    voiceEnabled: true, 
+    prioritySupport: false, 
+    marketplaceAccess: true 
+  },
+  premium: { 
+    chatLimit: 300, 
+    scanLimit: 30, 
+    voiceEnabled: true, 
+    prioritySupport: true, 
+    marketplaceAccess: true 
+  },
 };
 
 const subscriptionSchema = new Schema<ISubscription>(
@@ -58,7 +76,7 @@ const subscriptionSchema = new Schema<ISubscription>(
     paymentId: String,
     features: {
       chatLimit: { type: Number, default: 5 },
-      scanLimit: { type: Number, default: 2 },
+      scanLimit: { type: Number, default: 1 },
       voiceEnabled: { type: Boolean, default: false },
       prioritySupport: { type: Boolean, default: false },
       marketplaceAccess: { type: Boolean, default: true },

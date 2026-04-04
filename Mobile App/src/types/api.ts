@@ -203,6 +203,17 @@ export interface OrderRequest {
 
 export type SubscriptionTier = 'free' | 'basic' | 'premium';
 
+export interface SubscriptionStatus {
+  tier: SubscriptionTier;
+  chatsUsed: number;
+  chatsLimit: number;
+  scansUsed: number;
+  scansLimit: number;
+  startDate: string;
+  endDate: string;
+  status: 'active' | 'expired' | 'cancelled';
+}
+
 export interface OrderSummary {
   id: string;
   items: Array<{

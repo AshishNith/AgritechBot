@@ -3,6 +3,7 @@ import { View, StyleSheet, Pressable, Image, ScrollView, Dimensions } from 'reac
 import { AppText } from '../ui';
 import { ChatMessage, Product } from '../../types/api';
 import { useTheme } from '../../providers/ThemeContext';
+import { themeMinimal } from '../../constants/theme.minimal';
 import { IconMap } from '../IconMap';
 import { t } from '../../constants/localization';
 
@@ -50,7 +51,7 @@ export function ChatMessageItem({
       return (
         <AppText
           key={idx}
-          color={isUser ? colors.textOnDark : undefined}
+          color={isUser ? colors.textOnDark : colors.text}
           style={[
             styles.messageText,
             line.trim().startsWith('•') && styles.bulletLine,
@@ -62,7 +63,7 @@ export function ChatMessageItem({
               return (
                 <AppText
                   key={pIdx}
-                  color={isUser ? colors.textOnDark : undefined}
+                  color={isUser ? colors.textOnDark : colors.text}
                   style={{ fontWeight: 'bold' }}
                 >
                   {part.slice(2, -2)}
@@ -91,7 +92,7 @@ export function ChatMessageItem({
         resizeMode="cover"
       />
       <View style={styles.productInfo}>
-        <AppText variant="label" numberOfLines={1} style={{ fontSize: 13, fontWeight: '600', color: isDark ? colors.textOnDark : colors.text }}>
+        <AppText variant="label" numberOfLines={1} style={{ fontSize: 13, fontWeight: '600' }} color={colors.text}>
           {product.name}
         </AppText>
         <AppText variant="caption" color={colors.primary} style={{ fontWeight: '700', marginTop: 2 }}>
@@ -115,14 +116,7 @@ export function ChatMessageItem({
           styles.bubble,
           isUser
             ? [styles.userBubble, { backgroundColor: colors.primary }]
-            : [
-                styles.aiBubble,
-                {
-                  backgroundColor: isDark ? colors.surface : colors.surfaceMuted,
-                  borderColor: isDark ? 'rgba(255,255,255,0.1)' : colors.border,
-                  borderWidth: 1,
-                },
-              ],
+            : [styles.aiBubble, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : colors.surface, borderColor: colors.border }],
         ]}
       >
         <View style={styles.contentWrapper}>
@@ -130,7 +124,7 @@ export function ChatMessageItem({
         </View>
 
         {message.metadata?.recommendedProducts && message.metadata.recommendedProducts.length > 0 && (
-          <View style={[styles.productsContainer, { borderTopColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }]}>
+          <View style={[styles.productsContainer, { borderTopColor: themeMinimal.colors.border }]}>
             <AppText variant="caption" color={colors.textMuted} style={{ marginBottom: 8, fontWeight: '600' }}>
               {t(language as any, 'recommendedProducts')}
             </AppText>
@@ -196,30 +190,32 @@ export function ChatMessageItem({
 const styles = StyleSheet.create({
   messageRow: {
     flexDirection: 'row',
-    marginBottom: 16,
-    paddingHorizontal: 12,
+    marginBottom: themeMinimal.spacing.base,
+    paddingHorizontal: themeMinimal.spacing.md,
   },
   messageRowUser: {
     justifyContent: 'flex-end',
   },
   bubble: {
     maxWidth: SCREEN_WIDTH * 0.85,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 20,
+    paddingHorizontal: themeMinimal.spacing.base,
+    paddingVertical: themeMinimal.spacing.md,
+    borderRadius: themeMinimal.radius.xl,
   },
   userBubble: {
     borderBottomRightRadius: 4,
+    ...themeMinimal.shadows.sm,
   },
   aiBubble: {
+    borderWidth: 1,
     borderBottomLeftRadius: 4,
   },
   contentWrapper: {
     flexShrink: 1,
   },
   messageText: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: themeMinimal.typography.body,
+    lineHeight: themeMinimal.typography.body * (themeMinimal.typography.lineHeights as any).normal,
   },
   bulletLine: {
     paddingLeft: 4,

@@ -126,9 +126,9 @@ export const fallbackHistory: ChatSummary[] = [
 ];
 
 export const homeWeatherCard = {
-  temperature: '28°C',
+  temperature: 28,
   condition: 'Partly Cloudy',
-  moisture: '64%',
+  moisture: 64,
   station: 'Station A-12 • Active',
 };
 

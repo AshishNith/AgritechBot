@@ -20,7 +20,7 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ onPress })
     <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={styles.container}>
       <GlassCard style={styles.card}>
         <LinearGradient
-          colors={isDark ? ['rgba(82,183,129,0.15)', 'rgba(82,183,129,0.05)'] : ['#f0f9f4', '#ffffff']}
+          colors={isDark ? [colors.primary + '15', colors.primary + '05'] : ['#f0f9f4', colors.surface]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFillObject}
@@ -32,7 +32,7 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ onPress })
               <View style={[styles.statusDot, { backgroundColor: colors.primary }]} />
               <AppText variant="label" style={{ color: colors.primary }}>AI Assistant</AppText>
             </View>
-            <AppText variant="display" style={styles.title}>
+            <AppText weight="bold" style={styles.title}>
               Ask Anaaj AI anything...
             </AppText>
             <AppText color={colors.textMuted} style={styles.subtitle}>
@@ -42,7 +42,7 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ onPress })
           
           <View style={styles.iconContainer}>
             <LinearGradient
-              colors={[colors.primary, colors.primary + 'CC']}
+              colors={[colors.primary, colors.primaryDark]}
               style={styles.iconBg}
             >
               <Image 
@@ -55,7 +55,7 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ onPress })
         </View>
 
         <View style={styles.footer}>
-          <View style={styles.cta}>
+          <View style={[styles.cta, { backgroundColor: colors.primary + '15' }]}>
             <AppText variant="caption" style={{ color: colors.primary, fontWeight: '700' }}>
               Start Chatting
             </AppText>

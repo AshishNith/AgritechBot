@@ -42,17 +42,17 @@ export const PlannerWidget: React.FC<PlannerWidgetProps> = ({ onPress, tasksCoun
           </View>
         </View>
 
-        <View style={styles.statsRow}>
+        <View style={[styles.statsRow, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}>
           <View style={styles.stat}>
-            <AppText variant="display" style={{ fontSize: 24, color: theme.accent }}>{tasksCount}</AppText>
+            <AppText weight="bold" style={{ fontSize: 24, color: theme.accent }}>{tasksCount}</AppText>
             <AppText variant="caption" color={theme.text2}>{t('totalTasks')}</AppText>
           </View>
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: theme.border }]} />
           <View style={styles.stat}>
-            <AppText variant="display" style={{ fontSize: 24, color: theme.amber }}>3</AppText>
+            <AppText weight="bold" style={{ fontSize: 24, color: theme.amber }}>3</AppText>
             <AppText variant="caption" color={theme.text2}>{t('pending')}</AppText>
           </View>
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: theme.border }]} />
           <View style={styles.stat}>
             <View style={styles.aiGlow}>
               <MaterialCommunityIcons name="robot" size={24} color={theme.purple} />
@@ -66,8 +66,8 @@ export const PlannerWidget: React.FC<PlannerWidgetProps> = ({ onPress, tasksCoun
             <View style={[styles.progress, { width: '65%', backgroundColor: theme.accent }]} />
           </View>
           <View style={styles.timelineLabels}>
-            <AppText variant="caption" style={{ fontSize: 10 }}>Wheat Sowing</AppText>
-            <AppText variant="caption" style={{ fontSize: 10 }}>65% Complete</AppText>
+            <AppText variant="caption" style={{ fontSize: 10, color: theme.text }}>Wheat Sowing</AppText>
+            <AppText variant="caption" style={{ fontSize: 10, color: theme.text2 }}>65% Complete</AppText>
           </View>
         </View>
 

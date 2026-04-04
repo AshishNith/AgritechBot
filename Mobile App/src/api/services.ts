@@ -17,6 +17,7 @@ import {
   ProductDetailResponse,
   ProductListResponse,
   SendOtpResponse,
+  SubscriptionStatus,
   SubscriptionTier,
   UserProfile,
   VoiceAskResponse,
@@ -135,40 +136,8 @@ export const apiService = {
     return data;
   },
   async getSubscriptionStatus() {
-    const { data } = await api.get<{
-      tier?: 'free' | 'basic' | 'premium';
-      status?: 'active' | 'expired';
-      features?: {
-        dailyQueryLimit: number;
-        voiceEnabled: boolean;
-        prioritySupport: boolean;
-        marketplaceAccess: boolean;
-      };
-      subscription?: {
-        tier: 'free' | 'basic' | 'premium';
-        status: 'active' | 'expired';
-        features: {
-          dailyQueryLimit: number;
-          voiceEnabled: boolean;
-          prioritySupport: boolean;
-          marketplaceAccess: boolean;
-        };
-      };
-    }>('/api/subscription/status');
-
-    if (data.subscription) {
-      return {
-        tier: data.subscription.tier,
-        status: data.subscription.status,
-        features: data.subscription.features,
-      };
-    }
-
-    return {
-      tier: data.tier ?? 'free',
-      status: data.status ?? 'active',
-      features: data.features ?? [],
-    };
+    const { data } = await api.get<SubscriptionStatus>('/api/user/subscription/status');
+    return data;
   },
   async createOrderPayment(payload: OrderRequest) {
     const { data } = await api.post<PaymentCheckoutResponse>('/api/payment/orders', {
@@ -468,6 +437,14 @@ export const apiService = {
     const { data } = await api.post<{ message: string; subscription: any }>('/api/subscription/test-upgrade', {
       tier,
     });
+    return data;
+  },
+
+  /**
+   * Process a dummy payment for subscription upgrade
+   */
+  async processDummyPayment(tier: 'basic' | 'premium') {
+    const { data } = await api.post<{ success: boolean; subscriptionTier: string; expiresAt: string }>('/api/user/subscription/dummy-payment', { tier });
     return data;
   },
 

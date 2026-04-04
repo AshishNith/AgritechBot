@@ -13,6 +13,8 @@ import { RootStackParamList } from '../navigation/types';
 import { useTheme } from '../providers/ThemeContext';
 import { useI18n } from '../hooks/useI18n';
 import { useQuery } from '@tanstack/react-query';
+import { useAppStore } from '../store/useAppStore';
+import { UsageLimitModal } from '../components/UsageLimitModal';
 import Animated, { FadeIn, FadeInDown, FadeInRight } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
@@ -25,6 +27,10 @@ export function ImageScanScreen({ route }: { route: any }) {
   const [image, setImage] = useState<string | null>(route.params?.image || null);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<string | null>(route.params?.result || null);
+  const [limitModalVisible, setLimitModalVisible] = useState(false);
+
+  const subscriptionStatus = useAppStore((state) => state.subscriptionStatus);
+  const setSubscriptionStatus = useAppStore((state) => state.setSubscriptionStatus);
 
   // Sync route params when navigating from history
   useEffect(() => {
@@ -35,21 +41,28 @@ export function ImageScanScreen({ route }: { route: any }) {
   const { data: scanHistory = [], refetch: refetchHistory, error: historyError, isLoading: isHistoryLoading } = useQuery({
     queryKey: ['scan-history'],
     queryFn: async () => {
-      console.log('[ImageScan] Fetching scan history...');
       const history = await apiService.getScanHistory();
-      console.log('[ImageScan] History fetched. Count:', history?.length);
       return history;
     },
   });
 
-  if (historyError) {
-    console.warn('[ImageScan] History fetch failed:', historyError);
-  }
+  const subStatusQuery = useQuery({
+    queryKey: ['subscription-status'],
+    queryFn: () => apiService.getSubscriptionStatus(),
+    gcTime: 0,
+  });
+
+  useEffect(() => {
+    if (subStatusQuery.data) {
+      setSubscriptionStatus(subStatusQuery.data);
+    }
+  }, [subStatusQuery.data, setSubscriptionStatus]);
 
   useFocusEffect(
     useCallback(() => {
       refetchHistory();
-    }, [refetchHistory])
+      subStatusQuery.refetch();
+    }, [refetchHistory, subStatusQuery])
   );
 
   const requestImageAccess = async (useCamera: boolean) => {
@@ -81,11 +94,11 @@ export function ImageScanScreen({ route }: { route: any }) {
       }
 
       const options: ImagePicker.ImagePickerOptions = {
-        mediaTypes: ['images'], // Future-proof approach for SDK 52+
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
-        quality: 0.7, // Pro move: 0.7 for faster upload
-        base64: true, // Pro move: direct base64 for AI apps
+        quality: 0.7,
+        base64: true,
       };
 
       const result = useCamera
@@ -96,9 +109,8 @@ export function ImageScanScreen({ route }: { route: any }) {
 
       if (asset) {
         setImage(asset.uri);
-        setResult(null); // Reset result for new image
+        setResult(null);
         
-        // Use the base64 from picker directly if available, otherwise read as fallback
         if (asset.base64) {
           handleAnalyze(asset.base64, asset.mimeType || 'image/jpeg');
         } else {
@@ -122,41 +134,20 @@ export function ImageScanScreen({ route }: { route: any }) {
   const handleAnalyze = async (base64: string, mimeType: string) => {
     if (analyzing) return;
     setAnalyzing(true);
-    setResult(null); // Clear previous result immediately
+    setResult(null);
     try {
-      console.log('[ImageScan] Starting analysis...');
       const response = await apiService.analyzeCrop(base64, mimeType, currentLanguage);
-      console.log('[ImageScan] Analysis response received:', !!response.diagnosis);
-      await apiService.saveLocalScanHistoryEntry({
-        _id: response.id,
-        diagnosis: response.diagnosis,
-        imageUri: (response as any).imageUrl || null, // Capture high-res URL
-        status: 'completed',
-        createdAt: response.createdAt,
-        thumbnailUrl: (response as any).imageUrl || null, // Store Cloudinary URL instead of base64
-        metadata: {
-          language: currentLanguage,
-        },
-      });
       setResult(response.diagnosis);
-      refetchHistory(); // Update history list after new scan
+      refetchHistory();
+      subStatusQuery.refetch();
     } catch (error: any) {
       console.error('[ImageScan] Analysis error:', error);
       const backendMsg = error?.response?.data?.error || error?.message || 'Could not analyze the image. Please try again.';
       
       if (error?.response?.status === 403) {
-        Alert.alert(
-          t('limitReached') || 'Limit Reached',
-          backendMsg || 'You have reached your scan limit. Please upgrade to continue.',
-          [
-            { text: t('cancel'), style: 'cancel' },
-            { text: t('upgradeNow') || 'Upgrade Now', onPress: () => navigation.navigate('Subscription') }
-          ]
-        );
+        setLimitModalVisible(true);
       } else if (error?.response?.status === 429) {
         Alert.alert('Analysis Busy', backendMsg);
-      } else if (error?.response?.status === 404) {
-        Alert.alert('Route Not Found', 'Image analysis route is unavailable on the connected backend. Check that the app is pointing to your latest backend.');
       } else {
         Alert.alert('Analysis Failed', backendMsg);
       }
@@ -168,23 +159,17 @@ export function ImageScanScreen({ route }: { route: any }) {
   const safeJsonParse = (str: string | null) => {
     if (!str) return null;
     try {
-      // Try direct parse first
       return JSON.parse(str);
     } catch (e) {
       try {
-        console.log('[ImageScan] Direct JSON parse failed, trying extraction...');
-        // Try to extract JSON from within the string
-        // This handles cases where Gemini might return "Here is your JSON: { ... }"
         const startIdx = str.indexOf('{');
         const endIdx = str.lastIndexOf('}');
         if (startIdx !== -1 && endIdx !== -1 && endIdx >= startIdx) {
           const jsonStr = str.substring(startIdx, endIdx + 1);
-          // Remove any potential backticks or control characters that might break JSON.parse
           const sanitized = jsonStr.replace(/[\u0000-\u001F\u007F-\u009F]/g, " "); 
           return JSON.parse(sanitized);
         }
       } catch (innerE) {
-        console.warn('[ImageScan] JSON extraction parse failed:', innerE);
         return null;
       }
       return null;
@@ -196,7 +181,6 @@ export function ImageScanScreen({ route }: { route: any }) {
 
     const data = safeJsonParse(result);
     if (!data) {
-      // Fallback to raw text if not JSON
       return (
         <GlassCard style={styles.resultCard}>
           <View style={styles.resultHeader}>
@@ -278,7 +262,7 @@ export function ImageScanScreen({ route }: { route: any }) {
               label="Find Nearest Vendor"
               secondary
               style={{ flex: 1 }}
-              onPress={() => navigation.navigate('MainTabs', { screen: 'MarketplaceTab' })}
+              onPress={() => navigation.navigate('Marketplace')}
             />
           </View>
         </View>
@@ -311,6 +295,22 @@ export function ImageScanScreen({ route }: { route: any }) {
         </Pressable>
       </View>
 
+      {/* Subscription Usage Header */}
+      <View style={[styles.usageHeader, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }]}>
+        <View style={styles.usageInfo}>
+          <AppText variant="caption" color={colors.textMuted}>
+            Monthly Scans: <AppText variant="caption" style={{ fontWeight: 'bold' }} color={colors.text}>
+              {subscriptionStatus?.scansUsed || 0} / {subscriptionStatus?.scansLimit || 5}
+            </AppText>
+          </AppText>
+        </View>
+        <ProgressBar 
+          progress={Math.min(1, (subscriptionStatus?.scansUsed || 0) / (subscriptionStatus?.scansLimit || 5))} 
+          color={(subscriptionStatus?.scansUsed || 0) >= (subscriptionStatus?.scansLimit || 5) ? colors.danger : colors.primary}
+          height={4}
+        />
+      </View>
+
       <View style={styles.content}>
         {!image && !result ? (
           <View style={styles.emptyState}>
@@ -326,7 +326,7 @@ export function ImageScanScreen({ route }: { route: any }) {
                 Identify diseases and pests instantly using our AI-powered plant pathologist.
               </AppText>
 
-              <View style={styles.actions}>
+              <View style={styles.buttonRow}>
                 <GradientButton
                   label="Take Photo"
                   onPress={() => pickImage(true)}
@@ -349,7 +349,6 @@ export function ImageScanScreen({ route }: { route: any }) {
               <View style={styles.historySection}>
                 <View style={styles.historyHead}>
                   <AppText variant="label">Recent Scans</AppText>
-                  {isHistoryLoading && <ActivityIndicator size="small" color={colors.primary} style={{ marginLeft: 8 }} />}
                   <Pressable onPress={() => navigation.navigate('MainTabs', { screen: 'ChatTab' })}>
                     <AppText variant="caption" color={colors.primary}>View All</AppText>
                   </Pressable>
@@ -358,7 +357,6 @@ export function ImageScanScreen({ route }: { route: any }) {
                   {scanHistory.slice(0, 5).map((scan: any, idx: number) => {
                     let diag: any = {};
                     try { diag = JSON.parse(scan.diagnosis); } catch (e) { }
-                    // Use Cloudinary URL (imageUri) as first choice for history thumbs
                     const displayUri = scan.imageUri || scan.thumbnailUrl || (scan.imageBase64 ? `data:image/jpeg;base64,${scan.imageBase64}` : null);
                     
                     return (
@@ -438,6 +436,13 @@ export function ImageScanScreen({ route }: { route: any }) {
           </View>
         )}
       </View>
+
+      <UsageLimitModal 
+        visible={limitModalVisible}
+        onClose={() => setLimitModalVisible(false)}
+        type="scan"
+        limit={subscriptionStatus?.scansLimit || 5}
+      />
     </Screen>
   );
 }
@@ -487,6 +492,18 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  usageHeader: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 16,
+    marginBottom: 20,
+  },
+  usageInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
   },
   content: {
     flex: 1,
@@ -689,5 +706,11 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowRadius: 4,
     fontWeight: '700',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+    marginTop: 32,
   },
 });

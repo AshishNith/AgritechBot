@@ -318,6 +318,7 @@ export type TranslationKey =
   | 'weatherPartlyCloudy'
   | 'weatherRainy'
   | 'weatherStormy'
+  | 'quickServices'
   | 'weatherFoggy';
 
 
@@ -640,6 +641,7 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     weatherPartlyCloudy: 'Partly Cloudy',
     weatherRainy: 'Raining',
     weatherStormy: 'Thunderstorm',
+    quickServices: 'Quick Services',
     weatherFoggy: 'Foggy',
   },
   Hindi: {
@@ -960,6 +962,7 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     weatherPartlyCloudy: 'आंशिक रूप से बादल',
     weatherRainy: 'बारिश हो रही है',
     weatherStormy: 'तूफान',
+    quickServices: 'त्वरित सेवाएं',
     weatherFoggy: 'कोहरा',
   },
   Gujarati: {
@@ -1280,6 +1283,7 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     weatherPartlyCloudy: 'અંશતઃ વાદળછાયું',
     weatherRainy: 'વરસાદ પડી રહ્યો છે',
     weatherStormy: 'વાવાઝોડું',
+    quickServices: 'ઝડપી સેવાઓ',
     weatherFoggy: 'ધુમ્મસ',
   },
   Punjabi: {
@@ -1600,6 +1604,7 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     weatherPartlyCloudy: 'ਅੰਸ਼ਕ ਰੂਪ ਵਿੱਚ ਬੱਦਲ',
     weatherRainy: 'ਬਾਰਿਸ਼ ਹੋ ਰਹੀ ਹੈ',
     weatherStormy: 'ਤੂਫ਼ਾਨ',
+    quickServices: 'ਤੁਰੰਤ ਸੇਵਾਵਾਂ',
     weatherFoggy: 'ਧੁੰਦ',
   },
 };

@@ -166,8 +166,12 @@ export function GlassCard({ children, style }: PropsWithChildren<{ style?: Style
   );
 }
 
-export function Pill({ label, active, onPress, icon, style }: { label: string; active?: boolean; onPress?: () => void; icon?: ReactNode; style?: StyleProp<ViewStyle> }) {
+export function Pill({ label, active, onPress, icon, style, color }: { label: string; active?: boolean; onPress?: () => void; icon?: ReactNode; style?: StyleProp<ViewStyle>; color?: string }) {
   const { isDark, colors } = useTheme();
+  
+  const backgroundColor = active || color 
+    ? (color ?? colors.primary) 
+    : (isDark ? 'rgba(255,255,255,0.06)' : colors.surface);
 
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }, style]}>
@@ -175,13 +179,13 @@ export function Pill({ label, active, onPress, icon, style }: { label: string; a
         style={[
           styles.pill,
           {
-            backgroundColor: active ? colors.primary : (isDark ? 'rgba(255,255,255,0.06)' : colors.surface),
+            backgroundColor: backgroundColor,
           },
           style
         ]}
       >
         {icon}
-        <AppText variant="label" color={active ? colors.textOnDark : (isDark ? 'rgba(255,255,255,0.7)' : colors.text)}>
+        <AppText variant="label" color={(active || color) ? colors.textOnDark : (isDark ? 'rgba(255,255,255,0.7)' : colors.text)}>
           {label}
         </AppText>
       </View>

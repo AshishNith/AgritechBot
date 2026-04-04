@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
 import { User } from '../models/User';
 import { invalidateFarmerContextCache } from '../chat/services/contextBuilder.service';
+import { getSubscriptionStatus } from '../services/subscriptionService';
 
 const createProfileSchema = z.object({
   name: z.string().min(1).max(100),
@@ -130,4 +131,17 @@ export async function updateProfile(request: FastifyRequest, reply: FastifyReply
       subscriptionTier: user.subscriptionTier,
     },
   });
+}
+
+/**
+ * GET /api/user/subscription/status
+ */
+export async function getUserSubscriptionStatus(request: FastifyRequest, reply: FastifyReply) {
+  const status = await getSubscriptionStatus(request.user!._id.toString());
+  
+  if (!status) {
+    return reply.status(404).send({ error: 'Subscription status not found' });
+  }
+
+  return reply.send(status);
 }

@@ -1,4 +1,4 @@
-import { IconMap } from '../components/IconMap';
+﻿import { IconMap } from '../components/IconMap';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -23,8 +23,7 @@ import {
 } from 'react-native';
 
 import { apiService } from '../api/services';
-import { AppText, GradientButton, Pill, ProgressBar, Screen, TypingDots } from '../components/ui';
-import { UsageLimitModal } from '../components/UsageLimitModal';
+import { AppText, GradientButton, Pill, Screen, TypingDots } from '../components/ui';
 import { designImages } from '../constants/designData';
 import { t } from '../constants/localization';
 import { RootStackParamList } from '../navigation/types';
@@ -60,12 +59,6 @@ export function ChatScreen() {
   const setLanguage = useAppStore((state) => state.setLanguage);
   const hasPlayedGreeting = useAppStore((state) => state.hasPlayedGreeting);
   const setHasPlayedGreeting = useAppStore((state) => state.setHasPlayedGreeting);
-  
-  // Subscription state
-  const subscriptionStatus = useAppStore((state) => state.subscriptionStatus);
-  const setSubscriptionStatus = useAppStore((state) => state.setSubscriptionStatus);
-  const [limitModalVisible, setLimitModalVisible] = useState(false);
-
   const [messages, setMessages] = useState<ChatMessage[]>([buildStarterMessage(language)]);
   const [input, setInput] = useState('');
   const [chatId, setChatId] = useState<string | undefined>(route?.params?.chatId);
@@ -85,14 +78,12 @@ export function ChatScreen() {
     | null
   >(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  
   // Voice status: idle | recording | transcribing | processing
   const [voiceStatus, setVoiceStatus] = useState<'idle' | 'recording' | 'transcribing' | 'processing'>('idle');
   const scrollRef = useRef<ScrollView>(null);
   const activeSoundRef = useRef<Audio.Sound | null>(null);
   const recordingModeRef = useRef<'transcribe' | 'voice' | null>(null);
   const ignoreNextTapRef = useRef(false);
-  
   // Pulsing animation for mic button while recording
   const micPulse = useRef(new Animated.Value(1)).current;
   const { isRecording, startRecording, stopRecording } = useAudioRecorder();
@@ -121,18 +112,6 @@ export function ChatScreen() {
     queryKey: ['chat-context'],
     queryFn: () => apiService.getChatContext(),
   });
-
-  const subStatusQuery = useQuery({
-    queryKey: ['subscription-status'],
-    queryFn: () => apiService.getSubscriptionStatus(),
-    gcTime: 0, // Always fresh
-  });
-
-  useEffect(() => {
-    if (subStatusQuery.data) {
-      setSubscriptionStatus(subStatusQuery.data);
-    }
-  }, [subStatusQuery.data, setSubscriptionStatus]);
 
   const currentSession = useMemo<ChatSummary | undefined>(
     () => sessionsQuery.data?.chats.find((item) => item.id === chatId),
@@ -227,7 +206,7 @@ export function ChatScreen() {
     };
   }, []);
 
-  // Play Default Greeting Voice on first load
+  // ΓöÇΓöÇ Part 4C: Play Default Greeting Voice on first load ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   useEffect(() => {
     const playGreeting = async () => {
       if (hasPlayedGreeting || chatId) return;
@@ -312,9 +291,6 @@ export function ChatScreen() {
       if (responseAudioUrl) {
         await playAudio(responseAudioUrl);
       }
-
-      // Refresh subscription status to update usage progress
-      subStatusQuery.refetch();
     },
     onError: (error, variables) => {
       let message = t(language, 'backendsConnectionError');
@@ -323,8 +299,16 @@ export function ChatScreen() {
           message = t(language, 'sessionExpired');
         } else if (error.response?.status === 403) {
           // --- Subscription Limit Reached ---
-          setLimitModalVisible(true);
-          return;
+          const backendMsg = (error.response?.data as any)?.error || (error.response?.data as any)?.message;
+          Alert.alert(
+            t(language, 'limitReached') || 'Limit Reached',
+            backendMsg || 'You have reached your limit for this plan. Please upgrade to continue.',
+            [
+              { text: t(language, 'cancel'), style: 'cancel' },
+              { text: t(language, 'upgradeNow') || 'Upgrade Now', onPress: () => navigation.navigate('Subscription') }
+            ]
+          );
+          return; // Stop here, alert handled it
         } else if (
           typeof error.response?.data === 'object' &&
           error.response?.data &&
@@ -478,7 +462,7 @@ export function ChatScreen() {
     await sound.playAsync();
   };
 
-  // Full voice pipeline: STT → AI → TTS
+  // ΓöÇΓöÇ Full voice pipeline: STT ΓåÆ AI ΓåÆ TTS ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   const voiceMutation = useMutation({
     mutationFn: (audioClip: RecordedAudioClip) => apiService.sendVoiceMessage(audioClip, language, chatId),
     onMutate: () => setVoiceStatus('processing'),
@@ -517,9 +501,6 @@ export function ChatScreen() {
       if (voiceAudioUrl) {
         await playAudio(voiceAudioUrl);
       }
-
-      // Refresh subscription status
-      subStatusQuery.refetch();
     },
     onError: (error, variables) => {
       setLastFailedDraft({ type: 'voice', clip: variables });
@@ -529,7 +510,15 @@ export function ChatScreen() {
         if (error.response?.status === 401) {
           message = t(language, 'sessionExpired');
         } else if (error.response?.status === 403) {
-          setLimitModalVisible(true);
+          const backendMsg = (error.response?.data as any)?.error || (error.response?.data as any)?.message;
+          Alert.alert(
+            t(language, 'limitReached') || 'Limit Reached',
+            backendMsg || 'You have reached your limit for this plan. Please upgrade to continue.',
+            [
+              { text: t(language, 'cancel'), style: 'cancel' },
+              { text: t(language, 'upgradeNow') || 'Upgrade Now', onPress: () => navigation.navigate('Subscription') }
+            ]
+          );
           return;
         } else if (error.code === 'ECONNABORTED') {
           message = 'Voice request timed out. Please try again.';
@@ -553,7 +542,7 @@ export function ChatScreen() {
     },
   });
 
-  // STT-only: transcribe → auto-fill input box
+  // ΓöÇΓöÇ STT-only: transcribe ΓåÆ auto-fill input box ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   const transcribeMutation = useMutation({
     mutationFn: (audioClip: RecordedAudioClip) => apiService.transcribeVoice(audioClip, language),
     onMutate: () => setVoiceStatus('transcribing'),
@@ -570,7 +559,15 @@ export function ChatScreen() {
         if (error.response?.status === 401) {
           message = t(language, 'sessionExpired');
         } else if (error.response?.status === 403) {
-          setLimitModalVisible(true);
+          const backendMsg = (error.response?.data as any)?.error || (error.response?.data as any)?.message;
+          Alert.alert(
+            t(language, 'limitReached') || 'Limit Reached',
+            backendMsg || 'You have reached your limit for this plan. Please upgrade to continue.',
+            [
+              { text: t(language, 'cancel'), style: 'cancel' },
+              { text: t(language, 'upgradeNow') || 'Upgrade Now', onPress: () => navigation.navigate('Subscription') }
+            ]
+          );
           return;
         } else if (error.code === 'ECONNABORTED') {
           message = 'Voice transcription timed out. Please try again.';
@@ -678,11 +675,6 @@ export function ChatScreen() {
 
   const displayedMessages = messages.length ? messages : [buildStarterMessage(language)];
 
-  // Calculate usage
-  const chatsLimit = subscriptionStatus?.chatsLimit ?? 20;
-  const usedChats = subscriptionStatus?.chatsUsed ?? 0;
-  const usagePercentage = Math.min(1, usedChats / chatsLimit);
-
   return (
     <Screen dark={isDark} padded={false}>
       <KeyboardAvoidingView
@@ -775,27 +767,6 @@ export function ChatScreen() {
           </View>
         </View>
 
-        {/* Usage Progress Bar */}
-        <View style={[styles.usageBarContainer, { backgroundColor: isDark ? colors.backgroundAlt : colors.surface }]}>
-           <ProgressBar 
-              progress={usagePercentage} 
-              color={usagePercentage > 0.9 ? colors.danger : colors.primary} 
-              height={3}
-           />
-           <View style={styles.usageTextRow}>
-              <AppText variant="caption" color={colors.textMuted} style={{ fontSize: 10 }}>
-                {usedChats} / {chatsLimit} Used
-              </AppText>
-              {usedChats >= chatsLimit * 0.8 && (
-                <Pressable onPress={() => navigation.navigate('Subscription')}>
-                  <AppText variant="caption" color={colors.primary} style={{ fontSize: 10, fontWeight: '700' }}>
-                    {tx('upgradeNow')}
-                  </AppText>
-                </Pressable>
-              )}
-           </View>
-        </View>
-
         <ScrollView
           ref={scrollRef}
           style={styles.messagesScroll}
@@ -810,7 +781,7 @@ export function ChatScreen() {
         >
           <AppText color={colors.textMuted} style={styles.dateLabel}>
             {contextQuery.data?.season
-              ? `${tx('seasonLabel')}: ${contextQuery.data.season} • ${t(language, 'today')}`
+              ? `${tx('seasonLabel')}: ${contextQuery.data.season} ΓÇó ${t(language, 'today')}`
               : t(language, 'today')}
           </AppText>
 
@@ -970,6 +941,7 @@ export function ChatScreen() {
             />
             
             <View style={{ flexDirection: 'row', gap: 8 }}>
+                {/* Mic button */}
                 <Animated.View style={{ transform: [{ scale: micPulse }] }}>
                 <Pressable
                     onPress={handleMicTap}
@@ -1004,6 +976,7 @@ export function ChatScreen() {
                 </Pressable>
                 </Animated.View>
 
+                {/* Send Button */}
                 <Pressable
                     onPress={() => sendMessage()}
                     disabled={!input.trim()}
@@ -1024,15 +997,7 @@ export function ChatScreen() {
           </View>
         </View>
 
-        <UsageLimitModal 
-           visible={limitModalVisible}
-           onClose={() => setLimitModalVisible(false)}
-           type="chat"
-           limit={chatsLimit}
-        />
-
-        {/* ... existing modals remain same ... */}
-        <Modal
+          <Modal
           visible={sessionDrawerOpen}
           transparent
           animationType="slide"
@@ -1058,8 +1023,8 @@ export function ChatScreen() {
                   <Pressable
                     key={session.id}
                     onPress={() => {
-                       setChatId(session.id);
-                       setSessionDrawerOpen(false);
+                      setChatId(session.id);
+                      setSessionDrawerOpen(false);
                     }}
                     style={[
                       styles.sessionCard,
@@ -1258,18 +1223,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  usageBarContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
-  },
-  usageTextRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 2,
   },
   messagesScroll: {
     flex: 1,
@@ -1483,3 +1436,4 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
 });
+

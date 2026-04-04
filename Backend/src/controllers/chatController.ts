@@ -140,13 +140,6 @@ export async function askQuestion(request: FastifyRequest, reply: FastifyReply) 
 
   const { message, language: langInput, chatId: existingChatId } = parsed.data;
   const userId = String(request.user!._id);
-  const limitCheck = await checkLimit(userId, 'chat');
-  if (!limitCheck.allowed) {
-    const errorMsg = limitCheck.reason === 'LIMIT_REACHED'
-      ? `Chat limit reached for your plan. Upgrade for more messages.`
-      : 'Subscription expired or not found. Please check your account.';
-    return reply.status(403).send({ error: errorMsg, code: 'SUBSCRIPTION_LIMIT_REACHED' });
-  }
 
   // Detect language if "auto"
   const language = normalizeLanguage(
@@ -303,16 +296,6 @@ export async function streamChat(request: FastifyRequest, reply: FastifyReply) {
 
   const { message, language: langInput, chatId: existingChatId } = parsed.data;
   const userId = String(request.user!._id);
-
-  const limitCheck = await checkLimit(userId, 'chat');
-  if (!limitCheck.allowed) {
-    return reply.status(403).send({ 
-      error: limitCheck.reason === 'LIMIT_REACHED' 
-        ? 'Chat limit reached for your plan. Upgrade for more messages.' 
-        : 'Subscription expired or not found.',
-      code: 'SUBSCRIPTION_LIMIT_REACHED' 
-    });
-  }
 
   const language = normalizeLanguage(
     langInput === 'auto' ? detectLanguage(message).language : langInput

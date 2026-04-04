@@ -6,7 +6,7 @@ import { AnaajRequest, AnaajResponse, ModelTier, QueryType } from "../types";
 const FLASH_LITE: ModelTier =
   (process.env.GEMINI_TEXT_MODEL as ModelTier | undefined) ?? "gemini-2.5-flash-lite";
 const FLASH: ModelTier =
-  (process.env.GEMINI_IMAGE_MODEL as ModelTier | undefined) ?? "gemini-2.5-flash";
+  (process.env.GEMINI_IMAGE_MODEL as ModelTier | undefined) ?? "gemini-2.5-flash-lite";
 
 const geminiClient = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 

@@ -8,6 +8,8 @@ import { AppText, GradientButton, Screen, ScreenCard } from '../components/ui';
 import { useAppStore } from '../store/useAppStore';
 import { AppNotification, NotificationType } from '../types/api';
 import { useTheme } from '../providers/ThemeContext';
+import { NotificationCard } from '../components/NotificationCard';
+import { EmptyState } from '../components/ui/EmptyState';
 
 const TABS: { label: string; type?: NotificationType }[] = [
   { label: 'All' },
@@ -145,49 +147,19 @@ export function NotificationScreen() {
       )}
 
       {!isLoading && !isError && notifications.length === 0 && (
-        <View style={styles.centered}>
-          {(() => { const IconComp = IconMap['BellOff']; return IconComp ? <IconComp size={48} color={colors.textMuted} /> : null; })()}
-          <AppText color={colors.textMuted} style={{ marginTop: 12 }}>
-            No notifications yet
-          </AppText>
-        </View>
+        <EmptyState type="notifications" />
       )}
 
       {!isLoading && !isError && notifications.length > 0 && (
-        <View style={{ gap: 12 }}>
-          {notifications.map((item: AppNotification) => (
-            <Pressable
+        <View style={{ gap: 0 }}>
+          {notifications.map((item: AppNotification, index) => (
+            <NotificationCard
               key={item._id}
-              onPress={() => {
-                if (!item.read) {
-                  markReadMutation.mutate(item._id);
-                }
-              }}
-            >
-              <ScreenCard
-                style={[
-                  styles.alertCard,
-                  !item.read && [styles.alertCardUnread, { borderLeftColor: colors.primary, backgroundColor: isDark ? 'rgba(82,183,129,0.08)' : 'rgba(82,183,129,0.05)' }],
-                ]}
-              >
-                <View style={[styles.alertIcon, { backgroundColor: getIconBg(item.type) }]}>
-                  {(() => { const IconComp = IconMap[TYPE_ICONS[item.type]]; return IconComp ? <IconComp size={22} color={colors.primary} /> : null; })()}
-                </View>
-                <View style={{ flex: 1 }}>
-                  <View style={styles.alertHeader}>
-                    <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                      <AppText variant="label">{item.title}</AppText>
-                      {!item.read && <View style={[styles.unreadDot, { backgroundColor: colors.primary }]} />}
-                    </View>
-                    <AppText color={colors.textMuted}>{timeAgo(item.createdAt)}</AppText>
-                  </View>
-                  <AppText color={colors.textMuted}>{item.body}</AppText>
-                  {item.actionLabel && (
-                    <GradientButton label={item.actionLabel} secondary style={{ marginTop: 14 }} />
-                  )}
-                </View>
-              </ScreenCard>
-            </Pressable>
+              notification={item}
+              index={index}
+              onPress={() => {}}
+              onMarkRead={(id) => markReadMutation.mutate(id)}
+            />
           ))}
         </View>
       )}

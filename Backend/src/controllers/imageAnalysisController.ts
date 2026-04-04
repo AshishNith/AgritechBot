@@ -89,15 +89,6 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
   const startTime = Date.now();
   const userId = request.user!._id;
 
-  // --- Subscription Limit Check ---
-  const limitCheck = await checkLimit(userId.toString(), 'scan');
-  if (!limitCheck.allowed) {
-    const errorMsg = limitCheck.reason === 'LIMIT_REACHED'
-      ? `Scan limit reached for your plan. Upgrade for more scans.`
-      : 'Subscription expired or not found. Please check your account.';
-    return reply.status(403).send({ error: errorMsg, code: 'SUBSCRIPTION_LIMIT_REACHED' });
-  }
-
   try {
     const model = genAI.getGenerativeModel({
       model: env.GEMINI_MODEL,

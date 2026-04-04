@@ -17,6 +17,11 @@ export interface IUser extends Document {
   otpExpiresAt?: Date;
   isVerified: boolean;
   subscriptionTier: 'free' | 'basic' | 'premium';
+  usageLimits?: {
+    chatCount: number;
+    scanCount: number;
+    lastReset: Date;
+  };
   createdAt: Date;
   updatedAt: Date;
   compareOtp(candidateOtp: string): Promise<boolean>;
@@ -58,6 +63,11 @@ const userSchema = new Schema<IUser>(
       type: String,
       enum: ['free', 'basic', 'premium'],
       default: 'free',
+    },
+    usageLimits: {
+      chatCount: { type: Number, default: 0 },
+      scanCount: { type: Number, default: 0 },
+      lastReset: { type: Date, default: Date.now },
     },
   },
   {
