@@ -33,11 +33,6 @@ function MainTabs() {
         getComponent={() => require('../screens/HomeScreen').HomeScreen}
       />
       <Tab.Screen
-        name="SmartAssistantTab"
-        options={{ title: 'Assistant' }}
-        getComponent={() => require('../screens/SmartAssistantDashboard').SmartAssistantDashboard}
-      />
-      <Tab.Screen
         name="MarketplaceTab"
         options={{ title: 'Market' }}
         getComponent={() => require('../screens/MarketplaceScreen').MarketplaceScreen}
@@ -111,6 +106,7 @@ export function RootNavigator() {
             <Stack.Screen name="SmartAssistant" getComponent={() => require('../screens/SmartAssistantDashboard').SmartAssistantDashboard} />
             <Stack.Screen name="AddCrop" getComponent={() => require('../screens/AddCropScreen').AddCropScreen} />
             <Stack.Screen name="TaskTimeline" getComponent={() => require('../screens/TaskTimelineScreen').TaskTimelineScreen} />
+            <Stack.Screen name="Planner" getComponent={() => require('../screens/PlannerScreen').PlannerScreen} />
           </>
         )}
       </Stack.Navigator>

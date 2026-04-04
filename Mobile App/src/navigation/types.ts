@@ -35,4 +35,5 @@ export type RootStackParamList = {
   SmartAssistant: undefined;
   AddCrop: undefined;
   TaskTimeline: { cropId: string };
+  Planner: undefined;
 };

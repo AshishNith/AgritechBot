@@ -18,6 +18,8 @@ import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
 import { useTheme } from '../providers/ThemeContext';
 import { useI18n } from '../hooks/useI18n';
+import { AIAssistantWidget } from '../components/AIAssistantWidget';
+import { PlannerWidget } from '../components/planner/PlannerWidget';
 import { buildWeatherSuggestions } from '../utils/weatherSuggestions';
 
 const DARK_MAP_STYLE = [
@@ -273,6 +275,14 @@ export function HomeScreen() {
             locationName: liveLocationName,
           })
         }
+      />
+
+      <AIAssistantWidget 
+        onPress={() => navigation.navigate('SmartAssistant')}
+      />
+
+      <PlannerWidget 
+        onPress={() => navigation.navigate('Planner')}
       />
 
       <ScreenCard style={styles.mapCard}>

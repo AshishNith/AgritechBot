@@ -107,16 +107,18 @@ export function AppText({
   color,
   style,
   variant = 'body',
+  weight,
   ...props
 }: PropsWithChildren<{
   color?: string;
   style?: StyleProp<TextStyle>;
   variant?: keyof typeof theme.typography;
+  weight?: TextStyle['fontWeight'];
 }> & TextProps) {
   const { isDark, colors } = useTheme();
 
   return (
-    <Text {...props} style={[theme.typography[variant], { color: color ?? (isDark ? colors.textOnDark : colors.text) }, style]}>
+    <Text {...props} style={[theme.typography[variant], { color: color ?? (isDark ? colors.textOnDark : colors.text), fontWeight: weight ?? theme.typography[variant].fontWeight }, style]}>
       {children}
     </Text>
   );
