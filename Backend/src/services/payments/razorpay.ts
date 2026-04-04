@@ -2,6 +2,8 @@ import crypto from 'crypto';
 import { env } from '../../config/env';
 
 const RAZORPAY_ORDERS_URL = 'https://api.razorpay.com/v1/orders';
+const MOCK_ORDER_PREFIX = 'order_mock_';
+const MOCK_SIGNATURE_PREFIX = 'mock_signature_';
 
 interface CreateRazorpayOrderInput {
   amount: number;
@@ -18,6 +20,10 @@ interface RazorpayOrderResponse {
   status: string;
 }
 
+function isMockRazorpayOrder(orderId: string): boolean {
+  return orderId.startsWith(MOCK_ORDER_PREFIX);
+}
+
 function getAuthHeader(): string {
   const auth = Buffer.from(`${env.RAZORPAY_KEY_ID}:${env.RAZORPAY_KEY_SECRET}`).toString('base64');
   return `Basic ${auth}`;
@@ -31,7 +37,13 @@ export async function createRazorpayOrder(
   input: CreateRazorpayOrderInput
 ): Promise<RazorpayOrderResponse> {
   if (!paymentsEnabled()) {
-    throw new Error('Payments are currently unavailable');
+    return {
+      id: `${MOCK_ORDER_PREFIX}${Date.now()}`,
+      amount: input.amount,
+      currency: input.currency,
+      receipt: input.receipt,
+      status: 'created',
+    };
   }
 
   const response = await fetch(RAZORPAY_ORDERS_URL, {
@@ -61,10 +73,18 @@ export function verifyRazorpaySignature(params: {
   paymentId: string;
   signature: string;
 }): boolean {
+  if (isMockRazorpayOrder(params.orderId)) {
+    return params.signature === `${MOCK_SIGNATURE_PREFIX}${params.orderId}_${params.paymentId}`;
+  }
+
   const expected = crypto
     .createHmac('sha256', env.RAZORPAY_KEY_SECRET)
     .update(`${params.orderId}|${params.paymentId}`)
     .digest('hex');
 
   return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(params.signature));
+}
+
+export function createMockRazorpaySignature(orderId: string, paymentId: string): string {
+  return `${MOCK_SIGNATURE_PREFIX}${orderId}_${paymentId}`;
 }

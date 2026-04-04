@@ -1,4 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { getWallet } from '../services/walletService';
 import { checkLimit } from '../services/subscriptionService';
 import { logger } from '../utils/logger';
 
@@ -6,6 +7,30 @@ export function createUsageEnforcementMiddleware(type: 'chat' | 'scan') {
   return async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const userId = request.user!._id.toString();
+      try {
+        const wallet = await getWallet(userId);
+        const totalCredits =
+          type === 'chat'
+            ? wallet.chatCredits + wallet.topupCredits
+            : wallet.imageCredits + wallet.topupImageCredits;
+
+        if (totalCredits <= 0) {
+          logger.info({ userId, type }, 'Wallet credits exhausted');
+
+          return reply.status(402).send({
+            error: 'NO_CREDITS',
+            message: 'Aapke credits khatam ho gaye. Topup ya subscribe karo.',
+            code: 'NO_CREDITS',
+            upgradeRequired: true,
+            limitType: type,
+          });
+        }
+
+        return;
+      } catch (walletError) {
+        logger.warn({ userId, type, error: walletError }, 'Wallet lookup failed, falling back to subscription limits');
+      }
+
       const status = await checkLimit(userId, type);
 
       if (!status.allowed) {

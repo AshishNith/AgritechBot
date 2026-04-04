@@ -12,6 +12,7 @@ import { t } from '../constants/localization';
 import { theme } from '../constants/theme';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
+import { useWalletStore } from '../store/useWalletStore';
 import { useTheme } from '../providers/ThemeContext';
 import { useI18n } from '../hooks/useI18n';
 
@@ -27,6 +28,9 @@ export function ProfileScreen() {
   const signOut = useAppStore((state) => state.signOut);
   const notificationsEnabled = useAppStore((state) => state.notificationsEnabled);
   const setNotificationsEnabled = useAppStore((state) => state.setNotificationsEnabled);
+  const wallet = useWalletStore((s) => s.wallet);
+  const totalChatCredits = useWalletStore((s) => s.totalChatCredits);
+  const totalScanCredits = useWalletStore((s) => s.totalScanCredits);
   
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editedName, setEditedName] = useState(user?.name || '');
@@ -163,6 +167,32 @@ export function ProfileScreen() {
             <AppText color={theme.colors.primary}>{tx('manage')}</AppText>
           </Pressable>
         </View>
+      </ScreenCard>
+
+      <ScreenCard style={{ marginTop: 16 }}>
+        {!wallet ? (
+          <ActivityIndicator color={colors.primary} />
+        ) : (
+          <View style={styles.subHeader}>
+            <View style={{ flex: 1 }}>
+              <AppText variant="label">My Plan</AppText>
+              <AppText color={colors.primary} style={{ marginTop: 4, fontWeight: '700' }}>
+                {wallet.plan.toUpperCase()}
+              </AppText>
+              <AppText color={theme.colors.textMuted} style={{ marginTop: 4 }}>
+                {totalChatCredits()} chats · {totalScanCredits()} scans baaki
+              </AppText>
+              {wallet.planExpiry ? (
+                <AppText color={theme.colors.textMuted} style={{ marginTop: 4 }}>
+                  Expires: {new Date(wallet.planExpiry).toLocaleDateString()}
+                </AppText>
+              ) : null}
+            </View>
+            <Pressable onPress={() => navigation.navigate('Subscription')}>
+              <AppText color={colors.primary}>Manage Plan →</AppText>
+            </Pressable>
+          </View>
+        )}
       </ScreenCard>
 
       <AppText variant="caption" color={theme.colors.textMuted} style={styles.sectionLabel}>

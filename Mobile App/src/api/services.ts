@@ -21,6 +21,8 @@ import {
   SubscriptionTier,
   UserProfile,
   VoiceAskResponse,
+  CreatePaymentOrderResponse,
+  WalletUpdateResponse,
 } from '../types/api';
 import { RecordedAudioClip } from '../hooks/useAudioRecorder';
 
@@ -158,6 +160,33 @@ export const apiService = {
       purpose: 'subscription',
       subscription: { tier },
     });
+    return data;
+  },
+  async createSubscriptionOrder(tier: Exclude<SubscriptionTier, 'free'>) {
+    const { data } = await api.post<CreatePaymentOrderResponse>('/api/payment/subscription-order', {
+      tier,
+    });
+    return data;
+  },
+  async createTopupOrder(packId: 'chat_10' | 'chat_25' | 'chat_60' | 'scan_1' | 'scan_3' | 'scan_10') {
+    const { data } = await api.post<
+      CreatePaymentOrderResponse & {
+        packId: string;
+        packType: 'chat' | 'scan';
+        credits: number;
+      }
+    >('/api/payment/topup-order', { packId });
+    return data;
+  },
+  async verifyWalletPayment(payload: {
+    razorpayOrderId: string;
+    razorpayPaymentId: string;
+    razorpaySignature: string;
+    purpose: 'subscription' | 'topup';
+    tier?: 'basic' | 'pro';
+    packId?: 'chat_10' | 'chat_25' | 'chat_60' | 'scan_1' | 'scan_3' | 'scan_10';
+  }) {
+    const { data } = await api.post<WalletUpdateResponse>('/api/payment/verify', payload);
     return data;
   },
   async getPaymentStatus(paymentOrderId: string, checkoutToken: string) {

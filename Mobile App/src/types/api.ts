@@ -201,7 +201,7 @@ export interface OrderRequest {
   shippingMethod?: 'delivery' | 'pickup';
 }
 
-export type SubscriptionTier = 'free' | 'basic' | 'premium';
+export type SubscriptionTier = 'free' | 'basic' | 'pro';
 
 export interface SubscriptionStatus {
   tier: SubscriptionTier;
@@ -212,6 +212,58 @@ export interface SubscriptionStatus {
   startDate: string;
   endDate: string;
   status: 'active' | 'expired' | 'cancelled';
+}
+
+// Wallet: tracks plan credits + topup credits separately
+export interface Wallet {
+  userId: string;
+  chatCredits: number;      // plan credits remaining
+  imageCredits: number;     // plan scan credits remaining
+  topupCredits: number;     // extra topup chat credits (never expire)
+  topupImageCredits: number;// extra topup scan credits (never expire)
+  plan: SubscriptionTier;
+  planExpiry: string | null;
+  totalChatsUsed: number;
+  totalScansUsed: number;
+  lastReset: string | null;
+  razorpaySubId: string | null;
+}
+
+export interface TopupPack {
+  id: string;
+  label: string;
+  credits: number;
+  price: number;
+  type: 'chat' | 'scan';
+  tag?: string; // e.g. "BEST VALUE"
+}
+
+export interface PlanConfig {
+  tier: SubscriptionTier;
+  name: string;
+  nameHi: string;
+  price: number;
+  chatCredits: number;
+  imageCredits: number;
+  rollover: boolean;
+  topupAllowed: boolean;
+  mandiAlerts: boolean;
+  popular?: boolean;
+}
+
+export interface CreatePaymentOrderResponse {
+  orderId: string;       // Razorpay order id
+  amount: number;        // in paise
+  currency: string;
+  keyId: string;         // Razorpay key_id for checkout
+  checkoutToken?: string;
+  isMock?: boolean;
+}
+
+export interface WalletUpdateResponse {
+  success: boolean;
+  wallet: Wallet;
+  message?: string;
 }
 
 export interface OrderSummary {

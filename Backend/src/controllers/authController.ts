@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
 import { User } from '../models/User';
 import { Subscription, TIER_FEATURES } from '../models/Subscription';
+import { Wallet } from '../models/Wallet';
 import { logger } from '../utils/logger';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
@@ -121,6 +122,7 @@ export async function verifyOtp(request: FastifyRequest, reply: FastifyReply) {
     return reply.status(401).send({ error: 'Invalid OTP' });
   }
 
+  const isNewUser = !user.isVerified;
   user.isVerified = true;
   user.otp = undefined;
   user.otpExpiresAt = undefined;
@@ -134,6 +136,14 @@ export async function verifyOtp(request: FastifyRequest, reply: FastifyReply) {
       endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       features: TIER_FEATURES.free,
     });
+  }
+
+  if (isNewUser) {
+    try {
+      await Wallet.ensureForUser(user._id.toString());
+    } catch (error) {
+      logger.warn({ userId: user._id, error }, 'Failed to create initial wallet');
+    }
   }
 
   const internalToken = generateInternalToken(String(user._id), user.role);
@@ -196,11 +206,14 @@ export async function verify2FactorOtp(request: FastifyRequest, reply: FastifyRe
       twoFactorSessions.delete(phone); // Clean up session
 
       // Standard user upsert sequence replacing OTP payload to allow access precisely like the existing system
+      let isNewUser = false;
       let user = await User.findOne({ phone });
       if (!user) {
+        isNewUser = true;
         user = new User({ phone, isVerified: true, subscriptionTier: 'free' });
         await user.save();
       } else if (!user.isVerified) {
+        isNewUser = true;
         user.isVerified = true;
         await user.save();
       }
@@ -213,6 +226,14 @@ export async function verify2FactorOtp(request: FastifyRequest, reply: FastifyRe
           endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
           features: TIER_FEATURES.free,
         });
+      }
+
+      if (isNewUser) {
+        try {
+          await Wallet.ensureForUser(user._id.toString());
+        } catch (error) {
+          logger.warn({ userId: user._id, error }, 'Failed to create initial wallet');
+        }
       }
 
       const internalToken = generateInternalToken(String(user._id), user.role);

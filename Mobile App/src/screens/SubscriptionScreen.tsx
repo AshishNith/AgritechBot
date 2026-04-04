@@ -8,6 +8,7 @@ import { apiService } from '../api/services';
 import { AppText, GradientButton, Screen, GlassCard, ProgressBar, Pill } from '../components/ui';
 import { designImages } from '../constants/designData';
 import { useAppStore } from '../store/useAppStore';
+import { useWallet } from '../hooks/useWallet';
 import { RootStackParamList } from '../navigation/types';
 import { useTheme } from '../providers/ThemeContext';
 import { useI18n } from '../hooks/useI18n';
@@ -27,12 +28,13 @@ export function SubscriptionScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { isDark, colors } = useTheme();
   const { t } = useI18n();
+  const { refetchWallet } = useWallet();
   const user = useAppStore((state) => state.user);
   const setUser = useAppStore((state) => state.setUser);
   const subscriptionStatus = useAppStore((state) => state.subscriptionStatus);
   const setSubscriptionStatus = useAppStore((state) => state.setSubscriptionStatus);
 
-  const [selectedPlan, setSelectedPlan] = useState<'basic' | 'premium'>('premium');
+  const [selectedPlan, setSelectedPlan] = useState<'basic' | 'pro'>('pro');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success'>('idle');
 
@@ -46,15 +48,27 @@ export function SubscriptionScreen() {
     if (subStatusQuery.data) {
       setSubscriptionStatus(subStatusQuery.data);
     }
-  }, [subStatusQuery.data]);
+  }, [subStatusQuery.data, setSubscriptionStatus]);
 
   const processPaymentMutation = useMutation({
-    mutationFn: () => apiService.processDummyPayment(selectedPlan),
+    mutationFn: async () => {
+      const order = await apiService.createSubscriptionOrder(selectedPlan);
+      const razorpayPaymentId = `pay_mock_${Date.now()}`;
+      const razorpaySignature = `mock_signature_${order.orderId}_${razorpayPaymentId}`;
+
+      return apiService.verifyWalletPayment({
+        razorpayOrderId: order.orderId,
+        razorpayPaymentId,
+        razorpaySignature,
+        purpose: 'subscription',
+        tier: selectedPlan,
+      });
+    },
     onSuccess: () => {
       setPaymentStatus('processing');
       setTimeout(() => {
         setPaymentStatus('success');
-        subStatusQuery.refetch(); // Refresh real status from backend
+        void Promise.all([subStatusQuery.refetch(), refetchWallet()]);
         setTimeout(() => {
           setShowPaymentModal(false);
           Alert.alert('Payment Successful', `Welcome to Anaaj ${selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)}!`);
@@ -71,6 +85,7 @@ export function SubscriptionScreen() {
 
   const handlePayment = () => {
     setShowPaymentModal(true);
+    setPaymentStatus('idle');
     processPaymentMutation.mutate();
   };
 
@@ -82,7 +97,7 @@ export function SubscriptionScreen() {
         <Pressable onPress={() => navigation.goBack()} style={styles.backBtn}>
            {(() => { const Icon = IconMap['ArrowLeft']; return Icon ? <Icon size={24} color={colors.text} /> : null; })()}
         </Pressable>
-        <AppText variant="title">Premium</AppText>
+        <AppText variant="title">Subscription</AppText>
         <View style={{ width: 44 }} />
       </View>
 
@@ -121,7 +136,7 @@ export function SubscriptionScreen() {
         )}
 
         <View style={styles.section}>
-          <AppText variant="heading" style={styles.sectionTitle}>Why Go Premium?</AppText>
+          <AppText variant="heading" style={styles.sectionTitle}>Why Upgrade?</AppText>
           <View style={styles.featureGrid}>
             {features.map((f, i) => (
               <Animated.View key={f.title} entering={FadeInDown.delay(300 + i * 100)} style={styles.featureItem}>
@@ -142,20 +157,20 @@ export function SubscriptionScreen() {
             title="Basic"
             price="₹149"
             period="/month"
-            perks={['25 AI Chats', '3 Image Scans', 'Standard Support']}
+            perks={['50 AI Chats', '3 Image Scans', 'Topup Enabled']}
             selected={selectedPlan === 'basic'}
             isCurrent={currentTier === 'basic'}
             onSelect={() => setSelectedPlan('basic')}
           />
           <PlanCard 
-            title="Premium"
+            title="Pro"
             price="₹199"
             period="/month"
             popular
-            perks={['50 AI Chats', '10 Image Scans', 'Priority Support', 'Early Access']}
-            selected={selectedPlan === 'premium'}
-            isCurrent={currentTier === 'premium'}
-            onSelect={() => setSelectedPlan('premium')}
+            perks={['100 AI Chats', '10 Image Scans', '7-day rollover', 'Mandi alerts']}
+            selected={selectedPlan === 'pro'}
+            isCurrent={currentTier === 'pro'}
+            onSelect={() => setSelectedPlan('pro')}
           />
         </View>
 
@@ -165,7 +180,7 @@ export function SubscriptionScreen() {
           style={styles.actionBtn} 
         />
         <AppText variant="caption" color={colors.textMuted} style={styles.termsText}>
-          Secure payment processed by Razorpay. Cancel anytime in profile settings.
+          Razorpay mock checkout active for development. Real gateway integration can be swapped in later.
         </AppText>
       </View>
 
@@ -185,7 +200,7 @@ export function SubscriptionScreen() {
                       {(() => { const Icon = IconMap['Check']; return Icon ? <Icon size={40} color="#fff" /> : null; })()}
                    </View>
                    <AppText variant="heading" style={{ marginTop: 20 }}>Payment Successful</AppText>
-                   <AppText color={colors.textMuted} style={{ marginTop: 8 }}>Enjoy your premium benefits!</AppText>
+                   <AppText color={colors.textMuted} style={{ marginTop: 8 }}>Your plan and wallet have been updated.</AppText>
                  </Animated.View>
                ) : (
                  <View style={{ alignItems: 'center' }}>

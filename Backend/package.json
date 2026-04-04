@@ -11,6 +11,7 @@
     "start": "node dist/index.js",
     "start:cluster": "node dist/cluster.js",
     "worker": "tsx src/services/queue/worker.ts",
+    "test:wallet-smoke": "tsx src/scripts/smoke-wallet-payments.ts",
     "lint": "eslint src/",
     "seed": "tsx src/scripts/seed.ts",
     "kb:ingest": "tsx src/scripts/ingestKnowledge.ts",

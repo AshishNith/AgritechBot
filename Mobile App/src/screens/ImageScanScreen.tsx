@@ -15,6 +15,9 @@ import { useI18n } from '../hooks/useI18n';
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '../store/useAppStore';
 import { UsageLimitModal } from '../components/UsageLimitModal';
+import { PaywallBottomSheet } from '../components/PaywallBottomSheet';
+import { WalletCreditBadge } from '../components/WalletCreditBadge';
+import { useWallet } from '../hooks/useWallet';
 import Animated, { FadeIn, FadeInDown, FadeInRight } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
@@ -28,6 +31,13 @@ export function ImageScanScreen({ route }: { route: any }) {
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<string | null>(route.params?.result || null);
   const [limitModalVisible, setLimitModalVisible] = useState(false);
+  const {
+    requireScan,
+    deductScan,
+    scanPaywallVisible,
+    dismissScanPaywall,
+    refetchWallet,
+  } = useWallet();
 
   const subscriptionStatus = useAppStore((state) => state.subscriptionStatus);
   const setSubscriptionStatus = useAppStore((state) => state.setSubscriptionStatus);
@@ -133,6 +143,8 @@ export function ImageScanScreen({ route }: { route: any }) {
 
   const handleAnalyze = async (base64: string, mimeType: string) => {
     if (analyzing) return;
+    if (!requireScan()) return;
+    deductScan();
     setAnalyzing(true);
     setResult(null);
     try {
@@ -144,7 +156,9 @@ export function ImageScanScreen({ route }: { route: any }) {
       console.error('[ImageScan] Analysis error:', error);
       const backendMsg = error?.response?.data?.error || error?.message || 'Could not analyze the image. Please try again.';
       
-      if (error?.response?.status === 403) {
+      if (error?.response?.status === 402) {
+        void refetchWallet();
+      } else if (error?.response?.status === 403) {
         setLimitModalVisible(true);
       } else if (error?.response?.status === 429) {
         Alert.alert('Analysis Busy', backendMsg);
@@ -284,6 +298,7 @@ export function ImageScanScreen({ route }: { route: any }) {
         </Pressable>
         <AppText variant="title" style={{ marginLeft: 16 }}>Crop Diagnosis</AppText>
         <View style={{ flex: 1 }} />
+        <WalletCreditBadge type="scan" style={{ marginRight: 12 }} />
         <Pressable
           onPress={() => navigation.navigate('MainTabs', { screen: 'ChatTab' })}
           style={[styles.headerButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : colors.surfaceMuted }]}
@@ -442,6 +457,11 @@ export function ImageScanScreen({ route }: { route: any }) {
         onClose={() => setLimitModalVisible(false)}
         type="scan"
         limit={subscriptionStatus?.scansLimit || 5}
+      />
+      <PaywallBottomSheet
+        visible={scanPaywallVisible}
+        onClose={dismissScanPaywall}
+        type="scan"
       />
     </Screen>
   );

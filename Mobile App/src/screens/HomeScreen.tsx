@@ -23,6 +23,8 @@ import { PlannerWidget } from '../components/planner/PlannerWidget';
 import { buildWeatherSuggestions } from '../utils/weatherSuggestions';
 import { HeroWeatherCard } from '../components/HeroWeatherCard';
 import { QuickActionGrid } from '../components/QuickActionGrid';
+import { WalletCreditBadge } from '../components/WalletCreditBadge';
+import { useWallet } from '../hooks/useWallet';
 
 const DARK_MAP_STYLE = [
   { "elementType": "geometry", "stylers": [{ "color": "#1d2c21" }] },
@@ -46,6 +48,7 @@ export function HomeScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { isDark, colors } = useTheme();
   const { t: tx } = useI18n();
+  const { refetchWallet } = useWallet();
   const user = useAppStore((state) => state.user);
   const language = useAppStore((state) => state.language);
   const setFeaturedProduct = useAppStore((state) => state.setFeaturedProduct);
@@ -71,6 +74,10 @@ export function HomeScreen() {
     staleTime: 1000 * 30,
     refetchInterval: 1000 * 60,
   });
+
+  useEffect(() => {
+    void refetchWallet();
+  }, [refetchWallet]);
 
   useEffect(() => {
     if (unreadData?.unreadCount != null) {
@@ -251,6 +258,10 @@ export function HomeScreen() {
           onPress={() => navigation.navigate('Notifications')}
           active={unreadCount > 0}
         />
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <WalletCreditBadge type="chat" />
+          <WalletCreditBadge type="scan" />
+        </View>
       </View>
 
       <View style={styles.header}>

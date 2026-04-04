@@ -36,7 +36,9 @@ import { useI18n } from '../hooks/useI18n';
 import { theme } from '../constants/theme';
 import { RecordedAudioClip, useAudioRecorder } from '../hooks/useAudioRecorder';
 import { ChatMessageItem } from '../components/chat/ChatMessageItem';
+import { PaywallBottomSheet } from '../components/PaywallBottomSheet';
 import { Product } from '../types/api';
+import { useWallet } from '../hooks/useWallet';
 
 const starterId = 'starter';
 const MIN_TRANSCRIBE_DURATION_MS = 700;
@@ -65,6 +67,13 @@ export function ChatScreen() {
   const subscriptionStatus = useAppStore((state) => state.subscriptionStatus);
   const setSubscriptionStatus = useAppStore((state) => state.setSubscriptionStatus);
   const [limitModalVisible, setLimitModalVisible] = useState(false);
+  const {
+    requireChat,
+    deductChat,
+    chatPaywallVisible,
+    dismissChatPaywall,
+    refetchWallet,
+  } = useWallet();
 
   const [messages, setMessages] = useState<ChatMessage[]>([buildStarterMessage(language)]);
   const [input, setInput] = useState('');
@@ -321,9 +330,15 @@ export function ChatScreen() {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           message = t(language, 'sessionExpired');
+        } else if (error.response?.status === 402) {
+          void refetchWallet().finally(() => {
+            requireChat();
+          });
+          return;
         } else if (error.response?.status === 403) {
           // --- Subscription Limit Reached ---
           setLimitModalVisible(true);
+          void refetchWallet();
           return;
         } else if (
           typeof error.response?.data === 'object' &&
@@ -333,6 +348,8 @@ export function ChatScreen() {
           message = String((error.response.data as { error?: unknown }).error || message);
         }
       }
+
+      void refetchWallet();
 
       setLastFailedDraft({
         type: 'text',
@@ -386,6 +403,9 @@ export function ChatScreen() {
     if (!outgoing) {
       return;
     }
+
+    if (!requireChat()) return;
+    deductChat();
 
     const localChatId = chatId ?? 'local';
     setMessages((current) => [
@@ -1029,6 +1049,12 @@ export function ChatScreen() {
            onClose={() => setLimitModalVisible(false)}
            type="chat"
            limit={chatsLimit}
+        />
+
+        <PaywallBottomSheet
+          visible={chatPaywallVisible}
+          onClose={dismissChatPaywall}
+          type="chat"
         />
 
         {/* ... existing modals remain same ... */}

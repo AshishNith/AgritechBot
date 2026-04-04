@@ -4,8 +4,11 @@ import { connectRedis, disconnectRedis } from './config/redis';
 import { buildApp } from './app';
 import { startWorkers } from './services/queue/worker';
 import { addRepeatableWeatherJob } from './services/queue/queue';
+import { runMonthlyReset } from './services/walletService';
 import { logger } from './utils/logger';
 import { initializeKnowledgeBaseCache } from './chat/services/knowledgeBase.service';
+
+const WALLET_RESET_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 async function main(): Promise<void> {
   // Connect to databases
@@ -47,9 +50,20 @@ async function main(): Promise<void> {
     logger.warn({ err }, 'Knowledge base cache warmup failed after server startup');
   });
 
+  const walletResetInterval = setInterval(() => {
+    void runMonthlyReset()
+      .then(({ resetCount }) => {
+        logger.info({ resetCount }, 'Wallet monthly reset job completed');
+      })
+      .catch((err) => {
+        logger.error({ err }, 'Wallet monthly reset job failed');
+      });
+  }, WALLET_RESET_INTERVAL_MS);
+
   // Graceful shutdown
   const shutdown = async (signal: string) => {
     logger.info(`${signal} received. Shutting down gracefully...`);
+    clearInterval(walletResetInterval);
     await app.close();
     await disconnectDB();
     await disconnectRedis();
