@@ -10,6 +10,7 @@ import * as Location from 'expo-location';
 import { apiService } from '../api/services';
 import { AppText, GlassCard, Pill, PulseMic, Screen, ScreenCard } from '../components/ui';
 import { LeafletMap, MapMarker } from '../components/LeafletMap';
+import { WeatherDashboardWidget } from '../components/WeatherDashboardWidget';
 import { homeWeatherCard, marketplaceFallback, quickChips } from '../constants/designData';
 import { t } from '../constants/localization';
 import { theme } from '../constants/theme';
@@ -17,6 +18,7 @@ import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
 import { useTheme } from '../providers/ThemeContext';
 import { useI18n } from '../hooks/useI18n';
+import { buildWeatherSuggestions } from '../utils/weatherSuggestions';
 
 const DARK_MAP_STYLE = [
   { "elementType": "geometry", "stylers": [{ "color": "#1d2c21" }] },
@@ -121,7 +123,7 @@ export function HomeScreen() {
     queryKey: ['home-live-weather', weatherCoordinates.latitude, weatherCoordinates.longitude],
     queryFn: async () => {
       const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${weatherCoordinates.latitude}&longitude=${weatherCoordinates.longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=soil_moisture_0_to_7cm&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${weatherCoordinates.latitude}&longitude=${weatherCoordinates.longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=soil_moisture_0_to_7cm,precipitation_probability&timezone=auto`
       );
       return response.json();
     },
@@ -129,22 +131,22 @@ export function HomeScreen() {
   });
 
   const weatherCodeMap: Record<number, string> = {
-    0: t(language, 'ready'), // Clear sky -> Ready/Sunny
-    1: t(language, 'ready'), 
-    2: t(language, 'thinking'), // Cloudy
-    3: t(language, 'thinking'),
-    45: t(language, 'thinking'),
-    48: t(language, 'thinking'),
-    51: t(language, 'ready'), 
-    53: t(language, 'ready'),
-    55: t(language, 'ready'),
-    61: t(language, 'ready'),
-    63: t(language, 'ready'),
-    65: t(language, 'ready'),
-    71: t(language, 'ready'),
-    73: t(language, 'ready'),
-    75: t(language, 'ready'),
-    95: t(language, 'ready'),
+    0: t(language, 'weatherClear'),
+    1: t(language, 'weatherClear'),
+    2: t(language, 'weatherPartlyCloudy'),
+    3: t(language, 'weatherCloudy'),
+    45: t(language, 'weatherFoggy'),
+    48: t(language, 'weatherFoggy'),
+    51: t(language, 'weatherRainy'),
+    53: t(language, 'weatherRainy'),
+    55: t(language, 'weatherRainy'),
+    61: t(language, 'weatherRainy'),
+    63: t(language, 'weatherRainy'),
+    65: t(language, 'weatherRainy'),
+    71: t(language, 'weatherClear'), // Mocking snow as clear/cold for now
+    73: t(language, 'weatherClear'),
+    75: t(language, 'weatherClear'),
+    95: t(language, 'weatherStormy'),
   };
 
   const weatherTemperature = liveWeather?.current?.temperature_2m != null
@@ -160,6 +162,14 @@ export function HomeScreen() {
   const soilMoisture = liveWeather?.hourly?.soil_moisture_0_to_7cm?.[0] != null
     ? `${Math.round(liveWeather.hourly.soil_moisture_0_to_7cm[0])}%`
     : weatherHumidity;
+  const autoSuggestions = buildWeatherSuggestions({
+    temperature: liveWeather?.current?.temperature_2m,
+    humidity: liveWeather?.current?.relative_humidity_2m,
+    windSpeed: liveWeather?.current?.wind_speed_10m,
+    rainProbability: liveWeather?.hourly?.precipitation_probability?.[0],
+    soilMoisture: liveWeather?.hourly?.soil_moisture_0_to_7cm?.[0],
+    weatherCode: liveWeather?.current?.weather_code,
+  }, tx);
 
   const hour = new Date().getHours();
   const greeting = hour < 12
@@ -247,35 +257,23 @@ export function HomeScreen() {
         ))}
       </View>
 
-      <View style={styles.weatherInsightPanel}>
-        <View style={styles.weatherHeader}>
-          <View>
-            <AppText variant="title">{weatherTemperature}</AppText>
-            <AppText color={colors.textMuted}>{weatherCondition}</AppText>
-            <AppText color={colors.textMuted} style={{ marginTop: 2 }}>
-              {liveLocationName}
-            </AppText>
-          </View>
-          {(() => { const IconComp = IconMap['CloudSun']; return IconComp ? <IconComp size={36} color={colors.primary} /> : null; })()}
-        </View>
-        <View style={styles.insightSplit}>
-          <View style={styles.splitDivider} />
-          <AppText color={colors.textMuted} style={{ flex: 1 }}>
-            {t(language, 'weatherFeed')}: {t(language, 'humidity')} {weatherHumidity} | {t(language, 'wind')} {weatherWind}
-          </AppText>
-        </View>
-      </View>
-
-      <GlassCard style={styles.weatherCard}>
-        <AppText variant="caption" color={colors.primary}>{t(language, 'soilMoisture')}</AppText>
-        <View style={styles.soilRow}>
-          <View>
-            <AppText variant="heading">{soilMoisture}</AppText>
-            <AppText color={colors.textMuted}>{liveLocationName}</AppText>
-          </View>
-          {(() => { const IconComp = IconMap['Droplets']; return IconComp ? <IconComp size={32} color={colors.primary} /> : null; })()}
-        </View>
-      </GlassCard>
+      <WeatherDashboardWidget 
+        temp={weatherTemperature}
+        condition={weatherCondition}
+        location={liveLocationName}
+        humidity={weatherHumidity}
+        wind={weatherWind}
+        soilMoisture={soilMoisture}
+        isRaining={liveWeather?.current?.weather_code > 60}
+        suggestions={autoSuggestions}
+        onPress={() =>
+          navigation.navigate('WeatherDashboard', {
+            latitude: weatherCoordinates.latitude,
+            longitude: weatherCoordinates.longitude,
+            locationName: liveLocationName,
+          })
+        }
+      />
 
       <ScreenCard style={styles.mapCard}>
         <View style={styles.mapHeader}>

@@ -276,7 +276,7 @@ export interface VoiceAskResponse {
   chatId: string;
 }
 
-export type NotificationType = 'crop_alert' | 'weather' | 'ai_suggestion' | 'order' | 'system';
+export type NotificationType = 'crop_alert' | 'weather' | 'ai_suggestion' | 'order' | 'system' | 'farming_task' | 'adaptive_alert';
 
 export interface AppNotification {
   _id: string;
@@ -289,6 +289,60 @@ export interface AppNotification {
   metadata?: Record<string, any>;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface UserCrop {
+  _id: string;
+  userId: string;
+  cropType: string;
+  variety?: string;
+  plantingDate: string;
+  landSize?: number;
+  landUnit?: string;
+  soilType?: string;
+  currentStage: 'seedling' | 'growing' | 'flowering' | 'fruiting' | 'harvesting' | 'dormant';
+  location: {
+    latitude: number;
+    longitude: number;
+    address?: string;
+  };
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface FarmingTask {
+  _id: string;
+  userCropId: string;
+  userId: string;
+  taskType: 'watering' | 'fertilizing' | 'pesticide' | 'weeding' | 'harvesting' | 'maintenance';
+  title: string;
+  description: string;
+  scheduledDate: string;
+  completedAt?: string;
+  status: 'pending' | 'completed' | 'skipped' | 'missed';
+  aiReason?: string;
+  isManual: boolean;
+  source?: 'ai' | 'manual' | 'adaptive';
+  priority: 'low' | 'medium' | 'high';
+  reminderMinutesBefore?: number;
+  repeat?: 'none' | 'daily' | 'weekly';
+  lastAdaptiveUpdateAt?: string;
+}
+
+export interface WeatherAlert {
+  event: string;
+  description: string;
+  severity: 'minor' | 'moderate' | 'severe' | 'extreme';
+}
+
+export interface WeatherData {
+  temp: number;
+  condition: string;
+  description: string;
+  icon: string;
+  humidity: number;
+  windSpeed: number;
+  alerts: WeatherAlert[];
 }
 
 export interface NotificationListResponse {

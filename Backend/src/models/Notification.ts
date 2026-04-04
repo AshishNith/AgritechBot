@@ -1,12 +1,13 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export type NotificationType = 'crop_alert' | 'weather' | 'ai_suggestion' | 'order' | 'system';
+export type NotificationType = 'crop_alert' | 'weather' | 'ai_suggestion' | 'order' | 'system' | 'farming_task' | 'adaptive_alert';
 
 export interface INotification extends Document {
   userId: mongoose.Types.ObjectId;
   type: NotificationType;
   title: string;
   body: string;
+  priority: 'low' | 'medium' | 'high';
   read: boolean;
   actionLabel?: string;
   metadata?: Record<string, any>;
@@ -24,11 +25,16 @@ const notificationSchema = new Schema<INotification>(
     },
     type: {
       type: String,
-      enum: ['crop_alert', 'weather', 'ai_suggestion', 'order', 'system'],
+      enum: ['crop_alert', 'weather', 'ai_suggestion', 'order', 'system', 'farming_task', 'adaptive_alert'],
       required: true,
     },
     title: { type: String, required: true },
     body: { type: String, required: true },
+    priority: {
+      type: String,
+      enum: ['low', 'medium', 'high'],
+      default: 'medium',
+    },
     read: { type: Boolean, default: false },
     actionLabel: { type: String },
     metadata: { type: Schema.Types.Mixed },

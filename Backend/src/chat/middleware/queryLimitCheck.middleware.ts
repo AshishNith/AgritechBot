@@ -10,13 +10,13 @@ export async function queryLimitCheckMiddleware(
   const subscription = await Subscription.findOne({ userId: farmerId }).lean();
   const tier = subscription?.tier || 'free';
   const status = subscription?.status || 'active';
-  const dailyQueryLimit = subscription?.features?.dailyQueryLimit ?? TIER_FEATURES[tier].dailyQueryLimit;
+  const chatLimit = subscription?.features?.chatLimit ?? TIER_FEATURES[tier].chatLimit;
 
   if (status !== 'active') {
     return reply.status(403).send({ error: 'Subscription is not active.' });
   }
 
-  if (dailyQueryLimit === -1) {
+  if (chatLimit === -1) {
     return;
   }
 
@@ -29,9 +29,9 @@ export async function queryLimitCheckMiddleware(
     createdAt: { $gte: dayStart },
   });
 
-  if (queriesUsedToday >= dailyQueryLimit) {
+  if (queriesUsedToday >= chatLimit) {
     return reply.status(403).send({
-      error: `Daily chat limit of ${dailyQueryLimit} messages reached for the ${tier} plan.`,
+      error: `Daily chat limit of ${chatLimit} messages reached for the ${tier} plan.`,
     });
   }
 }

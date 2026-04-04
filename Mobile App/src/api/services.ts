@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   AskChatRequest,
   AskChatResponse,
+  FarmingTask,
   ChatContextResponse,
   ChatMessagesResponse,
   AuthResponse,
@@ -521,5 +522,67 @@ export const apiService = {
     }, []);
 
     return merged.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  },
+
+  // ── Farming Assistant ──
+  async addCrop(cropData: {
+    cropType: string;
+    variety?: string;
+    plantingDate: Date;
+    landSize?: number;
+    landUnit?: string;
+    soilType?: string;
+    currentStage: string;
+    location: { latitude: number; longitude: number; address?: string };
+  }) {
+    const { data } = await api.post<{ message: string; crop: any; taskCount: number }>(
+      '/api/v1/farming-assistant/crops',
+      cropData
+    );
+    return data;
+  },
+  async getCrops() {
+    const { data } = await api.get<{ crops: any[] }>('/api/v1/farming-assistant/crops');
+    return data.crops;
+  },
+  async getTasks(filters?: {
+    cropId?: string;
+    start?: string;
+    end?: string;
+    status?: 'pending' | 'completed' | 'skipped' | 'missed';
+    taskType?: 'watering' | 'fertilizing' | 'pesticide' | 'weeding' | 'harvesting' | 'maintenance';
+    priority?: 'low' | 'medium' | 'high';
+  }) {
+    const { data } = await api.get<{ tasks: FarmingTask[] }>('/api/v1/farming-assistant/tasks', {
+      params: filters,
+    });
+    return data.tasks;
+  },
+  async updateTask(
+    taskId: string,
+    payload: Partial<{
+      status: 'pending' | 'completed' | 'skipped' | 'missed';
+      title: string;
+      description: string;
+      scheduledDate: string;
+      priority: 'low' | 'medium' | 'high';
+      reminderMinutesBefore: number;
+      repeat: 'none' | 'daily' | 'weekly';
+    }>
+  ) {
+    const { data } = await api.patch<{ message: string; task: FarmingTask }>(
+      `/api/v1/farming-assistant/tasks/${taskId}`,
+      payload
+    );
+    return data;
+  },
+  async updateTaskStatus(taskId: string, status: 'pending' | 'completed' | 'skipped' | 'missed') {
+    return this.updateTask(taskId, { status });
+  },
+  async getCropWeather(cropId: string) {
+    const { data } = await api.get<{ weather: any }>('/api/v1/farming-assistant/weather', {
+      params: { cropId },
+    });
+    return data.weather;
   },
 };

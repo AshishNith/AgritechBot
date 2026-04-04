@@ -16,6 +16,7 @@ import { adminRoutes } from './routes/adminRoutes';
 import { notificationRoutes } from './routes/notificationRoutes';
 import { paymentRoutes } from './routes/paymentRoutes';
 import { imageAnalysisRoutes } from './routes/imageAnalysisRoutes';
+import { farmingAssistantRoutes } from './routes/farmingAssistantRoutes';
 import { chatV1Routes } from './chat/routes/chat.routes';
 import { logger } from './utils/logger';
 import { env } from './config/env';
@@ -27,6 +28,26 @@ import { getChatHealthMetrics } from './chat/services/chatMetrics.service';
 
 // ── App version from package.json ──
 const APP_VERSION = '1.0.0';
+
+function formatDateTime(dateInput: string | Date): string {
+  const date = typeof dateInput === 'string' && dateInput !== 'N/A' ? new Date(dateInput) : dateInput instanceof Date ? dateInput : null;
+  if (!date || isNaN(date.getTime())) return 'N/A';
+
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  };
+
+  const utcStr = new Intl.DateTimeFormat('en-GB', { ...options, timeZone: 'UTC' }).format(date);
+  const istStr = new Intl.DateTimeFormat('en-GB', { ...options, timeZone: 'Asia/Kolkata' }).format(date);
+
+  return `${utcStr.replace(',', '')} UTC / ${istStr.split(' ')[1]} IST`;
+}
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -144,7 +165,8 @@ export async function buildApp(): Promise<FastifyInstance> {
       redis: redisStatus,
       version: APP_VERSION,
       environment: env.NODE_ENV,
-      timestamp: new Date().toISOString(),
+      deployedAt: formatDateTime(env.DEPLOYED_AT),
+      timestamp: formatDateTime(new Date()),
       uptime: process.uptime(),
       workers: {
         chatProcessed: workerMetrics.chatProcessed,
@@ -195,6 +217,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(notificationRoutes);
   await app.register(paymentRoutes);
   await app.register(imageAnalysisRoutes);
+  await app.register(farmingAssistantRoutes);
 
   logger.info(`All routes registered [env=${env.NODE_ENV}]`);
 

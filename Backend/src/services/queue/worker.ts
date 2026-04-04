@@ -11,6 +11,7 @@ import { Message } from '../../models/Message';
 import { User } from '../../models/User';
 import { QueueError } from '../../models/QueueError';
 import { detectLanguage } from '../../utils/languageDetector';
+import { WeatherMonitoringService } from '../WeatherMonitoringService';
 import type { ChatJobData, VoiceJobData } from './queue';
 
 // ── Worker Metrics (exported for monitoring endpoint) ──
@@ -220,6 +221,15 @@ export function startWorkers(): void {
     maxStalledCount: 1,
   });
 
+  const weatherWorker = new Worker('weather-monitoring', async (job) => {
+    if (job.name === 'monitor-crops-weather') {
+      await WeatherMonitoringService.monitorAllCrops();
+    }
+  }, {
+    connection: redis,
+    concurrency: 1, // Only one at a time for monitoring
+  });
+
   // ── Event Logging ──
 
   chatWorker.on('completed', (job) => {
@@ -262,6 +272,14 @@ export function startWorkers(): void {
 
   voiceWorker.on('stalled', (jobId) => {
     logger.warn({ jobId }, 'Voice job stalled');
+  });
+
+  weatherWorker.on('completed', (job) => {
+    logger.debug({ jobId: job.id }, 'Weather monitoring job completed');
+  });
+
+  weatherWorker.on('failed', (job, err) => {
+    logger.error({ jobId: job?.id, err }, 'Weather monitoring job failed');
   });
 
   logger.info(

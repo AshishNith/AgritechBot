@@ -12,6 +12,8 @@ RUN npm run build
 FROM node:20-alpine
 
 WORKDIR /app
+ARG DEPLOYED_AT
+ENV DEPLOYED_AT=$DEPLOYED_AT
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 

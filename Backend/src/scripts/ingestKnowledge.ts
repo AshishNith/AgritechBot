@@ -138,7 +138,17 @@ async function ingest(): Promise<void> {
     return;
   }
 
-  await addDocuments(documents, ids, metadatas);
+  const BATCH_SIZE = 50;
+  for (let i = 0; i < documents.length; i += BATCH_SIZE) {
+    const end = Math.min(i + BATCH_SIZE, documents.length);
+    const docBatch = documents.slice(i, end);
+    const idBatch = ids.slice(i, end);
+    const metaBatch = metadatas.slice(i, end);
+
+    logger.info({ batch: Math.floor(i / BATCH_SIZE) + 1, size: docBatch.length }, 'Upserting batch to vector DB...');
+    await addDocuments(docBatch, idBatch, metaBatch);
+  }
+
   logger.info(
     {
       files: files.length,
@@ -150,8 +160,9 @@ async function ingest(): Promise<void> {
 }
 
 void ingest().catch((err) => {
+  console.error('Ingestion failed with detailed error:', err);
   logger.error(
-    { err: err instanceof Error ? err.message : err },
+    { err: typeof err === 'object' ? err : String(err) },
     'Knowledge ingestion failed. Ensure ChromaDB is running and CHROMA_URL is reachable.'
   );
   process.exit(1);

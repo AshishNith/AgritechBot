@@ -58,6 +58,7 @@ let voiceQueueInstance: Queue<VoiceJobData> | null = null;
 
 let chatQueueEventsInstance: QueueEvents | null = null;
 let voiceQueueEventsInstance: QueueEvents | null = null;
+let weatherQueueInstance: Queue<any> | null = null;
 
 export function isQueueAvailable(): boolean {
   return redis.status === 'ready';
@@ -81,6 +82,15 @@ export function getVoiceQueue(): Queue<VoiceJobData> {
     });
   }
   return voiceQueueInstance;
+}
+
+export function getWeatherQueue(): Queue<any> {
+  if (!weatherQueueInstance) {
+    weatherQueueInstance = new Queue('weather-monitoring', {
+      connection: redis,
+    });
+  }
+  return weatherQueueInstance;
 }
 
 export function getChatQueueEvents(): QueueEvents {
@@ -198,4 +208,27 @@ export async function getQueueHealth(): Promise<QueueHealth[]> {
 export async function drainQueues(): Promise<void> {
   await Promise.all([getChatQueue().drain(), getVoiceQueue().drain()]);
   logger.warn('All queues drained');
+}
+
+/**
+ * Adds a repeatable job for weather monitoring (e.g. every hour)
+ */
+export async function addRepeatableWeatherJob(): Promise<void> {
+  const queue = getWeatherQueue();
+  
+  // Remove existing repeatable jobs for this name to avoid duplicates
+  const repeatableJobs = await queue.getRepeatableJobs();
+  for (const job of repeatableJobs) {
+    if (job.name === 'monitor-crops-weather') {
+      await queue.removeRepeatableByKey(job.key);
+    }
+  }
+
+  await queue.add('monitor-crops-weather', {}, {
+    repeat: {
+      pattern: '0 * * * *', // Every hour at minute 0
+    }
+  });
+  
+  logger.info('Scheduled repeatable weather monitoring job (every hour)');
 }

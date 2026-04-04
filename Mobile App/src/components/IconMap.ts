@@ -5,7 +5,7 @@ import {
   CloudRain, Sparkles, Package, Info,
   Search, Mic, AlertCircle, BellOff, Circle,
   X, Scan, Brain, ArrowLeft, Share2, ChevronLeft, ChevronRight,
-  Globe, Mail, Camera, CloudSun, Droplets,
+  Globe, Mail, Camera, CloudSun, Droplets, Wind, Thermometer, Sun, Cloud,
   MoreVertical, PlayCircle, ImagePlus, LocateFixed, Locate, MapPinOff, MapPin,
   Minus, Plus, Trash2, CheckCircle2, CircleCheckBig, Send
 } from 'lucide-react-native';
@@ -17,7 +17,7 @@ export const IconMap: Record<string, any> = {
   CloudRain, Sparkles, Package, Info,
   Search, Mic, AlertCircle, BellOff, Circle,
   X, Scan, Brain, ArrowLeft, Share2, ChevronLeft, ChevronRight,
-  Globe, Mail, Camera, CloudSun, Droplets,
+  Globe, Mail, Camera, CloudSun, Droplets, Wind, Thermometer, Sun, Cloud,
   MoreVertical, PlayCircle, ImagePlus, LocateFixed, Locate, MapPinOff, MapPin,
   Minus, Plus, Trash2, CheckCircle2, CircleCheckBig, Send
 };

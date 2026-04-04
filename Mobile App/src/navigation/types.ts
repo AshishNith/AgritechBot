@@ -2,6 +2,7 @@ import type { NavigatorScreenParams } from '@react-navigation/native';
 
 export type MainTabParamList = {
   HomeTab: undefined;
+  SmartAssistantTab: undefined;
   ChatTab: undefined; // Now points to ChatListScreen
   MarketplaceTab: undefined;
   ProfileTab: undefined;
@@ -29,5 +30,9 @@ export type RootStackParamList = {
   Voice: undefined;
   ImageScan: undefined;
   Notifications: undefined;
+  WeatherDashboard: { latitude?: number; longitude?: number; locationName?: string } | undefined;
   FullMap: { latitude: number; longitude: number; locationName: string; markers?: any[] };
+  SmartAssistant: undefined;
+  AddCrop: undefined;
+  TaskTimeline: { cropId: string };
 };

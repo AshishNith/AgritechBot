@@ -22,6 +22,8 @@ const TYPE_ICONS: Record<NotificationType, any> = {
   ai_suggestion: 'Sparkles',
   order: 'Package',
   system: 'Info',
+  farming_task: 'CalendarClock',
+  adaptive_alert: 'RefreshCcw',
 };
 
 function timeAgo(dateStr: string): string {

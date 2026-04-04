@@ -43,6 +43,7 @@ export function Screen({
   style,
   refreshControl,
   withTabBar,
+  headerProps,
 }: PropsWithChildren<{
   scrollable?: boolean;
   padded?: boolean;
@@ -50,6 +51,11 @@ export function Screen({
   style?: StyleProp<ViewStyle>;
   refreshControl?: React.ReactElement;
   withTabBar?: boolean;
+  headerProps?: {
+     title: string;
+     showBack?: boolean;
+     right?: ReactNode;
+  };
 }>) {
   const { isDark, colors } = useTheme();
   const effectiveDark = dark ?? isDark;
@@ -64,6 +70,19 @@ export function Screen({
         style,
       ]}
     >
+      {headerProps && (
+        <View style={[styles.screenHeader, { borderBottomColor: colors.border }]}>
+           {headerProps.showBack && (
+             <Pressable onPress={() => require('@react-navigation/native').useNavigation().goBack()}>
+                {(() => { const Icon = IconMap['ChevronLeft']; return Icon ? <Icon size={24} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
+             </Pressable>
+           )}
+           <AppText variant="label" style={{ fontSize: 18, marginLeft: headerProps.showBack ? 16 : 0, flex: 1 }}>
+             {headerProps.title}
+           </AppText>
+           {headerProps.right}
+        </View>
+      )}
       {children}
     </View>
   );
@@ -340,6 +359,7 @@ export function AnaajTabBar({ state, descriptors, navigation }: BottomTabBarProp
 
   const tabIcons: Record<string, string> = {
     HomeTab: 'Home',
+    SmartAssistantTab: 'CloudSun',
     MarketplaceTab: 'ShoppingBag',
     ChatTab: 'MessageSquare',
     ProfileTab: 'User',
@@ -558,6 +578,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 12,
+  },
+  screenHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
   },
   searchShell: {
     borderRadius: 20,

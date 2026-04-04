@@ -3,6 +3,7 @@ import { connectDB, disconnectDB } from './config/db';
 import { connectRedis, disconnectRedis } from './config/redis';
 import { buildApp } from './app';
 import { startWorkers } from './services/queue/worker';
+import { addRepeatableWeatherJob } from './services/queue/queue';
 import { logger } from './utils/logger';
 import { initializeKnowledgeBaseCache } from './chat/services/knowledgeBase.service';
 
@@ -28,6 +29,9 @@ async function main(): Promise<void> {
   // Start queue workers only when Redis is available
   if (redisConnected) {
     startWorkers();
+    void addRepeatableWeatherJob().catch((err) => {
+      logger.error({ err }, 'Failed to schedule repeatable weather job');
+    });
   } else {
     logger.info('Skipping queue worker startup because Redis is unavailable');
   }

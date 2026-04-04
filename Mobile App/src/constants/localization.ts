@@ -301,7 +301,24 @@ export type TranslationKey =
   | 'listen'
   | 'limitReached'
   | 'cancel'
-  | 'upgradeNow';
+  | 'upgradeNow'
+  | 'stageSeedling'
+  | 'stageGrowing'
+  | 'stageFlowering'
+  | 'stageFruiting'
+  | 'stageHarvesting'
+  | 'soil'
+  | 'smartAdvisory'
+  | 'weatherOptimal'
+  | 'weatherDry'
+  | 'weatherSaturated'
+  | 'weatherRainyAdvice'
+  | 'weatherClear'
+  | 'weatherCloudy'
+  | 'weatherPartlyCloudy'
+  | 'weatherRainy'
+  | 'weatherStormy'
+  | 'weatherFoggy';
 
 
 const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
@@ -607,6 +624,23 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     limitReached: 'Limit Reached',
     cancel: 'Cancel',
     upgradeNow: 'Upgrade Now',
+    stageSeedling: 'Seedling',
+    stageGrowing: 'Growing',
+    stageFlowering: 'Flowering',
+    stageFruiting: 'Fruiting',
+    stageHarvesting: 'Harvesting',
+    soil: 'Soil',
+    smartAdvisory: 'Smart Advisory',
+    weatherOptimal: 'Conditions are optimal for field maintenance.',
+    weatherDry: 'Soil is dry. Optimal time for irrigation.',
+    weatherSaturated: 'Soil is saturated. Avoid further watering.',
+    weatherRainyAdvice: 'Stay indoors. Perfect for natural irrigation.',
+    weatherClear: 'Sunny & Clear',
+    weatherCloudy: 'Cloudy',
+    weatherPartlyCloudy: 'Partly Cloudy',
+    weatherRainy: 'Raining',
+    weatherStormy: 'Thunderstorm',
+    weatherFoggy: 'Foggy',
   },
   Hindi: {
     marketTitle: 'मार्केट',
@@ -910,6 +944,23 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     limitReached: 'सीमा समाप्त',
     cancel: 'रद्द करें',
     upgradeNow: 'अभी अपग्रेड करें',
+    stageSeedling: 'नन्हा पौधा',
+    stageGrowing: 'बढ़ रहा है',
+    stageFlowering: 'फूल आ रहे हैं',
+    stageFruiting: 'फल लग रहे हैं',
+    stageHarvesting: 'कटाई',
+    soil: 'मिट्टी',
+    smartAdvisory: 'स्मार्ट सलाह',
+    weatherOptimal: 'खेती के काम के लिए स्थितियां अनुकूल हैं।',
+    weatherDry: 'मिट्टी सूखी है। सिंचाई के लिए सही समय है।',
+    weatherSaturated: 'मिट्टी पूरी तरह गीली है। और पानी देने से बचें।',
+    weatherRainyAdvice: 'घर के अंदर रहें। प्राकृतिक सिंचाई के लिए बिल्कुल सही।',
+    weatherClear: 'साफ आसमान',
+    weatherCloudy: 'बादल छाए हैं',
+    weatherPartlyCloudy: 'आंशिक रूप से बादल',
+    weatherRainy: 'बारिश हो रही है',
+    weatherStormy: 'तूफान',
+    weatherFoggy: 'कोहरा',
   },
   Gujarati: {
     marketTitle: 'ખેતી બજાર',
@@ -1213,6 +1264,23 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     limitReached: 'સીમા પૂર્ણ થઈ',
     cancel: 'રદ કરો',
     upgradeNow: 'હમણાં અપગ્રેડ કરો',
+    stageSeedling: 'સીડલીંગ (નાના છોડ)',
+    stageGrowing: 'વિકાસશીલ',
+    stageFlowering: 'ફૂલ આવવાનો તબક્કો',
+    stageFruiting: 'ફૂલ-ફળનો તબક્કો',
+    stageHarvesting: 'લણણી (કાપણી)',
+    soil: 'જમીન',
+    smartAdvisory: 'સ્માર્ટ સલાહ',
+    weatherOptimal: 'ખેતીકામ માટે ભલામણ કરેલ છે.',
+    weatherDry: 'જમીન સૂકી છે. પિયત માટેનો આ શ્રેષ્ઠ સમય છે.',
+    weatherSaturated: 'જમીન લથપથ છે. વધુ પાણી આપવાનું ટાળો.',
+    weatherRainyAdvice: 'ઘરની અંદર રહો. કુદરતી પિયત માટે ઉત્તમ.',
+    weatherClear: 'ચોખ્ખું આકાશ',
+    weatherCloudy: 'વાદળછાયું',
+    weatherPartlyCloudy: 'અંશતઃ વાદળછાયું',
+    weatherRainy: 'વરસાદ પડી રહ્યો છે',
+    weatherStormy: 'વાવાઝોડું',
+    weatherFoggy: 'ધુમ્મસ',
   },
   Punjabi: {
     marketTitle: 'ਮਾਰਕੀਟ',
@@ -1516,6 +1584,23 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     limitReached: 'ਸੀਮਾ ਖ਼ਤਮ ਹੋ ਗਈ',
     cancel: 'ਰੱਦ ਕਰੋ',
     upgradeNow: 'ਹੁਣ ਅਪਗ੍ਰੇਡ ਕਰੋ',
+    stageSeedling: 'ਪਨੀਰੀ (ਛੋਟੇ ਪੌਦੇ)',
+    stageGrowing: 'ਵਧ ਰਿਹਾ ਹੈ',
+    stageFlowering: 'ਫੁੱਲ ਆਉਣ ਦਾ ਪੜਾਅ',
+    stageFruiting: 'ਫਲ ਲੱਗਣ ਦਾ ਪੜਾਅ',
+    stageHarvesting: 'ਵਾਢੀ (ਕਟਾਈ)',
+    soil: 'ਮਿੱਟੀ',
+    smartAdvisory: 'ਸਮਾਰਟ ਸਲਾਹ',
+    weatherOptimal: 'ਖੇਤੀ ਦੇ ਰੱਖ-ਰਖਾਅ ਲਈ ਹਾਲਾਤ ਅਨੁਕੂਲ ਹਨ।',
+    weatherDry: 'ਮਿੱਟੀ ਸੁੱਕੀ ਹੈ। ਸਿੰਚਾਈ ਲਈ ਵਧੀਆ ਸਮਾਂ ਹੈ।',
+    weatherSaturated: 'ਮਿੱਟੀ ਪੂਰੀ ਤਰ੍ਹਾਂ ਭਿੱਜੀ ਹੋਈ ਹੈ। ਹੋਰ ਪਾਣੀ ਦੇਣ ਤੋਂ ਬਚੋ।',
+    weatherRainyAdvice: 'ਘਰ ਦੇ ਅੰਦਰ ਰਹੋ. ਕੁਦਰਤੀ ਸਿੰਚਾਈ ਲਈ ਬਹੁਤ ਵਧੀਆ ਹੈ।',
+    weatherClear: 'ਸਾਫ਼ ਅਸਮਾਨ',
+    weatherCloudy: 'ਬੱਦਲਵਾਈ',
+    weatherPartlyCloudy: 'ਅੰਸ਼ਕ ਰੂਪ ਵਿੱਚ ਬੱਦਲ',
+    weatherRainy: 'ਬਾਰਿਸ਼ ਹੋ ਰਹੀ ਹੈ',
+    weatherStormy: 'ਤੂਫ਼ਾਨ',
+    weatherFoggy: 'ਧੁੰਦ',
   },
 };
 

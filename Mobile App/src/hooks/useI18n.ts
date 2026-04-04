@@ -75,7 +75,46 @@ type ExtraTranslationKey =
   | 'unitHectare'
   | 'whatCropsDoYouGrow'
   | 'profileRequiredToContinue'
-  | 'cropDetails';
+  | 'cropDetails'
+  | 'weatherDashboard'
+  | 'viewDashboard'
+  | 'yourFarm'
+  | 'liveForecastAutoSuggestions'
+  | 'todayMaxLabel'
+  | 'todayMinLabel'
+  | 'peakRainChance'
+  | 'avgHumidityLabel'
+  | 'temperaturePrediction'
+  | 'rainProbability'
+  | 'humidityTrend'
+  | 'hourByHourTemperatureTrend'
+  | 'nextHourPrecipitationOutlook'
+  | 'moistureStressIndicator'
+  | 'autoSuggestionsTitle'
+  | 'fiveDayOutlook'
+  | 'rainChance'
+  | 'refreshForecast'
+  | 'nextHours'
+  | 'smartAssistantTitle'
+  | 'tasksForToday'
+  | 'allCaughtUpNoTasks'
+  | 'myCrops'
+  | 'noCropsRegistered'
+  | 'registerCropForSchedules'
+  | 'registerNewCrop'
+  | 'plantedLabel'
+  | 'inYourArea'
+  | 'done'
+  | 'skip'
+  | 'suggestRainSkipWatering'
+  | 'suggestHeatIncreaseWatering'
+  | 'suggestColdProtectPlants'
+  | 'suggestWindAvoidSpraying'
+  | 'suggestSoilDryIrrigation'
+  | 'suggestHighHumidityMonitorFungus'
+  | 'suggestStableWeather'
+  | 'suggestCoolHours'
+  | 'suggestMonitor12Hours';
 
 export type AppTranslationKey = TranslationKey | ExtraTranslationKey;
 
@@ -154,6 +193,45 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     whatCropsDoYouGrow: 'What crops do you grow?',
     profileRequiredToContinue: 'Profile details are required to continue.',
     cropDetails: 'Crop Details',
+    weatherDashboard: 'Weather Dashboard',
+    viewDashboard: 'View Dashboard',
+    yourFarm: 'Your farm',
+    liveForecastAutoSuggestions: 'Live forecast with auto suggestions for the next few hours',
+    todayMaxLabel: 'Today Max',
+    todayMinLabel: 'Today Min',
+    peakRainChance: 'Peak Rain Chance',
+    avgHumidityLabel: 'Avg Humidity',
+    temperaturePrediction: 'Temperature Prediction',
+    rainProbability: 'Rain Probability',
+    humidityTrend: 'Humidity Trend',
+    hourByHourTemperatureTrend: 'Hour-by-hour temperature trend',
+    nextHourPrecipitationOutlook: 'Next-hour precipitation outlook',
+    moistureStressIndicator: 'Moisture stress indicator for field planning',
+    autoSuggestionsTitle: 'Auto Suggestions',
+    fiveDayOutlook: '5-Day Outlook',
+    rainChance: 'Rain chance',
+    refreshForecast: 'Refresh Forecast',
+    nextHours: 'Next hours',
+    smartAssistantTitle: 'Smart Assistant',
+    tasksForToday: 'Tasks for Today',
+    allCaughtUpNoTasks: 'All caught up! No tasks left for today.',
+    myCrops: 'My Crops',
+    noCropsRegistered: 'No crops registered yet.',
+    registerCropForSchedules: 'Register a crop to get personalized schedules.',
+    registerNewCrop: 'Register New Crop',
+    plantedLabel: 'Planted',
+    inYourArea: 'in your area',
+    done: 'Done',
+    skip: 'Skip',
+    suggestRainSkipWatering: 'Rain expected - skip watering today and inspect drainage.',
+    suggestHeatIncreaseWatering: 'High temperature - increase watering frequency in the evening.',
+    suggestColdProtectPlants: 'Cold conditions - protect tender plants before nightfall.',
+    suggestWindAvoidSpraying: 'Strong wind - avoid spraying and secure lightweight covers.',
+    suggestSoilDryIrrigation: 'Soil is drying - plan a short irrigation cycle soon.',
+    suggestHighHumidityMonitorFungus: 'High humidity - monitor leaves closely for fungal risk.',
+    suggestStableWeather: 'Weather looks stable - continue normal field maintenance.',
+    suggestCoolHours: 'Use the cooler hours for irrigation and nutrient application.',
+    suggestMonitor12Hours: 'Monitor the next 12 hours before changing your care plan.',
   },
   Hindi: {
     homeTab: 'होम',
@@ -229,6 +307,45 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     whatCropsDoYouGrow: 'आप कौन सी फसलें उगाते हैं?',
     profileRequiredToContinue: 'जारी रखने के लिए प्रोफाइल विवरण आवश्यक हैं।',
     cropDetails: 'फसल विवरण',
+    weatherDashboard: 'मौसम डैशबोर्ड',
+    viewDashboard: 'डैशबोर्ड देखें',
+    yourFarm: 'आपका खेत',
+    liveForecastAutoSuggestions: 'अगले कुछ घंटों के लिए लाइव मौसम पूर्वानुमान और स्मार्ट सुझाव',
+    todayMaxLabel: 'आज का अधिकतम',
+    todayMinLabel: 'आज का न्यूनतम',
+    peakRainChance: 'बारिश की अधिकतम संभावना',
+    avgHumidityLabel: 'औसत नमी',
+    temperaturePrediction: 'तापमान पूर्वानुमान',
+    rainProbability: 'बारिश की संभावना',
+    humidityTrend: 'नमी का रुझान',
+    hourByHourTemperatureTrend: 'घंटे दर घंटे तापमान का रुझान',
+    nextHourPrecipitationOutlook: 'अगले घंटों में वर्षा का अनुमान',
+    moistureStressIndicator: 'खेत की योजना के लिए नमी तनाव संकेतक',
+    autoSuggestionsTitle: 'स्वचालित सुझाव',
+    fiveDayOutlook: '5 दिन का पूर्वानुमान',
+    rainChance: 'बारिश की संभावना',
+    refreshForecast: 'पूर्वानुमान रीफ्रेश करें',
+    nextHours: 'अगले घंटे',
+    smartAssistantTitle: 'स्मार्ट असिस्टेंट',
+    tasksForToday: 'आज के कार्य',
+    allCaughtUpNoTasks: 'बहुत बढ़िया! आज के लिए कोई कार्य बाकी नहीं है।',
+    myCrops: 'मेरी फसलें',
+    noCropsRegistered: 'अभी तक कोई फसल दर्ज नहीं है।',
+    registerCropForSchedules: 'व्यक्तिगत शेड्यूल पाने के लिए फसल दर्ज करें।',
+    registerNewCrop: 'नई फसल दर्ज करें',
+    plantedLabel: 'बोई गई',
+    inYourArea: 'आपके क्षेत्र में',
+    done: 'पूरा',
+    skip: 'छोड़ें',
+    suggestRainSkipWatering: 'बारिश की संभावना है - आज सिंचाई छोड़ें और जल निकासी जांचें।',
+    suggestHeatIncreaseWatering: 'तापमान अधिक है - शाम में सिंचाई की आवृत्ति बढ़ाएं।',
+    suggestColdProtectPlants: 'ठंड का असर है - रात से पहले कोमल पौधों की सुरक्षा करें।',
+    suggestWindAvoidSpraying: 'तेज हवा है - छिड़काव टालें और हल्के कवर सुरक्षित करें।',
+    suggestSoilDryIrrigation: 'मिट्टी सूख रही है - जल्द एक छोटी सिंचाई चक्र की योजना बनाएं।',
+    suggestHighHumidityMonitorFungus: 'नमी अधिक है - फफूंद के जोखिम के लिए पत्तियों पर नजर रखें।',
+    suggestStableWeather: 'मौसम स्थिर दिख रहा है - सामान्य खेत रखरखाव जारी रखें।',
+    suggestCoolHours: 'सिंचाई और पोषण देने के लिए ठंडे घंटों का उपयोग करें।',
+    suggestMonitor12Hours: 'देखभाल योजना बदलने से पहले अगले 12 घंटे पर नजर रखें।',
   },
   Gujarati: {
     homeTab: 'હોમ',
@@ -304,6 +421,45 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     whatCropsDoYouGrow: 'તમે કયો પાક ઉગાડો છો?',
     profileRequiredToContinue: 'આગળ વધવા માટે પ્રોફાઇલ વિગતો આવશ્યક છે.',
     cropDetails: 'પાકની વિગતો',
+    weatherDashboard: 'હવામાન ડેશબોર્ડ',
+    viewDashboard: 'ડેશબોર્ડ જુઓ',
+    yourFarm: 'તમારું ખેતર',
+    liveForecastAutoSuggestions: 'આગામી થોડા કલાકો માટે જીવંત હવામાન અને સ્માર્ટ સૂચનો',
+    todayMaxLabel: 'આજનો મહત્તમ',
+    todayMinLabel: 'આજનો નીચોતમ',
+    peakRainChance: 'વરસાદની સૌથી વધુ શક્યતા',
+    avgHumidityLabel: 'સરેરાશ ભેજ',
+    temperaturePrediction: 'તાપમાન અનુમાન',
+    rainProbability: 'વરસાદની શક્યતા',
+    humidityTrend: 'ભેજનો ટ્રેન્ડ',
+    hourByHourTemperatureTrend: 'કલાકવાર તાપમાનનો ટ્રેન્ડ',
+    nextHourPrecipitationOutlook: 'આગામી કલાકો માટે વરસાદી અંદાજ',
+    moistureStressIndicator: 'ખેતી આયોજન માટે ભેજ તાણ સૂચક',
+    autoSuggestionsTitle: 'ઓટો સૂચનો',
+    fiveDayOutlook: '5 દિવસનો અંદાજ',
+    rainChance: 'વરસાદની શક્યતા',
+    refreshForecast: 'અંદાજ ફરી મેળવો',
+    nextHours: 'આગામી કલાકો',
+    smartAssistantTitle: 'સ્માર્ટ આસિસ્ટન્ટ',
+    tasksForToday: 'આજના કાર્યો',
+    allCaughtUpNoTasks: 'સરસ! આજે માટે કોઈ કાર્ય બાકી નથી.',
+    myCrops: 'મારા પાક',
+    noCropsRegistered: 'હજુ સુધી કોઈ પાક નોંધાયેલો નથી.',
+    registerCropForSchedules: 'વ્યક્તિગત શેડ્યૂલ માટે પાક નોંધાવો.',
+    registerNewCrop: 'નવો પાક નોંધાવો',
+    plantedLabel: 'વાવેલ',
+    inYourArea: 'તમારા વિસ્તારમાં',
+    done: 'પૂર્ણ',
+    skip: 'છોડો',
+    suggestRainSkipWatering: 'વરસાદની શક્યતા છે - આજે પાણી ન આપો અને ડ્રેનેજ તપાસો.',
+    suggestHeatIncreaseWatering: 'ઉંચું તાપમાન છે - સાંજે પાણી આપવાની આવર્તન વધારો.',
+    suggestColdProtectPlants: 'ઠંડી છે - રાત્રિ પહેલાં નાજુક છોડને સુરક્ષિત કરો.',
+    suggestWindAvoidSpraying: 'જોરદાર પવન છે - છંટકાવ ટાળો અને હળવા કવર સુરક્ષિત કરો.',
+    suggestSoilDryIrrigation: 'જમીન સુકાઈ રહી છે - ટૂંકા સિંચાઈ ચક્રની યોજના બનાવો.',
+    suggestHighHumidityMonitorFungus: 'ભેજ વધારે છે - ફૂગના જોખમ માટે પાંદડાઓ પર નજર રાખો.',
+    suggestStableWeather: 'હવામાન સ્થિર લાગે છે - સામાન્ય ખેતીકામ ચાલુ રાખો.',
+    suggestCoolHours: 'સિંચાઈ અને પોષક આપવાના કામ માટે ઠંડા કલાકો પસંદ કરો.',
+    suggestMonitor12Hours: 'સંભાળ યોજના બદલતા પહેલાં આવતા 12 કલાક પર નજર રાખો.',
   },
   Punjabi: {
     homeTab: 'ਹੋਮ',
@@ -379,6 +535,45 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     whatCropsDoYouGrow: 'ਤੁਸੀਂ ਕਿਹੜੀਆਂ ਫਸਲਾਂ ਉਗਾਉਂਦੇ ਹੋ?',
     profileRequiredToContinue: 'ਜਾਰੀ ਰੱਖਣ ਲਈ ਪ੍ਰੋਫਾਈਲ ਵੇਰਵੇ ਲੋੜੀਂਦੇ ਹਨ।',
     cropDetails: 'ਫਸਲ ਦੇ ਵੇਰਵੇ',
+    weatherDashboard: 'ਮੌਸਮ ਡੈਸ਼ਬੋਰਡ',
+    viewDashboard: 'ਡੈਸ਼ਬੋਰਡ ਵੇਖੋ',
+    yourFarm: 'ਤੁਹਾਡਾ ਖੇਤ',
+    liveForecastAutoSuggestions: 'ਅਗਲੇ ਕੁਝ ਘੰਟਿਆਂ ਲਈ ਲਾਈਵ ਮੌਸਮ ਅਤੇ ਸਮਾਰਟ ਸੁਝਾਅ',
+    todayMaxLabel: 'ਅੱਜ ਦਾ ਵੱਧ ਤੋਂ ਵੱਧ',
+    todayMinLabel: 'ਅੱਜ ਦਾ ਘੱਟ ਤੋਂ ਘੱਟ',
+    peakRainChance: 'ਬਰਸਾਤ ਦੀ ਸਭ ਤੋਂ ਵੱਧ ਸੰਭਾਵਨਾ',
+    avgHumidityLabel: 'ਔਸਤ ਨਮੀ',
+    temperaturePrediction: 'ਤਾਪਮਾਨ ਅਨੁਮਾਨ',
+    rainProbability: 'ਬਰਸਾਤ ਦੀ ਸੰਭਾਵਨਾ',
+    humidityTrend: 'ਨਮੀ ਦਾ ਰੁਝਾਨ',
+    hourByHourTemperatureTrend: 'ਘੰਟੇ ਅਨੁਸਾਰ ਤਾਪਮਾਨ ਦਾ ਰੁਝਾਨ',
+    nextHourPrecipitationOutlook: 'ਅਗਲੇ ਘੰਟਿਆਂ ਦੀ ਵਰਖਾ ਝਲਕ',
+    moistureStressIndicator: 'ਖੇਤ ਯੋਜਨਾ ਲਈ ਨਮੀ ਤਣਾਅ ਸੰਕੇਤਕ',
+    autoSuggestionsTitle: 'ਆਟੋ ਸੁਝਾਅ',
+    fiveDayOutlook: '5 ਦਿਨਾਂ ਦੀ ਝਲਕ',
+    rainChance: 'ਬਰਸਾਤ ਦੀ ਸੰਭਾਵਨਾ',
+    refreshForecast: 'ਪੂਰਵ ਅਨੁਮਾਨ ਤਾਜ਼ਾ ਕਰੋ',
+    nextHours: 'ਅਗਲੇ ਘੰਟੇ',
+    smartAssistantTitle: 'ਸਮਾਰਟ ਅਸਿਸਟੈਂਟ',
+    tasksForToday: 'ਅੱਜ ਦੇ ਕੰਮ',
+    allCaughtUpNoTasks: 'ਵਧੀਆ! ਅੱਜ ਲਈ ਕੋਈ ਕੰਮ ਬਾਕੀ ਨਹੀਂ ਹੈ।',
+    myCrops: 'ਮੇਰੀਆਂ ਫਸਲਾਂ',
+    noCropsRegistered: 'ਹਾਲੇ ਤੱਕ ਕੋਈ ਫਸਲ ਦਰਜ ਨਹੀਂ ਕੀਤੀ ਗਈ।',
+    registerCropForSchedules: 'ਨਿੱਜੀ ਸ਼ਡਿਊਲ ਲਈ ਫਸਲ ਦਰਜ ਕਰੋ।',
+    registerNewCrop: 'ਨਵੀਂ ਫਸਲ ਦਰਜ ਕਰੋ',
+    plantedLabel: 'ਬੀਜੀ ਗਈ',
+    inYourArea: 'ਤੁਹਾਡੇ ਖੇਤਰ ਵਿੱਚ',
+    done: 'ਮੁਕੰਮਲ',
+    skip: 'ਛੱਡੋ',
+    suggestRainSkipWatering: 'ਬਰਸਾਤ ਦੀ ਸੰਭਾਵਨਾ ਹੈ - ਅੱਜ ਸਿੰਚਾਈ ਨਾ ਕਰੋ ਅਤੇ ਨਿਕਾਸੀ ਜਾਂਚੋ।',
+    suggestHeatIncreaseWatering: 'ਤਾਪਮਾਨ ਉੱਚਾ ਹੈ - ਸ਼ਾਮ ਵੇਲੇ ਪਾਣੀ ਦੇਣ ਦੀ ਆਵਰਤੀ ਵਧਾਓ।',
+    suggestColdProtectPlants: 'ਠੰਢ ਹੈ - ਰਾਤ ਤੋਂ ਪਹਿਲਾਂ ਨਰਮ ਪੌਧਿਆਂ ਦੀ ਰੱਖਿਆ ਕਰੋ।',
+    suggestWindAvoidSpraying: 'ਤੇਜ਼ ਹਵਾ ਹੈ - ਛਿੜਕਾਅ ਤੋਂ ਬਚੋ ਅਤੇ ਹਲਕੇ ਕਵਰ ਸੁਰੱਖਿਅਤ ਕਰੋ।',
+    suggestSoilDryIrrigation: 'ਮਿੱਟੀ ਸੁੱਕ ਰਹੀ ਹੈ - ਜਲਦੀ ਇੱਕ ਛੋਟਾ ਸਿੰਚਾਈ ਚੱਕਰ ਬਣਾਓ।',
+    suggestHighHumidityMonitorFungus: 'ਨਮੀ ਵੱਧ ਹੈ - ਫਫੂੰਦ ਦੇ ਜੋਖਮ ਲਈ ਪੱਤਿਆਂ ਨੂੰ ਧਿਆਨ ਨਾਲ ਵੇਖੋ।',
+    suggestStableWeather: 'ਮੌਸਮ ਸਥਿਰ ਲੱਗਦਾ ਹੈ - ਆਮ ਖੇਤ ਸੰਭਾਲ ਜਾਰੀ ਰੱਖੋ।',
+    suggestCoolHours: 'ਸਿੰਚਾਈ ਅਤੇ ਪੋਸ਼ਣ ਲਈ ਠੰਢੇ ਘੰਟਿਆਂ ਦੀ ਵਰਤੋਂ ਕਰੋ।',
+    suggestMonitor12Hours: 'ਦੇਖਭਾਲ ਯੋਜਨਾ ਬਦਲਣ ਤੋਂ ਪਹਿਲਾਂ ਅਗਲੇ 12 ਘੰਟੇ ਵੇਖੋ।',
   },
 };
 
