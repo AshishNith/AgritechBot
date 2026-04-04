@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ContainerScroll } from '@/components/ui/container-scroll-animation';
+import { ContainerScroll } from './ui/container-scroll-animation';
 
 export default function Features() {
   return (

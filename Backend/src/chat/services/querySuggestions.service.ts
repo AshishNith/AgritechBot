@@ -32,7 +32,7 @@ export async function generateQuerySuggestions(params: {
 
   try {
     const model = gemini.getGenerativeModel({
-      model: 'gemini-1.5-flash', // Use faster model for suggestions
+      model: env.GEMINI_SUGGESTIONS_MODEL,
       generationConfig: {
         temperature: 0.7,
         maxOutputTokens: 300,

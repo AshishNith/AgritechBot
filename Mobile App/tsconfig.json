@@ -8,19 +8,12 @@
       "DOM",
       "ESNext"
     ],
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "target": "ESNext",
-    "strict": true,
-    "ignoreDeprecations": "5.0",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "src/*"
-      ]
-    }
+    "strict": true
   },
   "exclude": [
     "node_modules",

@@ -61,7 +61,7 @@ export function CheckoutScreen() {
         throw new Error(validationError);
       }
 
-      return apiService.createOrderPayment({
+      const payload = {
         items: cart.map((item) => ({
           productId: item.product.id,
           quantity: item.quantity,
@@ -74,22 +74,41 @@ export function CheckoutScreen() {
           pincode: formData.pincode,
         },
         shippingMethod,
-      });
+      };
+
+      try {
+        const payment = await apiService.createOrderPayment(payload);
+        return { mode: 'payment' as const, data: payment };
+      } catch (error: any) {
+        if (error?.response?.status === 503) {
+          const directOrder = await apiService.createDirectOrder(payload);
+          return { mode: 'direct' as const, data: directOrder };
+        }
+
+        throw error;
+      }
     },
     onSuccess: async (data) => {
+      if (data.mode === 'direct') {
+        const orderId = String(data.data.order?._id || data.data.order?.id || '');
+        clearCart();
+        navigation.replace('OrderSuccess', { orderId });
+        return;
+      }
+
       setPendingPayment({
-        paymentOrderId: data.paymentOrderId,
-        checkoutToken: data.checkoutToken,
-        checkoutUrl: data.checkoutUrl,
+        paymentOrderId: data.data.paymentOrderId,
+        checkoutToken: data.data.checkoutToken,
+        checkoutUrl: data.data.checkoutUrl,
       });
 
-      const supported = await Linking.canOpenURL(data.checkoutUrl);
+      const supported = await Linking.canOpenURL(data.data.checkoutUrl);
       if (!supported) {
         Alert.alert(t(language, 'checkoutUnavailable'), t(language, 'unableToOpenCheckout'));
         return;
       }
 
-      await Linking.openURL(data.checkoutUrl);
+      await Linking.openURL(data.data.checkoutUrl);
     },
     onError: (error: any) => {
       Alert.alert(t(language, 'orderFailed'), error.message || t(language, 'orderFailedAuth'));

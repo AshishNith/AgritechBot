@@ -1,4 +1,4 @@
-import { StyleSheet, View, FlatList, Pressable } from 'react-native';
+import { StyleSheet, View, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -62,9 +62,8 @@ export function CartScreen() {
         <View style={{ width: 42 }} />
       </View>
 
-      <FlatList
-        data={cart}
-        renderItem={({ item }) => (
+      <View style={{ marginVertical: 16 }}>
+        {cart.map((item) => (
           <CartItem
             key={item.product.id}
             item={item}
@@ -77,11 +76,8 @@ export function CartScreen() {
             }}
             onRemove={() => removeFromCart(item.product.id)}
           />
-        )}
-        keyExtractor={(item) => item.product.id}
-        scrollEnabled={false}
-        style={{ marginVertical: 16 }}
-      />
+        ))}
+      </View>
 
       <View style={styles.summarySection}>
         <PriceSummary

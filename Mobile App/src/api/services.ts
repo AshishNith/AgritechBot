@@ -177,6 +177,13 @@ export const apiService = {
     });
     return data;
   },
+  async createDirectOrder(payload: OrderRequest) {
+    const { data } = await api.post<{ order: { _id?: string; id?: string } }>('/api/orders', {
+      items: payload.items,
+      deliveryAddress: payload.deliveryAddress,
+    });
+    return data;
+  },
   async createSubscriptionPayment(tier: Exclude<SubscriptionTier, 'free'>) {
     const { data } = await api.post<PaymentCheckoutResponse>('/api/payment/orders', {
       purpose: 'subscription',

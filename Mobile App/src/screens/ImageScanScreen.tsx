@@ -142,9 +142,9 @@ export function ImageScanScreen({ route }: { route: any }) {
       refetchHistory(); // Update history list after new scan
     } catch (error: any) {
       console.error('[ImageScan] Analysis error:', error);
+      const backendMsg = error?.response?.data?.error || error?.message || 'Could not analyze the image. Please try again.';
       
       if (error?.response?.status === 403) {
-        const backendMsg = error?.response?.data?.error || error?.response?.data?.message;
         Alert.alert(
           t('limitReached') || 'Limit Reached',
           backendMsg || 'You have reached your scan limit. Please upgrade to continue.',
@@ -153,8 +153,12 @@ export function ImageScanScreen({ route }: { route: any }) {
             { text: t('upgradeNow') || 'Upgrade Now', onPress: () => navigation.navigate('Subscription') }
           ]
         );
+      } else if (error?.response?.status === 429) {
+        Alert.alert('Analysis Busy', backendMsg);
+      } else if (error?.response?.status === 404) {
+        Alert.alert('Route Not Found', 'Image analysis route is unavailable on the connected backend. Check that the app is pointing to your latest backend.');
       } else {
-        Alert.alert('Analysis Failed', 'Could not analyze the image. Please try again.');
+        Alert.alert('Analysis Failed', backendMsg);
       }
     } finally {
       setAnalyzing(false);

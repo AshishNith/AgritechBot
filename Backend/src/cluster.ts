@@ -73,5 +73,5 @@ if (cluster.isPrimary) {
   process.on('SIGINT', () => shutdown('SIGINT'));
 } else {
   // Each worker imports and runs the main server
-  import('./server');
+  import('./server.js');
 }

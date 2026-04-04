@@ -3,9 +3,14 @@ import { createSubscription, getSubscriptionStatus, testUpgrade } from '../contr
 import { authMiddleware } from '../middlewares/authMiddleware';
 
 export async function subscriptionRoutes(app: FastifyInstance): Promise<void> {
-  app.addHook('preHandler', authMiddleware);
+  const registerSubscriptionApi = async (api: FastifyInstance) => {
+    api.addHook('preHandler', authMiddleware);
 
-  app.post('/api/subscription', createSubscription);
-  app.get('/api/subscription/status', getSubscriptionStatus);
-  app.post('/api/subscription/test-upgrade', testUpgrade);
+    api.post('/subscription', createSubscription);
+    api.get('/subscription/status', getSubscriptionStatus);
+    api.post('/subscription/test-upgrade', testUpgrade);
+  };
+
+  await app.register(registerSubscriptionApi, { prefix: '/api' });
+  await app.register(registerSubscriptionApi, { prefix: '/api/v1' });
 }

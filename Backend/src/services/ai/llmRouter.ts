@@ -69,11 +69,11 @@ export async function queryLLM(
         { retryDelayMs, retryAt: new Date(quotaBlockedUntil).toISOString() },
         'Gemini quota exceeded; enabling temporary cooldown'
       );
-      throw new Error('LLM provider quota exceeded', { cause: err });
+      throw new Error(`LLM provider quota exceeded: ${String((err as Error)?.message ?? err)}`);
     }
 
     logger.error({ err }, 'Gemini LLM request failed');
-    throw new Error('LLM provider failed', { cause: err });
+    throw new Error(`LLM provider failed: ${String((err as Error)?.message ?? err)}`);
   }
 }
 

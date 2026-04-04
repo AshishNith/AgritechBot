@@ -11,7 +11,7 @@ import {
 import { authMiddleware } from '../middlewares/authMiddleware';
 
 export async function farmingAssistantRoutes(app: FastifyInstance) {
-  app.register(async (api) => {
+  const registerAssistantApi = async (api: FastifyInstance) => {
     api.addHook('preHandler', authMiddleware);
 
     // Crop management
@@ -28,6 +28,8 @@ export async function farmingAssistantRoutes(app: FastifyInstance) {
 
     // Weather
     api.get('/weather', getCropWeather);
-    
-  }, { prefix: '/api/v1/farming-assistant' });
+  };
+
+  await app.register(registerAssistantApi, { prefix: '/api/v1/farming-assistant' });
+  await app.register(registerAssistantApi, { prefix: '/api/farming-assistant' });
 }

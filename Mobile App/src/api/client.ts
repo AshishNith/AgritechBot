@@ -14,8 +14,11 @@ function isLoopbackUrl(url: string): boolean {
 function resolveBaseUrls(): string[] {
   const explicitFromConfig = Constants.expoConfig?.extra?.apiBaseUrl as string | undefined;
   const explicitFromEnv = process.env.EXPO_PUBLIC_API_BASE_URL;
-  const hardcodedFallback = 'https://backend.goran.in';
-  const explicit = explicitFromEnv || explicitFromConfig || hardcodedFallback;
+  const productionFallback = 'https://backend.goran.in';
+  const configuredBaseUrl = (explicitFromEnv || explicitFromConfig || '').trim();
+  const devExplicit =
+    explicitFromEnv?.trim() ||
+    (configuredBaseUrl && configuredBaseUrl !== productionFallback ? configuredBaseUrl : '');
 
   const expoHostUri = (Constants.expoConfig as { hostUri?: string } | undefined)?.hostUri;
   const expoGoHost = (
@@ -33,21 +36,22 @@ function resolveBaseUrls(): string[] {
   const runtimeUrls = hostCandidates.map((host) => `http://${host}:4000`);
 
   if (__DEV__) {
-    // In development on physical devices, host-derived LAN IP must be tried first.
+    // In development, prefer the LAN host and avoid silently falling back
+    // to a stale hosted backend that may not have local feature routes.
     return unique([
       ...runtimeUrls,
-      explicit || '',
       'http://10.0.2.2:4000',
       'http://localhost:4000',
+      devExplicit,
     ]);
   }
 
   // In production builds, avoid loopback defaults that always fail on user devices.
-  return unique([explicit]).filter((url) => url && !isLoopbackUrl(url));
+  return unique([configuredBaseUrl || productionFallback]).filter((url) => url && !isLoopbackUrl(url));
 }
 
 const baseUrls = resolveBaseUrls();
-let activeBaseUrl = baseUrls[0] || 'https://backend.goran.in';
+let activeBaseUrl = baseUrls[0] || (__DEV__ ? 'http://localhost:4000' : 'https://backend.goran.in');
 
 if (__DEV__) {
   // Helpful when debugging "backend unreachable" on changing LAN IPs.
