@@ -120,9 +120,9 @@ async function main(): Promise<void> {
 
     const walletDoc = await findWalletDoc(userId);
     assert(walletDoc, 'Wallet document was not created');
-    assert(walletDoc.plan === 'free', `Expected free plan, got ${walletDoc.plan}`);
-    assert(walletDoc.chatCredits === 10, `Expected 10 chat credits, got ${walletDoc.chatCredits}`);
-    assert(walletDoc.imageCredits === 1, `Expected 1 image credit, got ${walletDoc.imageCredits}`);
+    assert(walletDoc?.plan === 'free', `Expected free plan, got ${walletDoc?.plan}`);
+    assert(walletDoc?.chatCredits === 10, `Expected 10 chat credits, got ${walletDoc?.chatCredits}`);
+    assert(walletDoc?.imageCredits === 1, `Expected 1 image credit, got ${walletDoc?.imageCredits}`);
     record('1. New user login creates free wallet', true, `userId=${userId}`);
 
     const walletFetch = await request<WalletResponse>('/api/user/wallet', { method: 'GET' }, token);
@@ -154,7 +154,7 @@ async function main(): Promise<void> {
     }
 
     assert(noCreditsResponse?.status === 402, 'Expected a 402 NO_CREDITS response after exhausting chats');
-    assert(noCreditsResponse.data.error === 'NO_CREDITS', `Expected NO_CREDITS, got ${noCreditsResponse.data.error}`);
+    assert(noCreditsResponse?.data?.error === 'NO_CREDITS', `Expected NO_CREDITS, got ${noCreditsResponse?.data?.error}`);
     record('4. Exhausted free chats returns 402 NO_CREDITS', true);
 
     const subscriptionOrder = await request<PaymentOrderResponse>(
