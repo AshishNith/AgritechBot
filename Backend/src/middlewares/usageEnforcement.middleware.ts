@@ -9,6 +9,23 @@ export function createUsageEnforcementMiddleware(type: 'chat' | 'scan') {
       const userId = request.user!._id.toString();
       try {
         const wallet = await getWallet(userId);
+
+        // ✅ CHECK PLAN EXPIRY - Automatically downgrade to free tier if expired
+        const now = new Date();
+        if (wallet.planExpiry && wallet.planExpiry < now && wallet.plan !== 'free') {
+          logger.warn(
+            { userId, plan: wallet.plan, planExpiry: wallet.planExpiry },
+            'Plan expired - downgrading to free tier'
+          );
+
+          // Downgrade to free tier
+          wallet.plan = 'free';
+          wallet.planExpiry = null;
+          wallet.chatCredits = 10; // Free tier limits
+          wallet.imageCredits = 1;
+          await wallet.save();
+        }
+
         const totalCredits =
           type === 'chat'
             ? wallet.chatCredits + wallet.topupCredits

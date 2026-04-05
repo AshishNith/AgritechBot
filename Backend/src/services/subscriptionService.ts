@@ -1,6 +1,7 @@
 import { Subscription, TIER_FEATURES } from '../models/Subscription';
 import { User } from '../models/User';
 import { logger } from '../utils/logger';
+import { deductCredit } from './walletService';
 
 export interface LimitCheckResult {
   allowed: boolean;
@@ -133,6 +134,16 @@ export async function incrementUsage(
       { _id: userId },
       { $inc: { [userIncField]: 1 } }
     );
+
+    // Sync to Wallet model (New Credit System)
+    try {
+      await deductCredit(userId, type);
+      logger.info({ userId, type }, 'Wallet credit sync successful during usage increment');
+    } catch (walletErr) {
+      // Wallet might not exist or be out of credits, but we already allowed the action
+      // log it but don't fail the primary increment
+      logger.warn({ userId, type, err: walletErr }, 'Wallet credit sync skipped or failed during usage increment');
+    }
   } catch (error) {
     logger.error({ error, userId, type }, 'Error incrementing usage');
   }

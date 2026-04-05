@@ -32,6 +32,8 @@ export function ImageScanScreen({ route }: { route: any }) {
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<string | null>(route.params?.result || null);
   const [limitModalVisible, setLimitModalVisible] = useState(false);
+  const analysisInProgress = React.useRef(false);
+  const isPickingImage = React.useRef(false);
   
   const { wallet, refetchWallet, deductScan, requireScan, scanPaywallVisible, dismissScanPaywall } = useWallet();
 
@@ -76,7 +78,8 @@ export function ImageScanScreen({ route }: { route: any }) {
   };
 
   const pickImage = async (useCamera: boolean = false) => {
-    if (analyzing) return;
+    if (analyzing || analysisInProgress.current || isPickingImage.current) return;
+    isPickingImage.current = true;
     try {
       const hasPermission = await requestImageAccess(useCamera);
 
@@ -116,15 +119,20 @@ export function ImageScanScreen({ route }: { route: any }) {
         }
       }
     } catch (error) {
+      console.error('[ImageScan] Picking error:', error);
       Alert.alert('Error', 'Failed to pick image');
+    } finally {
+      isPickingImage.current = false;
     }
   };
 
   const { language: currentLanguage } = useI18n();
 
   const handleAnalyze = async (base64: string, mimeType: string) => {
-    if (analyzing) return;
+    if (analyzing || analysisInProgress.current) return;
     if (!requireScan()) return;
+    
+    analysisInProgress.current = true;
     deductScan();
     setAnalyzing(true);
     setResult(null);
@@ -134,9 +142,13 @@ export function ImageScanScreen({ route }: { route: any }) {
       refetchHistory();
       void refetchWallet();
     } catch (error: any) {
+      analysisInProgress.current = false;
       console.error('[ImageScan] Analysis error:', error);
       const backendMsg = error?.response?.data?.error || error?.message || 'Could not analyze the image. Please try again.';
       
+      // Always refetch wallet on error to reconcile optimistic deduction
+      void refetchWallet();
+
       if (error?.response?.status === 402) {
         setAnalyzing(false);
         void refetchWallet().finally(() => {
@@ -148,10 +160,11 @@ export function ImageScanScreen({ route }: { route: any }) {
       } else if (error?.response?.status === 429) {
         Alert.alert('Analysis Busy', backendMsg);
       } else {
-        Alert.alert('Analysis Failed', backendMsg);
+        Alert.alert('Oops!', backendMsg);
       }
     } finally {
       setAnalyzing(false);
+      analysisInProgress.current = false;
     }
   };
 

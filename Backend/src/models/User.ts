@@ -16,7 +16,7 @@ export interface IUser extends Document {
   otp?: string;
   otpExpiresAt?: Date;
   isVerified: boolean;
-  subscriptionTier: 'free' | 'basic' | 'premium';
+  subscriptionTier: 'free' | 'basic' | 'pro';
   usageLimits?: {
     chatCount: number;
     scanCount: number;
@@ -61,7 +61,7 @@ const userSchema = new Schema<IUser>(
     isVerified: { type: Boolean, default: false },
     subscriptionTier: {
       type: String,
-      enum: ['free', 'basic', 'premium'],
+      enum: ['free', 'basic', 'pro'],
       default: 'free',
     },
     usageLimits: {

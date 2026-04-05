@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface ISubscription extends Document {
   userId: Types.ObjectId;
-  tier: 'free' | 'basic' | 'premium';
+  tier: 'free' | 'basic' | 'pro';
   status: 'active' | 'expired' | 'cancelled';
   startDate: Date;
   endDate: Date;
@@ -35,7 +35,7 @@ const TIER_FEATURES = {
     prioritySupport: false, 
     marketplaceAccess: true 
   },
-  premium: { 
+  pro: { 
     chatLimit: 300, 
     scanLimit: 30, 
     voiceEnabled: true, 
@@ -55,7 +55,7 @@ const subscriptionSchema = new Schema<ISubscription>(
     },
     tier: {
       type: String,
-      enum: ['free', 'basic', 'premium'],
+      enum: ['free', 'basic', 'pro'],
       default: 'free',
     },
     status: {

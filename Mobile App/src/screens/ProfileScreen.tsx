@@ -157,24 +157,7 @@ export function ProfileScreen() {
         <GradientButton label={tx('editProfile')} secondary style={{ marginTop: 16 }} onPress={() => setEditModalVisible(true)} />
       </ScreenCard>
 
-      <ScreenCard style={{ marginTop: 16 }}>
-        <View style={styles.subHeader}>
-          <View>
-            <AppText variant="label">{tx('subscriptionStatus')}</AppText>
-            <AppText color={theme.colors.textMuted}>
-              {wallet?.plan === 'pro' 
-                 ? tx('premiumPlanActive') 
-                 : wallet?.plan === 'basic' 
-                   ? tx('basicPlanActive') 
-                   : tx('freePlan')}
-            </AppText>
-          </View>
-          <Pressable onPress={() => navigation.navigate('Subscription', { tab: 'plans' })}>
-            <AppText color={theme.colors.primary}>{tx('manage')}</AppText>
-          </Pressable>
-        </View>
-      </ScreenCard>
-
+      {/* Detailed Plan Info (Kept, as it contains credits/expiry) */}
       <ScreenCard style={{ marginTop: 16 }}>
         {!wallet ? (
           <ActivityIndicator color={colors.primary} />

@@ -36,8 +36,6 @@ function resolveBaseUrls(): string[] {
   const runtimeUrls = hostCandidates.map((host) => `http://${host}:4000`);
 
   if (__DEV__) {
-    // In development, prefer the LAN host and avoid silently falling back
-    // to a stale hosted backend that may not have local feature routes.
     return unique([
       ...runtimeUrls,
       'http://10.0.2.2:4000',
@@ -46,17 +44,11 @@ function resolveBaseUrls(): string[] {
     ]);
   }
 
-  // In production builds, avoid loopback defaults that always fail on user devices.
   return unique([configuredBaseUrl || productionFallback]).filter((url) => url && !isLoopbackUrl(url));
 }
 
 const baseUrls = resolveBaseUrls();
 let activeBaseUrl = baseUrls[0] || (__DEV__ ? 'http://localhost:4000' : 'https://backend.goran.in');
-
-if (__DEV__) {
-  // Helpful when debugging "backend unreachable" on changing LAN IPs.
-  console.log('[api] base URL candidates:', baseUrls.join(', '));
-}
 
 export const api = axios.create({
   baseURL: activeBaseUrl,
@@ -70,14 +62,14 @@ api.interceptors.response.use(
     if (error?.response?.status === 401) {
       const store = useAppStore.getState();
       store.signOut();
-      // Navigation would be handled by the app's splash screen detecting token is null
       throw error;
     }
 
-    const config = error?.config as (Record<string, unknown> & { baseURL?: string }) | undefined;
+    const config = error?.config as (Record<string, unknown> & { baseURL?: string; method?: string }) | undefined;
 
-    // Only retry pure network failures. HTTP errors (401/500/etc.) should surface directly.
-    if (!config || error?.response || config.__baseRetryAttempted) {
+    // MANDATORY FIX: Only retry safe, idempotent GET requests. 
+    // Never retry POST/PUT/DELETE as it causes duplicate deductions/resource creation (Triple Counting Fix).
+    if (!config || error?.response || config.__baseRetryAttempted || config.method?.toLowerCase() !== 'get') {
       throw error;
     }
 
@@ -109,14 +101,10 @@ api.interceptors.response.use(
 );
 
 api.interceptors.request.use((config) => {
-  // Keep requests pinned to last known working base URL.
   config.baseURL = activeBaseUrl;
-
   const token = useAppStore.getState().token;
-
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-
   return config;
 });

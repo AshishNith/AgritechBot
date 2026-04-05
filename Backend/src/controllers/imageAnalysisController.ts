@@ -2,7 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { z } from 'zod';
 import { ImageAnalysis } from '../models/ImageAnalysis';
-import { checkLimit, incrementUsage } from '../services/subscriptionService';
+import { incrementUsage } from '../services/subscriptionService';
 import { env } from '../config/env';
 import { logger } from '../utils/logger';
 import { DIAGNOSIS_PROMPT } from '../chat/data/diagnosisPrompt';
@@ -157,8 +157,13 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
 
       logger.info({ analysisId: analysis._id, userId }, 'Analysis saved to database');
       
-      // --- Increment Usage ---
-      await incrementUsage(userId.toString(), 'scan');
+      // ✅ UNIFIED USAGE & WALLET SYNC
+      try {
+        await incrementUsage(userId.toString(), 'scan');
+        logger.info({ userId, analysisId: analysis._id }, 'Scan usage incremented and wallet synced');
+      } catch (usageError) {
+        logger.error({ err: usageError, userId }, 'Failed to increment usage or sync wallet');
+      }
 
       return reply.send({
         id: analysis._id,

@@ -63,9 +63,9 @@ const SUBSCRIPTION_PRICES = {
 
 export const processDummyPayment = async (request: FastifyRequest, reply: FastifyReply) => {
   const userId = request.user!._id;
-  const { tier } = request.body as { tier: 'free' | 'basic' | 'premium' };
+  const { tier } = request.body as { tier: 'free' | 'basic' | 'pro' };
 
-  if (!['basic', 'premium'].includes(tier)) {
+  if (!['basic', 'pro'].includes(tier)) {
     return reply.status(400).send({ error: 'Invalid tier for payment' });
   }
 
@@ -92,6 +92,16 @@ export const processDummyPayment = async (request: FastifyRequest, reply: Fastif
     );
 
     logger.info({ userId, tier }, 'Dummy payment processed successfully');
+
+    // Sync to Wallet model
+    try {
+      if (tier === 'basic' || tier === 'pro') {
+        await addPlanCredits(userId.toString(), tier);
+        logger.info({ userId, tier }, 'Wallet plan credits added via dummy payment');
+      }
+    } catch (walletErr) {
+      logger.error({ userId, tier, err: walletErr }, 'Failed to sync wallet credits during dummy payment');
+    }
 
     return reply.send({
       success: true,

@@ -30,7 +30,7 @@ export interface IPaymentAttempt extends Document {
     deliveryAddress: OrderDraftAddress;
   };
   subscriptionDraft?: {
-    tier: 'basic' | 'premium';
+    tier: 'basic' | 'pro';
   };
   orderId?: Types.ObjectId;
   subscriptionId?: Types.ObjectId;
@@ -90,7 +90,7 @@ const paymentAttemptSchema = new Schema<IPaymentAttempt>(
     subscriptionDraft: {
       tier: {
         type: String,
-        enum: ['basic', 'premium'],
+        enum: ['basic', 'pro'],
       },
     },
     orderId: { type: Schema.Types.ObjectId, ref: 'Order' },

@@ -8,6 +8,7 @@ import {
 import type { FastifyReply } from 'fastify';
 import mongoose from 'mongoose';
 import { deductCredit } from '../../services/walletService';
+import { incrementUsage } from '../../services/subscriptionService';
 import { env } from '../../config/env';
 import { logger } from '../../utils/logger';
 import { SYSTEM_PROMPT } from '../data/systemPrompt';

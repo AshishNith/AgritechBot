@@ -94,7 +94,7 @@ export async function getSubscriptionStatus(request: FastifyRequest, reply: Fast
  */
 export async function testUpgrade(request: FastifyRequest, reply: FastifyReply) {
   const schema = z.object({
-    tier: z.enum(['basic', 'premium']),
+    tier: z.enum(['basic', 'pro']),
   });
 
   const parsed = schema.safeParse(request.body);
