@@ -33,7 +33,8 @@ export function useWallet() {
   const walletQuery = useQuery({
     queryKey: ['wallet'],
     queryFn: () => apiService.getWallet(),
-    enabled: !lastFetched || Date.now() - lastFetched > STALE_MS,
+    // Fetch if we don't have a wallet, OR if it's been more than STALE_MS since last fetch
+    enabled: !wallet || !lastFetched || Date.now() - lastFetched > STALE_MS,
     gcTime: 0,
   });
 

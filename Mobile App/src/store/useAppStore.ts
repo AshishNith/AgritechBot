@@ -2,12 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { AppLanguage, Product, UserProfile, SubscriptionStatus } from '../types/api';
+import { AppLanguage, Product, UserProfile } from '../types/api';
+import { useWalletStore } from './useWalletStore';
 
 interface AppState {
   token: string | null;
   user: UserProfile | null;
-  subscriptionStatus: SubscriptionStatus | null;
   language: AppLanguage;
   phoneDraft: string;
   hasCompletedOnboarding: boolean;
@@ -18,7 +18,6 @@ interface AppState {
   hasPlayedGreeting: boolean;
   setToken: (token: string | null) => void;
   setUser: (user: UserProfile | null) => void;
-  setSubscriptionStatus: (status: SubscriptionStatus | null) => void;
   setLanguage: (language: AppLanguage) => void;
   setPhoneDraft: (phone: string) => void;
   completeOnboarding: () => void;
@@ -36,7 +35,6 @@ export const useAppStore = create<AppState>()(
     (set) => ({
       token: null,
       user: null,
-      subscriptionStatus: null,
       language: 'Hindi',
       phoneDraft: '+91',
       hasCompletedOnboarding: false,
@@ -48,7 +46,6 @@ export const useAppStore = create<AppState>()(
       hasPlayedGreeting: false,
       setToken: (token) => set({ token }),
       setUser: (user) => set({ user }),
-      setSubscriptionStatus: (subscriptionStatus) => set({ subscriptionStatus }),
       setLanguage: (language) => set({ language }),
       setPhoneDraft: (phoneDraft) => set({ phoneDraft }),
       completeOnboarding: () => set({ hasCompletedOnboarding: true }),
@@ -58,17 +55,18 @@ export const useAppStore = create<AppState>()(
       setNotificationsEnabled: (notificationsEnabled) => set({ notificationsEnabled }),
       setUnreadNotificationCount: (unreadNotificationCount) => set({ unreadNotificationCount }),
       setHasPlayedGreeting: (hasPlayedGreeting) => set({ hasPlayedGreeting }),
-      signOut: () =>
+      signOut: () => {
+        useWalletStore.getState().reset();
         set((state) => ({
           token: null,
           user: null,
-          subscriptionStatus: null,
           hasCompletedOnboarding: state.hasCompletedOnboarding,
           phoneDraft: '+91',
           featuredProduct: null,
           selectedCrops: [],
           unreadNotificationCount: 0,
-        })),
+        }));
+      },
     }),
     {
       name: 'anaaj-app-store',

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Alert, Image, Pressable, StyleSheet, View, ActivityIndicator, Modal, ScrollView, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 
 import { apiService } from '../api/services';
 import { AppText, GradientButton, Screen, GlassCard, ProgressBar, Pill } from '../components/ui';
@@ -13,9 +13,8 @@ import { RootStackParamList } from '../navigation/types';
 import { useTheme } from '../providers/ThemeContext';
 import { useI18n } from '../hooks/useI18n';
 import { IconMap } from '../components/IconMap';
-import Animated, { FadeIn, FadeInDown, FadeOut, ZoomIn, useAnimatedStyle, withRepeat, withTiming, withSequence } from 'react-native-reanimated';
-
-const { width } = Dimensions.get('window');
+import { CHAT_TOPUP_PACKS, SCAN_TOPUP_PACKS, PLAN_CONFIGS } from '../store/useWalletStore';
+import Animated, { FadeIn, FadeInDown, FadeOut, ZoomIn } from 'react-native-reanimated';
 
 const features = [
   { title: 'AI Crop Doctor', subtitle: 'Identify diseases from photos instantly', icon: 'Scan' },
@@ -26,52 +25,64 @@ const features = [
 
 export function SubscriptionScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'Subscription'>>();
   const { isDark, colors } = useTheme();
-  const { t } = useI18n();
-  const { refetchWallet } = useWallet();
+  const { t: tx } = useI18n();
+  const { wallet, refetchWallet } = useWallet();
   const user = useAppStore((state) => state.user);
-  const setUser = useAppStore((state) => state.setUser);
-  const subscriptionStatus = useAppStore((state) => state.subscriptionStatus);
-  const setSubscriptionStatus = useAppStore((state) => state.setSubscriptionStatus);
-
+  
+  const [activeTab, setActiveTab] = useState<'plans' | 'topup'>(route.params?.tab || 'plans');
   const [selectedPlan, setSelectedPlan] = useState<'basic' | 'pro'>('pro');
+  const [selectedTopup, setSelectedTopup] = useState<{ id: string; type: 'chat' | 'scan'; amount: number } | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success'>('idle');
 
-  const subStatusQuery = useQuery({
-    queryKey: ['subscription-status'],
-    queryFn: () => apiService.getSubscriptionStatus(),
-    gcTime: 0,
-  });
-
   useEffect(() => {
-    if (subStatusQuery.data) {
-      setSubscriptionStatus(subStatusQuery.data);
+    if (route.params?.tab) {
+      setActiveTab(route.params.tab);
     }
-  }, [subStatusQuery.data, setSubscriptionStatus]);
+  }, [route.params?.tab]);
 
   const processPaymentMutation = useMutation({
     mutationFn: async () => {
-      const order = await apiService.createSubscriptionOrder(selectedPlan);
-      const razorpayPaymentId = `pay_mock_${Date.now()}`;
-      const razorpaySignature = `mock_signature_${order.orderId}_${razorpayPaymentId}`;
+      if (activeTab === 'plans') {
+        const order = await apiService.createSubscriptionOrder(selectedPlan);
+        const razorpayPaymentId = `pay_mock_${Date.now()}`;
+        const razorpaySignature = `mock_signature_${order.orderId}_${razorpayPaymentId}`;
 
-      return apiService.verifyWalletPayment({
-        razorpayOrderId: order.orderId,
-        razorpayPaymentId,
-        razorpaySignature,
-        purpose: 'subscription',
-        tier: selectedPlan,
-      });
+        return apiService.verifyWalletPayment({
+          razorpayOrderId: order.orderId,
+          razorpayPaymentId,
+          razorpaySignature,
+          purpose: 'subscription',
+          tier: selectedPlan,
+        });
+      } else {
+        if (!selectedTopup) throw new Error("No topup selected");
+        const order = await apiService.createTopupOrder(selectedTopup.id as any);
+        const razorpayPaymentId = `pay_mock_${Date.now()}`;
+        const razorpaySignature = `mock_signature_${order.orderId}_${razorpayPaymentId}`;
+
+        return apiService.verifyWalletPayment({
+          razorpayOrderId: order.orderId,
+          razorpayPaymentId,
+          razorpaySignature,
+          purpose: 'topup',
+          packId: selectedTopup.id as any,
+        });
+      }
     },
     onSuccess: () => {
       setPaymentStatus('processing');
       setTimeout(() => {
         setPaymentStatus('success');
-        void Promise.all([subStatusQuery.refetch(), refetchWallet()]);
+        void refetchWallet();
         setTimeout(() => {
           setShowPaymentModal(false);
-          Alert.alert('Payment Successful', `Welcome to Anaaj ${selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)}!`);
+          const msg = activeTab === 'plans' 
+            ? `Welcome to Anaaj ${selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)}!`
+            : `Success! Credits added to your wallet.`;
+          Alert.alert('Payment Successful', msg);
           navigation.goBack();
         }, 1500);
       }, 2000);
@@ -84,12 +95,16 @@ export function SubscriptionScreen() {
   });
 
   const handlePayment = () => {
+    if (activeTab === 'topup' && !selectedTopup) {
+      Alert.alert('Selection Required', 'Please select a top-up pack first.');
+      return;
+    }
     setShowPaymentModal(true);
     setPaymentStatus('idle');
     processPaymentMutation.mutate();
   };
 
-  const currentTier = subscriptionStatus?.tier || 'free';
+  const currentTier = wallet?.plan || 'free';
 
   return (
     <Screen scrollable padded={false}>
@@ -113,71 +128,149 @@ export function SubscriptionScreen() {
           </AppText>
         </Animated.View>
 
-        {/* Current Usage Card if on a plan */}
-        {subscriptionStatus && (
+        {/* Wallet Usage Card */}
+        {wallet && currentTier !== 'free' && (
           <GlassCard style={styles.usageCard}>
             <View style={styles.usageHeader}>
               <Pill label={currentTier.toUpperCase() + " PLAN"} color={colors.primary} active />
-              <AppText variant="caption" color={colors.textMuted}>Current Month</AppText>
+              <AppText variant="caption" color={colors.textMuted}>Remaining Credits</AppText>
             </View>
             
             <View style={styles.progressRow}>
               <View style={{ flex: 1 }}>
-                <AppText variant="caption">AI Chats: {subscriptionStatus.chatsUsed} / {subscriptionStatus.chatsLimit}</AppText>
-                <ProgressBar progress={(subscriptionStatus.chatsUsed / (subscriptionStatus.chatsLimit || 1)) * 100} color={colors.primary} />
+                <AppText variant="caption" style={{ marginBottom: 4 }}>
+                  AI Chats: <AppText variant="label" color={colors.primary}>{wallet.chatCredits + (wallet.topupCredits || 0)}</AppText>
+                </AppText>
+                <ProgressBar progress={Math.min(100, ((wallet.chatCredits + (wallet.topupCredits || 0)) / (PLAN_CONFIGS.find(p => p.tier === currentTier)?.chatCredits || 1)) * 100)} color={colors.primary} />
               </View>
               <View style={{ width: 20 }} />
               <View style={{ flex: 1 }}>
-                <AppText variant="caption">Crop Scans: {subscriptionStatus.scansUsed} / {subscriptionStatus.scansLimit}</AppText>
-                <ProgressBar progress={(subscriptionStatus.scansUsed / (subscriptionStatus.scansLimit || 1)) * 100} color="#52B781" />
+                <AppText variant="caption" style={{ marginBottom: 4 }}>
+                  Crop Scans: <AppText variant="label" color="#52B781">{wallet.imageCredits + (wallet.topupImageCredits || 0)}</AppText>
+                </AppText>
+                <ProgressBar progress={Math.min(100, ((wallet.imageCredits + (wallet.topupImageCredits || 0)) / (PLAN_CONFIGS.find(p => p.tier === currentTier)?.imageCredits || 1)) * 100)} color="#52B781" />
               </View>
             </View>
           </GlassCard>
         )}
 
-        <View style={styles.section}>
-          <AppText variant="heading" style={styles.sectionTitle}>Why Upgrade?</AppText>
-          <View style={styles.featureGrid}>
-            {features.map((f, i) => (
-              <Animated.View key={f.title} entering={FadeInDown.delay(300 + i * 100)} style={styles.featureItem}>
-                <View style={[styles.featureIcon, { backgroundColor: colors.primary + '10' }]}>
-                   {(() => { const Icon = IconMap[f.icon]; return Icon ? <Icon size={20} color={colors.primary} /> : null; })()}
-                </View>
-                <View style={{ flex: 1 }}>
-                  <AppText variant="label" style={{ fontSize: 15 }}>{f.title}</AppText>
-                  <AppText variant="caption" color={colors.textMuted}>{f.subtitle}</AppText>
-                </View>
-              </Animated.View>
-            ))}
-          </View>
+        {/* Tab Switcher */}
+        <View style={[styles.tabBar, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}>
+          <Pressable 
+            onPress={() => setActiveTab('plans')}
+            style={[styles.tab, activeTab === 'plans' && { backgroundColor: isDark ? '#2D332D' : '#fff', elevation: 2 }]}
+          >
+            <AppText variant="label" color={activeTab === 'plans' ? colors.primary : colors.textMuted}>Monthly Plans</AppText>
+          </Pressable>
+          <Pressable 
+            onPress={() => setActiveTab('topup')}
+            style={[styles.tab, activeTab === 'topup' && { backgroundColor: isDark ? '#2D332D' : '#fff', elevation: 2 }]}
+          >
+            <AppText variant="label" color={activeTab === 'topup' ? colors.primary : colors.textMuted}>Top-ups</AppText>
+          </Pressable>
         </View>
 
-        <View style={styles.plansSection}>
-          <PlanCard 
-            title="Basic"
-            price="₹149"
-            period="/month"
-            perks={['50 AI Chats', '3 Image Scans', 'Topup Enabled']}
-            selected={selectedPlan === 'basic'}
-            isCurrent={currentTier === 'basic'}
-            onSelect={() => setSelectedPlan('basic')}
-          />
-          <PlanCard 
-            title="Pro"
-            price="₹199"
-            period="/month"
-            popular
-            perks={['100 AI Chats', '10 Image Scans', '7-day rollover', 'Mandi alerts']}
-            selected={selectedPlan === 'pro'}
-            isCurrent={currentTier === 'pro'}
-            onSelect={() => setSelectedPlan('pro')}
-          />
-        </View>
+        {activeTab === 'plans' ? (
+          <>
+            <View style={styles.section}>
+              <AppText variant="heading" style={styles.sectionTitle}>Why Upgrade?</AppText>
+              <View style={styles.featureGrid}>
+                {features.map((f, i) => (
+                  <Animated.View key={f.title} entering={FadeInDown.delay(100 + i * 50)} style={styles.featureItem}>
+                    <View style={[styles.featureIcon, { backgroundColor: colors.primary + '10' }]}>
+                       {(() => { const Icon = IconMap[f.icon]; return Icon ? <Icon size={20} color={colors.primary} /> : null; })()}
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <AppText variant="label" style={{ fontSize: 15 }}>{f.title}</AppText>
+                      <AppText variant="caption" color={colors.textMuted}>{f.subtitle}</AppText>
+                    </View>
+                  </Animated.View>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.plansSection}>
+              <PlanCard 
+                title="Basic"
+                price="₹149"
+                period="/month"
+                perks={['50 AI Chats', '3 Image Scans', 'Topup Enabled']}
+                selected={selectedPlan === 'basic'}
+                isCurrent={currentTier === 'basic'}
+                onSelect={() => setSelectedPlan('basic')}
+              />
+              <PlanCard 
+                title="Pro"
+                price="₹199"
+                period="/month"
+                popular
+                perks={['100 AI Chats', '10 Image Scans', '7-day rollover', 'Mandi alerts']}
+                selected={selectedPlan === 'pro'}
+                isCurrent={currentTier === 'pro'}
+                onSelect={() => setSelectedPlan('pro')}
+              />
+            </View>
+          </>
+        ) : (
+          <View style={styles.topupSection}>
+            <AppText variant="heading" style={styles.sectionTitle}>Add Extra Credits</AppText>
+            <AppText color={colors.textMuted} style={{ marginBottom: 20 }}>Top-up credits never expire and are used only after your plan credits run out.</AppText>
+            
+            <AppText variant="label" style={{ marginBottom: 12 }}>AI Chat Packs</AppText>
+            <View style={styles.packGrid}>
+              {CHAT_TOPUP_PACKS.map((pack) => (
+                <Pressable 
+                  key={pack.id} 
+                  onPress={() => setSelectedTopup({ id: pack.id, type: 'chat', amount: pack.price })}
+                  style={[
+                    styles.packCard, 
+                    { borderColor: selectedTopup?.id === pack.id ? colors.primary : colors.border },
+                    selectedTopup?.id === pack.id && { backgroundColor: colors.primary + '08' }
+                  ]}
+                >
+                  {pack.tag && (
+                    <View style={[styles.packTag, { backgroundColor: colors.primary }]}>
+                      <AppText style={{ fontSize: 8, color: '#fff', fontWeight: '800' }}>{pack.tag}</AppText>
+                    </View>
+                  )}
+                  <AppText variant="title" color={colors.primary}>{pack.credits}</AppText>
+                  <AppText variant="caption">Chats</AppText>
+                  <AppText variant="label" style={{ marginTop: 8 }}>₹{pack.price}</AppText>
+                </Pressable>
+              ))}
+            </View>
+
+            <AppText variant="label" style={{ marginBottom: 12, marginTop: 24 }}>Image Scan Packs</AppText>
+            <View style={styles.packGrid}>
+              {SCAN_TOPUP_PACKS.map((pack) => (
+                <Pressable 
+                  key={pack.id} 
+                  onPress={() => setSelectedTopup({ id: pack.id, type: 'scan', amount: pack.price })}
+                  style={[
+                    styles.packCard, 
+                    { borderColor: selectedTopup?.id === pack.id ? colors.primary : colors.border },
+                    selectedTopup?.id === pack.id && { backgroundColor: colors.primary + '08' }
+                  ]}
+                >
+                  {pack.tag && (
+                    <View style={[styles.packTag, { backgroundColor: colors.primary }]}>
+                      <AppText style={{ fontSize: 8, color: '#fff', fontWeight: '800' }}>{pack.tag}</AppText>
+                    </View>
+                  )}
+                  <AppText variant="title" color="#52B781">{pack.credits}</AppText>
+                  <AppText variant="caption">{pack.credits === 1 ? 'Scan' : 'Scans'}</AppText>
+                  <AppText variant="label" style={{ marginTop: 8 }}>₹{pack.price}</AppText>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        )}
 
         <GradientButton 
-          label={currentTier === 'free' ? "UPGRADE NOW" : "RENEW PLAN"} 
+          label={activeTab === 'plans' ? (currentTier === 'free' ? "UPGRADE NOW" : "RENEW PLAN") : `BUY ${selectedTopup ? selectedTopup.id.split('_')[1].toUpperCase() : ''} CREDITS`} 
           onPress={handlePayment} 
           style={styles.actionBtn} 
+          loading={processPaymentMutation.isPending}
         />
         <AppText variant="caption" color={colors.textMuted} style={styles.termsText}>
           Razorpay mock checkout active for development. Real gateway integration can be swapped in later.
@@ -307,6 +400,12 @@ const styles = StyleSheet.create({
   currentBadge: { position: 'absolute', top: 24, right: 60 },
   actionBtn: { marginTop: 40, height: 64, borderRadius: 20 },
   termsText: { textAlign: 'center', marginTop: 16 },
+  tabBar: { flexDirection: 'row', marginTop: 32, borderRadius: 16, padding: 4 },
+  tab: { flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 12 },
+  topupSection: { marginTop: 40 },
+  packGrid: { flexDirection: 'row', gap: 12, marginBottom: 16 },
+  packCard: { flex: 1, borderRadius: 20, borderWidth: 2, padding: 16, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.02)', position: 'relative' },
+  packTag: { position: 'absolute', top: -10, right: 10, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
   modalOverlay: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   blurBg: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.8)' },
   paymentCard: { width: '85%', borderRadius: 32, overflow: 'hidden' },

@@ -1,7 +1,7 @@
 import { Switch, Image, Pressable, StyleSheet, View, Modal, TextInput, ActivityIndicator, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
 import { AppText, IconRow, GradientButton, Screen, ScreenCard, Pill } from '../components/ui';
@@ -12,9 +12,9 @@ import { t } from '../constants/localization';
 import { theme } from '../constants/theme';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
-import { useWalletStore } from '../store/useWalletStore';
 import { useTheme } from '../providers/ThemeContext';
 import { useI18n } from '../hooks/useI18n';
+import { useWallet } from '../hooks/useWallet';
 
 export function ProfileScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -28,9 +28,15 @@ export function ProfileScreen() {
   const signOut = useAppStore((state) => state.signOut);
   const notificationsEnabled = useAppStore((state) => state.notificationsEnabled);
   const setNotificationsEnabled = useAppStore((state) => state.setNotificationsEnabled);
-  const wallet = useWalletStore((s) => s.wallet);
-  const totalChatCredits = useWalletStore((s) => s.totalChatCredits);
-  const totalScanCredits = useWalletStore((s) => s.totalScanCredits);
+  
+  const { wallet, refetchWallet, isLoading: isWalletLoading } = useWallet();
+
+  // Refetch wallet when entering the screen to ensure fresh data
+  useFocusEffect(
+    useCallback(() => {
+      void refetchWallet();
+    }, [refetchWallet])
+  );
   
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editedName, setEditedName] = useState(user?.name || '');
@@ -141,9 +147,9 @@ export function ProfileScreen() {
           <AppText variant="label" color={theme.colors.textOnDark}>
             {!user?.name 
               ? tx('incompleteProfile') 
-              : user?.subscriptionTier === 'premium' 
+              : wallet?.plan === 'pro' 
                 ? tx('premiumMember') 
-                : user?.subscriptionTier === 'basic' 
+                : wallet?.plan === 'basic' 
                   ? tx('basicMember') 
                   : tx('freeMember')}
           </AppText>
@@ -156,14 +162,14 @@ export function ProfileScreen() {
           <View>
             <AppText variant="label">{tx('subscriptionStatus')}</AppText>
             <AppText color={theme.colors.textMuted}>
-              {user?.subscriptionTier === 'premium' 
+              {wallet?.plan === 'pro' 
                  ? tx('premiumPlanActive') 
-                 : user?.subscriptionTier === 'basic' 
+                 : wallet?.plan === 'basic' 
                    ? tx('basicPlanActive') 
                    : tx('freePlan')}
             </AppText>
           </View>
-          <Pressable onPress={() => navigation.navigate('Subscription')}>
+          <Pressable onPress={() => navigation.navigate('Subscription', { tab: 'plans' })}>
             <AppText color={theme.colors.primary}>{tx('manage')}</AppText>
           </Pressable>
         </View>
@@ -180,7 +186,7 @@ export function ProfileScreen() {
                 {wallet.plan.toUpperCase()}
               </AppText>
               <AppText color={theme.colors.textMuted} style={{ marginTop: 4 }}>
-                {totalChatCredits()} chats · {totalScanCredits()} scans baaki
+                {wallet.chatCredits + (wallet.topupCredits || 0)} chats · {wallet.imageCredits + (wallet.topupImageCredits || 0)} scans baaki
               </AppText>
               {wallet.planExpiry ? (
                 <AppText color={theme.colors.textMuted} style={{ marginTop: 4 }}>
@@ -188,7 +194,7 @@ export function ProfileScreen() {
                 </AppText>
               ) : null}
             </View>
-            <Pressable onPress={() => navigation.navigate('Subscription')}>
+            <Pressable onPress={() => navigation.navigate('Subscription', { tab: 'plans' })}>
               <AppText color={colors.primary}>Manage Plan →</AppText>
             </Pressable>
           </View>
@@ -395,7 +401,7 @@ export function ProfileScreen() {
                 onPress={handleEditProfile}
                 disabled={updateProfileMutation.isPending}
                 style={{ marginTop: 16 }}
-                leftIcon={updateProfileMutation.isPending ? <ActivityIndicator size={18} color={theme.colors.textOnDark} /> : undefined}
+                loading={updateProfileMutation.isPending}
               />
             </ScrollView>
           </View>

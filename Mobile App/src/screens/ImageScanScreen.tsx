@@ -10,14 +10,15 @@ import { IconMap } from '../components/IconMap';
 import { AppText, GradientButton, Screen, ScreenCard, GlassCard, ProgressBar, StatCard, Pill } from '../components/ui';
 import { apiService } from '../api/services';
 import { RootStackParamList } from '../navigation/types';
+import { useAppStore } from '../store/useAppStore';
+import { useWallet } from '../hooks/useWallet';
 import { useTheme } from '../providers/ThemeContext';
 import { useI18n } from '../hooks/useI18n';
-import { useQuery } from '@tanstack/react-query';
-import { useAppStore } from '../store/useAppStore';
-import { UsageLimitModal } from '../components/UsageLimitModal';
-import { PaywallBottomSheet } from '../components/PaywallBottomSheet';
 import { WalletCreditBadge } from '../components/WalletCreditBadge';
-import { useWallet } from '../hooks/useWallet';
+import { PLAN_CONFIGS } from '../store/useWalletStore';
+import { PaywallBottomSheet } from '../components/PaywallBottomSheet';
+import { UsageLimitModal } from '../components/UsageLimitModal';
+import { useQuery } from '@tanstack/react-query';
 import Animated, { FadeIn, FadeInDown, FadeInRight } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
@@ -31,16 +32,8 @@ export function ImageScanScreen({ route }: { route: any }) {
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<string | null>(route.params?.result || null);
   const [limitModalVisible, setLimitModalVisible] = useState(false);
-  const {
-    requireScan,
-    deductScan,
-    scanPaywallVisible,
-    dismissScanPaywall,
-    refetchWallet,
-  } = useWallet();
-
-  const subscriptionStatus = useAppStore((state) => state.subscriptionStatus);
-  const setSubscriptionStatus = useAppStore((state) => state.setSubscriptionStatus);
+  
+  const { wallet, refetchWallet, deductScan, requireScan, scanPaywallVisible, dismissScanPaywall } = useWallet();
 
   // Sync route params when navigating from history
   useEffect(() => {
@@ -56,23 +49,11 @@ export function ImageScanScreen({ route }: { route: any }) {
     },
   });
 
-  const subStatusQuery = useQuery({
-    queryKey: ['subscription-status'],
-    queryFn: () => apiService.getSubscriptionStatus(),
-    gcTime: 0,
-  });
-
-  useEffect(() => {
-    if (subStatusQuery.data) {
-      setSubscriptionStatus(subStatusQuery.data);
-    }
-  }, [subStatusQuery.data, setSubscriptionStatus]);
-
   useFocusEffect(
     useCallback(() => {
       refetchHistory();
-      subStatusQuery.refetch();
-    }, [refetchHistory, subStatusQuery])
+      void refetchWallet();
+    }, [refetchHistory, refetchWallet])
   );
 
   const requestImageAccess = async (useCamera: boolean) => {
@@ -151,13 +132,17 @@ export function ImageScanScreen({ route }: { route: any }) {
       const response = await apiService.analyzeCrop(base64, mimeType, currentLanguage);
       setResult(response.diagnosis);
       refetchHistory();
-      subStatusQuery.refetch();
+      void refetchWallet();
     } catch (error: any) {
       console.error('[ImageScan] Analysis error:', error);
       const backendMsg = error?.response?.data?.error || error?.message || 'Could not analyze the image. Please try again.';
       
       if (error?.response?.status === 402) {
-        void refetchWallet();
+        setAnalyzing(false);
+        void refetchWallet().finally(() => {
+          requireScan();
+        });
+        return;
       } else if (error?.response?.status === 403) {
         setLimitModalVisible(true);
       } else if (error?.response?.status === 429) {
@@ -311,20 +296,22 @@ export function ImageScanScreen({ route }: { route: any }) {
       </View>
 
       {/* Subscription Usage Header */}
-      <View style={[styles.usageHeader, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }]}>
-        <View style={styles.usageInfo}>
-          <AppText variant="caption" color={colors.textMuted}>
-            Monthly Scans: <AppText variant="caption" style={{ fontWeight: 'bold' }} color={colors.text}>
-              {subscriptionStatus?.scansUsed || 0} / {subscriptionStatus?.scansLimit || 5}
+      {wallet && (
+        <View style={[styles.usageHeader, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }]}>
+          <View style={styles.usageInfo}>
+            <AppText variant="caption" color={colors.textMuted}>
+              Monthly Scans: <AppText variant="caption" style={{ fontWeight: 'bold' }} color={colors.text}>
+                {Math.max(0, (PLAN_CONFIGS.find(p => p.tier === wallet.plan)?.imageCredits || 0) - wallet.imageCredits)} / {PLAN_CONFIGS.find(p => p.tier === wallet.plan)?.imageCredits || 5}
+              </AppText>
             </AppText>
-          </AppText>
+          </View>
+          <ProgressBar 
+            progress={Math.min(1, (Math.max(0, (PLAN_CONFIGS.find(p => p.tier === wallet.plan)?.imageCredits || 0) - wallet.imageCredits)) / (PLAN_CONFIGS.find(p => p.tier === wallet.plan)?.imageCredits || 5))} 
+            color={(PLAN_CONFIGS.find(p => p.tier === wallet.plan)?.imageCredits || 0) - wallet.imageCredits >= (PLAN_CONFIGS.find(p => p.tier === wallet.plan)?.imageCredits || 5) ? colors.danger : colors.primary}
+            height={4}
+          />
         </View>
-        <ProgressBar 
-          progress={Math.min(1, (subscriptionStatus?.scansUsed || 0) / (subscriptionStatus?.scansLimit || 5))} 
-          color={(subscriptionStatus?.scansUsed || 0) >= (subscriptionStatus?.scansLimit || 5) ? colors.danger : colors.primary}
-          height={4}
-        />
-      </View>
+      )}
 
       <View style={styles.content}>
         {!image && !result ? (
@@ -456,7 +443,7 @@ export function ImageScanScreen({ route }: { route: any }) {
         visible={limitModalVisible}
         onClose={() => setLimitModalVisible(false)}
         type="scan"
-        limit={subscriptionStatus?.scansLimit || 5}
+        limit={PLAN_CONFIGS.find(p => p.tier === wallet?.plan)?.imageCredits || 5}
       />
       <PaywallBottomSheet
         visible={scanPaywallVisible}

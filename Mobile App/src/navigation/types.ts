@@ -26,7 +26,7 @@ export type RootStackParamList = {
   Checkout: undefined;
   OrderSuccess: { orderId: string };
   OrderHistory: undefined;
-  Subscription: undefined;
+  Subscription: { tab?: 'plans' | 'topup' };
   Voice: undefined;
   ImageScan: undefined;
   Notifications: undefined;

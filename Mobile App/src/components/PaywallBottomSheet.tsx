@@ -44,12 +44,12 @@ export function PaywallBottomSheet({ visible, onClose, type }: PaywallBottomShee
   const handleSubscribe = useCallback(() => {
     onClose();
     // Small delay so sheet closes before navigation
-    setTimeout(() => navigation.navigate('Subscription', { tab: 'plans' } as any), 200);
+    setTimeout(() => navigation.navigate('Subscription', { tab: 'plans' }), 200);
   }, [navigation, onClose]);
 
   const handleTopup = useCallback(() => {
     onClose();
-    setTimeout(() => navigation.navigate('Subscription', { tab: 'topup' } as any), 200);
+    setTimeout(() => navigation.navigate('Subscription', { tab: 'topup' }), 200);
   }, [navigation, onClose]);
 
   const handleShare = useCallback(async () => {

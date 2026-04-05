@@ -1,10 +1,10 @@
 import { IconMap } from '../components/IconMap';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image, StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import * as Location from 'expo-location';
 
 import { apiService } from '../api/services';
@@ -75,9 +75,11 @@ export function HomeScreen() {
     refetchInterval: 1000 * 60,
   });
 
-  useEffect(() => {
-    void refetchWallet();
-  }, [refetchWallet]);
+  useFocusEffect(
+    useCallback(() => {
+      void refetchWallet();
+    }, [refetchWallet])
+  );
 
   useEffect(() => {
     if (unreadData?.unreadCount != null) {

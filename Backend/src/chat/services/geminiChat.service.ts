@@ -7,8 +7,7 @@ import {
 } from '@google/generative-ai';
 import type { FastifyReply } from 'fastify';
 import mongoose from 'mongoose';
-import { Subscription } from '../../models/Subscription';
-import { checkLimit, incrementUsage } from '../../services/subscriptionService';
+import { deductCredit } from '../../services/walletService';
 import { env } from '../../config/env';
 import { logger } from '../../utils/logger';
 import { SYSTEM_PROMPT } from '../data/systemPrompt';
@@ -511,19 +510,6 @@ export async function sendChatMessage(params: {
   forceVoiceReply?: boolean;
 }) {
   const language = resolveChatLanguage(params.text, params.preferredLanguage);
-
-  // --- Subscription Limit Check ---
-  const limitCheck = await checkLimit(params.farmerId, 'chat');
-  if (!limitCheck.allowed) {
-    const errorMsg = limitCheck.reason === 'LIMIT_REACHED'
-      ? getFriendlyLimitMessage(language, 'chat')
-      : 'Subscription expired or not found. Please check your account.';
-    
-    // We pass the code in a way that HttpError/logger can see it if needed, 
-    // but the main thing is the status code 403.
-    throw new HttpError(errorMsg, 403);
-  }
-
   const startedAt = Date.now();
   const session = await ensureSessionOwnership(params.farmerId, params.sessionId);
   if (!session) {
@@ -634,6 +620,18 @@ export async function sendChatMessage(params: {
 
     // Invalidate chat cache after successful message
     await ChatHistoryCache.invalidate(params.sessionId);
+
+    // ✅ WALLET CREDIT DEDUCTION - After successful AI response
+    try {
+      await deductCredit(params.farmerId, 'chat');
+      logger.info({ farmerId: params.farmerId, sessionId: params.sessionId }, 'Chat credit deducted from wallet');
+    } catch (deductError) {
+      // Log but don't fail the request - message already sent
+      logger.error(
+        { err: deductError, farmerId: params.farmerId, sessionId: params.sessionId },
+        'Failed to deduct chat credit from wallet'
+      );
+    }
 
     return {
       messageId: `${params.sessionId}:${Date.now()}`,

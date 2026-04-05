@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { authMiddleware } from '../../middlewares/authMiddleware';
 import { chatRateLimitMiddleware } from '../middleware/chatRateLimit.middleware';
-import { queryLimitCheckMiddleware } from '../middleware/queryLimitCheck.middleware';
+import { createUsageEnforcementMiddleware } from '../../middlewares/usageEnforcement.middleware';
 import {
   archiveSessionController,
   createSessionController,
@@ -20,6 +20,8 @@ import {
 } from '../controllers/message.controller';
 
 export async function chatV1Routes(app: FastifyInstance): Promise<void> {
+  const chatLimitCheck = createUsageEnforcementMiddleware('chat');
+
   app.register(async (protectedApp) => {
     protectedApp.addHook('preHandler', authMiddleware);
 
@@ -35,17 +37,17 @@ export async function chatV1Routes(app: FastifyInstance): Promise<void> {
 
     protectedApp.post(
       '/api/v1/chat/sessions/:sessionId/message',
-      { preHandler: [chatRateLimitMiddleware, queryLimitCheckMiddleware] },
+      { preHandler: [chatRateLimitMiddleware, chatLimitCheck] },
       sendMessageController
     );
     protectedApp.post(
       '/api/v1/chat/sessions/:sessionId/voice',
-      { preHandler: [chatRateLimitMiddleware, queryLimitCheckMiddleware] },
+      { preHandler: [chatRateLimitMiddleware, chatLimitCheck] },
       sendVoiceMessageController
     );
     protectedApp.post(
       '/api/v1/chat/sessions/:sessionId/message/stream',
-      { preHandler: [chatRateLimitMiddleware, queryLimitCheckMiddleware] },
+      { preHandler: [chatRateLimitMiddleware, chatLimitCheck] },
       streamMessageController
     );
 

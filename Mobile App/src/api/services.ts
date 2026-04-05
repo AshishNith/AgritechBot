@@ -23,6 +23,7 @@ import {
   VoiceAskResponse,
   CreatePaymentOrderResponse,
   WalletUpdateResponse,
+  Wallet,
 } from '../types/api';
 import { RecordedAudioClip } from '../hooks/useAudioRecorder';
 
@@ -137,9 +138,9 @@ export const apiService = {
     const { data } = await api.put<{ message: string; user: UserProfile }>('/api/user/profile', profileData);
     return data;
   },
-  async getSubscriptionStatus() {
-    const { data } = await api.get<SubscriptionStatus>('/api/user/subscription/status');
-    return data;
+  async getWallet() {
+    const { data } = await api.get<{ wallet: Wallet }>('/api/user/wallet');
+    return data.wallet;
   },
   async createOrderPayment(payload: OrderRequest) {
     const { data } = await api.post<PaymentCheckoutResponse>('/api/payment/orders', {

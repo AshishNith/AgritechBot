@@ -24,10 +24,7 @@ interface WalletCreditBadgeProps {
 export function WalletCreditBadge({ type = 'chat', style }: WalletCreditBadgeProps) {
   const { colors, isDark } = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const totalChatCredits = useWalletStore((s) => s.totalChatCredits);
-  const totalScanCredits = useWalletStore((s) => s.totalScanCredits);
-
-  const count = type === 'chat' ? totalChatCredits() : totalScanCredits();
+  const count = useWalletStore((s) => type === 'chat' ? s.totalChatCredits() : s.totalScanCredits());
   const isLow = count <= 3;
   const isEmpty = count === 0;
 
@@ -44,7 +41,7 @@ export function WalletCreditBadge({ type = 'chat', style }: WalletCreditBadgePro
   return (
     <Animated.View entering={FadeIn}>
       <Pressable
-        onPress={() => navigation.navigate('Subscription')}
+        onPress={() => navigation.navigate('Subscription', {})}
         style={[
           styles.badge,
           {

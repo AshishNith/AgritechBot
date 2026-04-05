@@ -1,5 +1,5 @@
 import { IconMap } from '../components/IconMap';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import axios from 'axios';
@@ -39,6 +39,7 @@ import { ChatMessageItem } from '../components/chat/ChatMessageItem';
 import { PaywallBottomSheet } from '../components/PaywallBottomSheet';
 import { Product } from '../types/api';
 import { useWallet } from '../hooks/useWallet';
+import { PLAN_CONFIGS } from '../store/useWalletStore';
 
 const starterId = 'starter';
 const MIN_TRANSCRIBE_DURATION_MS = 700;
@@ -63,17 +64,15 @@ export function ChatScreen() {
   const hasPlayedGreeting = useAppStore((state) => state.hasPlayedGreeting);
   const setHasPlayedGreeting = useAppStore((state) => state.setHasPlayedGreeting);
   
-  // Subscription state
-  const subscriptionStatus = useAppStore((state) => state.subscriptionStatus);
-  const setSubscriptionStatus = useAppStore((state) => state.setSubscriptionStatus);
-  const [limitModalVisible, setLimitModalVisible] = useState(false);
-  const {
-    requireChat,
-    deductChat,
-    chatPaywallVisible,
-    dismissChatPaywall,
-    refetchWallet,
+  const { 
+    wallet, 
+    requireChat, 
+    deductChat, 
+    chatPaywallVisible, 
+    dismissChatPaywall, 
+    refetchWallet 
   } = useWallet();
+  const [limitModalVisible, setLimitModalVisible] = useState(false);
 
   const [messages, setMessages] = useState<ChatMessage[]>([buildStarterMessage(language)]);
   const [input, setInput] = useState('');
@@ -131,17 +130,11 @@ export function ChatScreen() {
     queryFn: () => apiService.getChatContext(),
   });
 
-  const subStatusQuery = useQuery({
-    queryKey: ['subscription-status'],
-    queryFn: () => apiService.getSubscriptionStatus(),
-    gcTime: 0, // Always fresh
-  });
-
-  useEffect(() => {
-    if (subStatusQuery.data) {
-      setSubscriptionStatus(subStatusQuery.data);
-    }
-  }, [subStatusQuery.data, setSubscriptionStatus]);
+  useFocusEffect(
+    useCallback(() => {
+      void refetchWallet();
+    }, [refetchWallet])
+  );
 
   const currentSession = useMemo<ChatSummary | undefined>(
     () => sessionsQuery.data?.chats.find((item) => item.id === chatId),
@@ -322,8 +315,8 @@ export function ChatScreen() {
         await playAudio(responseAudioUrl);
       }
 
-      // Refresh subscription status to update usage progress
-      subStatusQuery.refetch();
+      // Refresh wallet to update usage progress
+      void refetchWallet();
     },
     onError: (error, variables) => {
       let message = t(language, 'backendsConnectionError');
@@ -437,6 +430,9 @@ export function ChatScreen() {
       const outgoing = lastFailedDraft.message.trim();
       if (!outgoing) return;
 
+      if (!requireChat()) return;
+      deductChat();
+
       const localChatId = chatId ?? 'local';
       setMessages((current) => [
         ...current.filter((message) => message.id !== starterId),
@@ -455,6 +451,8 @@ export function ChatScreen() {
         imageMimeType: lastFailedDraft.imageMimeType,
       });
     } else if (lastFailedDraft.type === 'voice') {
+      if (!requireChat()) return;
+      deductChat();
       voiceMutation.mutate(lastFailedDraft.clip);
     }
   };
@@ -538,8 +536,8 @@ export function ChatScreen() {
         await playAudio(voiceAudioUrl);
       }
 
-      // Refresh subscription status
-      subStatusQuery.refetch();
+      // Refresh wallet
+      void refetchWallet();
     },
     onError: (error, variables) => {
       setLastFailedDraft({ type: 'voice', clip: variables });
@@ -548,6 +546,11 @@ export function ChatScreen() {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           message = t(language, 'sessionExpired');
+        } else if (error.response?.status === 402) {
+          void refetchWallet().finally(() => {
+            requireChat();
+          });
+          return;
         } else if (error.response?.status === 403) {
           setLimitModalVisible(true);
           return;
@@ -589,6 +592,11 @@ export function ChatScreen() {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           message = t(language, 'sessionExpired');
+        } else if (error.response?.status === 402) {
+          void refetchWallet().finally(() => {
+            requireChat();
+          });
+          return;
         } else if (error.response?.status === 403) {
           setLimitModalVisible(true);
           return;
@@ -698,9 +706,10 @@ export function ChatScreen() {
 
   const displayedMessages = messages.length ? messages : [buildStarterMessage(language)];
 
-  // Calculate usage
-  const chatsLimit = subscriptionStatus?.chatsLimit ?? 20;
-  const usedChats = subscriptionStatus?.chatsUsed ?? 0;
+  // Calculate usage from wallet
+  const currentPlan = PLAN_CONFIGS.find(p => p.tier === wallet?.plan);
+  const chatsLimit = currentPlan?.chatCredits || 20;
+  const usedChats = Math.max(0, chatsLimit - (wallet?.chatCredits || 0));
   const usagePercentage = Math.min(1, usedChats / chatsLimit);
 
   return (
@@ -807,7 +816,7 @@ export function ChatScreen() {
                 {usedChats} / {chatsLimit} Used
               </AppText>
               {usedChats >= chatsLimit * 0.8 && (
-                <Pressable onPress={() => navigation.navigate('Subscription')}>
+                <Pressable onPress={() => navigation.navigate('Subscription', { tab: 'plans' })}>
                   <AppText variant="caption" color={colors.primary} style={{ fontSize: 10, fontWeight: '700' }}>
                     {tx('upgradeNow')}
                   </AppText>
@@ -1045,10 +1054,10 @@ export function ChatScreen() {
         </View>
 
         <UsageLimitModal 
-           visible={limitModalVisible}
-           onClose={() => setLimitModalVisible(false)}
-           type="chat"
-           limit={chatsLimit}
+          visible={limitModalVisible}
+          onClose={() => setLimitModalVisible(false)}
+          type="chat"
+          limit={chatsLimit}
         />
 
         <PaywallBottomSheet

@@ -5,6 +5,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import {
+  ActivityIndicator,
   Image,
   ImageSourcePropType,
   Keyboard,
@@ -130,6 +131,7 @@ export function GradientButton({
   secondary,
   disabled,
   leftIcon,
+  loading,
   style,
 }: {
   label: string;
@@ -137,6 +139,7 @@ export function GradientButton({
   secondary?: boolean;
   disabled?: boolean;
   leftIcon?: ReactNode;
+  loading?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
   const { colors } = useTheme();
@@ -145,22 +148,28 @@ export function GradientButton({
     : ([colors.primary, '#75d39f'] as const);
 
   return (
-    <Pressable disabled={disabled} onPress={onPress} style={({ pressed }) => [{ opacity: disabled ? 0.5 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] }, style]}>
+    <Pressable disabled={disabled || loading} onPress={onPress} style={({ pressed }) => [{ opacity: (disabled || loading) ? 0.5 : 1, transform: [{ scale: pressed && !loading ? 0.98 : 1 }] }, style]}>
       <LinearGradient colors={gradColors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.button, secondary && styles.buttonSecondary]}>
-        {leftIcon}
-        <AppText color={secondary ? colors.primaryDark : colors.textOnDark} variant="label">
-          {label}
-        </AppText>
+        {loading ? (
+          <ActivityIndicator size="small" color={secondary ? colors.primary : colors.textOnDark} />
+        ) : (
+          <>
+            {leftIcon}
+            <AppText color={secondary ? colors.primaryDark : colors.textOnDark} variant="label">
+              {label}
+            </AppText>
+          </>
+        )}
       </LinearGradient>
     </Pressable>
   );
 }
 
-export function GlassCard({ children, style }: PropsWithChildren<{ style?: StyleProp<ViewStyle> }>) {
+export function GlassCard({ children, style, padded = true }: PropsWithChildren<{ style?: StyleProp<ViewStyle>; padded?: boolean }>) {
   const { isDark } = useTheme();
 
   return (
-    <BlurView intensity={isDark ? 35 : 50} tint={isDark ? 'dark' : 'light'} style={[styles.glassCard, style]}>
+    <BlurView intensity={isDark ? 35 : 50} tint={isDark ? 'dark' : 'light'} style={[styles.glassCard, !padded && { padding: 0 }, style]}>
       {children}
     </BlurView>
   );
@@ -216,6 +225,43 @@ export function SearchInput({ value, onChangeText, placeholder }: { value: strin
       ]}
     >
       {(() => { const IconComp = IconMap['Search']; return IconComp ? <IconComp size={18} color={colors.textMuted} /> : null; })()}
+      <TextInput
+        placeholder={placeholder}
+        placeholderTextColor={colors.textMuted}
+        value={value}
+        onChangeText={onChangeText}
+        style={[styles.searchInput, { color: isDark ? colors.textOnDark : colors.text }]}
+      />
+    </View>
+  );
+}
+ 
+export function InputField({ 
+  value, 
+  onChangeText, 
+  placeholder, 
+  icon, 
+  style 
+}: { 
+  value: string; 
+  onChangeText: (text: string) => void; 
+  placeholder: string; 
+  icon?: string;
+  style?: StyleProp<ViewStyle>;
+}) {
+  const { isDark, colors } = useTheme();
+ 
+  return (
+    <View
+      style={[
+        styles.searchShell,
+        {
+          backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : colors.surface,
+        },
+        style
+      ]}
+    >
+      {icon && (() => { const IconComp = IconMap[icon]; return IconComp ? <IconComp size={18} color={colors.textMuted} /> : null; })()}
       <TextInput
         placeholder={placeholder}
         placeholderTextColor={colors.textMuted}
