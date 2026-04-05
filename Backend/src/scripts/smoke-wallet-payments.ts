@@ -153,8 +153,8 @@ async function main(): Promise<void> {
       }
     }
 
-    assert(noCreditsResponse?.status === 402, 'Expected a 402 NO_CREDITS response after exhausting chats');
-    assert(noCreditsResponse?.data?.error === 'NO_CREDITS', `Expected NO_CREDITS, got ${noCreditsResponse?.data?.error}`);
+    assert(noCreditsResponse!.status === 402, 'Expected a 402 NO_CREDITS response after exhausting chats');
+    assert(noCreditsResponse!.data.error === 'NO_CREDITS', `Expected NO_CREDITS, got ${noCreditsResponse!.data.error}`);
     record('4. Exhausted free chats returns 402 NO_CREDITS', true);
 
     const subscriptionOrder = await request<PaymentOrderResponse>(

@@ -128,7 +128,7 @@ export async function createSubscriptionOrderHandler(
 
   try {
     const order = await createRazorpayOrder({
-      amount: SUBSCRIPTION_PRICES[tier],
+      amount: SUBSCRIPTION_PRICES[tier as keyof typeof SUBSCRIPTION_PRICES],
       currency: 'INR',
       receipt: `sub_${userId}_${Date.now()}`,
       notes: { userId, tier },
@@ -155,7 +155,7 @@ export async function createTopupOrderHandler(request: FastifyRequest, reply: Fa
 
   const userId = request.user!._id.toString();
   const { packId } = parsed.data;
-  const pack = TOPUP_PACKS[packId];
+  const pack = TOPUP_PACKS[packId as keyof typeof TOPUP_PACKS];
 
   try {
     const order = await createRazorpayOrder({
@@ -214,7 +214,7 @@ export async function verifyPaymentHandler(request: FastifyRequest, reply: Fasti
     }
 
     if (purpose === 'topup' && packId) {
-      const pack = TOPUP_PACKS[packId];
+      const pack = TOPUP_PACKS[packId as keyof typeof TOPUP_PACKS];
       const wallet = await addTopupCredits(userId, pack.packType, pack.credits);
       return reply.send({ success: true, wallet });
     }
