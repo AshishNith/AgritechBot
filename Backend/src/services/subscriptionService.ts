@@ -140,8 +140,11 @@ export async function incrementUsage(
       await deductCredit(userId, type);
       logger.info({ userId, type }, 'Wallet credit sync successful during usage increment');
     } catch (walletErr) {
-      // Wallet might not exist or be out of credits, but we already allowed the action
-      // log it but don't fail the primary increment
+      // If it's a credit error, rethrow it so the controller can return 402 if needed
+      if (typeof walletErr === 'object' && walletErr !== null && (walletErr as any).code === 'NO_CREDITS') {
+        throw walletErr;
+      }
+      // For other wallet errors (connection, etc), log but don't fail the primary increment
       logger.warn({ userId, type, err: walletErr }, 'Wallet credit sync skipped or failed during usage increment');
     }
   } catch (error) {

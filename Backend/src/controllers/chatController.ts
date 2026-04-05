@@ -14,6 +14,8 @@ import { cache, RedisCache } from '../services/cache/redisCache';
 import { detectLanguage } from '../utils/languageDetector';
 import { runChatWrapper } from '../services/ai/chatWrapper';
 import { checkLimit, incrementUsage } from '../services/subscriptionService';
+import { getWallet } from '../services/walletService';
+import { logger } from '../utils/logger';
 
 const askSchema = z.object({
   message: z.string().min(1).max(2000),
@@ -127,7 +129,6 @@ async function getRecommendedProducts(message: string) {
   }));
 }
 
-
 /**
  * POST /api/chat/ask
  * Submit a question to the AI assistant.
@@ -140,6 +141,24 @@ export async function askQuestion(request: FastifyRequest, reply: FastifyReply) 
 
   const { message, language: langInput, chatId: existingChatId } = parsed.data;
   const userId = String(request.user!._id);
+
+  // 1. CREDIT CHECK GATE
+  try {
+    const wallet = await getWallet(userId);
+    const hasCredits = (wallet.chatCredits || 0) + (wallet.topupCredits || 0) > 0;
+
+    if (!hasCredits) {
+      logger.warn({ userId }, 'Chat blocked: Insufficient credits');
+      return reply.status(402).send({ 
+        error: 'INSUFFICIENT_CREDITS', 
+        message: 'You have run out of chat credits. Please top up to continue.',
+        upgradeRequired: true 
+      });
+    }
+  } catch (walletErr) {
+    logger.error({ userId, err: walletErr }, 'Failed to verify credits before chat');
+    return reply.status(500).send({ error: 'Failed to verify account balance' });
+  }
 
   // Detect language if "auto"
   const language = normalizeLanguage(
@@ -176,7 +195,14 @@ export async function askQuestion(request: FastifyRequest, reply: FastifyReply) 
     await Chat.findByIdAndUpdate(chatId, { $inc: { messageCount: 2 }, lastMessageAt: new Date() });
 
     // Increment usage
-    await incrementUsage(userId, 'chat');
+    try {
+      await incrementUsage(userId, 'chat');
+    } catch (usageError) {
+      if (typeof usageError === 'object' && usageError !== null && (usageError as any).code === 'NO_CREDITS') {
+        return reply.status(402).send({ error: 'NO_CREDITS', upgradeRequired: true });
+      }
+      logger.error({ err: usageError, userId }, 'Failed to increment chat usage (cached)');
+    }
 
     return reply.send({
       answer: cached,
@@ -238,7 +264,14 @@ export async function askQuestion(request: FastifyRequest, reply: FastifyReply) 
     });
 
     // Increment usage
-    await incrementUsage(userId, 'chat');
+    try {
+      await incrementUsage(userId, 'chat');
+    } catch (usageError) {
+      if (typeof usageError === 'object' && usageError !== null && (usageError as any).code === 'NO_CREDITS') {
+        return reply.status(402).send({ error: 'NO_CREDITS', upgradeRequired: true });
+      }
+      logger.error({ err: usageError, userId }, 'Failed to increment chat usage (sync)');
+    }
 
     return reply.send({
       answer: wrapperResult.answer,
@@ -272,7 +305,14 @@ export async function askQuestion(request: FastifyRequest, reply: FastifyReply) 
       30_000 // 30s timeout
     );
     // Increment usage
-    await incrementUsage(userId, 'chat');
+    try {
+      await incrementUsage(userId, 'chat');
+    } catch (usageError) {
+      if (typeof usageError === 'object' && usageError !== null && (usageError as any).code === 'NO_CREDITS') {
+        return reply.status(402).send({ error: 'NO_CREDITS', upgradeRequired: true });
+      }
+      logger.error({ err: usageError, userId }, 'Failed to increment chat usage (queue)');
+    }
 
     return reply.send({ ...result, chatId, quickReplies, recommendedProducts });
   } catch {
@@ -296,6 +336,25 @@ export async function streamChat(request: FastifyRequest, reply: FastifyReply) {
 
   const { message, language: langInput, chatId: existingChatId } = parsed.data;
   const userId = String(request.user!._id);
+
+  // 1. CREDIT CHECK GATE
+  try {
+    const wallet = await getWallet(userId);
+    const hasCredits = (wallet.chatCredits || 0) + (wallet.topupCredits || 0) > 0;
+
+    if (!hasCredits) {
+      logger.warn({ userId }, 'Stream chat blocked: Insufficient credits');
+      // For SSE, we might need to send an error event and then close, or just return 402 early
+      return reply.status(402).send({ 
+        error: 'INSUFFICIENT_CREDITS', 
+        message: 'You have run out of chat credits. Please top up to continue.',
+        upgradeRequired: true 
+      });
+    }
+  } catch (walletErr) {
+    logger.error({ userId, err: walletErr }, 'Failed to verify credits before stream chat');
+    return reply.status(500).send({ error: 'Failed to verify account balance' });
+  }
 
   const language = normalizeLanguage(
     langInput === 'auto' ? detectLanguage(message).language : langInput
@@ -384,7 +443,16 @@ export async function streamChat(request: FastifyRequest, reply: FastifyReply) {
     });
 
     // Increment usage
-    await incrementUsage(userId, 'chat');
+    try {
+      await incrementUsage(userId, 'chat');
+    } catch (usageError) {
+      // In a stream, we already sent headers 200. We might need to send an error event.
+      if (typeof usageError === 'object' && usageError !== null && (usageError as any).code === 'NO_CREDITS') {
+        writeEvent('error', { error: 'NO_CREDITS', upgradeRequired: true });
+      } else {
+        logger.error({ err: usageError, userId }, 'Failed to increment chat usage (stream)');
+      }
+    }
 
     writeEvent('done', {
       chatId,

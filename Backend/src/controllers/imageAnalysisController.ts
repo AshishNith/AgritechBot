@@ -8,6 +8,7 @@ import { logger } from '../utils/logger';
 import { DIAGNOSIS_PROMPT } from '../chat/data/diagnosisPrompt';
 import { randomUUID } from 'crypto';
 import { cloudinaryService } from '../services/cloudinaryService';
+import { getWallet } from '../services/walletService';
 
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
 
@@ -86,10 +87,34 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
     cleanBase64 = imageBase64.split(',')[1] || imageBase64;
   }
 
-  const startTime = Date.now();
-  const userId = request.user!._id;
-
   try {
+    const userId = request.user!._id;
+    const startTime = Date.now();
+
+    // 1. CREDIT CHECK GATE
+    try {
+      const wallet = await getWallet(userId.toString());
+      const hasCredits = (type: 'chat' | 'scan') => {
+        if (type === 'chat') return (wallet.chatCredits || 0) + (wallet.topupCredits || 0) > 0;
+        return (wallet.imageCredits || 0) + (wallet.topupImageCredits || 0) > 0;
+      };
+
+      if (!hasCredits('scan')) {
+        logger.warn({ userId }, 'Image analysis blocked: Insufficient credits');
+        return reply.status(402).send({ 
+          error: 'INSUFFICIENT_CREDITS', 
+          message: 'You have run out of scan credits. Please top up to continue.',
+          upgradeRequired: true 
+        });
+      }
+    } catch (walletErr) {
+      if (typeof walletErr === 'object' && walletErr !== null && (walletErr as any).status === 402) {
+        throw walletErr; // Propagate 402 if it came from getWallet (unlikely but possible)
+      }
+      logger.error({ userId, err: walletErr }, 'Failed to verify credits before analysis');
+      return reply.status(500).send({ error: 'Failed to verify account balance' });
+    }
+
     const model = genAI.getGenerativeModel({
       model: env.GEMINI_MODEL,
       systemInstruction: DIAGNOSIS_PROMPT,
@@ -162,6 +187,10 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
         await incrementUsage(userId.toString(), 'scan');
         logger.info({ userId, analysisId: analysis._id }, 'Scan usage incremented and wallet synced');
       } catch (usageError) {
+        // If it throws NO_CREDITS here, it means credits were consumed between our check and now
+        if (typeof usageError === 'object' && usageError !== null && (usageError as any).code === 'NO_CREDITS') {
+           return reply.status(402).send({ error: 'NO_CREDITS', upgradeRequired: true });
+        }
         logger.error({ err: usageError, userId }, 'Failed to increment usage or sync wallet');
       }
 
@@ -201,7 +230,7 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
       errorMessage = 'Image analysis timed out. Please try with a smaller image.';
     }
 
-    logger.error({ err: error, userId, statusCode }, 'Crop analysis failed');
+    logger.error({ err: error, statusCode }, 'Crop analysis failed');
     return reply.status(statusCode).send({ error: errorMessage });
   }
 };

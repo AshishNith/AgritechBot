@@ -5,7 +5,7 @@ import { User } from '../models/User';
 import { env } from '../config/env';
 
 const createSubscriptionSchema = z.object({
-  tier: z.enum(['basic', 'premium']),
+  tier: z.enum(['basic', 'pro']),
   paymentId: z.string().min(1),
 });
 
