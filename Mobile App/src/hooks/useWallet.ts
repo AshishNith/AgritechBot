@@ -11,7 +11,7 @@
  *     // On error, call refetchWallet() to reconcile
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiService } from '../api/services';
 import { useWalletStore } from '../store/useWalletStore';
@@ -38,9 +38,11 @@ export function useWallet() {
     gcTime: 0,
   });
 
-  if (walletQuery.data && walletQuery.data !== wallet) {
-    setWallet(walletQuery.data);
-  }
+  useEffect(() => {
+    if (walletQuery.data && walletQuery.data !== wallet) {
+      setWallet(walletQuery.data);
+    }
+  }, [walletQuery.data, wallet, setWallet]);
 
   /**
    * Call before sending a chat message.
