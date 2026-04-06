@@ -72,7 +72,6 @@ export function ChatScreen() {
     dismissChatPaywall, 
     refetchWallet 
   } = useWallet();
-  const [limitModalVisible, setLimitModalVisible] = useState(false);
 
   const [messages, setMessages] = useState<ChatMessage[]>([buildStarterMessage(language)]);
   const [input, setInput] = useState('');
@@ -318,31 +317,19 @@ export function ChatScreen() {
       // Refresh wallet to update usage progress
       void refetchWallet();
     },
-    onError: (error, variables) => {
-      let message = t(language, 'backendsConnectionError');
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401) {
-          message = t(language, 'sessionExpired');
-        } else if (error.response?.status === 402) {
-          void refetchWallet().finally(() => {
-            requireChat();
-          });
-          return;
-        } else if (error.response?.status === 403) {
-          // --- Subscription Limit Reached ---
-          setLimitModalVisible(true);
-          void refetchWallet();
-          return;
-        } else if (
-          typeof error.response?.data === 'object' &&
-          error.response?.data &&
-          'error' in error.response.data
-        ) {
-          message = String((error.response.data as { error?: unknown }).error || message);
-        }
-      }
-
+    onError: (error: any, variables) => {
+      const statusCode = error?.response?.status;
+      
+      // Refresh wallet first to get accurate credit state
       void refetchWallet();
+      
+      if (statusCode === 402 || statusCode === 403) {
+        // Show paywall immediately when out of credits
+        setTimeout(() => requireChat(true), 100);
+      } else {
+        const errorMessage = error?.message || t(language, 'errUnknown');
+        Alert.alert(tx('alerts'), errorMessage);
+      }
 
       setLastFailedDraft({
         type: 'text',
@@ -350,14 +337,15 @@ export function ChatScreen() {
         imageBase64: variables.imageBase64,
         imageMimeType: variables.imageMimeType,
       });
+
       setMessages((current) => [
         ...current,
         {
           id: `${Date.now()}-assistant-error`,
           chatId: chatId ?? 'local',
           role: 'assistant',
-          content: message,
-          error: { message },
+          content: error?.message || t(language, 'errUnknown'),
+          error: { message: error?.message },
         },
       ]);
     },
@@ -539,38 +527,29 @@ export function ChatScreen() {
       // Refresh wallet
       void refetchWallet();
     },
-    onError: (error, variables) => {
-      setLastFailedDraft({ type: 'voice', clip: variables });
-      let message = tx('voiceRouteUnavailable');
-
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401) {
-          message = t(language, 'sessionExpired');
-        } else if (error.response?.status === 402) {
-          void refetchWallet().finally(() => {
-            requireChat();
-          });
-          return;
-        } else if (error.response?.status === 403) {
-          setLimitModalVisible(true);
-          return;
-        } else if (error.code === 'ECONNABORTED') {
-          message = 'Voice request timed out. Please try again.';
-        } else if (typeof error.response?.data === 'object' && error.response?.data && 'error' in error.response.data) {
-          message = String((error.response.data as { error?: unknown }).error || message);
-        } else if (error.message) {
-          message = error.message;
-        }
+    onError: (error: any, variables) => {
+      const statusCode = error?.response?.status;
+      
+      // Refresh wallet to get accurate credit state
+      void refetchWallet();
+      
+      if (statusCode === 402 || statusCode === 403) {
+        setTimeout(() => requireChat(true), 100);
+      } else {
+        const errorMessage = error?.message || tx('voiceRouteUnavailable');
+        Alert.alert(tx('alerts'), errorMessage);
       }
 
+      setLastFailedDraft({ type: 'voice', clip: variables });
+      
       setMessages((current) => [
         ...current.filter((message) => message.id !== starterId),
         {
           id: `${Date.now()}-voice-error`,
           chatId: chatId ?? 'local',
           role: 'assistant',
-          content: message,
-          error: { message },
+          content: error?.message || tx('voiceRouteUnavailable'),
+          error: { message: error?.message },
         },
       ]);
     },
@@ -586,30 +565,17 @@ export function ChatScreen() {
         setInput((prev) => prev ? `${prev} ${data.transcript}` : data.transcript);
       }
     },
-    onError: (error) => {
-      let message = tx('voiceRouteUnavailable');
-
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401) {
-          message = t(language, 'sessionExpired');
-        } else if (error.response?.status === 402) {
-          void refetchWallet().finally(() => {
-            requireChat();
-          });
-          return;
-        } else if (error.response?.status === 403) {
-          setLimitModalVisible(true);
-          return;
-        } else if (error.code === 'ECONNABORTED') {
-          message = 'Voice transcription timed out. Please try again.';
-        } else if (typeof error.response?.data === 'object' && error.response?.data && 'error' in error.response.data) {
-          message = String((error.response.data as { error?: unknown }).error || message);
-        } else if (error.message) {
-          message = error.message;
-        }
+    onError: (error: any) => {
+      const statusCode = error?.response?.status;
+      
+      // Refresh wallet to get accurate credit state
+      void refetchWallet();
+      
+      if (statusCode === 402 || statusCode === 403) {
+        setTimeout(() => requireChat(true), 100);
+      } else {
+        Alert.alert(tx('voiceRequestFailed'), error?.message || tx('voiceRouteUnavailable'));
       }
-
-      Alert.alert(tx('voiceRequestFailed'), message);
     },
   });
 
@@ -1053,20 +1019,12 @@ export function ChatScreen() {
           </View>
         </View>
 
-        <UsageLimitModal 
-          visible={limitModalVisible}
-          onClose={() => setLimitModalVisible(false)}
-          type="chat"
-          limit={chatsLimit}
-        />
-
         <PaywallBottomSheet
           visible={chatPaywallVisible}
           onClose={dismissChatPaywall}
           type="chat"
         />
 
-        {/* ... existing modals remain same ... */}
         <Modal
           visible={sessionDrawerOpen}
           transparent

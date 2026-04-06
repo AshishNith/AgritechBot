@@ -70,10 +70,14 @@ interface WalletState {
   wallet: Wallet | null;
   isLoading: boolean;
   lastFetched: number | null;
+  chatPaywallVisible: boolean;
+  scanPaywallVisible: boolean;
 
   // Actions
   setWallet: (wallet: Wallet | null) => void;
   setLoading: (loading: boolean) => void;
+  setChatPaywallVisible: (visible: boolean) => void;
+  setScanPaywallVisible: (visible: boolean) => void;
 
   // Derived helpers
   totalChatCredits: () => number;
@@ -95,9 +99,13 @@ export const useWalletStore = create<WalletState>()(
       wallet: null,
       isLoading: false,
       lastFetched: null,
+      chatPaywallVisible: false,
+      scanPaywallVisible: false,
 
       setWallet: (wallet) => set({ wallet, lastFetched: Date.now() }),
       setLoading: (isLoading) => set({ isLoading }),
+      setChatPaywallVisible: (chatPaywallVisible) => set({ chatPaywallVisible }),
+      setScanPaywallVisible: (scanPaywallVisible) => set({ scanPaywallVisible }),
 
       // Total available chats = topup + plan credits
       totalChatCredits: () => {
@@ -122,24 +130,32 @@ export const useWalletStore = create<WalletState>()(
       deductChatCredit: () => {
         const w = get().wallet;
         if (!w) return;
+        
+        // Don't deduct if no credits available
+        if (get().totalChatCredits() <= 0) return;
+        
         if (w.topupCredits > 0) {
           set({ wallet: { ...w, topupCredits: w.topupCredits - 1, totalChatsUsed: w.totalChatsUsed + 1 } });
-        } else {
-          set({ wallet: { ...w, chatCredits: Math.max(0, w.chatCredits - 1), totalChatsUsed: w.totalChatsUsed + 1 } });
+        } else if (w.chatCredits > 0) {
+          set({ wallet: { ...w, chatCredits: w.chatCredits - 1, totalChatsUsed: w.totalChatsUsed + 1 } });
         }
       },
 
       deductScanCredit: () => {
         const w = get().wallet;
         if (!w) return;
+        
+        // Don't deduct if no credits available
+        if (get().totalScanCredits() <= 0) return;
+        
         if (w.topupImageCredits > 0) {
           set({ wallet: { ...w, topupImageCredits: w.topupImageCredits - 1, totalScansUsed: w.totalScansUsed + 1 } });
-        } else {
-          set({ wallet: { ...w, imageCredits: Math.max(0, w.imageCredits - 1), totalScansUsed: w.totalScansUsed + 1 } });
+        } else if (w.imageCredits > 0) {
+          set({ wallet: { ...w, imageCredits: w.imageCredits - 1, totalScansUsed: w.totalScansUsed + 1 } });
         }
       },
 
-      reset: () => set({ wallet: null, isLoading: false, lastFetched: null }),
+      reset: () => set({ wallet: null, isLoading: false, lastFetched: null, chatPaywallVisible: false, scanPaywallVisible: false }),
     }),
     {
       name: 'anaaj-wallet-store',

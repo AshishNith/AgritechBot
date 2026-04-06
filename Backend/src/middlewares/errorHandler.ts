@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyError, FastifyRequest, FastifyReply } from 'fastify';
 import { logger } from '../utils/logger';
 import { env } from '../config/env';
+import { AppError } from '../utils/AppError';
 
 export function registerErrorHandler(app: FastifyInstance): void {
   app.setErrorHandler((error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
@@ -28,9 +29,14 @@ export function registerErrorHandler(app: FastifyInstance): void {
       }, 'Client error');
     }
 
+    const isAppError = error instanceof AppError;
+    const translationKey = isAppError ? (error as AppError).translationKey : (statusCode >= 500 ? 'errServerBusy' : 'errUnknown');
+
     reply.status(statusCode).send({
+      success: false,
       statusCode,
-      error: statusCode >= 500 ? 'Internal Server Error' : error.message,
+      code: translationKey,
+      message: statusCode >= 500 ? 'Internal Server Error' : error.message,
       requestId: request.id,
       ...(statusCode === 429 && typeof retryAfterSeconds === 'number' && retryAfterSeconds > 0
         ? { retryAfterSeconds }
@@ -43,8 +49,10 @@ export function registerErrorHandler(app: FastifyInstance): void {
 
   app.setNotFoundHandler((_request: FastifyRequest, reply: FastifyReply) => {
     reply.status(404).send({
+      success: false,
       statusCode: 404,
-      error: 'Route not found',
+      code: 'errNotFound',
+      message: 'Route not found',
     });
   });
 }

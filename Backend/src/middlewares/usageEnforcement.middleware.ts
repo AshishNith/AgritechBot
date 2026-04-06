@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { getWallet } from '../services/walletService';
 import { checkLimit } from '../services/subscriptionService';
 import { logger } from '../utils/logger';
+import { AppError } from '../utils/AppError';
 
 export function createUsageEnforcementMiddleware(type: 'chat' | 'scan') {
   return async (request: FastifyRequest, reply: FastifyReply) => {
@@ -33,14 +34,7 @@ export function createUsageEnforcementMiddleware(type: 'chat' | 'scan') {
 
         if (totalCredits <= 0) {
           logger.info({ userId, type }, 'Wallet credits exhausted');
-
-          return reply.status(402).send({
-            error: 'NO_CREDITS',
-            message: 'Aapke credits khatam ho gaye. Topup ya subscribe karo.',
-            code: 'NO_CREDITS',
-            upgradeRequired: true,
-            limitType: type,
-          });
+          throw AppError.paymentRequired('errNoCredits');
         }
 
         return;
@@ -52,23 +46,8 @@ export function createUsageEnforcementMiddleware(type: 'chat' | 'scan') {
 
       if (!status.allowed) {
         logger.info({ userId, type, reason: status.reason }, 'Usage limit exceeded');
-
-        let message = 'Your usage limit has been reached.';
-        if (status.reason === 'LIMIT_REACHED') {
-          message = `You have used ${status.usage} of your ${status.limit} ${type}s. Please upgrade to continue.`;
-        } else if (status.reason === 'EXPIRED') {
-          message = 'Your subscription has expired. Please renew to continue.';
-        }
-
-        return reply.status(403).send({
-          error: 'LIMIT_EXCEEDED',
-          message,
-          code: 'SUBSCRIPTION_LIMIT_REACHED',
-          upgradeRequired: true,
-          limitType: type,
-          currentUsage: status.usage,
-          maxLimit: status.limit,
-        });
+        const key = status.reason === 'EXPIRED' ? 'errSubscriptionExpired' : 'errLimitReached';
+        throw AppError.forbidden(key);
       }
     } catch (error) {
       logger.error({ error, type }, 'Error in usage enforcement middleware');

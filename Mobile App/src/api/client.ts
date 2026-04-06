@@ -2,6 +2,7 @@ import Constants from 'expo-constants';
 import axios from 'axios';
 
 import { useAppStore } from '../store/useAppStore';
+import { t, TranslationKey } from '../constants/localization';
 
 function unique(values: string[]): string[] {
   return [...new Set(values.filter(Boolean))];
@@ -58,44 +59,68 @@ export const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    // Handle 401 (Unauthorized) - token expired or invalid
-    if (error?.response?.status === 401) {
-      const store = useAppStore.getState();
-      store.signOut();
-      throw error;
-    }
+    const store = useAppStore.getState();
+    const language = store.language || 'English';
 
-    const config = error?.config as (Record<string, unknown> & { baseURL?: string; method?: string }) | undefined;
-
-    // MANDATORY FIX: Only retry safe, idempotent GET requests. 
-    // Never retry POST/PUT/DELETE as it causes duplicate deductions/resource creation (Triple Counting Fix).
-    if (!config || error?.response || config.__baseRetryAttempted || config.method?.toLowerCase() !== 'get') {
-      throw error;
-    }
-
-    config.__baseRetryAttempted = true;
-
-    for (const candidate of baseUrls) {
-      if (!candidate || candidate === (config.baseURL || api.defaults.baseURL)) {
-        continue;
+    // 1. Handle Response Errors (from Backend)
+    if (error.response) {
+      const { status, data } = error.response;
+      
+      // Auto Sign-out on 401
+      if (status === 401) {
+        store.signOut();
       }
 
-      try {
-        const response = await api.request({
-          ...config,
-          baseURL: candidate,
-        });
+      // Check for translation code from backend
+      if (data?.code && typeof data.code === 'string') {
+        error.message = t(language, data.code as TranslationKey);
+      } else {
+        // Fallback standard status mapping
+        const statusMap: Record<number, TranslationKey> = {
+          401: 'errAuth',
+          402: 'errNoCredits',
+          403: 'errForbidden',
+          404: 'errNotFound',
+          429: 'errServerBusy',
+          500: 'errServerBusy',
+        };
+        const key = statusMap[status] || 'errUnknown';
+        error.message = t(language, key);
+      }
+      throw error;
+    }
 
-        activeBaseUrl = candidate;
-        api.defaults.baseURL = candidate;
-        return response;
-      } catch (retryError) {
-        if ((retryError as { response?: unknown }).response) {
-          throw retryError;
+    // 2. Handle Network/Connection Errors (No response)
+    if (error.request) {
+      error.message = t(language, 'errConnection');
+      
+      const config = error.config as (Record<string, unknown> & { baseURL?: string; method?: string; __baseRetryAttempted?: boolean }) | undefined;
+
+      // Only retry safe GET requests
+      if (!config || config.__baseRetryAttempted || config.method?.toLowerCase() !== 'get') {
+        throw error;
+      }
+
+      config.__baseRetryAttempted = true;
+
+      for (const candidate of baseUrls) {
+        if (!candidate || candidate === (config.baseURL || api.defaults.baseURL)) {
+          continue;
+        }
+
+        try {
+          const response = await api.request({ ...config, baseURL: candidate });
+          activeBaseUrl = candidate;
+          api.defaults.baseURL = candidate;
+          return response;
+        } catch (retryError) {
+          if ((retryError as any).response) throw retryError;
         }
       }
     }
 
+    // 3. Handle unknown errors
+    error.message = t(language, 'errUnknown');
     throw error;
   }
 );

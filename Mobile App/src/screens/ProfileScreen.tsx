@@ -4,7 +4,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
-import { AppText, IconRow, GradientButton, Screen, ScreenCard, Pill } from '../components/ui';
+import { AppText, IconRow, GradientButton, Screen, ScreenCard, Pill, GlassCard } from '../components/ui';
+import { IconMap } from '../components/IconMap';
 import { apiService } from '../api/services';
 import { LocationPicker } from '../components/LocationPicker';
 import { designImages } from '../constants/designData';
@@ -29,7 +30,13 @@ export function ProfileScreen() {
   const notificationsEnabled = useAppStore((state) => state.notificationsEnabled);
   const setNotificationsEnabled = useAppStore((state) => state.setNotificationsEnabled);
   
-  const { wallet, refetchWallet, isLoading: isWalletLoading } = useWallet();
+  const { 
+    wallet, 
+    refetchWallet, 
+    isLoading: isWalletLoading,
+    isError: isWalletError,
+    isRefetching: isWalletRefetching 
+  } = useWallet();
 
   // Refetch wallet when entering the screen to ensure fresh data
   useFocusEffect(
@@ -157,30 +164,80 @@ export function ProfileScreen() {
         <GradientButton label={tx('editProfile')} secondary style={{ marginTop: 16 }} onPress={() => setEditModalVisible(true)} />
       </ScreenCard>
 
-      {/* Detailed Plan Info (Kept, as it contains credits/expiry) */}
       <ScreenCard style={{ marginTop: 16 }}>
-        {!wallet ? (
-          <ActivityIndicator color={colors.primary} />
-        ) : (
-          <View style={styles.subHeader}>
-            <View style={{ flex: 1 }}>
-              <AppText variant="label">My Plan</AppText>
-              <AppText color={colors.primary} style={{ marginTop: 4, fontWeight: '700' }}>
-                {wallet.plan.toUpperCase()}
-              </AppText>
-              <AppText color={theme.colors.textMuted} style={{ marginTop: 4 }}>
-                {wallet.chatCredits + (wallet.topupCredits || 0)} chats · {wallet.imageCredits + (wallet.topupImageCredits || 0)} scans baaki
-              </AppText>
-              {wallet.planExpiry ? (
-                <AppText color={theme.colors.textMuted} style={{ marginTop: 4 }}>
-                  Expires: {new Date(wallet.planExpiry).toLocaleDateString()}
-                </AppText>
-              ) : null}
-            </View>
-            <Pressable onPress={() => navigation.navigate('Subscription', { tab: 'plans' })}>
-              <AppText color={colors.primary}>Manage Plan →</AppText>
-            </Pressable>
+        {(!wallet && (isWalletLoading || isWalletRefetching)) ? (
+          <View style={{ padding: 20, alignItems: 'center' }}>
+            <ActivityIndicator color={colors.primary} />
+            <AppText variant="caption" style={{ marginTop: 8 }}>{tx('loading')}</AppText>
           </View>
+        ) : (!wallet || isWalletError) ? (
+          <GlassCard style={styles.planCard}>
+            <View style={styles.planInfo}>
+              <View style={[styles.planIcon, { backgroundColor: colors.danger + '10' }]}>
+                {(() => { const Icon = IconMap['AlertCircle']; return Icon ? <Icon size={20} color={colors.danger} /> : null; })()}
+              </View>
+              <View style={{ flex: 1 }}>
+                <AppText variant="label">{tx('unableToLoadPlan') || 'Unable to load plan'}</AppText>
+                <AppText variant="caption" color={colors.textMuted}>{tx('checkConnection') || 'Check your connection'}</AppText>
+              </View>
+              <Pressable 
+                onPress={() => refetchWallet()}
+                style={({ pressed }) => [
+                  { 
+                    backgroundColor: colors.primary, 
+                    paddingHorizontal: 12, 
+                    paddingVertical: 6, 
+                    borderRadius: 8,
+                    opacity: pressed ? 0.8 : 1
+                  }
+                ]}
+              >
+                <AppText color="#fff" variant="caption" weight="bold">{tx('retry')}</AppText>
+              </Pressable>
+            </View>
+            <GradientButton
+              label={tx('upgradeToPremium')}
+              secondary
+              onPress={() => navigation.navigate('Subscription', { tab: 'plans' })}
+              style={{ marginTop: 12, height: 44 }}
+            />
+          </GlassCard>
+        ) : (
+          <GlassCard style={styles.planCard}>
+            <View style={styles.planInfo}>
+              <View style={[styles.planIcon, { backgroundColor: colors.primary + '15' }]}>
+                {(() => { const Icon = IconMap['Crown']; return Icon ? <Icon size={20} color={colors.primary} /> : null; })()}
+              </View>
+              <View style={{ flex: 1 }}>
+                <AppText variant="label">
+                  {wallet.plan.toUpperCase()} {tx('plan') || 'PLAN'}
+                </AppText>
+                <AppText variant="caption" color={colors.textMuted}>
+                  {wallet.chatCredits + (wallet.topupCredits || 0)} {tx('chats') || 'chats'} · {wallet.imageCredits + (wallet.topupImageCredits || 0)} {tx('scans') || 'scans'} {tx('left') || 'left'}
+                </AppText>
+              </View>
+              <Pressable
+                onPress={() => navigation.navigate('Subscription', { tab: 'plans' })}
+                style={styles.manageBtn}
+              >
+                <AppText color={colors.primary} variant="caption" weight="bold">{tx('manage')}</AppText>
+              </Pressable>
+            </View>
+            
+            {wallet.plan === 'free' ? (
+              <GradientButton
+                label={tx('upgradeToPremium')}
+                onPress={() => navigation.navigate('Subscription', { tab: 'plans' })}
+                style={{ marginTop: 16, height: 44 }}
+              />
+            ) : wallet.planExpiry ? (
+              <View style={styles.planFooter}>
+                <AppText variant="caption" color={colors.textMuted}>
+                  {tx('expires') || 'Expires'}: {new Date(wallet.planExpiry).toLocaleDateString()}
+                </AppText>
+              </View>
+            ) : null}
+          </GlassCard>
         )}
       </ScreenCard>
 
@@ -668,5 +725,34 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(82,183,129,0.08)',
     borderLeftWidth: 3,
     borderLeftColor: theme.colors.primary,
+  },
+  planCard: {
+    padding: 16,
+    borderRadius: 20,
+    marginTop: 8,
+  },
+  planInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  planIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  manageBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: 'rgba(82,183,129,0.1)',
+  },
+  planFooter: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.06)',
   },
 });

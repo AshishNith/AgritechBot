@@ -4,6 +4,7 @@ import { User } from '../models/User';
 import { Subscription, TIER_FEATURES } from '../models/Subscription';
 import { Wallet } from '../models/Wallet';
 import { logger } from '../utils/logger';
+import { AppError } from '../utils/AppError';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 
@@ -49,12 +50,11 @@ function buildUserPayload(user: any) {
 /**
  * POST /api/auth/send-otp
  * Generates OTP and stores hashed OTP in DB. Returns OTP in response
- * (requested temporary behavior for both development and production).
  */
 export async function sendOtp(request: FastifyRequest, reply: FastifyReply) {
   const parsed = sendOtpSchema.safeParse(request.body);
   if (!parsed.success) {
-    return reply.status(400).send({ error: parsed.error.flatten().fieldErrors });
+    throw AppError.badRequest('errInvalidInput', JSON.stringify(parsed.error.flatten().fieldErrors));
   }
 
   const { phone } = parsed.data;
@@ -102,7 +102,7 @@ export async function sendOtp(request: FastifyRequest, reply: FastifyReply) {
 export async function verifyOtp(request: FastifyRequest, reply: FastifyReply) {
   const parsed = verifyOtpSchema.safeParse(request.body);
   if (!parsed.success) {
-    return reply.status(400).send({ error: parsed.error.flatten().fieldErrors });
+    throw AppError.badRequest('errInvalidInput', JSON.stringify(parsed.error.flatten().fieldErrors));
   }
 
   const { phone, otp } = parsed.data;
@@ -110,16 +110,16 @@ export async function verifyOtp(request: FastifyRequest, reply: FastifyReply) {
   const user = await User.findOne({ phone }).select('+otp +otpExpiresAt');
 
   if (!user || !user.otp || !user.otpExpiresAt) {
-    return reply.status(401).send({ error: 'OTP not requested or expired' });
+    throw AppError.unauthorized('errInvalidOtpSession');
   }
 
   if (user.otpExpiresAt.getTime() < Date.now()) {
-    return reply.status(401).send({ error: 'OTP expired' });
+    throw AppError.unauthorized('errOtpExpired');
   }
 
   const isValid = await user.compareOtp(otp);
   if (!isValid) {
-    return reply.status(401).send({ error: 'Invalid OTP' });
+    throw AppError.unauthorized('errInvalidOtp');
   }
 
   const isNewUser = !user.isVerified;
@@ -162,7 +162,7 @@ const TWO_FACTOR_API_KEY = process.env.TWO_FACTOR_API_KEY || 'YOUR_2FACTOR_API_K
 export async function send2FactorOtp(request: FastifyRequest, reply: FastifyReply) {
   const parsed = sendOtpSchema.safeParse(request.body);
   if (!parsed.success) {
-    return reply.status(400).send({ success: false, message: 'Invalid phone number format' });
+    throw AppError.badRequest('errInvalidInput');
   }
 
   const { phone } = parsed.data;
@@ -176,25 +176,26 @@ export async function send2FactorOtp(request: FastifyRequest, reply: FastifyRepl
       twoFactorSessions.set(phone, data.Details); // Store sessionId
       return reply.send({ success: true, message: 'OTP sent successfully' });
     } else {
-      return reply.status(400).send({ success: false, message: data.Details || 'Failed to send OTP' });
+      throw AppError.badRequest('errSmsProvider', data.Details);
     }
   } catch (error) {
+    if (error instanceof AppError) throw error;
     logger.error({ error }, 'Send 2Factor OTP failed');
-    return reply.status(500).send({ success: false, message: 'Internal Server Error' });
+    throw AppError.internal();
   }
 }
 
 export async function verify2FactorOtp(request: FastifyRequest, reply: FastifyReply) {
   const parsed = verifyOtpSchema.safeParse(request.body);
   if (!parsed.success) {
-    return reply.status(400).send({ success: false, message: 'Invalid phone or OTP format' });
+    throw AppError.badRequest('errInvalidInput');
   }
 
   const { phone, otp } = parsed.data;
   const sessionId = twoFactorSessions.get(phone);
 
   if (!sessionId) {
-    return reply.status(400).send({ success: false, message: 'OTP session not found or expired. Please request a new OTP.' });
+    throw AppError.unauthorized('errInvalidOtpSession');
   }
 
   try {
@@ -205,7 +206,6 @@ export async function verify2FactorOtp(request: FastifyRequest, reply: FastifyRe
     if (data.Details === 'OTP Matched') {
       twoFactorSessions.delete(phone); // Clean up session
 
-      // Standard user upsert sequence replacing OTP payload to allow access precisely like the existing system
       let isNewUser = false;
       let user = await User.findOne({ phone });
       if (!user) {
@@ -245,10 +245,11 @@ export async function verify2FactorOtp(request: FastifyRequest, reply: FastifyRe
         user: buildUserPayload(user),
       });
     } else {
-      return reply.status(400).send({ success: false, message: data.Details || 'Invalid OTP' });
+      throw AppError.unauthorized('errInvalidOtp');
     }
   } catch (error) {
+    if (error instanceof AppError) throw error;
     logger.error({ error }, 'Verify 2Factor OTP failed');
-    return reply.status(500).send({ success: false, message: 'Internal Server Error' });
+    throw AppError.internal();
   }
 }

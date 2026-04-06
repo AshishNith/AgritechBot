@@ -27,8 +27,10 @@ export function useWallet() {
   const deductChatCredit = useWalletStore((s) => s.deductChatCredit);
   const deductScanCredit = useWalletStore((s) => s.deductScanCredit);
 
-  const [chatPaywallVisible, setChatPaywallVisible] = useState(false);
-  const [scanPaywallVisible, setScanPaywallVisible] = useState(false);
+  const chatPaywallVisible = useWalletStore((s) => s.chatPaywallVisible);
+  const scanPaywallVisible = useWalletStore((s) => s.scanPaywallVisible);
+  const setChatPaywallVisible = useWalletStore((s) => s.setChatPaywallVisible);
+  const setScanPaywallVisible = useWalletStore((s) => s.setScanPaywallVisible);
 
   const walletQuery = useQuery({
     queryKey: ['wallet'],
@@ -48,20 +50,32 @@ export function useWallet() {
    * Call before sending a chat message.
    * Returns true if the user has credits; false + shows paywall otherwise.
    */
-  const requireChat = useCallback((): boolean => {
-    if (canChat()) return true;
+  const requireChat = useCallback((force = false): boolean => {
+    // If wallet exists and we can chat, allow it
+    if (!force && wallet && canChat()) return true;
+    
+    // If no wallet data yet and still loading, allow trying — server will return 402 if actually 0
+    if (!force && !wallet && (walletQuery.isLoading || walletQuery.isPending)) return true;
+    
+    // Show paywall if we have wallet data and no credits, or if forced
     setChatPaywallVisible(true);
     return false;
-  }, [canChat]);
+  }, [wallet, canChat, walletQuery.isLoading, walletQuery.isPending, setChatPaywallVisible]);
 
   /**
    * Call before starting an image scan.
    */
-  const requireScan = useCallback((): boolean => {
-    if (canScan()) return true;
+  const requireScan = useCallback((force = false): boolean => {
+    // If wallet exists and we can scan, allow it
+    if (!force && wallet && canScan()) return true;
+    
+    // If no wallet data yet and still loading, allow trying — server will return 402 if actually 0
+    if (!force && !wallet && (walletQuery.isLoading || walletQuery.isPending)) return true;
+    
+    // Show paywall if we have wallet data and no credits, or if forced
     setScanPaywallVisible(true);
     return false;
-  }, [canScan]);
+  }, [wallet, canScan, walletQuery.isLoading, walletQuery.isPending, setScanPaywallVisible]);
 
   /**
    * Optimistically deduct 1 chat credit. Server will confirm.
@@ -91,7 +105,9 @@ export function useWallet() {
 
   return {
     wallet,
-    isLoading: walletQuery.isLoading,
+    isLoading: walletQuery.isLoading || walletQuery.isPending,
+    isError: walletQuery.isError,
+    isRefetching: walletQuery.isRefetching,
 
     // Credit checks
     canChat: canChat(),

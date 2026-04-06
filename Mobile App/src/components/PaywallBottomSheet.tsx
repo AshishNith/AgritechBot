@@ -1,279 +1,305 @@
-/**
- * PaywallBottomSheet — shown when the user has 0 credits.
- *
- * Three options per design doc:
- *   1. Subscribe (go to SubscriptionScreen)
- *   2. Topup (go to SubscriptionScreen on topup tab)
- *   3. Share / Referral (earn free credits)
- */
-
-import React, { useCallback } from 'react';
+import React from 'react';
 import {
-  Modal,
-  Pressable,
-  Share,
-  StyleSheet,
   View,
+  StyleSheet,
+  Pressable,
+  Platform,
+  ScrollView,
+  Share,
+  Modal,
 } from 'react-native';
-import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-
-import { AppText } from './ui';
+import { AppText, GradientButton, GlassCard } from './ui';
 import { IconMap } from './IconMap';
 import { useTheme } from '../providers/ThemeContext';
-import { useWalletStore } from '../store/useWalletStore';
+import { t } from '../constants/localization';
+import { useAppStore } from '../store/useAppStore';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 
 interface PaywallBottomSheetProps {
   visible: boolean;
   onClose: () => void;
-  type: 'chat' | 'scan';
+  type?: 'scan' | 'chat';
 }
 
-export function PaywallBottomSheet({ visible, onClose, type }: PaywallBottomSheetProps) {
-  const { isDark, colors } = useTheme();
+export function PaywallBottomSheet({ visible, onClose, type = 'scan' }: PaywallBottomSheetProps) {
+  const { colors, isDark } = useTheme();
+  const language = useAppStore((state) => state.language);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const wallet = useWalletStore((s) => s.wallet);
 
-  const isChat = type === 'chat';
-  const Icon = IconMap[isChat ? 'MessageSquare' : 'Scan'] || View;
+  if (!visible) return null;
 
-  const handleSubscribe = useCallback(() => {
-    onClose();
-    // Small delay so sheet closes before navigation
-    setTimeout(() => navigation.navigate('Subscription', { tab: 'plans' }), 200);
-  }, [navigation, onClose]);
-
-  const handleTopup = useCallback(() => {
-    onClose();
-    setTimeout(() => navigation.navigate('Subscription', { tab: 'topup' }), 200);
-  }, [navigation, onClose]);
-
-  const handleShare = useCallback(async () => {
+  const handleShare = async () => {
     try {
       await Share.share({
-        message:
-          'Anaaj AI se mere khet ki paidawar badh gayi! 🌾 Tum bhi try karo aur humein referral se free credits milenge. Download karo: https://anaaj.ai/app',
-        title: 'Anaaj AI — Smart Farming',
+        message: 'I am using AgritechBot to grow my crops better! Check it out: https://agritechbot.com',
       });
-    } catch {
-      // ignore
+    } catch (error) {
+      console.log('Error sharing:', error);
     }
-  }, []);
-
-  const planCredits = isChat ? wallet?.chatCredits ?? 0 : wallet?.imageCredits ?? 0;
-  const topupCredits = isChat ? wallet?.topupCredits ?? 0 : wallet?.topupImageCredits ?? 0;
-  const total = planCredits + topupCredits;
+  };
 
   return (
     <Modal
       visible={visible}
-      transparent
-      animationType="none"
-      statusBarTranslucent
+      transparent={true}
+      animationType="fade"
       onRequestClose={onClose}
+      statusBarTranslucent={true}
     >
-      <View style={StyleSheet.absoluteFill}>
-        <Animated.View
-          entering={FadeIn.duration(200)}
-          exiting={FadeOut.duration(200)}
-          style={StyleSheet.absoluteFill}
-        >
-          <Pressable style={StyleSheet.absoluteFill} onPress={onClose}>
-            <BlurView
-              intensity={isDark ? 60 : 40}
-              tint={isDark ? 'dark' : 'light'}
-              style={StyleSheet.absoluteFill}
-            />
-          </Pressable>
-        </Animated.View>
+      <Pressable style={styles.overlay} onPress={onClose}>
+        <Pressable style={styles.sheetWrapper} onPress={(e) => e.stopPropagation()}>
+          <View
+            style={[
+              styles.sheet,
+              {
+                backgroundColor: isDark ? colors.surface : '#FFFFFF',
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            {/* Grabber */}
+            <View style={[styles.grabber, { backgroundColor: colors.border }]} />
 
-        <Animated.View
-          entering={SlideInDown.springify().damping(18)}
-          exiting={SlideOutDown.duration(250)}
-          style={[
-            styles.sheet,
-            { backgroundColor: isDark ? '#121712' : '#FAFEF6' },
-          ]}
-        >
-          {/* Top handle */}
-          <View style={[styles.handle, { backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)' }]} />
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+              {/* Header */}
+              <View style={styles.header}>
+                <View style={[styles.iconContainer, { backgroundColor: colors.primary + '15' }]}>
+                  {(() => {
+                    const IconComp = type === 'scan' ? IconMap['Scan'] : IconMap['MessageSquare'];
+                    return IconComp ? <IconComp size={32} color={colors.primary} /> : null;
+                  })()}
+                </View>
+                <AppText variant="heading" style={styles.title}>
+                  {type === 'scan' ? 'Scan Limit Reached' : 'Chat Limit Reached'}
+                </AppText>
+                <AppText color={colors.textMuted} style={styles.subtitle}>
+                  Upgrade to continue using our premium AI features or earn credits by referring friends.
+                </AppText>
+              </View>
 
-          {/* Icon + heading */}
-          <View style={styles.iconRow}>
-            <LinearGradient
-              colors={['#4CAF5020', '#4CAF5005']}
-              style={styles.iconBg}
-            >
-              <Icon size={32} color={colors.primary} />
-            </LinearGradient>
-            <View style={{ flex: 1 }}>
-              <AppText variant="heading" style={{ fontSize: 20 }}>
-                {isChat ? 'Chat Credits Khatam! 💬' : 'Scan Credits Khatam! 📷'}
-              </AppText>
-              <AppText variant="caption" color={colors.textMuted} style={{ marginTop: 2 }}>
-                {total === 0
-                  ? 'Aapke paas abhi koi credits nahi hain'
-                  : `Sirf ${total} credits baaki hain`}
-              </AppText>
-            </View>
+              {/* Main Action Card */}
+              <GlassCard style={styles.planCard}>
+                <LinearGradient
+                  colors={[colors.primary + '20', 'transparent']}
+                  style={styles.gradient}
+                />
+                <View style={styles.planHeader}>
+                  <View>
+                    <AppText variant="label" color={colors.primary}>RECOMMENDED</AppText>
+                    <AppText variant="heading" style={{ fontSize: 24 }}>Premium Plan</AppText>
+                  </View>
+                  <View style={styles.badge}>
+                    <AppText variant="caption" color="#fff" style={{ fontWeight: 'bold' }}>-40% OFF</AppText>
+                  </View>
+                </View>
+                
+                <View style={styles.features}>
+                  <FeatureItem text="Unlimited AI Crop Scans" active />
+                  <FeatureItem text="24/7 Expert AI Consultation" active />
+                  <FeatureItem text="Advanced Pest Recognition" active />
+                </View>
+
+                <GradientButton
+                  label="Unlock Unlimited Access"
+                  onPress={() => {
+                    onClose();
+                    navigation.navigate('Subscription', { tab: 'plans' });
+                  }}
+                  style={{ marginTop: 20 }}
+                />
+              </GlassCard>
+
+              {/* Alternative Actions */}
+              <View style={styles.altActions}>
+                <AppText variant="label" style={styles.altTitle}>Other Options</AppText>
+                
+                <Pressable
+                  onPress={handleShare}
+                  style={[styles.tile, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#F8FAFC' }]}
+                >
+                  <View style={[styles.tileIcon, { backgroundColor: '#F59E0B20' }]}>
+                    {(() => {
+                      const IconComp = IconMap['Share2'];
+                      return IconComp ? <IconComp size={20} color="#F59E0B" /> : null;
+                    })()}
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <AppText variant="label" style={{ fontSize: 16 }}>Refer a Friend</AppText>
+                    <AppText variant="caption" color={colors.textMuted}>Get 5 free credits for every invite</AppText>
+                  </View>
+                  {(() => {
+                      const IconComp = IconMap['ChevronRight'];
+                      return IconComp ? <IconComp size={20} color={colors.textMuted} /> : null;
+                    })()}
+                </Pressable>
+
+                <Pressable
+                  onPress={() => {
+                    onClose();
+                    navigation.navigate('Subscription', { tab: 'topup' });
+                  }}
+                  style={[styles.tile, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#F8FAFC' }]}
+                >
+                  <View style={[styles.tileIcon, { backgroundColor: colors.primary + '20' }]}>
+                    {(() => {
+                      const IconComp = IconMap['Coins'];
+                      return IconComp ? <IconComp size={20} color={colors.primary} /> : null;
+                    })()}
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <AppText variant="label" style={{ fontSize: 16 }}>One-time Topup</AppText>
+                    <AppText variant="caption" color={colors.textMuted}>Add credits starting at ₹99</AppText>
+                  </View>
+                  {(() => {
+                      const IconComp = IconMap['ChevronRight'];
+                      return IconComp ? <IconComp size={20} color={colors.textMuted} /> : null;
+                    })()}
+                </Pressable>
+              </View>
+
+              <Pressable onPress={onClose} style={styles.closeBtn}>
+                <AppText variant="caption" color={colors.textMuted}>{t(language, 'later')}</AppText>
+              </Pressable>
+            </ScrollView>
           </View>
-
-          <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
-          {/* 3 action tiles */}
-          <View style={styles.tilesContainer}>
-            {/* Subscribe */}
-            <Pressable
-              onPress={handleSubscribe}
-              style={({ pressed }) => [
-                styles.tile,
-                {
-                  backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#fff',
-                  borderColor: colors.primary,
-                  opacity: pressed ? 0.8 : 1,
-                },
-              ]}
-            >
-              <LinearGradient
-                colors={[colors.primary + '25', colors.primary + '08']}
-                style={styles.tileBg}
-              >
-                {(() => { const I = IconMap['Crown']; return I ? <I size={24} color={colors.primary} /> : null; })()}
-              </LinearGradient>
-              <View style={{ flex: 1 }}>
-                <AppText variant="label" style={{ fontSize: 15 }}>Subscribe karo</AppText>
-                <AppText variant="caption" color={colors.textMuted}>₹149/mo · 50 chats · 3 scans</AppText>
-              </View>
-              {(() => { const I = IconMap['ChevronRight']; return I ? <I size={18} color={colors.textMuted} /> : null; })()}
-            </Pressable>
-
-            {/* Topup */}
-            <Pressable
-              onPress={handleTopup}
-              style={({ pressed }) => [
-                styles.tile,
-                {
-                  backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#fff',
-                  borderColor: colors.border,
-                  opacity: pressed ? 0.8 : 1,
-                },
-              ]}
-            >
-              <LinearGradient
-                colors={['#3B82F625', '#3B82F608']}
-                style={styles.tileBg}
-              >
-                {(() => { const I = IconMap['Zap']; return I ? <I size={24} color="#3B82F6" /> : null; })()}
-              </LinearGradient>
-              <View style={{ flex: 1 }}>
-                <AppText variant="label" style={{ fontSize: 15 }}>Topup karo</AppText>
-                <AppText variant="caption" color={colors.textMuted}>10 chats sirf ₹49 mein</AppText>
-              </View>
-              {(() => { const I = IconMap['ChevronRight']; return I ? <I size={18} color={colors.textMuted} /> : null; })()}
-            </Pressable>
-
-            {/* Share / Referral */}
-            <Pressable
-              onPress={handleShare}
-              style={({ pressed }) => [
-                styles.tile,
-                {
-                  backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#fff',
-                  borderColor: colors.border,
-                  opacity: pressed ? 0.8 : 1,
-                },
-              ]}
-            >
-              <LinearGradient
-                colors={['#F59E0B25', '#F59E0B08']}
-                style={styles.tileBg}
-              >
-                {(() => { const I = IconMap['Share2']; return I ? <I size={24} color="#F59E0B" /> : null; })()}
-              </LinearGradient>
-              <View style={{ flex: 1 }}>
-                <AppText variant="label" style={{ fontSize: 15 }}>Free mein share karo</AppText>
-                <AppText variant="caption" color={colors.textMuted}>Dost ko invite karo · credits pao</AppText>
-              </View>
-              {(() => { const I = IconMap['ChevronRight']; return I ? <I size={18} color={colors.textMuted} /> : null; })()}
-            </Pressable>
-          </View>
-
-          {/* Dismiss */}
-          <Pressable onPress={onClose} style={styles.dismissBtn}>
-            <AppText variant="caption" color={colors.textMuted}>Baad mein</AppText>
-          </Pressable>
-        </Animated.View>
-      </View>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }
 
+function FeatureItem({ text, active }: { text: string; active?: boolean }) {
+  const { colors } = useTheme();
+  const IconComp = IconMap['CheckCircled'] || IconMap['Check'];
+  return (
+    <View style={styles.featureItem}>
+      <View style={[styles.check, { backgroundColor: active ? colors.primary + '30' : 'rgba(0,0,0,0.05)' }]}>
+        {IconComp && <IconComp size={14} color={active ? colors.primary : '#94A3B8'} />}
+      </View>
+      <AppText style={{ fontSize: 14 }}>{text}</AppText>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'flex-end',
+  },
+  sheetWrapper: {
+    width: '100%',
+    maxHeight: '90%',
+  },
   sheet: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    width: '100%',
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-    paddingTop: 12,
+    borderWidth: 1,
+    borderBottomWidth: 0,
+    elevation: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 20,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
   },
-  handle: {
+  grabber: {
     width: 40,
     height: 4,
     borderRadius: 2,
     alignSelf: 'center',
+    marginTop: 12,
+    opacity: 0.5,
+  },
+  scrollContent: {
+    padding: 24,
+    paddingBottom: Platform.OS === 'ios' ? 44 : 24,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  iconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 22,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  subtitle: {
+    textAlign: 'center',
+    lineHeight: 20,
+    paddingHorizontal: 12,
+  },
+  planCard: {
+    borderRadius: 24,
+    overflow: 'hidden',
+    padding: 20,
+    marginBottom: 24,
+  },
+  gradient: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  planHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     marginBottom: 20,
   },
-  iconRow: {
+  badge: {
+    backgroundColor: '#F43F5E',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+  },
+  features: {
+    gap: 12,
+  },
+  featureItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
-    marginBottom: 20,
+    gap: 12,
   },
-  iconBg: {
-    width: 60,
-    height: 60,
-    borderRadius: 18,
+  check: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  divider: {
-    height: 1,
-    marginBottom: 20,
-  },
-  tilesContainer: {
+  altActions: {
     gap: 12,
+  },
+  altTitle: {
+    fontSize: 14,
+    opacity: 0.6,
+    marginBottom: 4,
   },
   tile: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
     padding: 16,
-    borderRadius: 18,
-    borderWidth: 1,
+    borderRadius: 20,
+    gap: 16,
   },
-  tileBg: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
+  tileIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dismissBtn: {
-    marginTop: 20,
+  closeBtn: {
+    marginTop: 24,
     alignItems: 'center',
-    paddingVertical: 8,
   },
 });

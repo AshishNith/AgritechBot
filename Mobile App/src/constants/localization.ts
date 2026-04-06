@@ -319,7 +319,32 @@ export type TranslationKey =
   | 'weatherRainy'
   | 'weatherStormy'
   | 'quickServices'
-  | 'weatherFoggy';
+  | 'weatherFoggy'
+  // --- Error Keys ---
+  | 'later'
+  | 'loading'
+  | 'unableToLoadPlan'
+  | 'checkConnection'
+  | 'upgradeToPremium'
+  | 'plan'
+  | 'chats'
+  | 'scans'
+  | 'left'
+  | 'expires'
+  | 'manage'
+  | 'retry'
+  | 'errConnection'
+  | 'errServerBusy'
+  | 'errNoCredits'
+  | 'errLimitReached'
+  | 'errSubscriptionExpired'
+  | 'errInvalidOtp'
+  | 'errOtpExpired'
+  | 'errInvalidOtpSession'
+  | 'errAuth'
+  | 'errForbidden'
+  | 'errNotFound'
+  | 'errUnknown';
 
 
 const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
@@ -643,6 +668,29 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     weatherStormy: 'Thunderstorm',
     quickServices: 'Quick Services',
     weatherFoggy: 'Foggy',
+    later: 'Later',
+    loading: 'Loading...',
+    unableToLoadPlan: 'Unable to load plan',
+    checkConnection: 'Check your connection',
+    upgradeToPremium: 'Upgrade to Premium',
+    plan: 'PLAN',
+    chats: 'chats',
+    scans: 'scans',
+    left: 'left',
+    expires: 'Expires',
+    // --- Error Messages ---
+    errConnection: 'Network trouble. Please check your internet or SIM signal.',
+    errServerBusy: 'Server is busy helping other farmers. Please try again in 2 minutes.',
+    errNoCredits: 'You have no credits left. Please top up or subscribe to continue.',
+    errLimitReached: 'You have reached your daily limit. Please upgrade for more.',
+    errSubscriptionExpired: 'Your plan has expired. Please renew to keep using this service.',
+    errInvalidOtp: 'Wrong code entered. Please check the SMS and try again.',
+    errOtpExpired: 'Code has expired. Please request a new one.',
+    errInvalidOtpSession: 'OTP session expired. Please start login again.',
+    errAuth: 'Login failed. Please try again.',
+    errForbidden: 'Access denied. You do not have permission for this task.',
+    errNotFound: 'Requested service not found.',
+    errUnknown: 'Something went wrong. Please restart the app or try later.',
   },
   Hindi: {
     marketTitle: 'मार्केट',
@@ -964,6 +1012,29 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     weatherStormy: 'तूफान',
     quickServices: 'त्वरित सेवाएं',
     weatherFoggy: 'कोहरा',
+    later: 'बाद में देखेंगे',
+    loading: 'लोड हो रहा है...',
+    unableToLoadPlan: 'योजना लोड करने में असमर्थ',
+    checkConnection: 'अपना कनेक्शन चेक करें',
+    upgradeToPremium: 'प्रीमियम में अपग्रेड करें',
+    plan: 'प्लान',
+    chats: 'चैट',
+    scans: 'स्कैन',
+    left: 'शेष',
+    expires: 'समाप्त होता है',
+    // --- Error Messages ---
+    errConnection: 'नेटवर्क की समस्या. कृपया अपना इंटरनेट या सिम सिग्नल चेक करें.',
+    errServerBusy: 'सर्वर अभी बिजी है. कृपया 2 मिनट बाद फिर से कोशिश करें.',
+    errNoCredits: 'आपके क्रेडिट खत्म हो गए हैं. कृपया रिचार्ज या सब्सक्राइब करें.',
+    errLimitReached: 'आपकी दैनिक सीमा समाप्त हो गई है. कृपया अपग्रेड करें.',
+    errSubscriptionExpired: 'आपका प्लान खत्म हो गया है. कृपया जारी रखने के लिए रिन्यू करें.',
+    errInvalidOtp: 'गलत कोड. कृपया मैसेज चेक करें और फिर से कोशिश करें.',
+    errOtpExpired: 'कोड की समय सीमा समाप्त हो गई है. कृपया नया कोड मंगाएं.',
+    errInvalidOtpSession: 'लॉगिन सेशन खत्म हो गया है. कृपया फिर से शुरू करें.',
+    errAuth: 'लॉगिन नहीं हो सका. कृपया फिर से कोशिश करें.',
+    errForbidden: 'अनुमति नहीं है.',
+    errNotFound: 'सर्विस नहीं मिली.',
+    errUnknown: 'कुछ गलत हो गया. कृपया ऐप को फिर से खोलें या बाद में कोशिश करें.',
   },
   Gujarati: {
     marketTitle: 'ખેતી બજાર',
@@ -1285,6 +1356,29 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     weatherStormy: 'વાવાઝોડું',
     quickServices: 'ઝડપી સેવાઓ',
     weatherFoggy: 'ધુમ્મસ',
+    later: 'નહિ, પછી',
+    loading: 'લોડ થઈ રહ્યું છે...',
+    unableToLoadPlan: 'યોજના લોડ કરવામાં અસમર્થ',
+    checkConnection: 'તમારું કનેક્શન તપાસો',
+    upgradeToPremium: 'પ્રીમિયમમાં અપગ્રેડ કરો',
+    plan: 'પ્લાન',
+    chats: 'ચેટ્સ',
+    scans: 'સ્કેન',
+    left: 'બાકી',
+    expires: 'સમાપ્ત થાય છે',
+    // --- Error Messages ---
+    errConnection: 'નેટવર્ક સમસ્યા. કૃપા કરીને તમારું ઇન્ટરનેટ અથવા સિમ સિગ્નલ તપાસો.',
+    errServerBusy: 'સર્વર અત્યારે વ્યસ્ત છે. કૃપા કરીને 2 મિનિટ પછી ફરી પ્રયાસ કરો.',
+    errNoCredits: 'તમારા ક્રેડિટ સમાપ્ત થઈ ગયા છે. કૃપા કરીને ટોપ-અપ અથવા સબ્સ્ક્રાઇબ કરો.',
+    errLimitReached: 'તમારી દૈનિક મર્યાદા પૂરી થઈ ગઈ છે. કૃપા કરીને અપગ્રેડ કરો.',
+    errSubscriptionExpired: 'તમારો પ્લાન સમાપ્ત થઈ ગયો છે. કૃપા કરીને રિન્યૂ કરો.',
+    errInvalidOtp: 'ખોટો કોડ. કૃપા કરીને મેસેજ તપાસો અને ફરી પ્રયાસ કરો.',
+    errOtpExpired: 'કોડની સમય મર્યાદા સમાપ્ત થઈ ગઈ છે. કૃપા કરીને નવો કોડ મંગાવો.',
+    errInvalidOtpSession: 'લોગિન સત્ર સમાપ્ત થઈ ગયું છે. કૃપા કરીને ફરી શરૂ કરો.',
+    errAuth: 'લોગિન નિષ્ફળ ગયું. કૃપા કરીને ફરી પ્રયાસ કરો.',
+    errForbidden: 'પરવાનગી નથી.',
+    errNotFound: 'સેવા મળી નથી.',
+    errUnknown: 'કંઈક ખોટું થયું. કૃપા કરીને એપ ફરીથી ખોલો.',
   },
   Punjabi: {
     marketTitle: 'ਮਾਰਕੀਟ',
@@ -1606,6 +1700,29 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     weatherStormy: 'ਤੂਫ਼ਾਨ',
     quickServices: 'ਤੁਰੰਤ ਸੇਵਾਵਾਂ',
     weatherFoggy: 'ਧੁੰਦ',
+    later: 'ਨਹੀਂ, ਬਾਅਦ ਵਿੱਚ',
+    loading: 'ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ...',
+    unableToLoadPlan: 'ਯੋਜਨਾ ਲੋਡ ਕਰਨ ਵਿੱਚ ਅਸਮਰੱਥ',
+    checkConnection: 'ਆਪਣਾ ਕਨੈਕਸ਼ਨ ਚੈੱਕ ਕਰੋ',
+    upgradeToPremium: 'ਪ੍ਰੀਮੀਅਮ ਵਿੱਚ ਅੱਪਗ੍ਰੇਡ ਕਰੋ',
+    plan: 'ਪਲਾਨ',
+    chats: 'ਚੈਟ',
+    scans: 'ਸਕੈਨ',
+    left: 'ਬਾਕੀ',
+    expires: 'ਖਤਮ ਹੁੰਦਾ ਹੈ',
+    // --- Error Messages ---
+    errConnection: 'ਨੈੱਟਵਰਕ ਦੀ ਸਮੱਸਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ ਇੰਟਰਨੈੱਟ ਜਾਂ ਸਿਮ ਸਿਗਨਲ ਚੈੱਕ ਕਰੋ।',
+    errServerBusy: 'ਸਰਵਰ ਬਹੁਤ ਰੁੱਝਿਆ ਹੋਇਆ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ 2 ਮਿੰਟਾਂ ਬਾਅਦ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
+    errNoCredits: 'ਤੁਹਾਡੇ ਕ੍ਰੈਡਿਟ ਖਤਮ ਹੋ ਗਏ ਹਨ। ਕਿਰਪਾ ਕਰਕੇ ਟੌਪ-ਅੱਪ ਜਾਂ ਸਬਸਕ੍ਰਾਈਬ ਕਰੋ।',
+    errLimitReached: 'ਤੁਹਾਡੀ ਰੋਜ਼ਾਨਾ ਦੀ ਸੀਮਾ ਪੂਰੀ ਹੋ ਗਈ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਅੱਪਗ੍ਰੇਡ ਕਰੋ।',
+    errSubscriptionExpired: 'ਤੁਹਾਡਾ ਪਲਾਨ ਖਤਮ ਹੋ ਗਿਆ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਰੀਨਿਊ ਕਰੋ।',
+    errInvalidOtp: 'ਗਲਤ ਕੋਡ। ਕਿਰਪਾ ਕਰਕੇ ਐਸਐਮਐਸ ਚੈੱਕ ਕਰੋ ਅਤੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
+    errOtpExpired: 'ਕੋਡ ਦੀ ਮਿਆਦ ਖਤਮ ਹੋ ਗਈ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਨਵਾਂ ਕੋਡ ਮੰਗਵਾਓ।',
+    errInvalidOtpSession: 'ਸੈਸ਼ਨ ਖ਼ਤਮ ਹੋ ਗਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਲੌਗਇਨ ਕਰੋ।',
+    errAuth: 'ਲੌਗਇਨ ਅਸਫਲ ਰਿਹਾ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
+    errForbidden: 'ਪਹੁੰਚ ਦੀ ਮਨਾਹੀ ਹੈ।',
+    errNotFound: 'ਸੇਵਾ ਨਹੀਂ ਮਿਲੀ।',
+    errUnknown: 'ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਐਪ ਨੂੰ ਦੁਬਾਰਾ ਚਾਲੂ ਕਰੋ।',
   },
 };
 

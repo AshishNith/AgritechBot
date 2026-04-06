@@ -17,7 +17,6 @@ import { useI18n } from '../hooks/useI18n';
 import { WalletCreditBadge } from '../components/WalletCreditBadge';
 import { PLAN_CONFIGS } from '../store/useWalletStore';
 import { PaywallBottomSheet } from '../components/PaywallBottomSheet';
-import { UsageLimitModal } from '../components/UsageLimitModal';
 import { useQuery } from '@tanstack/react-query';
 import Animated, { FadeIn, FadeInDown, FadeInRight } from 'react-native-reanimated';
 
@@ -31,7 +30,6 @@ export function ImageScanScreen({ route }: { route: any }) {
   const [image, setImage] = useState<string | null>(route.params?.image || null);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<string | null>(route.params?.result || null);
-  const [limitModalVisible, setLimitModalVisible] = useState(false);
   const analysisInProgress = React.useRef(false);
   const isPickingImage = React.useRef(false);
   
@@ -144,23 +142,21 @@ export function ImageScanScreen({ route }: { route: any }) {
     } catch (error: any) {
       analysisInProgress.current = false;
       console.error('[ImageScan] Analysis error:', error);
-      const backendMsg = error?.response?.data?.error || error?.message || 'Could not analyze the image. Please try again.';
       
+      const statusCode = error?.response?.status;
+      const errorMessage = error?.message || t('errUnknown');
+
       // Always refetch wallet on error to reconcile optimistic deduction
       void refetchWallet();
 
-      if (error?.response?.status === 402) {
+      if (statusCode === 402 || statusCode === 403) {
         setAnalyzing(false);
-        void refetchWallet().finally(() => {
-          requireScan();
-        });
+        // Force show paywall immediately
+        setTimeout(() => requireScan(true), 100);
         return;
-      } else if (error?.response?.status === 403) {
-        setLimitModalVisible(true);
-      } else if (error?.response?.status === 429) {
-        Alert.alert('Analysis Busy', backendMsg);
       } else {
-        Alert.alert('Oops!', backendMsg);
+        // Show localized error alert (already translated by api client interceptor)
+        Alert.alert(t('alerts'), errorMessage);
       }
     } finally {
       setAnalyzing(false);
@@ -452,12 +448,6 @@ export function ImageScanScreen({ route }: { route: any }) {
         )}
       </View>
 
-      <UsageLimitModal 
-        visible={limitModalVisible}
-        onClose={() => setLimitModalVisible(false)}
-        type="scan"
-        limit={PLAN_CONFIGS.find(p => p.tier === wallet?.plan)?.imageCredits || 5}
-      />
       <PaywallBottomSheet
         visible={scanPaywallVisible}
         onClose={dismissScanPaywall}
