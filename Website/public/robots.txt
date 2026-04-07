@@ -4,9 +4,8 @@
 User-agent: *
 Allow: /
 
-# Disallow checkout and dynamic pages
+# Disallow checkout and sensitive dynamic pages
 Disallow: /checkout/
-Disallow: /vendor/
 
 # Sitemap location
 Sitemap: https://anaaj.ai/sitemap.xml
