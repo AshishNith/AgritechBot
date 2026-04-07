@@ -344,7 +344,69 @@ export type TranslationKey =
   | 'errAuth'
   | 'errForbidden'
   | 'errNotFound'
-  | 'errUnknown';
+  | 'errUnknown'
+  // --- Subscription Screen Keys ---
+  | 'subscriptionTitle'
+  | 'masterYourHarvest'
+  | 'subscriptionSubtitle'
+  | 'remainingCredits'
+  | 'aiChatsLabel'
+  | 'cropScansLabel'
+  | 'monthlyPlansLabel'
+  | 'topUpsLabel'
+  | 'whyUpgrade'
+  | 'aiCropDoctorTitle'
+  | 'aiCropDoctorSub'
+  | 'krishiAssistantTitle'
+  | 'krishiAssistantSub'
+  | 'multiLingualTitle'
+  | 'multiLingualSub'
+  | 'expertPriorityTitle'
+  | 'expertPrioritySub'
+  | 'basicPlanTitle'
+  | 'proPlanTitle'
+  | 'planPerk1'
+  | 'planPerk2'
+  | 'planPerk3'
+  | 'planPerk4'
+  | 'planPerk5'
+  | 'planPerk6'
+  | 'planPerk7'
+  | 'addExtraCredits'
+  | 'topupDisclaimer'
+  | 'aiChatPacks'
+  | 'imageScanPacks'
+  | 'scanLabel'
+  | 'scansLabel'
+  | 'renewPlan'
+  | 'buyCredits'
+  | 'paymentSuccessTitle'
+  | 'paymentSuccessSub'
+  | 'completingTransaction'
+  | 'verifyingBank'
+  | 'doNotCloseApp'
+  | 'mostPopular'
+  | 'currentPlan'
+  // --- Chat History Keys ---
+  | 'historyTitle'
+  | 'historySubtitle'
+  | 'messagesLabel'
+  | 'startNewConversation'
+  | 'cropDiagnosisLabel'
+  | 'noChatsFound'
+  | 'noScansFound'
+  // --- Location Selector Keys ---
+  | 'confirmLocationTitle'
+  | 'locationPermissionError'
+  | 'autoLocationError'
+  | 'locationHelpText'
+  | 'useCurrentLocation'
+  | 'selectManually'
+  | 'selectState'
+  | 'backToStates'
+  | 'locationUsagePrivacy'
+  | 'locationErrorTitle'
+  | 'confirm';
 
 
 const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
@@ -691,6 +753,68 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     errForbidden: 'Access denied. You do not have permission for this task.',
     errNotFound: 'Requested service not found.',
     errUnknown: 'Something went wrong. Please restart the app or try later.',
+    // --- Subscription Screen ---
+    subscriptionTitle: 'Subscription',
+    masterYourHarvest: 'Master Your Harvest',
+    subscriptionSubtitle: 'Join 50,000+ farmers using Anaaj.ai to increase their yield by up to 30%.',
+    remainingCredits: 'Remaining Credits',
+    aiChatsLabel: 'AI Chats',
+    cropScansLabel: 'Crop Scans',
+    monthlyPlansLabel: 'Monthly Plans',
+    topUpsLabel: 'Top-ups',
+    whyUpgrade: 'Why Upgrade?',
+    aiCropDoctorTitle: 'AI Crop Doctor',
+    aiCropDoctorSub: 'Identify diseases from photos instantly',
+    krishiAssistantTitle: 'Krishi Assistant',
+    krishiAssistantSub: 'Unlimited specialized farming chat',
+    multiLingualTitle: 'Multi-lingual',
+    multiLingualSub: 'Support for 10+ local Indian languages',
+    expertPriorityTitle: 'Expert Priority',
+    expertPrioritySub: 'Get answers up to 3x faster',
+    basicPlanTitle: 'Basic',
+    proPlanTitle: 'Pro',
+    planPerk1: '50 AI Chats',
+    planPerk2: '3 Image Scans',
+    planPerk3: 'Topup Enabled',
+    planPerk4: '100 AI Chats',
+    planPerk5: '10 Image Scans',
+    planPerk6: '7-day rollover',
+    planPerk7: 'Mandi alerts',
+    addExtraCredits: 'Add Extra Credits',
+    topupDisclaimer: 'Top-up credits never expire and are used only after your plan credits run out.',
+    aiChatPacks: 'AI Chat Packs',
+    imageScanPacks: 'Image Scan Packs',
+    scanLabel: 'Scan',
+    scansLabel: 'Scans',
+    renewPlan: 'RENEW PLAN',
+    buyCredits: 'BUY CREDITS',
+    paymentSuccessTitle: 'Payment Successful',
+    paymentSuccessSub: 'Your plan and wallet have been updated.',
+    completingTransaction: 'Completing Transaction...',
+    verifyingBank: 'Verifying with Bank...',
+    doNotCloseApp: 'Please do not close the app',
+    mostPopular: 'MOST POPULAR',
+    currentPlan: 'CURRENT PLAN',
+    // --- Chat History ---
+    historyTitle: 'Your History',
+    historySubtitle: 'Previously analyzed crops and chats',
+    messagesLabel: 'Messages',
+    startNewConversation: 'Start a new conversation...',
+    cropDiagnosisLabel: 'Crop Diagnosis',
+    noChatsFound: 'No chats found',
+    noScansFound: 'No scans found',
+    // --- Location Selector ---
+    confirmLocationTitle: 'Confirm Location',
+    locationPermissionError: 'Please enable location permissions in your settings.',
+    autoLocationError: 'Unable to fetch location automatically. Please search manually.',
+    locationHelpText: 'Help us personalize your agricultural advice based on your region.',
+    useCurrentLocation: 'Use Current Location (GPS)',
+    selectManually: 'SELECT MANUALLY',
+    selectState: 'Select your State',
+    backToStates: 'Back to States',
+    locationUsagePrivacy: 'We only use your location to provide accurate weather and crop data.',
+    locationErrorTitle: 'Location Error',
+    confirm: 'Confirm',
   },
   Hindi: {
     marketTitle: 'मार्केट',
@@ -1035,6 +1159,68 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     errForbidden: 'अनुमति नहीं है.',
     errNotFound: 'सर्विस नहीं मिली.',
     errUnknown: 'कुछ गलत हो गया. कृपया ऐप को फिर से खोलें या बाद में कोशिश करें.',
+    // --- Subscription Screen ---
+    subscriptionTitle: 'सदस्यता',
+    masterYourHarvest: 'अपनी फसल को बेहतर बनाएं',
+    subscriptionSubtitle: 'अपनी उपज को 30% तक बढ़ाने के लिए Anaaj.ai का उपयोग करने वाले 50,000+ किसानों से जुड़ें।',
+    remainingCredits: 'शेष क्रेडिट',
+    aiChatsLabel: 'AI चैट',
+    cropScansLabel: 'फसल स्कैन',
+    monthlyPlansLabel: 'मासिक योजनाएं',
+    topUpsLabel: 'टॉप-अप',
+    whyUpgrade: 'अपग्रेड क्यों करें?',
+    aiCropDoctorTitle: 'AI फसल डॉक्टर',
+    aiCropDoctorSub: 'फोटो से तुरंत बीमारियों की पहचान करें',
+    krishiAssistantTitle: 'कृषि सहायक',
+    krishiAssistantSub: 'असीमित विशेषज्ञ खेती चैट',
+    multiLingualTitle: 'बहुभाषी',
+    multiLingualSub: '10+ स्थानीय भाषाओं में सहायता',
+    expertPriorityTitle: 'विशेषज्ञ प्राथमिकता',
+    expertPrioritySub: '3 गुना तेज जवाब पाएं',
+    basicPlanTitle: 'बेसिक',
+    proPlanTitle: 'प्रो',
+    planPerk1: '50 AI चैट',
+    planPerk2: '3 इमेज स्कैन',
+    planPerk3: 'टॉप-अप उपलब्ध',
+    planPerk4: '100 AI चैट',
+    planPerk5: '10 इमेज स्कैन',
+    planPerk6: '7 दिनी रोलओवर',
+    planPerk7: 'मंडी सूचनाएं',
+    addExtraCredits: 'अतिरिक्त क्रेडिट जोड़ें',
+    topupDisclaimer: 'टॉप-अप क्रेडिट कभी समाप्त नहीं होते और आपके प्लान क्रेडिट खत्म होने के बाद ही उपयोग किए जाते हैं।',
+    aiChatPacks: 'AI चैट पैक',
+    imageScanPacks: 'इमेज स्कैन पैक',
+    scanLabel: 'स्कैन',
+    scansLabel: 'स्कैन',
+    renewPlan: 'प्लान रिन्यू करें',
+    buyCredits: 'क्रेडिट खरीदें',
+    paymentSuccessTitle: 'भुगतान सफल',
+    paymentSuccessSub: 'आपकी योजना और वॉलेट अपडेट कर दिए गए हैं।',
+    completingTransaction: 'लेनदेन पूरा हो रहा है...',
+    verifyingBank: 'बैंक से सत्यापन हो रहा है...',
+    doNotCloseApp: 'कृपया ऐप बंद न करें',
+    mostPopular: 'सबसे लोकप्रिय',
+    currentPlan: 'वर्तमान योजना',
+    // --- Chat History ---
+    historyTitle: 'आपका इतिहास',
+    historySubtitle: 'पहले विश्लेषण की गई फसलें और चैट',
+    messagesLabel: 'संदेश',
+    startNewConversation: 'नई बातचीत शुरू करें...',
+    cropDiagnosisLabel: 'फसल निदान',
+    noChatsFound: 'कोई चैट नहीं मिली',
+    noScansFound: 'कोई स्कैन नहीं मिला',
+    // --- Location Selector ---
+    confirmLocationTitle: 'स्थान की पुष्टि करें',
+    locationPermissionError: 'कृपया अपनी सेटिंग्स में स्थान अनुमति सक्षम करें।',
+    autoLocationError: 'स्वचालित रूप से स्थान प्राप्त करने में असमर्थ। कृपया मैन्युअल रूप से खोजें।',
+    locationHelpText: 'हमें अपने क्षेत्र के आधार पर अपनी कृषि सलाह को वैयक्तिकृत करने में मदद करें।',
+    useCurrentLocation: 'वर्तमान स्थान का उपयोग करें (GPS)',
+    selectManually: 'मैन्युअल रूप से चुनें',
+    selectState: 'अपना राज्य चुनें',
+    backToStates: 'राज्यों पर वापस जाएं',
+    locationUsagePrivacy: 'हम आपके स्थान का उपयोग केवल सटीक मौसम और फसल डेटा प्रदान करने के लिए करते हैं।',
+    locationErrorTitle: 'स्थान त्रुटि',
+    confirm: 'पुष्टि करें',
   },
   Gujarati: {
     marketTitle: 'ખેતી બજાર',
@@ -1379,6 +1565,68 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     errForbidden: 'પરવાનગી નથી.',
     errNotFound: 'સેવા મળી નથી.',
     errUnknown: 'કંઈક ખોટું થયું. કૃપા કરીને એપ ફરીથી ખોલો.',
+    // --- Subscription Screen ---
+    subscriptionTitle: 'સબ્સ્ક્રિપ્શન',
+    masterYourHarvest: 'તમારી ખેતીને શ્રેષ્ઠ બનાવો',
+    subscriptionSubtitle: 'તમારી ઉપજમાં 30% સુધીનો વધારો કરવા માટે Anaaj.ai નો ઉપયોગ કરતા 50,000+ ખેડૂતો સાથે જોડાઓ.',
+    remainingCredits: 'બાકી ક્રેડિટ',
+    aiChatsLabel: 'AI ચેટ',
+    cropScansLabel: 'પાક સ્કેન',
+    monthlyPlansLabel: 'માસિક યોજનાઓ',
+    topUpsLabel: 'ટોપ-અપ',
+    whyUpgrade: 'અપગ્રેડ શા માટે કરવું?',
+    aiCropDoctorTitle: 'AI પાક ડૉક્ટર',
+    aiCropDoctorSub: 'ફોટા પરથી તરત જ રોગો ઓળખો',
+    krishiAssistantTitle: 'કૃષિ સહાયક',
+    krishiAssistantSub: 'અમર્યાદિત નિષ્ણાત ખેતી ચેટ',
+    multiLingualTitle: 'બહુભાષી',
+    multiLingualSub: '10+ સ્થાનિક ભારતીય ભાષાઓમાં સપોર્ટ',
+    expertPriorityTitle: 'નિષ્ણાત અગ્રતા',
+    expertPrioritySub: '3 ગણી ઝડપથી જવાબો મેળવો',
+    basicPlanTitle: 'બેઝિક',
+    proPlanTitle: 'પ્રો',
+    planPerk1: '50 AI ચેટ',
+    planPerk2: '3 ફોટો સ્કેન',
+    planPerk3: 'ટોપ-અપ સક્ષમ',
+    planPerk4: '100 AI ચેટ',
+    planPerk5: '10 ફોટો સ્કેન',
+    planPerk6: '7-દિવસ રોલઓવર',
+    planPerk7: 'મંડી એલર્ટ',
+    addExtraCredits: 'વધારાના ક્રેડિટ ઉમેરો',
+    topupDisclaimer: 'ટોપ-અપ ક્રેડિટ ક્યારેય સમાપ્ત થતા નથી અને તમારા પ્લાન ક્રેડિટ પૂરા થયા પછી જ ઉપયોગમાં લેવાય છે.',
+    aiChatPacks: 'AI ચેટ પેક',
+    imageScanPacks: 'ફોટો સ્કેન પેક',
+    scanLabel: 'સ્કેન',
+    scansLabel: 'સ્કેન',
+    renewPlan: 'પ્લાન રિન્યૂ કરો',
+    buyCredits: 'ક્રેડિટ ખરીદો',
+    paymentSuccessTitle: 'ચુકવણી સફળ',
+    paymentSuccessSub: 'તમારી યોજના અને વોલેટ અપડેટ કરવામાં આવ્યા છે.',
+    completingTransaction: 'વ્યવહાર પૂર્ણ કરી રહ્યા છીએ...',
+    verifyingBank: 'બેંક સાથે ચકાસણી થઈ રહી છે...',
+    doNotCloseApp: 'કૃપા કરીને એપ્લિકેશન બંધ કરશો નહીં',
+    mostPopular: 'સૌથી લોકપ્રિય',
+    currentPlan: 'હાલનો પ્લાન',
+    // --- Chat History ---
+    historyTitle: 'તમારો ઇતિહાસ',
+    historySubtitle: 'અગાઉ વિશ્લેષણ કરેલ પાક અને ચેટ',
+    messagesLabel: 'સંદેશા',
+    startNewConversation: 'નવી વાતચીત શરૂ કરો...',
+    cropDiagnosisLabel: 'પાક નિદાન',
+    noChatsFound: 'કોઈ ચેટ મળી નથી',
+    noScansFound: 'કોઈ સ્કેન મળ્યું નથી',
+    // --- Location Selector ---
+    confirmLocationTitle: 'સ્થાનની પુષ્ટિ કરો',
+    locationPermissionError: 'કૃપા કરીને તમારી સેટિંગ્સમાં સ્થાન પરવાનગીઓ સક્ષમ કરો.',
+    autoLocationError: 'આપમેળે સ્થાન મેળવવામાં અસમર્થ. કૃપા કરીને મેન્યુઅલી શોધો.',
+    locationHelpText: 'અમને તમારા પ્રદેશના આધારે તમારી કૃષિ સલાહને વ્યક્તિગત કરવામાં મદદ કરો.',
+    useCurrentLocation: 'વર્તમાન સ્થાનનો ઉપયોગ કરો (GPS)',
+    selectManually: 'મેન્યુઅલી પસંદ કરો',
+    selectState: 'તમારું રાજ્ય પસંદ કરો',
+    backToStates: 'રાજ્યો પર પાછા જાઓ',
+    locationUsagePrivacy: 'અમે તમારા સ્થાનનો ઉપયોગ ફક્ત સચોટ હવામાન અને પાકનો ડેટા પ્રદાન કરવા માટે કરીએ છીએ.',
+    locationErrorTitle: 'સ્થાન ભૂલ',
+    confirm: 'પુષ્ટિ કરો',
   },
   Punjabi: {
     marketTitle: 'ਮਾਰਕੀਟ',
@@ -1723,6 +1971,68 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     errForbidden: 'ਪਹੁੰਚ ਦੀ ਮਨਾਹੀ ਹੈ।',
     errNotFound: 'ਸੇਵਾ ਨਹੀਂ ਮਿਲੀ।',
     errUnknown: 'ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਐਪ ਨੂੰ ਦੁਬਾਰਾ ਚਾਲੂ ਕਰੋ।',
+    // --- Subscription Screen ---
+    subscriptionTitle: 'ਗਾਹਕੀ',
+    masterYourHarvest: 'ਆਪਣੀ ਫਸਲ ਨੂੰ ਬਿਹਤਰ ਬਣਾਓ',
+    subscriptionSubtitle: 'ਆਪਣੀ ਉਪਜ ਨੂੰ 30% ਤੱਕ ਵਧਾਉਣ ਲਈ Anaaj.ai ਦੀ ਵਰਤੋਂ ਕਰਨ ਵਾਲੇ 50,000+ ਕਿਸਾਨਾਂ ਨਾਲ ਜੁੜੋ।',
+    remainingCredits: 'ਬਾਕੀ ਕ੍ਰੈਡਿਟ',
+    aiChatsLabel: 'AI ਚੈਟ',
+    cropScansLabel: 'ਫਸਲ ਸਕੈਨ',
+    monthlyPlansLabel: 'ਮਾਸਿਕ ਯੋਜਨਾਵਾਂ',
+    topUpsLabel: 'ਟਾਪ-ਅਪ',
+    whyUpgrade: 'ਅਪਗ੍ਰੇਡ ਕਿਉਂ ਕਰੀਏ?',
+    aiCropDoctorTitle: 'AI ਫਸਲ ਡਾਕਟਰ',
+    aiCropDoctorSub: 'ਫੋਟੋ ਤੋਂ ਤੁਰੰਤ ਬਿਮਾਰੀਆਂ ਦੀ ਪਛਾਣ ਕਰੋ',
+    krishiAssistantTitle: 'ਖੇਤੀ ਸਹਾਇਕ',
+    krishiAssistantSub: 'ਅਸੀਮਤ ਮਾਹਿਰ ਖੇਤੀ ਚੈੱਟ',
+    multiLingualTitle: 'ਬਹੁ-ਭਾਸ਼ਾਈ',
+    multiLingualSub: '10+ ਸਥਾਨਕ ਭਾਰਤੀ ਭਾਸ਼ਾਵਾਂ ਵਿੱਚ ਸਹਾਇਤਾ',
+    expertPriorityTitle: 'ਮਾਹਿਰ ਪਹਿਲ',
+    expertPrioritySub: '3 ਗੁਣਾ ਤੇਜ਼ ਜਵਾਬ ਪ੍ਰਾਪਤ ਕਰੋ',
+    basicPlanTitle: 'ਬੇਸਿਕ',
+    proPlanTitle: 'ਪ੍ਰੋ',
+    planPerk1: '50 AI ਚੈਟ',
+    planPerk2: '3 ਫੋਟੋ ਸਕੈਨ',
+    planPerk3: 'ਟਾਪ-ਅਪ ਉਪਲਬਧ',
+    planPerk4: '100 AI ਚੈਟ',
+    planPerk5: '10 ਫੋਟੋ ਸਕੈਨ',
+    planPerk6: '7 ਦਿਨ ਰੋਲਓਵਰ',
+    planPerk7: 'ਮੰਡੀ ਅਲਰਟ',
+    addExtraCredits: 'ਵਾਧੂ ਕ੍ਰੈਡਿਟ ਜੋੜੋ',
+    topupDisclaimer: 'ਟਾਪ-ਅਪ ਕ੍ਰੈਡਿਟ ਕਦੇ ਖਤਮ ਨਹੀਂ ਹੁੰਦੇ ਅਤੇ ਤੁਹਾਡੇ ਪਲਾਨ ਕ੍ਰੈਡਿਟ ਖਤਮ ਹੋਣ ਤੋਂ ਬਾਅਦ ਹੀ ਵਰਤੇ ਜਾਂਦੇ ਹਨ।',
+    aiChatPacks: 'AI ਚੈਟ ਪੈਕ',
+    imageScanPacks: 'ਫੋਟੋ ਸਕੈਨ ਪੈਕ',
+    scanLabel: 'ਸਕੈਨ',
+    scansLabel: 'ਸਕੈਨ',
+    renewPlan: 'ਪਲਾਨ ਰੀਨਿਊ ਕਰੋ',
+    buyCredits: 'ਕ੍ਰੈਡਿਟ ਖਰੀਦੋ',
+    paymentSuccessTitle: 'ਭੁਗਤਾਨ ਸਫਲ',
+    paymentSuccessSub: 'ਤੁਹਾਡਾ ਪਲਾਨ ਅਤੇ ਵਾਲਿਟ ਅਪਡੇਟ ਹੋ ਗਏ ਹਨ।',
+    completingTransaction: 'ਲੈਣ-ਦੇਣ ਪੂਰਾ ਹੋ ਰਿਹਾ ਹੈ...',
+    verifyingBank: 'ਬੈਂਕ ਨਾਲ ਤਸਦੀਕ ਹੋ ਰਹੀ ਹੈ...',
+    doNotCloseApp: 'ਕਿਰਪਾ ਕਰਕੇ ਐਪ ਬੰਦ ਨਾ ਕਰੋ',
+    mostPopular: 'ਸਭ ਤੋਂ ਮਸ਼ਹੂਰ',
+    currentPlan: 'ਮੌਜੂਦਾ ਪਲਾਨ',
+    // --- Chat History ---
+    historyTitle: 'ਤੁਹਾਡਾ ਇਤਿਹਾਸ',
+    historySubtitle: 'ਪਹਿਲਾਂ ਵਿਸ਼ਲੇਸ਼ਣ ਕੀਤੀਆਂ ਫਸਲਾਂ ਅਤੇ ਚੈਟ',
+    messagesLabel: 'ਸੁਨੇਹੇ',
+    startNewConversation: 'ਨਵੀਂ ਗੱਲਬਾਤ ਸ਼ੁਰੂ ਕਰੋ...',
+    cropDiagnosisLabel: 'ਫਸਲ ਨਿਦਾਨ',
+    noChatsFound: 'ਕੋਈ ਚੈਟ ਨਹੀਂ ਮਿਲੀ',
+    noScansFound: 'ਕੋਈ ਸਕੈਨ ਨਹੀਂ ਮਿਲੀ',
+    // --- Location Selector ---
+    confirmLocationTitle: 'ਟਿਕਾਣੇ ਦੀ ਪੁਸ਼ਟੀ ਕਰੋ',
+    locationPermissionError: 'ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੀਆਂ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਟਿਕਾਣਾ ਇਜਾਜ਼ਤਾਂ ਨੂੰ ਸਮਰੱਥ ਕਰੋ।',
+    autoLocationError: 'ਟਿਕਾਣਾ ਆਪਣੇ ਆਪ ਪ੍ਰਾਪਤ ਕਰਨ ਵਿੱਚ ਅਸਮਰੱਥ। ਕਿਰਪਾ ਕਰਕੇ ਮੈਨੂਅਲ ਰੂਪ ਵਿੱਚ ਖੋਜ ਕਰੋ।',
+    locationHelpText: 'ਸਾਨੂੰ ਤੁਹਾਡੇ ਖੇਤਰ ਦੇ ਅਧਾਰ \'ਤੇ ਤੁਹਾਡੀ ਖੇਤੀਬਾੜੀ ਸਲਾਹ ਨੂੰ ਵਿਅਕਤੀਗਤ ਬਣਾਉਣ ਵਿੱਚ ਮਦਦ ਕਰੋ।',
+    useCurrentLocation: 'ਮੌਜੂਦਾ ਟਿਕਾਣਾ ਵਰਤੋ (GPS)',
+    selectManually: 'ਮੈਨੂਅਲ ਰੂਪ ਵਿੱਚ ਚੁਣੋ',
+    selectState: 'ਆਪਣਾ ਰਾਜ ਚੁਣੋ',
+    backToStates: 'ਰਾਜਾਂ \'ਤੇ ਵਾਪਸ ਜਾਓ',
+    locationUsagePrivacy: 'ਅਸੀਂ ਤੁਹਾਡੇ ਟਿਕਾਣੇ ਦੀ ਵਰਤੋਂ ਸਿਰਫ਼ ਸਹੀ ਮੌਸਮ ਅਤੇ ਫਸਲ ਦਾ ਡੇਟਾ ਪ੍ਰਦਾਨ ਕਰਨ ਲਈ ਕਰਦੇ ਹਾਂ।',
+    locationErrorTitle: 'ਟਿਕਾਣਾ ਗਲਤੀ',
+    confirm: 'ਪੁਸ਼ਟੀ ਕਰੋ',
   },
 };
 

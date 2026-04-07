@@ -1,9 +1,18 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 
 export default function Sustainability() {
   return (
     <div className="pt-32 pb-24 bg-surface min-h-screen">
+      <Helmet>
+        <title>Sustainability Report 2026 - Anaaj.ai | Green Farming Initiative</title>
+        <meta name="description" content="Anaaj.ai Sustainability Report 2026: 40% chemical reduction, 25B liters water saved, 500K+ farmers impacted. Learn how we're promoting sustainable precision agriculture in India." />
+        <link rel="canonical" href="https://anaaj.ai/sustainability" />
+        <meta property="og:title" content="Sustainability Report 2026 - Anaaj.ai" />
+        <meta property="og:description" content="40% chemical reduction, 25B liters water saved, 500K+ farmers impacted through sustainable precision agriculture." />
+        <meta property="og:url" content="https://anaaj.ai/sustainability" />
+      </Helmet>
       <div className="max-w-7xl mx-auto px-8">
         
         {/* Title */}

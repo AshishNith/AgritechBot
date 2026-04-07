@@ -1,9 +1,18 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 
 export default function AboutUs() {
   return (
     <div className="pt-32 pb-24 bg-surface min-h-screen">
+      <Helmet>
+        <title>About Us - Anaaj.ai | Empowering Indian Farmers with AI Technology</title>
+        <meta name="description" content="Learn about Anaaj.ai's mission to democratize agricultural knowledge through voice-first, multilingual AI technology. Empowering 500K+ farmers across India with precision farming tools." />
+        <link rel="canonical" href="https://anaaj.ai/about" />
+        <meta property="og:title" content="About Us - Anaaj.ai | Empowering Indian Farmers" />
+        <meta property="og:description" content="Learn about Anaaj.ai's mission to democratize agricultural knowledge through voice-first, multilingual AI technology." />
+        <meta property="og:url" content="https://anaaj.ai/about" />
+      </Helmet>
       <div className="max-w-7xl mx-auto px-8">
         
         {/* Hero Section */}

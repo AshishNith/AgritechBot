@@ -5,6 +5,7 @@ import { AppText } from './ui';
 import { theme } from '../constants/theme';
 import { useTheme } from '../providers/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import { useI18n } from '../hooks/useI18n';
 
 interface Props {
   onSelect: (location: LocationResult) => void;
@@ -50,6 +51,7 @@ const INDIAN_LOCATIONS: Record<string, string[]> = {
 
 export function LocationSelector({ onSelect, onCancel }: Props) {
   const { colors } = useTheme();
+  const { t } = useI18n();
   const [loading, setLoading] = useState(false);
   const [selectedState, setSelectedState] = useState<string | null>(null);
 
@@ -60,23 +62,23 @@ export function LocationSelector({ onSelect, onCancel }: Props) {
       setLoading(false);
 
       Alert.alert(
-        "Confirm Location",
+        t('confirmLocationTitle'),
         `${location.city}, ${location.state}`,
         [
           {
-            text: "Confirm",
+            text: t('confirm'),
             onPress: () => onSelect(location),
             style: 'default',
           },
-          { text: "Cancel", style: 'cancel' },
+          { text: t('cancel'), style: 'cancel' },
         ]
       );
     } catch (err: any) {
       setLoading(false);
       const message = err.message === 'Location permission denied' 
-        ? "Please enable location permissions in your settings."
-        : "Unable to fetch location automatically. Please search manually.";
-      Alert.alert("Location Error", message);
+        ? t('locationPermissionError')
+        : t('autoLocationError');
+      Alert.alert(t('locationErrorTitle'), message);
     }
   };
 
@@ -84,16 +86,16 @@ export function LocationSelector({ onSelect, onCancel }: Props) {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <AppText variant="heading" style={[{ fontSize: 24 }, { color: colors.text }]}>Select Location</AppText>
+        <AppText variant="heading" style={[{ fontSize: 24 }, { color: colors.text }]}>{t('selectLocation')}</AppText>
         {onCancel && (
           <Pressable onPress={onCancel}>
-            <AppText color={colors.primary}>Close</AppText>
+            <AppText color={colors.primary}>{t('close')}</AppText>
           </Pressable>
         )}
       </View>
 
       <AppText color={colors.textMuted} style={{ marginBottom: 20 }}>
-        Help us personalize your agricultural advice based on your region.
+        {t('locationHelpText')}
       </AppText>
 
       {/* Auto Location Button */}
@@ -112,7 +114,7 @@ export function LocationSelector({ onSelect, onCancel }: Props) {
           <>
             <Ionicons name="navigate" size={20} color={colors.primary} />
             <AppText variant="label" color={colors.primary} style={{ marginLeft: 8 }}>
-              Use Current Location (GPS)
+              {t('useCurrentLocation')}
             </AppText>
           </>
         )}
@@ -120,14 +122,14 @@ export function LocationSelector({ onSelect, onCancel }: Props) {
 
       <View style={styles.separator}>
         <View style={[styles.line, { backgroundColor: colors.border }]} />
-        <AppText color={colors.textMuted} style={styles.separatorText}>SELECT MANUALLY</AppText>
+        <AppText color={colors.textMuted} style={styles.separatorText}>{t('selectManually')}</AppText>
         <View style={[styles.line, { backgroundColor: colors.border }]} />
       </View>
 
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
         {!selectedState ? (
           <>
-            <AppText variant="label" style={[{ marginBottom: 16 }, { color: colors.text }]}>Select your State</AppText>
+            <AppText variant="label" style={[{ marginBottom: 16 }, { color: colors.text }]}>{t('selectState')}</AppText>
             {Object.keys(INDIAN_LOCATIONS).map((state) => (
               <Pressable
                 key={state}
@@ -146,11 +148,11 @@ export function LocationSelector({ onSelect, onCancel }: Props) {
               style={{ marginBottom: 16, flexDirection: 'row', alignItems: 'center' }}
             >
               <Ionicons name="arrow-back" size={20} color={colors.primary} />
-              <AppText color={colors.primary} style={{ marginLeft: 8 }}>Back to States</AppText>
+              <AppText color={colors.primary} style={{ marginLeft: 8 }}>{t('backToStates')}</AppText>
             </Pressable>
 
             <AppText variant="label" style={[{ marginBottom: 4 }, { color: colors.text }]}>{selectedState}</AppText>
-            <AppText variant="caption" color={colors.textMuted} style={{ marginBottom: 16 }}>Select District</AppText>
+            <AppText variant="caption" color={colors.textMuted} style={{ marginBottom: 16 }}>{t('selectDistrict')}</AppText>
             {INDIAN_LOCATIONS[selectedState].map((district) => (
               <Pressable
                 key={district}
@@ -172,7 +174,7 @@ export function LocationSelector({ onSelect, onCancel }: Props) {
       </ScrollView>
 
       <AppText variant="caption" color={colors.textMuted} style={{ marginTop: 24, textAlign: 'center' }}>
-        We only use your location to provide accurate weather and crop data.
+        {t('locationUsagePrivacy')}
       </AppText>
     </View>
   );

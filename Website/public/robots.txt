@@ -1,0 +1,12 @@
+# Robots.txt for Anaaj.ai
+# https://anaaj.ai
+
+User-agent: *
+Allow: /
+
+# Disallow checkout and dynamic pages
+Disallow: /checkout/
+Disallow: /vendor/
+
+# Sitemap location
+Sitemap: https://anaaj.ai/sitemap.xml

@@ -1,8 +1,17 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 
 export default function Contact() {
   return (
     <div className="min-h-[100vh] bg-surface pt-32 pb-24 px-6">
+      <Helmet>
+        <title>Contact Us - Anaaj.ai | Get Support & Partnership Inquiries</title>
+        <meta name="description" content="Contact Anaaj.ai for product support, partnership inquiries, or farmer onboarding. Email support@anaajai.com or call 1800-AGRI-100. Headquarters in Mohali, Punjab." />
+        <link rel="canonical" href="https://anaaj.ai/contact" />
+        <meta property="og:title" content="Contact Us - Anaaj.ai Support" />
+        <meta property="og:description" content="Get in touch with Anaaj.ai for product support, partnership inquiries, or farmer onboarding assistance." />
+        <meta property="og:url" content="https://anaaj.ai/contact" />
+      </Helmet>
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10">
         <div className="rounded-[2.5rem] bg-surface-container-lowest border border-outline-variant/10 shadow-2xl p-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-tertiary-container text-tertiary-fixed w-fit mb-6 shadow-sm">

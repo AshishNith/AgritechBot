@@ -17,10 +17,10 @@ import { CHAT_TOPUP_PACKS, SCAN_TOPUP_PACKS, PLAN_CONFIGS } from '../store/useWa
 import Animated, { FadeIn, FadeInDown, FadeOut, ZoomIn } from 'react-native-reanimated';
 
 const features = [
-  { title: 'AI Crop Doctor', subtitle: 'Identify diseases from photos instantly', icon: 'Scan' },
-  { title: 'Krishi Assistant', subtitle: 'Unlimited specialized farming chat', icon: 'MessageSquare' },
-  { title: 'Multi-lingual', subtitle: 'Support for 10+ local Indian languages', icon: 'Languages' },
-  { title: 'Expert Priority', subtitle: 'Get answers up to 3x faster', icon: 'Zap' },
+  { title: 'aiCropDoctorTitle', subtitle: 'aiCropDoctorSub', icon: 'Scan' },
+  { title: 'krishiAssistantTitle', subtitle: 'krishiAssistantSub', icon: 'MessageSquare' },
+  { title: 'multiLingualTitle', subtitle: 'multiLingualSub', icon: 'Languages' },
+  { title: 'expertPriorityTitle', subtitle: 'expertPrioritySub', icon: 'Zap' },
 ] as const;
 
 export function SubscriptionScreen() {
@@ -80,9 +80,9 @@ export function SubscriptionScreen() {
         setTimeout(() => {
           setShowPaymentModal(false);
           const msg = activeTab === 'plans' 
-            ? `Welcome to Anaaj ${selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)}!`
-            : `Success! Credits added to your wallet.`;
-          Alert.alert('Payment Successful', msg);
+            ? `${tx('welcomeBack')} Anaaj ${selectedPlan.toUpperCase()}!`
+            : tx('paymentSuccessSub');
+          Alert.alert(tx('paymentSuccessTitle'), msg);
           navigation.goBack();
         }, 1500);
       }, 2000);
@@ -90,13 +90,13 @@ export function SubscriptionScreen() {
     onError: () => {
       setShowPaymentModal(false);
       setPaymentStatus('idle');
-      Alert.alert('Payment Error', 'Payment failed. Please try again.');
+      Alert.alert(tx('paymentFailed'), tx('errUnknown'));
     },
   });
 
   const handlePayment = () => {
     if (activeTab === 'topup' && !selectedTopup) {
-      Alert.alert('Selection Required', 'Please select a top-up pack first.');
+      Alert.alert(tx('subscriptionTitle'), tx('tryDifferentFilters'));
       return;
     }
     setShowPaymentModal(true);
@@ -112,7 +112,7 @@ export function SubscriptionScreen() {
         <Pressable onPress={() => navigation.goBack()} style={styles.backBtn}>
            {(() => { const Icon = IconMap['ArrowLeft']; return Icon ? <Icon size={24} color={colors.text} /> : null; })()}
         </Pressable>
-        <AppText variant="title">Subscription</AppText>
+        <AppText variant="title">{tx('subscriptionTitle')}</AppText>
         <View style={{ width: 44 }} />
       </View>
 
@@ -121,10 +121,10 @@ export function SubscriptionScreen() {
       <View style={styles.content}>
         <Animated.View entering={FadeInDown.delay(200)}>
           <AppText variant="display" style={styles.title}>
-            Master Your Harvest
+            {tx('masterYourHarvest')}
           </AppText>
           <AppText color={colors.textMuted} style={styles.subtitle}>
-            Join 50,000+ farmers using Anaaj.ai to increase their yield by up to 30%.
+            {tx('subscriptionSubtitle')}
           </AppText>
         </Animated.View>
 
@@ -132,21 +132,21 @@ export function SubscriptionScreen() {
         {wallet && currentTier !== 'free' && (
           <GlassCard style={styles.usageCard}>
             <View style={styles.usageHeader}>
-              <Pill label={currentTier.toUpperCase() + " PLAN"} color={colors.primary} active />
-              <AppText variant="caption" color={colors.textMuted}>Remaining Credits</AppText>
+              <Pill label={currentTier.toUpperCase() + " " + tx('plan')} color={colors.primary} active />
+              <AppText variant="caption" color={colors.textMuted}>{tx('remainingCredits')}</AppText>
             </View>
             
             <View style={styles.progressRow}>
               <View style={{ flex: 1 }}>
                 <AppText variant="caption" style={{ marginBottom: 4 }}>
-                  AI Chats: <AppText variant="label" color={colors.primary}>{wallet.chatCredits + (wallet.topupCredits || 0)}</AppText>
+                  {tx('aiChatsLabel')}: <AppText variant="label" color={colors.primary}>{wallet.chatCredits + (wallet.topupCredits || 0)}</AppText>
                 </AppText>
                 <ProgressBar progress={Math.min(100, ((wallet.chatCredits + (wallet.topupCredits || 0)) / (PLAN_CONFIGS.find(p => p.tier === currentTier)?.chatCredits || 1)) * 100)} color={colors.primary} />
               </View>
               <View style={{ width: 20 }} />
               <View style={{ flex: 1 }}>
                 <AppText variant="caption" style={{ marginBottom: 4 }}>
-                  Crop Scans: <AppText variant="label" color="#52B781">{wallet.imageCredits + (wallet.topupImageCredits || 0)}</AppText>
+                  {tx('cropScansLabel')}: <AppText variant="label" color="#52B781">{wallet.imageCredits + (wallet.topupImageCredits || 0)}</AppText>
                 </AppText>
                 <ProgressBar progress={Math.min(100, ((wallet.imageCredits + (wallet.topupImageCredits || 0)) / (PLAN_CONFIGS.find(p => p.tier === currentTier)?.imageCredits || 1)) * 100)} color="#52B781" />
               </View>
@@ -160,13 +160,13 @@ export function SubscriptionScreen() {
             onPress={() => setActiveTab('plans')}
             style={[styles.tab, activeTab === 'plans' && { backgroundColor: isDark ? '#2D332D' : '#fff', elevation: 2 }]}
           >
-            <AppText variant="label" color={activeTab === 'plans' ? colors.primary : colors.textMuted}>Monthly Plans</AppText>
+            <AppText variant="label" color={activeTab === 'plans' ? colors.primary : colors.textMuted}>{tx('monthlyPlansLabel')}</AppText>
           </Pressable>
           <Pressable 
             onPress={() => setActiveTab('topup')}
             style={[styles.tab, activeTab === 'topup' && { backgroundColor: isDark ? '#2D332D' : '#fff', elevation: 2 }]}
           >
-            <AppText variant="label" color={activeTab === 'topup' ? colors.primary : colors.textMuted}>Top-ups</AppText>
+            <AppText variant="label" color={activeTab === 'topup' ? colors.primary : colors.textMuted}>{tx('topUpsLabel')}</AppText>
           </Pressable>
         </View>
 
@@ -181,8 +181,8 @@ export function SubscriptionScreen() {
                        {(() => { const Icon = IconMap[f.icon]; return Icon ? <Icon size={20} color={colors.primary} /> : null; })()}
                     </View>
                     <View style={{ flex: 1 }}>
-                      <AppText variant="label" style={{ fontSize: 15 }}>{f.title}</AppText>
-                      <AppText variant="caption" color={colors.textMuted}>{f.subtitle}</AppText>
+                      <AppText variant="label" style={{ fontSize: 15 }}>{tx(f.title as any)}</AppText>
+                      <AppText variant="caption" color={colors.textMuted}>{tx(f.subtitle as any)}</AppText>
                     </View>
                   </Animated.View>
                 ))}
@@ -191,20 +191,20 @@ export function SubscriptionScreen() {
 
             <View style={styles.plansSection}>
               <PlanCard 
-                title="Basic"
+                title={tx('basicPlanTitle')}
                 price="₹149"
-                period="/month"
-                perks={['50 AI Chats', '3 Image Scans', 'Topup Enabled']}
+                period={tx('perMonth')}
+                perks={[tx('planPerk1'), tx('planPerk2'), tx('planPerk3')]}
                 selected={selectedPlan === 'basic'}
                 isCurrent={currentTier === 'basic'}
                 onSelect={() => setSelectedPlan('basic')}
               />
               <PlanCard 
-                title="Pro"
+                title={tx('proPlanTitle')}
                 price="₹199"
-                period="/month"
+                period={tx('perMonth')}
                 popular
-                perks={['100 AI Chats', '10 Image Scans', '7-day rollover', 'Mandi alerts']}
+                perks={[tx('planPerk4'), tx('planPerk5'), tx('planPerk6'), tx('planPerk7')]}
                 selected={selectedPlan === 'pro'}
                 isCurrent={currentTier === 'pro'}
                 onSelect={() => setSelectedPlan('pro')}
@@ -213,10 +213,10 @@ export function SubscriptionScreen() {
           </>
         ) : (
           <View style={styles.topupSection}>
-            <AppText variant="heading" style={styles.sectionTitle}>Add Extra Credits</AppText>
-            <AppText color={colors.textMuted} style={{ marginBottom: 20 }}>Top-up credits never expire and are used only after your plan credits run out.</AppText>
+            <AppText variant="heading" style={styles.sectionTitle}>{tx('addExtraCredits')}</AppText>
+            <AppText color={colors.textMuted} style={{ marginBottom: 20 }}>{tx('topupDisclaimer')}</AppText>
             
-            <AppText variant="label" style={{ marginBottom: 12 }}>AI Chat Packs</AppText>
+            <AppText variant="label" style={{ marginBottom: 12 }}>{tx('aiChatPacks')}</AppText>
             <View style={styles.packGrid}>
               {CHAT_TOPUP_PACKS.map((pack) => (
                 <Pressable 
@@ -234,13 +234,13 @@ export function SubscriptionScreen() {
                     </View>
                   )}
                   <AppText variant="title" color={colors.primary}>{pack.credits}</AppText>
-                  <AppText variant="caption">Chats</AppText>
+                  <AppText variant="caption">{tx('chats')}</AppText>
                   <AppText variant="label" style={{ marginTop: 8 }}>₹{pack.price}</AppText>
                 </Pressable>
               ))}
             </View>
 
-            <AppText variant="label" style={{ marginBottom: 12, marginTop: 24 }}>Image Scan Packs</AppText>
+            <AppText variant="label" style={{ marginBottom: 12, marginTop: 24 }}>{tx('imageScanPacks')}</AppText>
             <View style={styles.packGrid}>
               {SCAN_TOPUP_PACKS.map((pack) => (
                 <Pressable 
@@ -258,7 +258,7 @@ export function SubscriptionScreen() {
                     </View>
                   )}
                   <AppText variant="title" color="#52B781">{pack.credits}</AppText>
-                  <AppText variant="caption">{pack.credits === 1 ? 'Scan' : 'Scans'}</AppText>
+                  <AppText variant="caption">{pack.credits === 1 ? tx('scanLabel') : tx('scansLabel')}</AppText>
                   <AppText variant="label" style={{ marginTop: 8 }}>₹{pack.price}</AppText>
                 </Pressable>
               ))}
@@ -267,13 +267,13 @@ export function SubscriptionScreen() {
         )}
 
         <GradientButton 
-          label={activeTab === 'plans' ? (currentTier === 'free' ? "UPGRADE NOW" : "RENEW PLAN") : `BUY ${selectedTopup ? selectedTopup.id.split('_')[1].toUpperCase() : ''} CREDITS`} 
+          label={activeTab === 'plans' ? (currentTier === 'free' ? tx('upgradeNow') : tx('renewPlan')) : (tx('buyCredits') + ` ${selectedTopup ? selectedTopup.id.split('_')[1].toUpperCase() : ''}`)} 
           onPress={handlePayment} 
           style={styles.actionBtn} 
           loading={processPaymentMutation.isPending}
         />
         <AppText variant="caption" color={colors.textMuted} style={styles.termsText}>
-          Razorpay mock checkout active for development. Real gateway integration can be swapped in later.
+          {tx('secureConnection')}
         </AppText>
       </View>
 
@@ -299,9 +299,9 @@ export function SubscriptionScreen() {
                  <View style={{ alignItems: 'center' }}>
                     <ActivityIndicator size="large" color={colors.primary} />
                     <AppText style={{ marginTop: 24, fontSize: 18, fontWeight: '600' }}>
-                      {paymentStatus === 'processing' ? 'Completing Transaction...' : 'Verifying with Bank...'}
+                      {paymentStatus === 'processing' ? tx('completingTransaction') : tx('verifyingBank')}
                     </AppText>
-                    <AppText color={colors.textMuted} style={{ marginTop: 8 }}>Please do not close the app</AppText>
+                    <AppText color={colors.textMuted} style={{ marginTop: 8 }}>{tx('doNotCloseApp')}</AppText>
                  </View>
                )}
              </View>
@@ -314,6 +314,7 @@ export function SubscriptionScreen() {
 
 function PlanCard({ title, price, period, perks, selected, isCurrent, popular, onSelect }: any) {
   const { colors, isDark } = useTheme();
+  const { t: tx } = useI18n();
   
   return (
     <Pressable onPress={onSelect} style={[
@@ -326,12 +327,12 @@ function PlanCard({ title, price, period, perks, selected, isCurrent, popular, o
     ]}>
       {popular && (
         <View style={[styles.popularBadge, { backgroundColor: colors.primary }]}>
-          <AppText variant="caption" color="#fff" style={{ fontWeight: '800', fontSize: 10 }}>MOST POPULAR</AppText>
+          <AppText variant="caption" color="#fff" style={{ fontWeight: '800', fontSize: 10 }}>{tx('mostPopular')}</AppText>
         </View>
       )}
       {isCurrent && (
         <View style={styles.currentBadge}>
-          <AppText variant="caption" color={colors.primary} style={{ fontWeight: '800', fontSize: 10 }}>CURRENT PLAN</AppText>
+          <AppText variant="caption" color={colors.primary} style={{ fontWeight: '800', fontSize: 10 }}>{tx('currentPlan')}</AppText>
         </View>
       )}
       

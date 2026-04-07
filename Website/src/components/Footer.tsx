@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className="bg-stone-50 border-t border-stone-200">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-12 px-8 py-16 max-w-7xl mx-auto">
         <div className="space-y-6">
-          <div className="text-xl font-bold text-emerald-950 font-headline"><img src="https://res.cloudinary.com/dvwpxb2oa/image/upload/v1773932879/Full_Logo_dt1pqi.png" alt="" /></div>
+          <div className="text-xl font-bold text-emerald-950 font-headline"><img src="https://res.cloudinary.com/dvwpxb2oa/image/upload/v1773932879/Full_Logo_dt1pqi.png" alt="Anaaj.ai - AI Farming Assistant Logo" /></div>
           <p className="text-stone-500 font-body text-sm leading-relaxed">
             Rooted in intelligence. Growing the future of sustainable and profitable agriculture for everyone.
           </p>

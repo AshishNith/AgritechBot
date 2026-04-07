@@ -76,12 +76,12 @@ export function ChatListScreen() {
           <View style={styles.chatMain}>
             <View style={styles.chatTop}>
               <AppText variant="title" style={[styles.chatTitle, { color: colors.text }]} numberOfLines={1}>
-                {item.title || 'New Conversation'}
+                {item.title || t('newChat')}
               </AppText>
               <AppText variant="caption" color={colors.textMuted}>{timeStr}</AppText>
             </View>
             <AppText numberOfLines={1} color={colors.textMuted} style={styles.chatPreview}>
-              {item.preview || 'Start a new conversation...'}
+              {item.preview || t('startNewConversation')}
             </AppText>
           </View>
           {(() => { const IconComp = IconMap['ChevronRight']; return IconComp ? <IconComp size={18} color={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'} /> : null; })()}
@@ -98,8 +98,8 @@ export function ChatListScreen() {
       />
       
       <View style={styles.header}>
-        <AppText variant="heading" color={colors.text} style={{ fontSize: 28 }}>Your History</AppText>
-        <AppText color={colors.textMuted}>Previously analyzed crops and chats</AppText>
+        <AppText variant="heading" color={colors.text} style={{ fontSize: 28 }}>{t('historyTitle')}</AppText>
+        <AppText color={colors.textMuted}>{t('historySubtitle')}</AppText>
       </View>
 
       <View style={styles.tabSwitcher}>
@@ -107,13 +107,13 @@ export function ChatListScreen() {
           onPress={() => setMode('chats')}
           style={[styles.tabButton, mode === 'chats' && { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)', borderColor: colors.primary }]}
         >
-          <AppText variant="label" color={mode === 'chats' ? colors.primary : colors.textMuted}>Messages</AppText>
+          <AppText variant="label" color={mode === 'chats' ? colors.primary : colors.textMuted}>{t('messagesLabel')}</AppText>
         </Pressable>
         <Pressable 
           onPress={() => setMode('scans')}
           style={[styles.tabButton, mode === 'scans' && { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)', borderColor: colors.primary }]}
         >
-          <AppText variant="label" color={mode === 'scans' ? colors.primary : colors.textMuted}>Crop Scans</AppText>
+          <AppText variant="label" color={mode === 'scans' ? colors.primary : colors.textMuted}>{t('cropScansLabel')}</AppText>
         </Pressable>
       </View>
 
@@ -121,7 +121,7 @@ export function ChatListScreen() {
         <SearchInput 
           value={search} 
           onChangeText={setSearch} 
-          placeholder="Search conversations..." 
+          placeholder={t('searchChats')} 
         />
       </View>
 
@@ -137,7 +137,7 @@ export function ChatListScreen() {
             try {
               diagnosisData = JSON.parse(scan.diagnosis);
             } catch (e) {
-              diagnosisData = { problem: 'Crop Diagnosis', summary: scan.diagnosis };
+              diagnosisData = { problem: t('cropDiagnosisLabel'), summary: scan.diagnosis };
             }
 
             const scanImageUri = scan.thumbnailUrl || (scan.imageBase64
@@ -149,9 +149,8 @@ export function ChatListScreen() {
             return (
               <Pressable
                 onPress={() => {
-                  // Navigate back to ImageScan with the saved result to show the professional UI
                   navigation.navigate('ImageScan' as any, { 
-                    image: scan.imageUri || scanImageUri, // Prefer high-res Cloudinary URL
+                    image: scan.imageUri || scanImageUri, 
                     result: scan.diagnosis 
                   });
                 }}
@@ -173,7 +172,7 @@ export function ChatListScreen() {
                   <View style={styles.chatMain}>
                     <View style={styles.chatTop}>
                       <AppText variant="title" style={[styles.chatTitle, { color: colors.text }]} numberOfLines={1}>
-                         {diagnosisData.problem || 'Crop Diagnosis'}
+                         {diagnosisData.problem || t('cropDiagnosisLabel')}
                       </AppText>
                       <AppText variant="caption" color={colors.textMuted}>{timeStr}</AppText>
                     </View>
@@ -202,7 +201,7 @@ export function ChatListScreen() {
               <View style={[styles.emptyCircle, { backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)' }]}>
                 {(() => { const IconComp = IconMap[mode === 'chats' ? 'Ghost' : 'Scan']; return IconComp ? <IconComp size={48} color={isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} /> : null; })()}
               </View>
-              <AppText color={colors.textMuted} style={{ marginTop: 16 }}>{mode === 'chats' ? 'No chats found' : 'No scans found'}</AppText>
+              <AppText color={colors.textMuted} style={{ marginTop: 16 }}>{mode === 'chats' ? t('noChatsFound') : t('noScansFound')}</AppText>
             </View>
           ) : null
         }
