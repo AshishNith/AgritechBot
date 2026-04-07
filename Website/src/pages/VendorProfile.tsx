@@ -31,7 +31,7 @@ export default function VendorProfile() {
     <div className="min-h-screen bg-surface selection:bg-tertiary-fixed selection:text-on-tertiary-fixed flex flex-col">
       <Helmet>
         <title>{vendor.name} - Anaaj.ai Marketplace | Agricultural Products</title>
-        <meta name="description" content={`Shop agricultural products from ${vendor.name} on Anaaj.ai Marketplace. ${vendor.description || 'Quality farming supplies and equipment.'}`} />
+        <meta name="description" content={`Shop agricultural products from ${vendor.name} on Anaaj.ai Marketplace. ${vendor.bio || 'Quality farming supplies and equipment.'}`} />
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       <Navbar />
