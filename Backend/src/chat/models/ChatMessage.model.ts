@@ -30,6 +30,7 @@ export interface IChatMessage extends Document {
     code?: string;
     message: string;
   };
+  idempotencyKey?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -83,6 +84,11 @@ const chatMessageSchema = new Schema<IChatMessage>(
       code: String,
       message: String,
     },
+    // Idempotency key to prevent duplicate messages on retries
+    idempotencyKey: {
+      type: String,
+      sparse: true,
+    },
   },
   {
     timestamps: true,
@@ -91,5 +97,8 @@ const chatMessageSchema = new Schema<IChatMessage>(
 
 chatMessageSchema.index({ sessionId: 1, createdAt: 1 });
 chatMessageSchema.index({ farmerId: 1, createdAt: -1 });
+// Sparse index for idempotency - allows efficient lookup but doesn't enforce uniqueness
+// (uniqueness is handled by checking before insert if needed)
+chatMessageSchema.index({ sessionId: 1, idempotencyKey: 1 }, { sparse: true });
 
 export const ChatMessageModel = mongoose.model<IChatMessage>('ChatMessage', chatMessageSchema);

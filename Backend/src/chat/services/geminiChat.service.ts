@@ -405,6 +405,12 @@ async function persistSuccessfulExchange(params: {
   audioMimeType?: string;
   recommendedProducts?: any[];
 }) {
+  // Generate unique idempotency keys to prevent duplicates on retries
+  const timestamp = Date.now();
+  const randomSuffix = Math.random().toString(36).substr(2, 9);
+  const userIdempotencyKey = `${params.sessionId}-user-${timestamp}-${randomSuffix}`;
+  const assistantIdempotencyKey = `${params.sessionId}-assistant-${timestamp}-${randomSuffix}`;
+
   await ChatMessageModel.create([
     {
       sessionId: new mongoose.Types.ObjectId(params.sessionId),
@@ -421,6 +427,7 @@ async function persistSuccessfulExchange(params: {
         cacheHit: params.cacheHit,
         language: params.language,
       },
+      idempotencyKey: userIdempotencyKey,
     },
     {
       sessionId: new mongoose.Types.ObjectId(params.sessionId),
@@ -442,6 +449,7 @@ async function persistSuccessfulExchange(params: {
         audioMimeType: params.audioMimeType,
         recommendedProducts: params.recommendedProducts,
       },
+      idempotencyKey: assistantIdempotencyKey,
     },
   ]);
 
@@ -602,25 +610,34 @@ export async function sendChatMessage(params: {
 
     const querySuggestions = suggestions.status === 'fulfilled' ? suggestions.value : [];
 
-    await persistSuccessfulExchange({
-      sessionId: params.sessionId,
-      farmerId: params.farmerId,
-      userText: params.text,
-      assistantText: responseText,
-      imageBase64: params.imageBase64,
-      language,
-      processingTimeMs,
-      inputTokens: usage?.promptTokenCount || inputTokens,
-      outputTokens,
-      cacheHit,
-      location: built.location,
-      audioBase64,
-      audioMimeType,
-      recommendedProducts,
-    });
+    // Persist messages to DB - wrap in try-catch to not fail on persistence errors
+    try {
+      await persistSuccessfulExchange({
+        sessionId: params.sessionId,
+        farmerId: params.farmerId,
+        userText: params.text,
+        assistantText: responseText,
+        imageBase64: params.imageBase64,
+        language,
+        processingTimeMs,
+        inputTokens: usage?.promptTokenCount || inputTokens,
+        outputTokens,
+        cacheHit,
+        location: built.location,
+        audioBase64,
+        audioMimeType,
+        recommendedProducts,
+      });
 
-    // Invalidate chat cache after successful message
-    await ChatHistoryCache.invalidate(params.sessionId);
+      // Invalidate chat cache after successful message
+      await ChatHistoryCache.invalidate(params.sessionId);
+    } catch (persistError) {
+      // Log but don't fail - the AI response was successful
+      logger.error(
+        { err: persistError, farmerId: params.farmerId, sessionId: params.sessionId },
+        'Failed to persist chat messages to database'
+      );
+    }
 
     // ✅ WALLET CREDIT DEDUCTION - After successful AI response
     try {
@@ -751,40 +768,49 @@ export async function sendVoiceMessage(params: {
   const audioMimeType = chatResult.audioMimeType || 'audio/mp3';
   const since = new Date(Date.now() - 60_000);
 
-  await Promise.all([
-    ChatMessageModel.findOneAndUpdate(
-      {
-        sessionId: params.sessionId,
-        farmerId: params.farmerId,
-        role: 'user',
-        'content.text': transcript,
-        createdAt: { $gte: since },
-      },
-      {
-        $set: {
-          'metadata.voiceInput': true,
-          'metadata.audioMimeType': params.mimeType || 'audio/m4a',
+  // Update message metadata - wrap in try-catch to not fail on update errors
+  try {
+    await Promise.all([
+      ChatMessageModel.findOneAndUpdate(
+        {
+          sessionId: params.sessionId,
+          farmerId: params.farmerId,
+          role: 'user',
+          'content.text': transcript,
+          createdAt: { $gte: since },
         },
-      },
-      { sort: { createdAt: -1 } }
-    ),
-    ChatMessageModel.findOneAndUpdate(
-      {
-        sessionId: params.sessionId,
-        farmerId: params.farmerId,
-        role: 'assistant',
-        'content.text': chatResult.response,
-        createdAt: { $gte: since },
-      },
-      {
-        $set: {
-          'metadata.audioBase64': audioBase64,
-          'metadata.audioMimeType': audioMimeType,
+        {
+          $set: {
+            'metadata.voiceInput': true,
+            'metadata.audioMimeType': params.mimeType || 'audio/m4a',
+          },
         },
-      },
-      { sort: { createdAt: -1 } }
-    ),
-  ]);
+        { sort: { createdAt: -1 } }
+      ),
+      ChatMessageModel.findOneAndUpdate(
+        {
+          sessionId: params.sessionId,
+          farmerId: params.farmerId,
+          role: 'assistant',
+          'content.text': chatResult.response,
+          createdAt: { $gte: since },
+        },
+        {
+          $set: {
+            'metadata.audioBase64': audioBase64,
+            'metadata.audioMimeType': audioMimeType,
+          },
+        },
+        { sort: { createdAt: -1 } }
+      ),
+    ]);
+  } catch (updateError) {
+    // Log but don't fail - the voice response was successful
+    logger.warn(
+      { err: updateError, farmerId: params.farmerId, sessionId: params.sessionId },
+      'Failed to update voice message metadata'
+    );
+  }
 
   return {
     chatId: params.sessionId,

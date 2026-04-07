@@ -190,7 +190,11 @@ export function ChatScreen() {
           return;
         }
 
-        setMessages(data.messages);
+        // Sort messages by createdAt to ensure correct chronological order
+        const sortedMessages = [...data.messages].sort((a, b) => 
+          new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
+        );
+        setMessages(sortedMessages);
       })
       .catch(() => {
         if (cancelled) {
@@ -200,7 +204,7 @@ export function ChatScreen() {
         setMessages([
           buildStarterMessage(language),
           {
-            id: `${Date.now()}-load-error`,
+            id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-load-error`,
             chatId,
             role: 'assistant',
             content: t(language, 'backendsConnectionError'),
@@ -291,7 +295,7 @@ export function ChatScreen() {
       setMessages((current) => [
         ...current.filter((message) => message.id !== starterId),
         {
-          id: `${Date.now()}-assistant`,
+          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-assistant`,
           chatId: data.chatId,
           role: 'assistant',
           content: data.answer,
@@ -341,7 +345,7 @@ export function ChatScreen() {
       setMessages((current) => [
         ...current,
         {
-          id: `${Date.now()}-assistant-error`,
+          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-assistant-error`,
           chatId: chatId ?? 'local',
           role: 'assistant',
           content: error?.message || t(language, 'errUnknown'),
@@ -385,6 +389,11 @@ export function ChatScreen() {
       return;
     }
 
+    // Prevent duplicate sends while mutation is pending
+    if (askMutation.isPending) {
+      return;
+    }
+
     if (!requireChat()) return;
     deductChat();
 
@@ -392,7 +401,7 @@ export function ChatScreen() {
     setMessages((current) => [
       ...current.filter((message) => message.id !== starterId),
       {
-        id: `${Date.now()}-user`,
+        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-user`,
         chatId: localChatId,
         role: 'user',
         content: outgoing,
@@ -414,6 +423,11 @@ export function ChatScreen() {
       return;
     }
 
+    // Prevent duplicate retries while mutation is pending
+    if (askMutation.isPending || voiceMutation.isPending) {
+      return;
+    }
+
     if (lastFailedDraft.type === 'text') {
       const outgoing = lastFailedDraft.message.trim();
       if (!outgoing) return;
@@ -425,7 +439,7 @@ export function ChatScreen() {
       setMessages((current) => [
         ...current.filter((message) => message.id !== starterId),
         {
-          id: `${Date.now()}-user`,
+          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-user`,
           chatId: localChatId,
           role: 'user',
           content: outgoing,
@@ -493,12 +507,13 @@ export function ChatScreen() {
       const voiceAudioUrl = data.audioUrl
         ?? (data.audioBase64 ? `data:${data.audioMimeType || 'audio/mp3'};base64,${data.audioBase64}` : undefined);
 
+      const uniqueSuffix = Math.random().toString(36).substr(2, 9);
       setChatId(data.chatId);
       setLastFailedDraft(null);
       setMessages((current) => [
         ...current.filter((message) => message.id !== starterId),
         {
-          id: `${Date.now()}-voice-user`,
+          id: `${Date.now()}-${uniqueSuffix}-voice-user`,
           chatId: data.chatId,
           role: 'user',
           content: data.transcript || '',
@@ -507,7 +522,7 @@ export function ChatScreen() {
           createdAt: new Date().toISOString(),
         },
         {
-          id: `${Date.now()}-voice-assistant`,
+          id: `${Date.now()}-${uniqueSuffix}-voice-assistant`,
           chatId: data.chatId,
           role: 'assistant',
           content: data.answer,
@@ -545,7 +560,7 @@ export function ChatScreen() {
       setMessages((current) => [
         ...current.filter((message) => message.id !== starterId),
         {
-          id: `${Date.now()}-voice-error`,
+          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-voice-error`,
           chatId: chatId ?? 'local',
           role: 'assistant',
           content: error?.message || tx('voiceRouteUnavailable'),
@@ -1001,11 +1016,11 @@ export function ChatScreen() {
 
                 <Pressable
                     onPress={() => sendMessage()}
-                    disabled={!input.trim()}
+                    disabled={!input.trim() || askMutation.isPending || voiceMutation.isPending}
                     style={({ pressed }) => [
                         styles.sendBtn,
                         { 
-                            backgroundColor: input.trim() ? colors.primary : colors.border,
+                            backgroundColor: (input.trim() && !askMutation.isPending) ? colors.primary : colors.border,
                             opacity: pressed ? 0.8 : 1
                         }
                     ]}

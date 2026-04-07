@@ -13,6 +13,7 @@ export type LeanChatMessage = Pick<IChatMessage, 'role' | 'content' | 'createdAt
 export class ChatHistoryCache {
   /**
    * Get recent messages with caching
+   * Returns messages in chronological order (oldest first) for display
    */
   static async getRecentMessages(sessionId: string, limit: number = 50): Promise<LeanChatMessage[]> {
     const cacheKey = `chat:history:${sessionId}:${limit}`;
@@ -23,16 +24,19 @@ export class ChatHistoryCache {
       return cached;
     }
 
-    // Fetch from DB
+    // Fetch from DB - sort descending to get most recent messages first
     const messages = await ChatMessageModel.find({ sessionId })
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: -1 })
       .limit(limit)
       .lean();
 
-    // Cache for 5 minutes
-    await cache.set(cacheKey, messages, MESSAGE_CACHE_TTL);
+    // Reverse to get chronological order (oldest first) for display
+    const chronologicalMessages = messages.reverse() as LeanChatMessage[];
 
-    return messages as LeanChatMessage[];
+    // Cache for 5 minutes
+    await cache.set(cacheKey, chronologicalMessages, MESSAGE_CACHE_TTL);
+
+    return chronologicalMessages;
   }
 
   /**
