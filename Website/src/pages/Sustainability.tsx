@@ -96,7 +96,7 @@ export default function Sustainability() {
           >
             <img 
               src="https://images.unsplash.com/photo-1592982537447-6f296b0f0b4a?q=80&w=1200&auto=format&fit=crop" 
-              alt="Farmer checking soil" 
+              alt="Indian farmer using Anaaj.ai mobile app to check soil health and crop conditions in Punjab agricultural field" 
               className="rounded-[3rem] shadow-2xl"
             />
             <div className="absolute -bottom-10 -left-10 bg-white p-8 rounded-3xl shadow-2xl border border-outline-variant/10 max-w-xs">

@@ -25,6 +25,12 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://anaaj.ai/blog</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://anaaj.ai/sustainability</loc>
     <lastmod>2026-04-07</lastmod>
     <changefreq>monthly</changefreq>
@@ -47,5 +53,54 @@
     <lastmod>2026-04-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
+  </url>
+  <!-- Blog Posts -->
+  <url>
+    <loc>https://anaaj.ai/blog/how-to-detect-wheat-rust-disease-early</loc>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://anaaj.ai/blog/gurpreet-singh-doubled-yield-with-ai-farming</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://anaaj.ai/blog/understanding-soil-health-complete-guide</loc>
+    <lastmod>2026-03-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://anaaj.ai/blog/water-management-irrigation-tips-indian-farmers</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://anaaj.ai/blog/lakshmi-devi-organic-farming-success-karnataka</loc>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://anaaj.ai/blog/understanding-npk-fertilizers-complete-guide</loc>
+    <lastmod>2026-03-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://anaaj.ai/blog/how-to-control-aphids-naturally-without-chemicals</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://anaaj.ai/blog/msp-update-rabi-crops-2026-government-announcement</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>

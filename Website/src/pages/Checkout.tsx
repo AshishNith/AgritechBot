@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useParams, useSearchParams } from 'react-router-dom';
 
 import { getApiBaseUrl } from '../utils/runtime';
@@ -28,6 +29,14 @@ export default function Checkout() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
   const apiBaseUrl = useMemo(() => getApiBaseUrl().replace(/\/$/, ''), []);
+
+  // SEO - Checkout pages should not be indexed
+  const seoHelmet = (
+    <Helmet>
+      <title>Secure Checkout - Anaaj.ai</title>
+      <meta name="robots" content="noindex, nofollow" />
+    </Helmet>
+  );
 
   const [session, setSession] = useState<CheckoutSession | null>(null);
   const [loading, setLoading] = useState(true);
@@ -151,6 +160,7 @@ export default function Checkout() {
 
   return (
     <div className="min-h-screen bg-surface pt-28 pb-20 px-6">
+      {seoHelmet}
       <div className="max-w-2xl mx-auto">
         <div className="bg-surface-container-lowest border border-outline-variant/20 rounded-[2rem] shadow-xl p-8 md:p-12">
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-on-surface-variant">Secure checkout</p>

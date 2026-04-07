@@ -1,7 +1,39 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 
 export default function PricingFAQ() {
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Does Anaaj.ai work without internet?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, Anaaj.ai supports offline caching for weather and basic advisory tips. Voice interactions require a basic 2G connection for cloud processing."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is my data safe with Anaaj.ai?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Absolutely. We never sell farmer data to third parties. Your soil history is encrypted and used only to provide better advice to you."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which languages does Anaaj.ai support?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We currently support Hindi, Gujarati, Punjabi, Marathi, Telugu, Tamil, and English. We are adding new languages every month."
+        }
+      }
+    ]
+  };
+
   return (
     <motion.section 
       initial={{ opacity: 0, y: 50 }} 
@@ -10,6 +42,11 @@ export default function PricingFAQ() {
       transition={{ duration: 0.6 }} 
       className="py-32 bg-surface"
     >
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(faqSchema)}
+        </script>
+      </Helmet>
       <div className="max-w-7xl mx-auto px-8 editorial-grid">
         
         {/* Pricing */}

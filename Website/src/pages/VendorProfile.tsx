@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { vendors } from '../data/vendors';
@@ -16,6 +17,10 @@ export default function VendorProfile() {
   if (!vendor) {
     return (
       <div className="min-h-screen bg-surface flex flex-col items-center justify-center">
+        <Helmet>
+          <title>Vendor Not Found - Anaaj.ai Marketplace</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <h1 className="text-4xl font-bold text-primary mb-4">Vendor Not Found</h1>
         <Link to="/" className="text-tertiary-fixed font-bold underline">Return Home</Link>
       </div>
@@ -24,6 +29,11 @@ export default function VendorProfile() {
 
   return (
     <div className="min-h-screen bg-surface selection:bg-tertiary-fixed selection:text-on-tertiary-fixed flex flex-col">
+      <Helmet>
+        <title>{vendor.name} - Anaaj.ai Marketplace | Agricultural Products</title>
+        <meta name="description" content={`Shop agricultural products from ${vendor.name} on Anaaj.ai Marketplace. ${vendor.description || 'Quality farming supplies and equipment.'}`} />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <Navbar />
       
       <main className="flex-grow pt-24 pb-20">

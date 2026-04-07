@@ -13,6 +13,8 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Sitemap from './pages/Sitemap';
 import Checkout from './pages/Checkout';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
 
 export default function App() {
   return (
@@ -33,6 +35,8 @@ export default function App() {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/sitemap" element={<Sitemap />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
           </Routes>
         </main>
 

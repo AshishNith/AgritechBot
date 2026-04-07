@@ -16,29 +16,36 @@ export default function Footer() {
           <h5 className="text-emerald-900 font-bold mb-6">Company</h5>
           <ul className="space-y-4">
             <li><Link className="text-stone-500 hover:text-emerald-700 hover:translate-x-1 transition-all inline-block font-body text-sm" to="/about">About Us</Link></li>
+            <li><Link className="text-stone-500 hover:text-emerald-700 hover:translate-x-1 transition-all inline-block font-body text-sm" to="/blog">Blog & Guides</Link></li>
             <li><Link className="text-stone-500 hover:text-emerald-700 hover:translate-x-1 transition-all inline-block font-body text-sm" to="/sustainability">Sustainability Report</Link></li>
             <li><Link className="text-stone-500 hover:text-emerald-700 hover:translate-x-1 transition-all inline-block font-body text-sm" to="/sitemap">Global Sitemap</Link></li>
           </ul>
         </div>
         
         <div>
-          <h5 className="text-emerald-900 font-bold mb-6">Support</h5>
+          <h5 className="text-emerald-900 font-bold mb-6">Resources</h5>
+          <ul className="space-y-4">
+            <li><Link className="text-stone-500 hover:text-emerald-700 hover:translate-x-1 transition-all inline-block font-body text-sm" to="/blog?category=how-to">How-To Guides</Link></li>
+            <li><Link className="text-stone-500 hover:text-emerald-700 hover:translate-x-1 transition-all inline-block font-body text-sm" to="/blog?category=success-story">Farmer Stories</Link></li>
+            <li><Link className="text-stone-500 hover:text-emerald-700 hover:translate-x-1 transition-all inline-block font-body text-sm" to="/blog?category=education">Learn Farming</Link></li>
+            <li><Link className="text-stone-500 hover:text-emerald-700 hover:translate-x-1 transition-all inline-block font-body text-sm" to="/download">Download App</Link></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h5 className="text-emerald-900 font-bold mb-6">Support & Legal</h5>
           <ul className="space-y-4">
             <li><Link className="text-stone-500 hover:text-emerald-700 hover:translate-x-1 transition-all inline-block font-body text-sm" to="/contact">Contact Support</Link></li>
             <li><Link className="text-stone-500 hover:text-emerald-700 hover:translate-x-1 transition-all inline-block font-body text-sm" to="/privacy">Privacy Policy</Link></li>
             <li><Link className="text-stone-500 hover:text-emerald-700 hover:translate-x-1 transition-all inline-block font-body text-sm" to="/terms">Terms of Service</Link></li>
           </ul>
-        </div>
-        
-        <div>
-          <h5 className="text-emerald-900 font-bold mb-6">Connect</h5>
-          <div className="flex gap-4">
-            <button className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center hover:bg-tertiary-fixed transition-colors">
-              <span className="material-symbols-outlined text-sm">public</span>
-            </button>
-            <button className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center hover:bg-tertiary-fixed transition-colors">
+          <div className="flex gap-3 mt-6">
+            <a href="https://youtube.com/@AnaajAI" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors" aria-label="YouTube">
+              <span className="material-symbols-outlined text-sm">play_circle</span>
+            </a>
+            <a href="https://twitter.com/AnaajAI" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center hover:bg-blue-400 hover:text-white transition-colors" aria-label="Twitter">
               <span className="material-symbols-outlined text-sm">share</span>
-            </button>
+            </a>
           </div>
         </div>
       </div>

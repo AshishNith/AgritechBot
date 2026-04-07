@@ -21,7 +21,7 @@ export default function Features() {
         <div className="relative h-full w-full">
           <img
             src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2070&auto=format&fit=crop"
-            alt="Modern farm management dashboard"
+            alt="Anaaj.ai precision farming dashboard showing real-time soil health metrics, pest risk analysis, yield estimates and water usage for Indian agricultural farms"
             className="mx-auto rounded-2xl object-cover h-full w-full object-center"
             draggable={false}
           />
@@ -62,7 +62,7 @@ export default function Features() {
           <div className="relative h-full w-full group overflow-hidden">
              <img 
               className="w-full h-full object-cover rounded-2xl" 
-              alt="AI scanning crop for diseases" 
+              alt="AI-powered crop disease detection scanning wheat leaves for fungal and bacterial infections using Anaaj.ai technology" 
               src="https://images.unsplash.com/photo-1592997571659-0b21ff64313b?q=80&w=1200&auto=format&fit=crop"
             />
             {/* Overlay showing AI scanning in progress */}

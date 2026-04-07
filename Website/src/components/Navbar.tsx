@@ -35,7 +35,7 @@ export default function Navbar() {
         <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           <img 
             src="https://res.cloudinary.com/dvwpxb2oa/image/upload/v1774369551/Printable_Logo_nim1ca.svg" 
-            alt="Anaaj.ai Logo" 
+            alt="Anaaj.ai - India's #1 AI Farming Assistant" 
             className={`transition-all duration-500 ease-[cubic-bezier(0.2,1,0.2,1)] ${isScrolled ? 'h-7 md:h-8' : 'h-8 md:h-10'}`} 
           />
 
@@ -46,6 +46,9 @@ export default function Navbar() {
         <div className="hidden md:flex gap-8 items-center bg-white/5 px-6 py-2 rounded-full border border-white/10">
           <Link to="/" className={`font-headline font-bold text-sm tracking-widest uppercase transition-colors ${isActive('/') ? 'text-lime-400' : 'text-stone-300 hover:text-white'}`}>
             Home
+          </Link>
+          <Link to="/blog" className={`font-headline font-bold text-sm tracking-widest uppercase transition-colors ${isActive('/blog') || location.pathname.startsWith('/blog/') ? 'text-lime-400' : 'text-stone-300 hover:text-white'}`}>
+            Blog
           </Link>
           <Link to="/contact" className={`font-headline font-bold text-sm tracking-widest uppercase transition-colors ${isActive('/contact') ? 'text-lime-400' : 'text-stone-300 hover:text-white'}`}>
             Contact
@@ -80,6 +83,9 @@ export default function Navbar() {
           <div className="flex flex-col px-6 py-8 gap-6 text-center">
             <Link to="/" onClick={toggleMenu} className={`font-headline font-bold text-xl uppercase tracking-widest ${isActive('/') ? 'text-lime-400' : 'text-stone-200'}`}>
               Home
+            </Link>
+            <Link to="/blog" onClick={toggleMenu} className={`font-headline font-bold text-xl uppercase tracking-widest ${isActive('/blog') || location.pathname.startsWith('/blog/') ? 'text-lime-400' : 'text-stone-200'}`}>
+              Blog
             </Link>
             <Link to="/contact" onClick={toggleMenu} className={`font-headline font-bold text-xl uppercase tracking-widest ${isActive('/contact') ? 'text-lime-400' : 'text-stone-200'}`}>
               Contact

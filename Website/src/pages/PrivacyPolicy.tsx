@@ -1,9 +1,18 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 
 export default function PrivacyPolicy() {
   return (
     <div className="pt-32 pb-24 bg-surface min-h-screen">
+      <Helmet>
+        <title>Privacy Policy - Anaaj.ai | Your Data Protection Rights</title>
+        <meta name="description" content="Anaaj.ai Privacy Policy: Learn how we protect your farming data. Your data belongs to you - we never sell personal information to third parties. SSL/TLS encryption for all data." />
+        <link rel="canonical" href="https://anaaj.ai/privacy" />
+        <meta property="og:title" content="Privacy Policy - Anaaj.ai" />
+        <meta property="og:description" content="Learn how Anaaj.ai protects your farming data with industry-standard encryption." />
+        <meta property="og:url" content="https://anaaj.ai/privacy" />
+      </Helmet>
       <div className="max-w-4xl mx-auto px-8">
         
         <motion.div 

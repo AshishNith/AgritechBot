@@ -36,7 +36,7 @@ export default function AppShowcase() {
             <div className="w-56 md:w-64 h-[400px] md:h-[500px] bg-primary rounded-[2rem] md:rounded-[2.5rem] p-3 shadow-xl transform rotate-3 relative z-10">
               <img
                 className="w-full h-full object-cover rounded-[2rem]"
-                alt="a smartphone screen displaying a vibrant farm management app interface with green charts and crop icons"
+                alt="Anaaj.ai mobile app interface showing AI-powered farm management dashboard with crop health monitoring and voice assistant features"
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVHDJb6H3s3NMg43E50dYRBpXGyg1otbaWRAQUVg4f56FDjqn6aoaI7lD5pHX9e4iC6M1GZyZfX8H-LijPiP9dIfZD6Qq9O_SU5qM_bREsMNG6eaHvmVER6Ozj8MaNdt3ohWvTm9bSF_0FcBjVVztA26AjOY8p90G9XXE8IZMQMLaoEmxTA2MFDfvGwOQBiXAmE0c3oc_MSEYphiUuKn9P618Y0sd5RNZqFPNU0DacVLcZ4lFlfZI1vHLqkISKz2AYlxjRJVucdcds"
               />
             </div>

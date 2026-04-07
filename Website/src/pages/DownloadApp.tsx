@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { getAndroidDownloadUrl } from '../utils/runtime';
 
@@ -7,6 +8,14 @@ export default function DownloadApp() {
 
   return (
     <div className="pt-32 pb-24 min-h-screen bg-surface flex flex-col items-center">
+      <Helmet>
+        <title>Download Anaaj.ai App - Android APK | AI Farming Assistant</title>
+        <meta name="description" content="Download Anaaj.ai Android app v1.0.1 - India's #1 AI farming assistant. Get real-time crop advice, pest diagnosis, weather alerts in Hindi, Punjabi, Gujarati & 12+ languages." />
+        <link rel="canonical" href="https://anaaj.ai/download" />
+        <meta property="og:title" content="Download Anaaj.ai App - AI Farming Assistant" />
+        <meta property="og:description" content="Download Anaaj.ai Android app - Get real-time crop advice, pest diagnosis, and weather alerts in 12+ Indian languages." />
+        <meta property="og:url" content="https://anaaj.ai/download" />
+      </Helmet>
       <div className="max-w-5xl w-full mx-auto px-6 lg:px-8">
         
         {/* Header Section */}

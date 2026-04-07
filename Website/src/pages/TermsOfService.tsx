@@ -1,9 +1,18 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 
 export default function TermsOfService() {
   return (
     <div className="pt-32 pb-24 bg-surface min-h-screen">
+      <Helmet>
+        <title>Terms of Service - Anaaj.ai | User Agreement</title>
+        <meta name="description" content="Anaaj.ai Terms of Service: Read our user agreement covering service usage, advisory nature, intellectual property, and user responsibilities for our AI farming assistant." />
+        <link rel="canonical" href="https://anaaj.ai/terms" />
+        <meta property="og:title" content="Terms of Service - Anaaj.ai" />
+        <meta property="og:description" content="Read Anaaj.ai's terms of service covering usage guidelines and user responsibilities." />
+        <meta property="og:url" content="https://anaaj.ai/terms" />
+      </Helmet>
       <div className="max-w-4xl mx-auto px-8">
         
         <motion.div 

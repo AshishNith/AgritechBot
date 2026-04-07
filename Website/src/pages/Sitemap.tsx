@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -8,6 +9,7 @@ export default function Sitemap() {
       title: 'Navigation',
       links: [
         { name: 'Home', path: '/' },
+        { name: 'Blog', path: '/blog' },
         { name: 'Contact', path: '/contact' },
         { name: 'Download App', path: '/download' },
       ]
@@ -18,6 +20,15 @@ export default function Sitemap() {
         { name: 'About Us', path: '/about' },
         { name: 'Sustainability Report', path: '/sustainability' },
         { name: 'Global Sitemap', path: '/sitemap' },
+      ]
+    },
+    {
+      title: 'Blog & Resources',
+      links: [
+        { name: 'How-To Guides', path: '/blog#how-to' },
+        { name: 'Farmer Success Stories', path: '/blog#success-story' },
+        { name: 'Educational Guides', path: '/blog#education' },
+        { name: 'News & Updates', path: '/blog#news' },
       ]
     },
     {
@@ -32,6 +43,11 @@ export default function Sitemap() {
 
   return (
     <div className="pt-32 pb-24 bg-surface min-h-screen">
+      <Helmet>
+        <title>Sitemap - Anaaj.ai | Navigate Our AI Farming Platform</title>
+        <meta name="description" content="Browse all pages on Anaaj.ai - India's AI farming assistant. Find links to Home, About Us, Contact, Download App, Sustainability Report, Privacy Policy and Terms." />
+        <link rel="canonical" href="https://anaaj.ai/sitemap" />
+      </Helmet>
       <div className="max-w-7xl mx-auto px-8">
         
         <motion.div 
