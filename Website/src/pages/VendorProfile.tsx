@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { vendors } from '../data/vendors';
 import Navbar from '../components/Navbar';
@@ -8,6 +9,7 @@ import Footer from '../components/Footer';
 
 export default function VendorProfile() {
   const { id } = useParams();
+  const { t } = useTranslation();
   const vendor = vendors.find(v => v.id === id);
 
   useEffect(() => {
@@ -18,11 +20,11 @@ export default function VendorProfile() {
     return (
       <div className="min-h-screen bg-surface flex flex-col items-center justify-center">
         <Helmet>
-          <title>Vendor Not Found - Anaaj.ai Marketplace</title>
+          <title>{t('vendorProfile.notFound.title')} - Anaaj.ai</title>
           <meta name="robots" content="noindex, nofollow" />
         </Helmet>
-        <h1 className="text-4xl font-bold text-primary mb-4">Vendor Not Found</h1>
-        <Link to="/" className="text-tertiary-fixed font-bold underline">Return Home</Link>
+        <h1 className="text-4xl font-bold text-primary mb-4">{t('vendorProfile.notFound.title')}</h1>
+        <Link to="/" className="text-tertiary-fixed font-bold underline">{t('vendorProfile.notFound.button')}</Link>
       </div>
     );
   }
@@ -30,8 +32,8 @@ export default function VendorProfile() {
   return (
     <div className="min-h-screen bg-surface selection:bg-tertiary-fixed selection:text-on-tertiary-fixed flex flex-col">
       <Helmet>
-        <title>{vendor.name} - Anaaj.ai Marketplace | Agricultural Products</title>
-        <meta name="description" content={`Shop agricultural products from ${vendor.name} on Anaaj.ai Marketplace. ${vendor.bio || 'Quality farming supplies and equipment.'}`} />
+        <title>{t(`vendors.${vendor.id}.name`)} - Anaaj.ai Marketplace</title>
+        <meta name="description" content={t(`vendors.${vendor.id}.bio`)} />
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       <Navbar />
@@ -47,9 +49,9 @@ export default function VendorProfile() {
           <div className="relative w-full h-80 md:h-[450px] rounded-[3rem] overflow-hidden mb-12 shadow-2xl">
             <img src={vendor.heroImage} alt={vendor.name} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-8 md:p-16">
-              <span className="text-tertiary-fixed font-bold uppercase tracking-widest text-sm mb-2">Verified Partner</span>
-              <h1 className="text-5xl md:text-7xl font-headline font-bold text-white mb-4">{vendor.name}</h1>
-              <p className="text-white/80 font-body text-xl md:text-2xl max-w-3xl">{vendor.bio}</p>
+              <span className="text-tertiary-fixed font-bold uppercase tracking-widest text-sm mb-2">{t('vendorProfile.verified')}</span>
+              <h1 className="text-5xl md:text-7xl font-headline font-bold text-white mb-4">{t(`vendors.${vendor.id}.name`)}</h1>
+              <p className="text-white/80 font-body text-xl md:text-2xl max-w-3xl">{t(`vendors.${vendor.id}.bio`)}</p>
             </div>
             
             {/* Vendor Profile Picture Overlay */}
@@ -63,24 +65,24 @@ export default function VendorProfile() {
             {/* About Section */}
             <div className="lg:col-span-1 space-y-8">
               <div className="bg-surface-container rounded-3xl p-8 border border-outline-variant/20 shadow-sm">
-                <h3 className="text-xl font-bold font-headline text-primary mb-4">About the Vendor</h3>
-                <p className="text-on-surface-variant leading-relaxed font-body">{vendor.longBio}</p>
+                <h3 className="text-xl font-bold font-headline text-primary mb-4">{t('vendorProfile.aboutTitle')}</h3>
+                <p className="text-on-surface-variant leading-relaxed font-body">{t(`vendors.${vendor.id}.longBio`)}</p>
                 <div className="mt-8 pt-8 border-t border-outline-variant/30 grid grid-cols-3 gap-4 text-center">
                   <div>
                     <h4 className="text-2xl font-bold text-primary">{vendor.stats.posts}</h4>
-                    <p className="text-[10px] items-center flex justify-center gap-1 uppercase tracking-widest text-on-surface-variant font-bold mt-1">Products</p>
+                    <p className="text-[10px] items-center flex justify-center gap-1 uppercase tracking-widest text-on-surface-variant font-bold mt-1">{t('vendorProfile.stats.products')}</p>
                   </div>
                   <div>
                     <h4 className="text-2xl font-bold text-primary">{Math.floor(vendor.stats.followers / 1000)}k+</h4>
-                    <p className="text-[10px] items-center flex justify-center gap-1 uppercase tracking-widest text-on-surface-variant font-bold mt-1">Followers</p>
+                    <p className="text-[10px] items-center flex justify-center gap-1 uppercase tracking-widest text-on-surface-variant font-bold mt-1">{t('vendorProfile.stats.followers')}</p>
                   </div>
                   <div>
                     <h4 className="text-2xl font-bold text-primary">{vendor.stats.following}</h4>
-                    <p className="text-[10px] items-center flex justify-center gap-1 uppercase tracking-widest text-on-surface-variant font-bold mt-1">Following</p>
+                    <p className="text-[10px] items-center flex justify-center gap-1 uppercase tracking-widest text-on-surface-variant font-bold mt-1">{t('vendorProfile.stats.following')}</p>
                   </div>
                 </div>
                 <button className="w-full mt-8 bg-tertiary-fixed text-on-tertiary-fixed py-4 rounded-xl font-bold hover:scale-[1.02] transition-transform">
-                  Follow @{vendor.username}
+                  {t('vendorProfile.followButton', { username: vendor.username })}
                 </button>
               </div>
             </div>
@@ -88,8 +90,8 @@ export default function VendorProfile() {
             {/* Products Grid */}
             <div className="lg:col-span-2">
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-3xl font-bold text-primary font-headline">Explore Products</h2>
-                <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-bold">{vendor.products.length} Items</div>
+                <h2 className="text-3xl font-bold text-primary font-headline">{t('vendorProfile.exploreTitle')}</h2>
+                <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-bold">{t('vendorProfile.itemsCount', { count: vendor.products.length })}</div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -111,7 +113,7 @@ export default function VendorProfile() {
                         {product.tag}
                       </div>
                     </div>
-                    <h4 className="text-xl font-bold text-on-surface mb-2">{product.name}</h4>
+                    <h4 className="text-xl font-bold text-on-surface mb-2">{t(`vendors.${vendor.id}.products.p${idx + 1}`)}</h4>
                     <div className="flex justify-between items-center text-on-surface mt-4">
                       <span className="text-2xl font-bold text-tertiary-fixed">₹{product.price.toLocaleString('en-IN')}</span>
                       <button className="w-12 h-12 rounded-full bg-primary-container text-on-primary flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">

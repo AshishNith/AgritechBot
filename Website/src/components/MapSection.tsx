@@ -1,7 +1,8 @@
-import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function MapSection() {
+  const { t } = useTranslation();
   return (
     <section className="py-24 bg-surface overflow-hidden">
       <div className="max-w-7xl mx-auto px-8">
@@ -12,22 +13,22 @@ export default function MapSection() {
           <div className="lg:w-1/3 space-y-8">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-container text-on-primary-container w-fit mb-2 shadow-sm">
               <span className="material-symbols-outlined text-sm">location_on</span>
-              <span className="text-xs font-bold uppercase tracking-widest font-label">Our Presence</span>
+              <span className="text-xs font-bold uppercase tracking-widest font-label">{t('map.presence')}</span>
             </div>
             
             <h2 className="text-5xl font-headline font-bold text-primary leading-tight">
-              Rooted in Punjab, <span className="italic text-tertiary-fixed-variant">Growing Globally.</span>
+              {t('map.title')} <br/><span className="italic text-tertiary-fixed-variant">{t('map.titleItalic')}</span>
             </h2>
             
             <p className="text-lg text-on-surface-variant leading-relaxed">
-              Our headquarters at the Agro-Tech Hub is the nerve center of Anaaj.ai, coordinating with thousands of local data nodes across the agricultural heartlands of India.
+              {t('map.description')}
             </p>
             
             <div className="space-y-6">
               {[
-                { title: 'Innovation HQ', desc: 'Sector 82, Mohali, Punjab' },
-                { title: 'Training Center', desc: 'Agricultural University Road, Ludhiana' },
-                { title: 'Data Nodes', desc: 'Active in 40+ districts across 4 states' }
+                { title: t('map.innovationHQ'), desc: t('map.innovationHQDesc') },
+                { title: t('map.trainingCenter'), desc: t('map.trainingCenterDesc') },
+                { title: t('map.dataNodes'), desc: t('map.dataNodesDesc') }
               ].map((item, i) => (
                 <div key={i} className="flex gap-4">
                   <div className="w-1.5 h-auto bg-primary rounded-full"></div>
@@ -66,9 +67,9 @@ export default function MapSection() {
             <div className="absolute bottom-8 right-8 bg-surface-container-lowest/80 backdrop-blur-md p-6 rounded-3xl border border-white/20 shadow-2xl max-w-xs transition-transform group-hover:-translate-y-2">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
-                <span className="text-xs font-bold text-primary uppercase tracking-widest font-label">Status: Active</span>
+                <span className="text-xs font-bold text-primary uppercase tracking-widest font-label">{t('map.statusActive')}</span>
               </div>
-              <p className="text-sm font-medium text-on-surface">Agro-Tech Hub, Level 4, Sector 82, Mohali, Punjab 140308</p>
+              <p className="text-sm font-medium text-on-surface">{t('map.address')}</p>
             </div>
           </motion.div>
           

@@ -1,6 +1,6 @@
 import mongoose, { ClientSession } from 'mongoose';
 import { Product } from '../../models/Product';
-import { Order } from '../../models/Order';
+import { IOrder, Order } from '../../models/Order';
 
 export interface OrderDraftPayload {
   items: Array<{
@@ -41,12 +41,12 @@ export async function createConfirmedOrderFromDraft(params: {
   draft: OrderDraftPayload;
   paymentId: string;
   session?: ClientSession;
-}) {
+}): Promise<IOrder> {
   const ownSession = params.session ?? (await mongoose.startSession());
   const shouldClose = !params.session;
 
   try {
-    let createdOrder: unknown;
+    let createdOrder: IOrder | null = null;
 
     await ownSession.withTransaction(async () => {
       const productIds = params.draft.items.map((item) => item.productId);
@@ -135,6 +135,10 @@ export async function createConfirmedOrderFromDraft(params: {
 
       createdOrder = order;
     });
+
+    if (!createdOrder) {
+      throw new Error('ORDER_CREATION_FAILED');
+    }
 
     return createdOrder;
   } finally {

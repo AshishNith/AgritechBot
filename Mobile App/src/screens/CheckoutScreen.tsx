@@ -1,4 +1,4 @@
-import { StyleSheet, View, TextInput, ScrollView, Pressable, Alert, Linking, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TextInput, ScrollView, Pressable, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useMutation } from '@tanstack/react-query';
@@ -13,6 +13,7 @@ import { useMarketplaceStore } from '../store/useMarketplaceStore';
 import { PriceSummary } from '../components/marketplace/PriceSummary';
 import { apiService } from '../api/services';
 import { useTheme } from '../providers/ThemeContext';
+import { openRazorpayCheckout } from '../utils/razorpayCheckout';
 
 type Navigation = NativeStackNavigationProp<RootStackParamList>;
 
@@ -33,11 +34,6 @@ export function CheckoutScreen() {
     pincode: '',
   });
   const [shippingMethod, setShippingMethod] = useState<'delivery' | 'pickup'>('delivery');
-  const [pendingPayment, setPendingPayment] = useState<{
-    paymentOrderId: string;
-    checkoutToken: string;
-    checkoutUrl: string;
-  } | null>(null);
 
   const total = getCartTotal();
   const tax = total * 0.05;
@@ -76,69 +72,29 @@ export function CheckoutScreen() {
         shippingMethod,
       };
 
-      try {
-        const payment = await apiService.createOrderPayment(payload);
-        return { mode: 'payment' as const, data: payment };
-      } catch (error: any) {
-        if (error?.response?.status === 503) {
-          const directOrder = await apiService.createDirectOrder(payload);
-          return { mode: 'direct' as const, data: directOrder };
-        }
-
-        throw error;
-      }
-    },
-    onSuccess: async (data) => {
-      if (data.mode === 'direct') {
-        const orderId = String(data.data.order?._id || data.data.order?.id || '');
-        clearCart();
-        navigation.replace('OrderSuccess', { orderId });
-        return;
-      }
-
-      setPendingPayment({
-        paymentOrderId: data.data.paymentOrderId,
-        checkoutToken: data.data.checkoutToken,
-        checkoutUrl: data.data.checkoutUrl,
+      const order = await apiService.createOrderPayment(payload);
+      const paymentData = await openRazorpayCheckout({
+        order,
+        description: 'Marketplace order',
+        prefill: {
+          name: formData.name,
+          contact: formData.phone,
+          email: formData.email || undefined,
+        },
       });
 
-      const supported = await Linking.canOpenURL(data.data.checkoutUrl);
-      if (!supported) {
-        Alert.alert(t(language, 'checkoutUnavailable'), t(language, 'unableToOpenCheckout'));
-        return;
-      }
-
-      await Linking.openURL(data.data.checkoutUrl);
+      return apiService.verifyMarketplacePayment({
+        razorpayOrderId: paymentData.razorpay_order_id,
+        razorpayPaymentId: paymentData.razorpay_payment_id,
+        razorpaySignature: paymentData.razorpay_signature,
+      });
+    },
+    onSuccess: (data) => {
+      clearCart();
+      navigation.replace('OrderSuccess', { orderId: data.orderId });
     },
     onError: (error: any) => {
       Alert.alert(t(language, 'orderFailed'), error.message || t(language, 'orderFailedAuth'));
-    },
-  });
-
-  const refreshPaymentMutation = useMutation({
-    mutationFn: async () => {
-      if (!pendingPayment) {
-        throw new Error('No pending payment found');
-      }
-
-      return apiService.getPaymentStatus(pendingPayment.paymentOrderId, pendingPayment.checkoutToken);
-    },
-    onSuccess: (data) => {
-      if (data.status === 'verified' && data.orderId) {
-        clearCart();
-        navigation.replace('OrderSuccess', { orderId: data.orderId });
-        return;
-      }
-
-      if (data.status === 'failed') {
-        Alert.alert(t(language, 'paymentFailed'), data.error || t(language, 'orderFailedAuth'));
-        return;
-      }
-
-      Alert.alert(t(language, 'paymentPending'), t(language, 'finishPaymentPrompt'));
-    },
-    onError: (error: any) => {
-      Alert.alert(t(language, 'paymentCheckFailed'), error.message || t(language, 'orderFailedAuth'));
     },
   });
 
@@ -158,26 +114,32 @@ export function CheckoutScreen() {
         </View>
 
         <View style={styles.methodToggleRow}>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => setShippingMethod('delivery')}
             style={[
-              styles.methodToggle, 
-              { backgroundColor: shippingMethod === 'delivery' ? colors.primary : colors.surfaceMuted }
+              styles.methodToggle,
+              { backgroundColor: shippingMethod === 'delivery' ? colors.primary : colors.surfaceMuted },
             ]}
           >
-            {(() => { const Truck = IconMap['Truck']; return Truck ? <Truck size={18} color={shippingMethod === 'delivery' ? '#fff' : colors.textMuted} /> : null; })()}
+            {(() => {
+              const Truck = IconMap['Truck'];
+              return Truck ? <Truck size={18} color={shippingMethod === 'delivery' ? '#fff' : colors.textMuted} /> : null;
+            })()}
             <AppText color={shippingMethod === 'delivery' ? '#fff' : colors.textMuted} variant="label">
               {t(language, 'delivery')}
             </AppText>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => setShippingMethod('pickup')}
             style={[
-              styles.methodToggle, 
-              { backgroundColor: shippingMethod === 'pickup' ? colors.primary : colors.surfaceMuted }
+              styles.methodToggle,
+              { backgroundColor: shippingMethod === 'pickup' ? colors.primary : colors.surfaceMuted },
             ]}
           >
-            {(() => { const Package = IconMap['PackageOpen']; return Package ? <Package size={18} color={shippingMethod === 'pickup' ? '#fff' : colors.textMuted} /> : null; })()}
+            {(() => {
+              const Package = IconMap['PackageOpen'];
+              return Package ? <Package size={18} color={shippingMethod === 'pickup' ? '#fff' : colors.textMuted} /> : null;
+            })()}
             <AppText color={shippingMethod === 'pickup' ? '#fff' : colors.textMuted} variant="label">
               {t(language, 'selfPickup')}
             </AppText>
@@ -267,27 +229,6 @@ export function CheckoutScreen() {
           </View>
         ) : null}
 
-        {pendingPayment ? (
-          <ScreenCard style={{ marginTop: 16 }}>
-            <AppText variant="label">{t(language, 'secureCheckoutReady')}</AppText>
-            <AppText color={colors.textMuted} style={{ marginTop: 8 }}>
-              {t(language, 'finishPaymentPrompt')}
-            </AppText>
-            <View style={{ gap: 12, marginTop: 16 }}>
-              <GradientButton
-                label={t(language, 'reopenSecureCheckout')}
-                onPress={() => Linking.openURL(pendingPayment.checkoutUrl)}
-              />
-              <GradientButton
-                label={refreshPaymentMutation.isPending ? t(language, 'checkingPaymentStatus') : t(language, 'iCompletedPayment')}
-                secondary
-                onPress={() => refreshPaymentMutation.mutate()}
-                disabled={refreshPaymentMutation.isPending}
-              />
-            </View>
-          </ScreenCard>
-        ) : null}
-
         <View style={{ marginTop: 16 }}>
           <AppText variant="label" style={{ marginBottom: 12 }}>
             {t(language, 'orderSummary')}
@@ -308,7 +249,7 @@ export function CheckoutScreen() {
         </View>
 
         <GradientButton
-          label={createPaymentMutation.isPending ? t(language, 'openingSecureCheckout') : t(language, 'paySecurely')}
+          label={createPaymentMutation.isPending ? t(language, 'processing') : t(language, 'paySecurely')}
           onPress={() => createPaymentMutation.mutate()}
           disabled={createPaymentMutation.isPending || !!validationError}
           style={{ marginTop: 24 }}

@@ -2,7 +2,7 @@ const { expo } = require('./app.json');
 
 module.exports = () => ({
   ...expo,
-  owner: 'ig_ashish.ranjan2',
+  owner: 'ig_ashish.ranjan3',
   scheme: 'anaajai',
   android: {
     ...expo.android,
@@ -16,9 +16,8 @@ module.exports = () => ({
   extra: {
     ...(expo.extra || {}),
     apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL || expo.extra?.apiBaseUrl || '',
-    paymentWebBaseUrl: process.env.EXPO_PUBLIC_PAYMENT_WEB_BASE_URL || expo.extra?.paymentWebBaseUrl || 'https://anaajai.com',
     eas: {
-      projectId: 'cc65912f-60eb-4ddb-ba4c-7c4fceae42da',
+      projectId: 'ed5779df-e2ca-4ec8-aac9-c9449ad5cb0c',
     },
   },
 });

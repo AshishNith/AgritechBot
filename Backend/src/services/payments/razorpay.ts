@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { env } from '../../config/env';
+import { logger } from '../../utils/logger';
 
 const RAZORPAY_ORDERS_URL = 'https://api.razorpay.com/v1/orders';
 const MOCK_ORDER_PREFIX = 'order_mock_';
@@ -46,6 +47,8 @@ export async function createRazorpayOrder(
     };
   }
 
+  logger.info({ input }, 'Creating Razorpay order');
+
   const response = await fetch(RAZORPAY_ORDERS_URL, {
     method: 'POST',
     headers: {
@@ -58,6 +61,7 @@ export async function createRazorpayOrder(
   const data = (await response.json()) as Record<string, unknown>;
 
   if (!response.ok) {
+    logger.error({ razorpayError: data, status: response.status }, 'Razorpay order creation failed');
     const errorMessage =
       typeof data.error === 'object' && data.error && 'description' in data.error
         ? String((data.error as { description?: unknown }).description || 'Failed to create Razorpay order')

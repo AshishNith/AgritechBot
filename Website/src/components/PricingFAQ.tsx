@@ -1,34 +1,35 @@
-import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function PricingFAQ() {
+  const { t } = useTranslation();
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "Does Anaaj.ai work without internet?",
+        "name": t('faq.q1'),
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes, Anaaj.ai supports offline caching for weather and basic advisory tips. Voice interactions require a basic 2G connection for cloud processing."
+          "text": t('faq.a1')
         }
       },
       {
         "@type": "Question",
-        "name": "Is my data safe with Anaaj.ai?",
+        "name": t('faq.q2'),
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Absolutely. We never sell farmer data to third parties. Your soil history is encrypted and used only to provide better advice to you."
+          "text": t('faq.a2')
         }
       },
       {
         "@type": "Question",
-        "name": "Which languages does Anaaj.ai support?",
+        "name": t('faq.q3'),
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "We currently support Hindi, Gujarati, Punjabi, Marathi, Telugu, Tamil, and English. We are adding new languages every month."
+          "text": t('faq.a3')
         }
       }
     ]
@@ -51,63 +52,63 @@ export default function PricingFAQ() {
         
         {/* Pricing */}
         <div className="col-span-12 lg:col-span-4 mb-12">
-          <h2 className="text-3xl md:text-4xl font-headline font-bold mb-6 text-primary">Simple Pricing.</h2>
-          <p className="text-on-surface-variant mb-8">Choose a plan that fits your farm's scale. No hidden fees.</p>
+          <h2 className="text-3xl md:text-4xl font-headline font-bold mb-6 text-primary">{t('pricing.title')}</h2>
+          <p className="text-on-surface-variant mb-8">{t('pricing.desc')}</p>
           
           <div className="p-8 bg-primary text-on-primary rounded-3xl shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold uppercase tracking-tighter">Popular</div>
-            <h3 className="text-xl font-bold mb-2">Pro Farmer</h3>
-            <div className="text-3xl md:text-4xl font-headline font-bold mb-6">₹149<span className="text-sm opacity-60 font-body">/month</span></div>
+            <div className="absolute top-0 right-0 p-4 bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold uppercase tracking-tighter">{t('pricing.popular')}</div>
+            <h3 className="text-xl font-bold mb-2">{t('pricing.planName')}</h3>
+            <div className="text-3xl md:text-4xl font-headline font-bold mb-6">{t('pricing.price')}<span className="text-sm opacity-60 font-body">{t('pricing.perMonth')}</span></div>
             <ul className="space-y-4 mb-8">
               <li className="flex items-center gap-2 text-sm">
                 <span className="material-symbols-outlined text-tertiary-fixed text-sm">check</span>
-                Unlimited Voice Queries
+                {t('pricing.feature1')}
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <span className="material-symbols-outlined text-tertiary-fixed text-sm">check</span>
-                Advanced Pest Diagnosis
+                {t('pricing.feature2')}
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <span className="material-symbols-outlined text-tertiary-fixed text-sm">check</span>
-                Personalized Market Price Alerts
+                {t('pricing.feature3')}
               </li>
             </ul>
-            <button className="w-full bg-tertiary-fixed text-on-tertiary-fixed py-3 rounded-xl font-bold hover:scale-105 transition-transform">Get Started</button>
+            <button className="w-full bg-tertiary-fixed text-on-tertiary-fixed py-3 rounded-xl font-bold hover:scale-105 transition-transform">{t('pricing.cta')}</button>
           </div>
         </div>
         
         {/* FAQ */}
         <div className="col-span-12 lg:col-span-7 lg:col-start-6 text-on-surface">
-          <h2 className="text-2xl md:text-3xl font-headline font-bold mb-8 md:mb-12 text-primary">Common Questions</h2>
+          <h2 className="text-2xl md:text-3xl font-headline font-bold mb-8 md:mb-12 text-primary">{t('faq.title')}</h2>
           <div className="space-y-4 text-on-surface">
             
             <div className="group border-b border-outline-variant py-6 cursor-pointer">
               <div className="flex justify-between items-center">
-                <h4 className="text-lg font-bold">Does it work without internet?</h4>
+                <h4 className="text-lg font-bold">{t('faq.q1')}</h4>
                 <span className="material-symbols-outlined group-hover:rotate-45 transition-transform">add</span>
               </div>
               <p className="hidden group-hover:block mt-4 text-on-surface-variant leading-relaxed">
-                Yes, Anaaj.ai supports offline caching for weather and basic advisory tips. Voice interactions require a basic 2G connection for cloud processing.
+                {t('faq.a1')}
               </p>
             </div>
             
             <div className="group border-b border-outline-variant py-6 cursor-pointer">
               <div className="flex justify-between items-center">
-                <h4 className="text-lg font-bold">Is my data safe?</h4>
+                <h4 className="text-lg font-bold">{t('faq.q2')}</h4>
                 <span className="material-symbols-outlined group-hover:rotate-45 transition-transform">add</span>
               </div>
               <p className="hidden group-hover:block mt-4 text-on-surface-variant leading-relaxed">
-                Absolutely. We never sell farmer data to third parties. Your soil history is encrypted and used only to provide better advice to you.
+                {t('faq.a2')}
               </p>
             </div>
             
             <div className="group border-b border-outline-variant py-6 cursor-pointer">
               <div className="flex justify-between items-center">
-                <h4 className="text-lg font-bold">Which languages are supported?</h4>
+                <h4 className="text-lg font-bold">{t('faq.q3')}</h4>
                 <span className="material-symbols-outlined group-hover:rotate-45 transition-transform">add</span>
               </div>
               <p className="hidden group-hover:block mt-4 text-on-surface-variant leading-relaxed">
-                We currently support Hindi, Gujarati, Punjabi, Marathi, Telugu, Tamil, and English. We are adding new languages every month.
+                {t('faq.a3')}
               </p>
             </div>
 

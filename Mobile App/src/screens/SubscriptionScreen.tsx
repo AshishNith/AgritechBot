@@ -15,6 +15,7 @@ import { useI18n } from '../hooks/useI18n';
 import { IconMap } from '../components/IconMap';
 import { CHAT_TOPUP_PACKS, SCAN_TOPUP_PACKS, PLAN_CONFIGS } from '../store/useWalletStore';
 import Animated, { FadeIn, FadeInDown, FadeOut, ZoomIn } from 'react-native-reanimated';
+import { openRazorpayCheckout } from '../utils/razorpayCheckout';
 
 const features = [
   { title: 'aiCropDoctorTitle', subtitle: 'aiCropDoctorSub', icon: 'Scan' },
@@ -22,6 +23,8 @@ const features = [
   { title: 'multiLingualTitle', subtitle: 'multiLingualSub', icon: 'Languages' },
   { title: 'expertPriorityTitle', subtitle: 'expertPrioritySub', icon: 'Zap' },
 ] as const;
+
+type TopupPackId = 'chat_10' | 'chat_25' | 'chat_60' | 'scan_1' | 'scan_3' | 'scan_10';
 
 export function SubscriptionScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -33,7 +36,7 @@ export function SubscriptionScreen() {
   
   const [activeTab, setActiveTab] = useState<'plans' | 'topup'>(route.params?.tab || 'plans');
   const [selectedPlan, setSelectedPlan] = useState<'basic' | 'pro'>('pro');
-  const [selectedTopup, setSelectedTopup] = useState<{ id: string; type: 'chat' | 'scan'; amount: number } | null>(null);
+  const [selectedTopup, setSelectedTopup] = useState<{ id: TopupPackId; type: 'chat' | 'scan'; amount: number } | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success'>('idle');
 
@@ -47,28 +50,40 @@ export function SubscriptionScreen() {
     mutationFn: async () => {
       if (activeTab === 'plans') {
         const order = await apiService.createSubscriptionOrder(selectedPlan);
-        const razorpayPaymentId = `pay_mock_${Date.now()}`;
-        const razorpaySignature = `mock_signature_${order.orderId}_${razorpayPaymentId}`;
+        const paymentData = await openRazorpayCheckout({
+          order,
+          description: `${selectedPlan.toUpperCase()} subscription`,
+          prefill: {
+            name: user?.name,
+            contact: user?.phone,
+          },
+        });
 
         return apiService.verifyWalletPayment({
-          razorpayOrderId: order.orderId,
-          razorpayPaymentId,
-          razorpaySignature,
+          razorpayOrderId: paymentData.razorpay_order_id,
+          razorpayPaymentId: paymentData.razorpay_payment_id,
+          razorpaySignature: paymentData.razorpay_signature,
           purpose: 'subscription',
           tier: selectedPlan,
         });
       } else {
         if (!selectedTopup) throw new Error("No topup selected");
-        const order = await apiService.createTopupOrder(selectedTopup.id as any);
-        const razorpayPaymentId = `pay_mock_${Date.now()}`;
-        const razorpaySignature = `mock_signature_${order.orderId}_${razorpayPaymentId}`;
+        const order = await apiService.createTopupOrder(selectedTopup.id);
+        const paymentData = await openRazorpayCheckout({
+          order,
+          description: `${selectedTopup.type === 'chat' ? 'Chat' : 'Scan'} topup`,
+          prefill: {
+            name: user?.name,
+            contact: user?.phone,
+          },
+        });
 
         return apiService.verifyWalletPayment({
-          razorpayOrderId: order.orderId,
-          razorpayPaymentId,
-          razorpaySignature,
+          razorpayOrderId: paymentData.razorpay_order_id,
+          razorpayPaymentId: paymentData.razorpay_payment_id,
+          razorpaySignature: paymentData.razorpay_signature,
           purpose: 'topup',
-          packId: selectedTopup.id as any,
+          packId: selectedTopup.id,
         });
       }
     },
@@ -90,7 +105,7 @@ export function SubscriptionScreen() {
     onError: () => {
       setShowPaymentModal(false);
       setPaymentStatus('idle');
-      Alert.alert(tx('paymentFailed'), tx('errUnknown'));
+      Alert.alert(tx('paymentFailed'), 'Payment was cancelled or could not be completed.');
     },
   });
 
@@ -221,7 +236,7 @@ export function SubscriptionScreen() {
               {CHAT_TOPUP_PACKS.map((pack) => (
                 <Pressable 
                   key={pack.id} 
-                  onPress={() => setSelectedTopup({ id: pack.id, type: 'chat', amount: pack.price })}
+                    onPress={() => setSelectedTopup({ id: pack.id as TopupPackId, type: 'chat', amount: pack.price })}
                   style={[
                     styles.packCard, 
                     { borderColor: selectedTopup?.id === pack.id ? colors.primary : colors.border },
@@ -245,7 +260,7 @@ export function SubscriptionScreen() {
               {SCAN_TOPUP_PACKS.map((pack) => (
                 <Pressable 
                   key={pack.id} 
-                  onPress={() => setSelectedTopup({ id: pack.id, type: 'scan', amount: pack.price })}
+                    onPress={() => setSelectedTopup({ id: pack.id as TopupPackId, type: 'scan', amount: pack.price })}
                   style={[
                     styles.packCard, 
                     { borderColor: selectedTopup?.id === pack.id ? colors.primary : colors.border },

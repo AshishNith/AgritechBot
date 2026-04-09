@@ -11,8 +11,6 @@ import {
   NotificationListResponse,
   OrderListResponse,
   OrderRequest,
-  PaymentCheckoutResponse,
-  PaymentStatusResponse,
   Product,
   ProductDetailResponse,
   ProductListResponse,
@@ -22,6 +20,7 @@ import {
   UserProfile,
   VoiceAskResponse,
   CreatePaymentOrderResponse,
+  MarketplacePaymentVerificationResponse,
   WalletUpdateResponse,
   Wallet,
 } from '../types/api';
@@ -143,9 +142,9 @@ export const apiService = {
     return data.wallet;
   },
   async createOrderPayment(payload: OrderRequest) {
-    const { data } = await api.post<PaymentCheckoutResponse>('/api/payment/orders', {
-      purpose: 'order',
-      order: payload,
+    const { data } = await api.post<CreatePaymentOrderResponse>('/api/payment/marketplace-order', {
+      items: payload.items,
+      deliveryAddress: payload.deliveryAddress,
     });
     return data;
   },
@@ -153,13 +152,6 @@ export const apiService = {
     const { data } = await api.post<{ order: { _id?: string; id?: string } }>('/api/orders', {
       items: payload.items,
       deliveryAddress: payload.deliveryAddress,
-    });
-    return data;
-  },
-  async createSubscriptionPayment(tier: Exclude<SubscriptionTier, 'free'>) {
-    const { data } = await api.post<PaymentCheckoutResponse>('/api/payment/orders', {
-      purpose: 'subscription',
-      subscription: { tier },
     });
     return data;
   },
@@ -190,9 +182,14 @@ export const apiService = {
     const { data } = await api.post<WalletUpdateResponse>('/api/payment/verify', payload);
     return data;
   },
-  async getPaymentStatus(paymentOrderId: string, checkoutToken: string) {
-    const { data } = await api.get<PaymentStatusResponse>(`/api/payment/status/${paymentOrderId}`, {
-      params: { token: checkoutToken },
+  async verifyMarketplacePayment(payload: {
+    razorpayOrderId: string;
+    razorpayPaymentId: string;
+    razorpaySignature: string;
+  }) {
+    const { data } = await api.post<MarketplacePaymentVerificationResponse>('/api/payment/verify', {
+      ...payload,
+      purpose: 'marketplace',
     });
     return data;
   },

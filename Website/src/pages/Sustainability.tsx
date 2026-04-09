@@ -1,16 +1,18 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 
 export default function Sustainability() {
+  const { t } = useTranslation();
   return (
     <div className="pt-32 pb-24 bg-surface min-h-screen">
       <Helmet>
-        <title>Sustainability Report 2026 - Anaaj.ai | Green Farming Initiative</title>
-        <meta name="description" content="Anaaj.ai Sustainability Report 2026: 40% chemical reduction, 25B liters water saved, 500K+ farmers impacted. Learn how we're promoting sustainable precision agriculture in India." />
+        <title>{t('pages.sustainability.title')}</title>
+        <meta name="description" content={t('pages.sustainability.metaDesc')} />
         <link rel="canonical" href="https://anaaj.ai/sustainability" />
-        <meta property="og:title" content="Sustainability Report 2026 - Anaaj.ai" />
-        <meta property="og:description" content="40% chemical reduction, 25B liters water saved, 500K+ farmers impacted through sustainable precision agriculture." />
+        <meta property="og:title" content={t('pages.sustainability.title')} />
+        <meta property="og:description" content={t('pages.sustainability.metaDesc')} />
         <meta property="og:url" content="https://anaaj.ai/sustainability" />
       </Helmet>
       <div className="max-w-7xl mx-auto px-8">
@@ -24,22 +26,22 @@ export default function Sustainability() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-tertiary-container text-on-tertiary-fixed w-fit mb-8 shadow-sm">
             <span className="material-symbols-outlined text-sm">eco</span>
-            <span className="text-xs font-bold uppercase tracking-widest font-label">Sustainability Report 2026</span>
+            <span className="text-xs font-bold uppercase tracking-widest font-label">{t('sustainability.label')}</span>
           </div>
           <h1 className="text-5xl md:text-8xl font-headline font-bold text-primary tracking-tight leading-[1] mb-8">
-            Growing a Greener <span className="italic text-tertiary-fixed-variant">Future.</span>
+            {t('sustainability.titleLine1')} <span className="italic text-tertiary-fixed-variant">{t('sustainability.titleLine2')}</span>
           </h1>
           <p className="text-xl text-on-surface-variant font-body leading-relaxed max-w-3xl mx-auto">
-            At Anaaj.ai, sustainability isn't a buzzword—it's our operational core. We help farmers minimize chemical usage and maximize natural output.
+            {t('sustainability.description')}
           </p>
         </motion.div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-32">
           {[
-            { label: 'Chemical Reduction', value: '40%', icon: 'science' },
-            { label: 'Water Saved', value: '25B Liters', icon: 'water_drop' },
-            { label: 'Farmers Impacted', value: '500K+', icon: 'agriculture' }
+            { label: t('sustainability.stats.chemicalReduction.label'), value: t('sustainability.stats.chemicalReduction.value'), icon: 'science' },
+            { label: t('sustainability.stats.waterSaved.label'), value: t('sustainability.stats.waterSaved.value'), icon: 'water_drop' },
+            { label: t('sustainability.stats.farmersImpacted.label'), value: t('sustainability.stats.farmersImpacted.value'), icon: 'agriculture' }
           ].map((stat, i) => (
             <motion.div 
               key={i}
@@ -67,23 +69,23 @@ export default function Sustainability() {
             viewport={{ once: true }}
             className="space-y-8"
           >
-            <h2 className="text-4xl font-headline font-bold text-primary leading-tight">Precision for the planet.</h2>
+            <h2 className="text-4xl font-headline font-bold text-primary leading-tight">{t('sustainability.precision.title')}</h2>
             <p className="text-lg text-on-surface-variant leading-relaxed">
-              Standard agricultural methods often involve broad-spectrum chemical spraying and over-irrigation. Anaaj.ai provides localized diagnostic intelligence that tells farmers exactly when, where, and how much treatment is needed.
+              {t('sustainability.precision.desc')}
             </p>
             <div className="space-y-4">
               <div className="flex gap-4 p-6 bg-surface-container-low rounded-2xl border border-outline-variant/10">
                 <span className="material-symbols-outlined text-tertiary-fixed-variant">forest</span>
                 <div>
-                  <h4 className="font-bold text-primary">Soil Health Preservation</h4>
-                  <p className="text-sm text-on-surface-variant">Preventing nutrient depletion through precise crop rotation advice.</p>
+                  <h4 className="font-bold text-primary">{t('sustainability.precision.soil.title')}</h4>
+                  <p className="text-sm text-on-surface-variant">{t('sustainability.precision.soil.desc')}</p>
                 </div>
               </div>
               <div className="flex gap-4 p-6 bg-surface-container-low rounded-2xl border border-outline-variant/10">
                 <span className="material-symbols-outlined text-tertiary-fixed-variant">energy_savings_leaf</span>
                 <div>
-                  <h4 className="font-bold text-primary">Resource Optimization</h4>
-                  <p className="text-sm text-on-surface-variant">Reducing electricity and fuel waste by optimizing irrigation timing.</p>
+                  <h4 className="font-bold text-primary">{t('sustainability.precision.resource.title')}</h4>
+                  <p className="text-sm text-on-surface-variant">{t('sustainability.precision.resource.desc')}</p>
                 </div>
               </div>
             </div>
@@ -100,8 +102,8 @@ export default function Sustainability() {
               className="rounded-[3rem] shadow-2xl"
             />
             <div className="absolute -bottom-10 -left-10 bg-white p-8 rounded-3xl shadow-2xl border border-outline-variant/10 max-w-xs">
-              <p className="italic text-primary font-medium">"My land feels alive again. The soil is darker and richer since I started using Anaaj's advice."</p>
-              <p className="text-xs font-bold uppercase tracking-widest mt-4 text-on-surface-variant">— GURPREET S., PUNJAB</p>
+              <p className="italic text-primary font-medium">{t('sustainability.testimonial.text')}</p>
+              <p className="text-xs font-bold uppercase tracking-widest mt-4 text-on-surface-variant">{t('sustainability.testimonial.author')}</p>
             </div>
           </motion.div>
         </div>

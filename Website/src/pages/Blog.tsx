@@ -1,5 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { blogPosts, BlogPost, getFeaturedPosts, getRecentPosts } from '../data/blogPosts';
@@ -19,6 +20,7 @@ const categoryIcons: Record<BlogPost['category'], string> = {
 };
 
 export default function Blog() {
+  const { t } = useTranslation();
   const featuredPost = getFeaturedPosts()[0];
   const recentPosts = getRecentPosts(8).filter(p => p.id !== featuredPost?.id);
 
@@ -29,11 +31,11 @@ export default function Blog() {
   return (
     <div className="pt-28 pb-24 bg-surface min-h-screen">
       <Helmet>
-        <title>Blog - Anaaj.ai | Farming Tips, Success Stories & Agricultural Guides</title>
-        <meta name="description" content="Expert farming tips, how-to guides, farmer success stories, and agricultural education. Learn about crop diseases, soil health, irrigation, organic farming in Hindi, Punjabi & English." />
+        <title>{t('pages.blog.title')}</title>
+        <meta name="description" content={t('pages.blog.metaDesc')} />
         <link rel="canonical" href="https://anaaj.ai/blog" />
-        <meta property="og:title" content="Blog - Anaaj.ai | Farming Tips & Agricultural Guides" />
-        <meta property="og:description" content="Expert farming tips, how-to guides, farmer success stories, and agricultural education from India's #1 AI farming assistant." />
+        <meta property="og:title" content={t('pages.blog.title')} />
+        <meta property="og:description" content={t('pages.blog.metaDesc')} />
         <meta property="og:url" content="https://anaaj.ai/blog" />
         <meta property="og:type" content="blog" />
       </Helmet>
@@ -48,13 +50,13 @@ export default function Blog() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-tertiary-container text-tertiary-fixed w-fit mb-6 shadow-sm">
             <span className="material-symbols-outlined text-sm">article</span>
-            <span className="text-xs font-bold uppercase tracking-widest font-label">Knowledge Hub</span>
+            <span className="text-xs font-bold uppercase tracking-widest font-label">{t('blog.label')}</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-headline font-bold text-primary mb-4">
-            Learn. Grow. <span className="text-tertiary-fixed-variant italic">Thrive.</span>
+            {t('blog.titleLine1')} <span className="text-tertiary-fixed-variant italic">{t('blog.titleLine2')}</span>
           </h1>
           <p className="text-xl text-on-surface-variant max-w-2xl">
-            Expert farming guides, real success stories, and actionable agricultural knowledge—all in your language.
+            {t('blog.description')}
           </p>
         </motion.div>
 
@@ -77,7 +79,7 @@ export default function Blog() {
                     />
                     <div className="absolute top-4 left-4">
                       <span className="bg-tertiary-fixed text-on-tertiary-fixed px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider">
-                        Featured
+                        {t('blog.featured')}
                       </span>
                     </div>
                   </div>
@@ -113,10 +115,10 @@ export default function Blog() {
         {/* Category Quick Links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
           {[
-            { category: 'how-to', label: 'How-To Guides', count: howToGuides.length },
-            { category: 'success-story', label: 'Success Stories', count: successStories.length },
-            { category: 'education', label: 'Educational', count: educational.length },
-            { category: 'news', label: 'News & Updates', count: blogPosts.filter(p => p.category === 'news').length }
+            { category: 'how-to', label: t('blog.categories.howTo'), count: howToGuides.length },
+            { category: 'success-story', label: t('blog.categories.successStory'), count: successStories.length },
+            { category: 'education', label: t('blog.categories.education'), count: educational.length },
+            { category: 'news', label: t('blog.categories.news'), count: blogPosts.filter(p => p.category === 'news').length }
           ].map((cat, i) => (
             <motion.a
               key={cat.category}
@@ -130,14 +132,14 @@ export default function Blog() {
                 {categoryIcons[cat.category as BlogPost['category']]}
               </span>
               <h3 className="font-bold text-primary group-hover:text-tertiary-fixed-variant transition-colors">{cat.label}</h3>
-              <p className="text-sm text-on-surface-variant">{cat.count} articles</p>
+              <p className="text-sm text-on-surface-variant">{t('blog.articlesCount', { count: cat.count })}</p>
             </motion.a>
           ))}
         </div>
 
         {/* Recent Posts Grid */}
         <div className="mb-20">
-          <h2 className="text-2xl md:text-3xl font-headline font-bold text-primary mb-8">Latest Articles</h2>
+          <h2 className="text-2xl md:text-3xl font-headline font-bold text-primary mb-8">{t('blog.latestArticles')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {recentPosts.slice(0, 6).map((post, i) => (
               <motion.div
@@ -184,7 +186,7 @@ export default function Blog() {
         <section id="how-to" className="mb-20 scroll-mt-32">
           <div className="flex items-center gap-4 mb-8">
             <span className="material-symbols-outlined text-3xl text-blue-600">build</span>
-            <h2 className="text-2xl md:text-3xl font-headline font-bold text-primary">How-To Guides</h2>
+            <h2 className="text-2xl md:text-3xl font-headline font-bold text-primary">{t('blog.categories.howTo')}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {howToGuides.map((post) => (
@@ -214,7 +216,7 @@ export default function Blog() {
         <section id="success-story" className="mb-20 scroll-mt-32">
           <div className="flex items-center gap-4 mb-8">
             <span className="material-symbols-outlined text-3xl text-green-600">emoji_events</span>
-            <h2 className="text-2xl md:text-3xl font-headline font-bold text-primary">Farmer Success Stories</h2>
+            <h2 className="text-2xl md:text-3xl font-headline font-bold text-primary">{t('blog.categories.successStory')}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {successStories.map((post) => (
@@ -245,7 +247,7 @@ export default function Blog() {
         <section id="education" className="mb-20 scroll-mt-32">
           <div className="flex items-center gap-4 mb-8">
             <span className="material-symbols-outlined text-3xl text-purple-600">school</span>
-            <h2 className="text-2xl md:text-3xl font-headline font-bold text-primary">Educational Guides</h2>
+            <h2 className="text-2xl md:text-3xl font-headline font-bold text-primary">{t('blog.categories.education')}</h2>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {educational.map((post) => (
@@ -275,7 +277,7 @@ export default function Blog() {
         <section id="news" className="mb-20 scroll-mt-32">
           <div className="flex items-center gap-4 mb-8">
             <span className="material-symbols-outlined text-3xl text-orange-600">newspaper</span>
-            <h2 className="text-2xl md:text-3xl font-headline font-bold text-primary">News & Updates</h2>
+            <h2 className="text-2xl md:text-3xl font-headline font-bold text-primary">{t('blog.categories.news')}</h2>
           </div>
           <div className="grid grid-cols-1 gap-4">
             {blogPosts.filter(p => p.category === 'news').map((post) => (
@@ -314,17 +316,17 @@ export default function Blog() {
           className="rounded-[2rem] bg-primary p-8 md:p-12 text-center"
         >
           <h2 className="text-2xl md:text-4xl font-headline font-bold text-white mb-4">
-            Get Personalized Farming Advice
+            {t('blog.cta.title')}
           </h2>
           <p className="text-white/80 mb-8 max-w-2xl mx-auto">
-            All this knowledge and more, available instantly through voice in Hindi, Punjabi, Gujarati, and 12+ Indian languages.
+            {t('blog.cta.desc')}
           </p>
           <Link 
             to="/download" 
             className="inline-flex items-center gap-2 bg-tertiary-fixed text-on-tertiary-fixed px-8 py-4 rounded-2xl font-bold hover:scale-105 transition-transform shadow-xl"
           >
             <span className="material-symbols-outlined">download</span>
-            Download Anaaj.ai App
+            {t('blog.cta.button')}
           </Link>
         </motion.div>
 

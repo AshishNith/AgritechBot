@@ -265,6 +265,11 @@ export interface WalletUpdateResponse {
   message?: string;
 }
 
+export interface MarketplacePaymentVerificationResponse {
+  success: boolean;
+  orderId: string;
+}
+
 export interface OrderSummary {
   id: string;
   items: Array<{

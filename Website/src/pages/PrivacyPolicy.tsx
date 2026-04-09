@@ -1,16 +1,18 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useTranslation, Trans } from 'react-i18next';
 import { motion } from 'framer-motion';
 
 export default function PrivacyPolicy() {
+  const { t } = useTranslation();
   return (
     <div className="pt-32 pb-24 bg-surface min-h-screen">
       <Helmet>
-        <title>Privacy Policy - Anaaj.ai | Your Data Protection Rights</title>
-        <meta name="description" content="Anaaj.ai Privacy Policy: Learn how we protect your farming data. Your data belongs to you - we never sell personal information to third parties. SSL/TLS encryption for all data." />
+        <title>{t('pages.privacy.title')}</title>
+        <meta name="description" content={t('pages.privacy.metaDesc')} />
         <link rel="canonical" href="https://anaaj.ai/privacy" />
-        <meta property="og:title" content="Privacy Policy - Anaaj.ai" />
-        <meta property="og:description" content="Learn how Anaaj.ai protects your farming data with industry-standard encryption." />
+        <meta property="og:title" content={t('pages.privacy.title')} />
+        <meta property="og:description" content={t('pages.privacy.metaDesc')} />
         <meta property="og:url" content="https://anaaj.ai/privacy" />
       </Helmet>
       <div className="max-w-4xl mx-auto px-8">
@@ -20,45 +22,50 @@ export default function PrivacyPolicy() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-16"
         >
-          <h1 className="text-5xl font-headline font-bold text-primary mb-4">Privacy Policy</h1>
-          <p className="text-on-surface-variant font-medium uppercase tracking-widest text-sm">Last Updated: March 2026</p>
+          <h1 className="text-5xl font-headline font-bold text-primary mb-4">{t('privacyPolicy.title')}</h1>
+          <p className="text-on-surface-variant font-medium uppercase tracking-widest text-sm">{t('privacyPolicy.lastUpdated')}</p>
         </motion.div>
 
         <div className="space-y-12 text-on-surface font-body leading-relaxed prose prose-headings:font-headline prose-headings:text-primary">
           <section>
-            <h2 className="text-2xl font-bold mb-4">1. Data Ownership</h2>
-            <p>At Anaaj.ai, we operate on a fundamental principle: <strong>Your data belongs to you.</strong> We do not sell your personal information or agricultural data to third-party marketers. Your soil history, crop data, and voice recordings are used solely to provide more accurate agricultural advice to you.</p>
+            <h2 className="text-2xl font-bold mb-4">{t('privacyPolicy.section1.title')}</h2>
+            <p>
+              <Trans i18nKey="privacyPolicy.section1.text">
+                At Anaaj.ai, we operate on a fundamental principle: <strong>Your data belongs to you.</strong> We do not sell your personal information or agricultural data to third-party marketers. Your soil history, crop data, and voice recordings are used solely to provide more accurate agricultural advice to you.
+              </Trans>
+            </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold mb-4">2. Information Collection</h2>
-            <p>We collect information necessary to provide our services, including:</p>
+            <h2 className="text-2xl font-bold mb-4">{t('privacyPolicy.section2.title')}</h2>
+            <p>{t('privacyPolicy.section2.text')}</p>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Profile data (name, phone number, location).</li>
-              <li>Voice recordings (processed to understand your farming queries).</li>
-              <li>Satellite and GPS data (to provide localized weather and soil insights).</li>
-              <li>Crop health photos (used for pest and disease diagnosis).</li>
+              {(t('privacyPolicy.section2.items', { returnObjects: true }) as string[]).map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
             </ul>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold mb-4">3. Data Security</h2>
-            <p>We use industry-standard encryption protocols (SSL/TLS) to protect your data during transmission and storage. Access to your personal data is restricted to authorized Anaaj.ai personnel who require it to provide support and technical improvements.</p>
+            <h2 className="text-2xl font-bold mb-4">{t('privacyPolicy.section3.title')}</h2>
+            <p>{t('privacyPolicy.section3.text')}</p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold mb-4">4. Sharing Information</h2>
-            <p>We may share anonymous, aggregated data at a regional level (e.g., broad pest outbreak alerts) with government organizations to help prevent regional crop failures. This data is fully anonymized and cannot be linked back to individual farmers.</p>
+            <h2 className="text-2xl font-bold mb-4">{t('privacyPolicy.section4.title')}</h2>
+            <p>{t('privacyPolicy.section4.text')}</p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold mb-4">5. Your Rights</h2>
-            <p>You have the right to request a full copy of your data, or request the deletion of your account and all associated data at any time through our support portal or mobile app settings.</p>
+            <h2 className="text-2xl font-bold mb-4">{t('privacyPolicy.section5.title')}</h2>
+            <p>{t('privacyPolicy.section5.text')}</p>
           </section>
 
           <div className="p-8 bg-surface-container-low rounded-3xl border border-outline-variant/10 mt-12">
-            <h3 className="font-bold text-primary mb-2">Questions?</h3>
-            <p className="text-sm text-on-surface-variant">If you have any questions regarding your privacy, please contact us at <span className="font-bold">privacy@anaajai.com</span></p>
+            <h3 className="font-bold text-primary mb-2">{t('privacyPolicy.questions.title')}</h3>
+            <p className="text-sm text-on-surface-variant">
+              {t('privacyPolicy.questions.text')} <span className="font-bold">{t('privacyPolicy.questions.email')}</span>
+            </p>
           </div>
         </div>
 

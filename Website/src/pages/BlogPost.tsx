@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { getBlogPostBySlug, getRecentPosts, BlogPost, blogPosts } from '../data/blogPosts';
 
 const categoryColors: Record<BlogPost['category'], string> = {
@@ -19,6 +20,7 @@ const categoryIcons: Record<BlogPost['category'], string> = {
 };
 
 export default function BlogPostPage() {
+  const { t } = useTranslation();
   const { slug } = useParams();
   const navigate = useNavigate();
   const post = getBlogPostBySlug(slug || '');
@@ -35,7 +37,7 @@ export default function BlogPostPage() {
     return (
       <div className="min-h-screen bg-surface pt-32 pb-24 flex flex-col items-center justify-center px-6">
         <Helmet>
-          <title>Article Not Found - Anaaj.ai Blog</title>
+          <title>{t('blog.articleNotFound')} - Anaaj.ai Blog</title>
           <meta name="robots" content="noindex" />
         </Helmet>
         <motion.div
@@ -46,11 +48,11 @@ export default function BlogPostPage() {
           <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-red-100 flex items-center justify-center">
             <span className="material-symbols-outlined text-red-500 text-4xl">search_off</span>
           </div>
-          <h1 className="text-4xl font-bold text-primary mb-4">Article Not Found</h1>
-          <p className="text-on-surface-variant mb-8 max-w-md">The article you're looking for doesn't exist or has been moved.</p>
+          <h1 className="text-4xl font-bold text-primary mb-4">{t('blog.articleNotFound')}</h1>
+          <p className="text-on-surface-variant mb-8 max-w-md">{t('blog.notFoundDescription')}</p>
           <Link to="/blog" className="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-xl font-bold hover:scale-105 transition-transform">
             <span className="material-symbols-outlined">arrow_back</span>
-            Back to Blog
+            {t('blog.backToBlog')}
           </Link>
         </motion.div>
       </div>
@@ -135,7 +137,7 @@ export default function BlogPostPage() {
               className="flex items-center gap-2 bg-white/95 backdrop-blur-xl px-5 py-2.5 rounded-full font-bold text-sm shadow-xl hover:shadow-2xl hover:scale-105 transition-all border border-white/50"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
-              <span className="hidden sm:inline">Back</span>
+              <span className="hidden sm:inline">{t('blog.back')}</span>
             </motion.button>
             
             <motion.div 
@@ -148,7 +150,7 @@ export default function BlogPostPage() {
                 className="flex items-center gap-2 bg-white/95 backdrop-blur-xl px-4 py-2.5 rounded-full font-bold text-sm shadow-xl hover:shadow-2xl hover:scale-105 transition-all border border-white/50"
               >
                 <span className="material-symbols-outlined text-lg">{copied ? 'check' : 'link'}</span>
-                <span className="hidden sm:inline">{copied ? 'Copied!' : 'Copy Link'}</span>
+                <span className="hidden sm:inline">{copied ? t('blog.copied') : t('blog.copyLink')}</span>
               </button>
             </motion.div>
           </div>
@@ -165,7 +167,7 @@ export default function BlogPostPage() {
             {/* Category Badge */}
             <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-6 border backdrop-blur-md ${categoryColors[post.category]}`}>
               <span className="material-symbols-outlined text-base">{categoryIcons[post.category]}</span>
-              {post.categoryLabel}
+              {t(`blog.categories.${post.category}`)}
             </div>
             
             {/* Title */}
@@ -195,7 +197,7 @@ export default function BlogPostPage() {
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <span className="material-symbols-outlined text-lg">schedule</span>
-                {post.readTime}
+                {t('blog.readTime', { count: parseInt(post.readTime) })}
               </div>
             </div>
           </motion.div>
@@ -240,7 +242,7 @@ export default function BlogPostPage() {
                 <button 
                   onClick={handleCopyLink}
                   className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all"
-                  title="Copy Link"
+                  title={t('blog.copyLink')}
                 >
                   <span className="material-symbols-outlined text-xl">{copied ? 'check' : 'link'}</span>
                 </button>
@@ -261,7 +263,7 @@ export default function BlogPostPage() {
                   <span className="material-symbols-outlined text-primary text-2xl">lightbulb</span>
                 </div>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-primary mb-2">Key Takeaway</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-primary mb-2">{t('blog.keyTakeaway')}</p>
                   <p className="text-lg text-on-surface-variant leading-relaxed">{post.excerpt}</p>
                 </div>
               </div>
@@ -304,7 +306,7 @@ export default function BlogPostPage() {
             >
               <div className="flex items-center gap-3 mb-6">
                 <span className="material-symbols-outlined text-primary">sell</span>
-                <h3 className="font-bold text-primary text-lg">Topics Covered</h3>
+                <h3 className="font-bold text-primary text-lg">{t('blog.topicsCovered')}</h3>
               </div>
               <div className="flex flex-wrap gap-2">
                 {post.tags.map(tag => (
@@ -322,7 +324,7 @@ export default function BlogPostPage() {
             <div className="lg:hidden mt-10 p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10">
               <h3 className="font-bold text-primary mb-4 flex items-center gap-2">
                 <span className="material-symbols-outlined">share</span>
-                Share this article
+                {t('blog.shareArticle')}
               </h3>
               <div className="flex gap-3">
                 <a 
@@ -348,7 +350,7 @@ export default function BlogPostPage() {
                   className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-surface-container text-on-surface font-bold hover:bg-primary hover:text-on-primary transition-colors border border-outline-variant/20"
                 >
                   <span className="material-symbols-outlined">{copied ? 'check' : 'link'}</span>
-                  {copied ? 'Copied!' : 'Copy'}
+                  {copied ? t('blog.copied') : t('blog.back')}
                 </button>
               </div>
             </div>
@@ -365,11 +367,11 @@ export default function BlogPostPage() {
                   <span className="material-symbols-outlined text-white text-3xl md:text-4xl">person</span>
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Written by</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">{t('blog.writtenBy')}</p>
                   <h4 className="text-xl md:text-2xl font-bold text-primary mb-1">{post.author}</h4>
                   <p className="text-on-surface-variant mb-4">{post.authorRole}</p>
                   <p className="text-sm text-on-surface-variant leading-relaxed">
-                    Expert contributor at Anaaj.ai, helping Indian farmers adopt modern agricultural practices through AI-powered insights and guidance.
+                    {t('blog.authorExpertise')}
                   </p>
                 </div>
               </div>
@@ -397,17 +399,17 @@ export default function BlogPostPage() {
                     <span className="material-symbols-outlined text-2xl">smartphone</span>
                   </div>
                   <h3 className="text-xl md:text-2xl font-headline font-bold mb-3">
-                    Get Expert Advice Anytime
+                    {t('blog.getExpertAdvice')}
                   </h3>
                   <p className="text-white/80 text-sm mb-6 leading-relaxed">
-                    Ask questions in Hindi, Punjabi, Gujarati or English. Our AI assistant gives instant, personalized farming advice.
+                    {t('blog.getExpertAdviceDesc')}
                   </p>
                   <Link 
                     to="/download" 
                     className="flex items-center justify-center gap-2 w-full bg-tertiary-fixed text-on-tertiary-fixed py-4 rounded-2xl font-bold hover:scale-[1.02] hover:shadow-xl transition-all"
                   >
                     <span className="material-symbols-outlined">download</span>
-                    Download Free App
+                    {t('blog.downloadFreeApp')}
                   </Link>
                 </div>
               </motion.div>
@@ -422,7 +424,7 @@ export default function BlogPostPage() {
                 >
                   <h3 className="font-bold text-primary text-lg mb-6 flex items-center gap-2">
                     <span className="material-symbols-outlined">auto_stories</span>
-                    Related Articles
+                    {t('blog.relatedArticles')}
                   </h3>
                   <div className="space-y-4">
                     {relatedPosts.map((relatedPost, index) => (
@@ -442,7 +444,7 @@ export default function BlogPostPage() {
                           </h4>
                           <p className="text-xs text-on-surface-variant mt-2 flex items-center gap-1">
                             <span className="material-symbols-outlined text-sm">schedule</span>
-                            {relatedPost.readTime}
+                            {t('blog.readTime', { count: parseInt(relatedPost.readTime) })}
                           </p>
                         </div>
                       </Link>
@@ -452,7 +454,7 @@ export default function BlogPostPage() {
                     to="/blog" 
                     className="mt-6 flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-primary/20 text-primary font-bold hover:bg-primary hover:text-on-primary transition-all"
                   >
-                    View All Articles
+                    {t('blog.viewAllArticles')}
                     <span className="material-symbols-outlined">arrow_forward</span>
                   </Link>
                 </motion.div>
@@ -467,17 +469,17 @@ export default function BlogPostPage() {
               >
                 <h3 className="font-bold text-primary text-lg mb-4 flex items-center gap-2">
                   <span className="material-symbols-outlined">help</span>
-                  Need Help?
+                  {t('blog.needHelp')}
                 </h3>
                 <p className="text-sm text-on-surface-variant mb-4">
-                  Have questions about this article or need personalized advice for your farm?
+                  {t('blog.needHelpDesc')}
                 </p>
                 <Link 
                   to="/contact" 
                   className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-surface-container text-primary font-bold hover:bg-primary hover:text-on-primary transition-all border border-outline-variant/20"
                 >
                   <span className="material-symbols-outlined">mail</span>
-                  Contact Our Experts
+                  {t('blog.contactExperts')}
                 </Link>
               </motion.div>
 
@@ -497,13 +499,13 @@ export default function BlogPostPage() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-tertiary-fixed/10 text-tertiary-fixed mb-6">
               <span className="material-symbols-outlined">trending_up</span>
-              <span className="text-sm font-bold">Join 500K+ Farmers</span>
+              <span className="text-sm font-bold">{t('blog.joinFarmers')}</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-headline font-bold text-primary mb-6">
-              Transform Your Farming with AI
+              {t('blog.transformFarming')}
             </h2>
             <p className="text-lg text-on-surface-variant mb-10 max-w-2xl mx-auto">
-              Get personalized crop advice, disease detection, weather alerts, and market prices—all in your native language.
+              {t('blog.transformFarmingDesc')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
@@ -511,14 +513,14 @@ export default function BlogPostPage() {
                 className="inline-flex items-center justify-center gap-3 bg-primary text-on-primary px-8 py-4 rounded-2xl font-bold text-lg hover:scale-105 transition-transform shadow-xl"
               >
                 <span className="material-symbols-outlined">download</span>
-                Download Anaaj.ai
+                {t('blog.downloadAnaaj')}
               </Link>
               <Link 
                 to="/blog" 
                 className="inline-flex items-center justify-center gap-3 bg-surface-container-lowest text-primary px-8 py-4 rounded-2xl font-bold text-lg hover:bg-surface-container transition-colors border border-outline-variant/20"
               >
                 <span className="material-symbols-outlined">article</span>
-                Read More Articles
+                {t('blog.readMoreArticles')}
               </Link>
             </div>
           </motion.div>

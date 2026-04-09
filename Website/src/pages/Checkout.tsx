@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useParams, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { getApiBaseUrl } from '../utils/runtime';
 
@@ -25,6 +26,7 @@ interface CheckoutSession {
 }
 
 export default function Checkout() {
+  const { t } = useTranslation();
   const { paymentOrderId = '' } = useParams();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
@@ -33,7 +35,7 @@ export default function Checkout() {
   // SEO - Checkout pages should not be indexed
   const seoHelmet = (
     <Helmet>
-      <title>Secure Checkout - Anaaj.ai</title>
+      <title>{t('pages.checkout.title')}</title>
       <meta name="robots" content="noindex, nofollow" />
     </Helmet>
   );
@@ -41,7 +43,7 @@ export default function Checkout() {
   const [session, setSession] = useState<CheckoutSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [launching, setLaunching] = useState(false);
-  const [message, setMessage] = useState('Preparing secure checkout...');
+  const [message, setMessage] = useState(t('checkout.preparing'));
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -59,7 +61,7 @@ export default function Checkout() {
 
     const loadSession = async () => {
       if (!paymentOrderId || !token) {
-        setError('The checkout link is incomplete. Please start the payment again from the app.');
+        setError(t('checkout.linkIncomplete'));
         setLoading(false);
         return;
       }
@@ -70,15 +72,15 @@ export default function Checkout() {
         );
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data.error || 'Unable to load checkout session');
+          throw new Error(data.error || t('checkout.unableToLoad'));
         }
         if (!cancelled) {
           setSession(data);
-          setMessage('Secure checkout is ready.');
+          setMessage(t('checkout.ready'));
         }
       } catch (loadError: any) {
         if (!cancelled) {
-          setError(loadError.message || 'Unable to load checkout session');
+          setError(loadError.message || t('checkout.unableToLoad'));
         }
       } finally {
         if (!cancelled) {
@@ -95,7 +97,7 @@ export default function Checkout() {
 
   const launchCheckout = async () => {
     if (!session || !window.Razorpay) {
-      setError('Checkout SDK is not available. Please refresh and try again.');
+      setError(t('checkout.sdkUnavailable'));
       return;
     }
 
@@ -109,12 +111,12 @@ export default function Checkout() {
       name: 'Anaaj AI',
       description:
         session.purpose === 'subscription'
-          ? `Subscription checkout${session.metadata?.tier ? ` (${String(session.metadata.tier)})` : ''}`
-          : 'Order checkout',
+          ? `${t('checkout.subscription')} checkout${session.metadata?.tier ? ` (${String(session.metadata.tier)})` : ''}`
+          : `${t('checkout.order')} checkout`,
       order_id: session.providerOrderId,
       handler: async (response: Record<string, unknown>) => {
         try {
-          setMessage('Verifying payment...');
+          setMessage(t('checkout.verifying'));
           const verifyResponse = await fetch(`${apiBaseUrl}/api/payment/verify`, {
             method: 'POST',
             headers: {
@@ -130,16 +132,16 @@ export default function Checkout() {
           });
           const verifyData = await verifyResponse.json();
           if (!verifyResponse.ok) {
-            throw new Error(verifyData.error || 'Payment verification failed');
+            throw new Error(verifyData.error || t('checkout.verificationFailed'));
           }
 
           if (verifyData.purpose === 'subscription') {
-            setMessage(`Payment verified. Your ${verifyData.subscriptionTier} subscription is active. You can return to the app.`);
+            setMessage(t('checkout.verifiedSubscription', { tier: verifyData.subscriptionTier }));
           } else {
-            setMessage(`Payment verified. Order ${verifyData.orderId} is confirmed. You can return to the app.`);
+            setMessage(t('checkout.verifiedOrder', { id: verifyData.orderId }));
           }
         } catch (verifyError: any) {
-          setError(verifyError.message || 'Payment verification failed');
+          setError(verifyError.message || t('checkout.verificationFailed'));
         } finally {
           setLaunching(false);
         }
@@ -147,7 +149,7 @@ export default function Checkout() {
       modal: {
         ondismiss: () => {
           setLaunching(false);
-          setMessage('Checkout was closed. You can reopen it whenever you are ready.');
+          setMessage(t('checkout.closed'));
         },
       },
       theme: {
@@ -163,16 +165,16 @@ export default function Checkout() {
       {seoHelmet}
       <div className="max-w-2xl mx-auto">
         <div className="bg-surface-container-lowest border border-outline-variant/20 rounded-[2rem] shadow-xl p-8 md:p-12">
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-on-surface-variant">Secure checkout</p>
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-on-surface-variant">{t('checkout.subtitle')}</p>
           <h1 className="text-4xl md:text-5xl font-headline font-bold text-primary mt-4">
-            Complete your payment
+            {t('checkout.title')}
           </h1>
           <p className="text-on-surface-variant text-lg mt-4 leading-relaxed">
-            This page verifies your payment directly with AnaajAI before activating your order or subscription.
+            {t('checkout.description')}
           </p>
 
           {loading ? (
-            <div className="mt-10 text-on-surface-variant">Loading checkout session...</div>
+            <div className="mt-10 text-on-surface-variant">{t('checkout.loading')}</div>
           ) : null}
 
           {session ? (
@@ -180,7 +182,7 @@ export default function Checkout() {
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-on-surface-variant text-sm uppercase tracking-[0.2em]">
-                    {session.purpose === 'subscription' ? 'Subscription' : 'Order'}
+                    {session.purpose === 'subscription' ? t('checkout.subscription') : t('checkout.order')}
                   </p>
                   <p className="text-3xl font-bold text-primary mt-2">
                     Rs {(session.amount / 100).toFixed(2)}
@@ -191,19 +193,19 @@ export default function Checkout() {
                   disabled={launching}
                   className="bg-primary text-on-primary px-6 py-3 rounded-2xl font-bold hover:scale-[1.02] transition-transform disabled:opacity-60 disabled:hover:scale-100"
                 >
-                  {launching ? 'Processing...' : 'Open Razorpay Checkout'}
+                  {launching ? t('checkout.processing') : t('checkout.openRazorpay')}
                 </button>
               </div>
             </div>
           ) : null}
 
           <div className="mt-8 rounded-3xl bg-primary/5 border border-primary/10 p-5">
-            <p className="font-semibold text-primary">Status</p>
+            <p className="font-semibold text-primary">{t('checkout.status')}</p>
             <p className="text-on-surface-variant mt-2 leading-relaxed">{error || message}</p>
           </div>
 
           <div className="mt-8 text-sm text-on-surface-variant">
-            After the status changes to verified, you can return to the mobile app and refresh payment status there.
+            {t('checkout.footer')}
           </div>
         </div>
       </div>

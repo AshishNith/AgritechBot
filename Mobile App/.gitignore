@@ -1,4 +1,4 @@
-# EAS Build Ignore
+# Dependencies
 node_modules/
 .expo/
 .expo-shared/

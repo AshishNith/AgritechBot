@@ -1,0 +1,602 @@
+{
+  "common": {
+    "anaaj": "Anaaj AI",
+    "farming": "Farming",
+    "assistant": "Assistant",
+    "loading": "Loading...",
+    "retry": "Retry",
+    "watchDemo": "Watch Demo",
+    "startTrial": "Start Your Free Trial"
+  },
+  "nav": {
+    "home": "Home",
+    "blog": "Blog",
+    "about": "About Us",
+    "contact": "Contact",
+    "getApp": "Get App",
+    "downloadApp": "Download App",
+    "blogWithGuides": "Blog & Guides"
+  },
+  "hero": {
+    "tagline": "The Future of Farming",
+    "title1": "Your AI",
+    "title2": "Farming",
+    "title3": "Assistant.",
+    "description": "Bridging the expert gap with multilingual voice AI that understands your soil, your weather, and your crops.",
+    "dataTitle": "Intelligent Data.",
+    "dataDesc": "Real-time analytics and precision tools for every acre, completely tailored to your local environment.",
+    "harvestTitle": "Harvest with Confidence.",
+    "harvestDesc": "Watch your yield increase and costs decrease."
+  },
+  "footer": {
+    "mission": "Rooted in intelligence. Growing the future of sustainable and profitable agriculture for everyone.",
+    "company": "Company",
+    "resources": "Resources",
+    "supportLegal": "Support & Legal",
+    "sustainabilityReport": "Sustainability Report",
+    "sitemap": "Global Sitemap",
+    "howToGuides": "How-To Guides",
+    "farmerStories": "Farmer Stories",
+    "learnFarming": "Learn Farming",
+    "contactSupport": "Contact Support",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "copyright": "© 2026 Anaaj.ai Precision. Rooted in Intelligence.",
+    "systemsOperational": "Systems Operational"
+  },
+  "features": {
+    "precisionTitle": "Precision Farming",
+    "toolsTitleLine1": "Precision tools for",
+    "toolsTitleLine2": "every acre.",
+    "status": {
+      "soilHealth": "Soil Health",
+      "pestRisk": "Pest Risk",
+      "yieldEst": "Yield Est.",
+      "water": "Water",
+      "optimal": "Optimal",
+      "low": "Low"
+    },
+    "aiVisionTitle": "AI Vision",
+    "diseaseTitleLine1": "Identify pests and diseases",
+    "diseaseTitleLine2": "in seconds.",
+    "analyzing": "Analyzing Leaf Structure...",
+    "aiDesc": "Take a photo of your leaf or crop. Our AI analyzes thousands of data points to identify issues instantly and suggest the exact cure.",
+    "fungalDetection": "Fungal & Bacterial detection",
+    "nutrientAnalysis": "Nutrient deficiency analysis",
+    "smartInsights": "Smart Insights",
+    "dataDrivenTitle": "Data-driven decisions, simplified.",
+    "dataDrivenDesc": "Anaaj.ai connects with your local climate data and soil history to provide recommendations that actually work for your specific land.",
+    "learnData": "Learn how we use data",
+    "soilPH": "Soil pH",
+    "moisture": "Moisture",
+    "perfectRange": "Perfect Range",
+    "smartRecommendation": "Smart Recommendation",
+    "recommendationText": "Add organic compost next week to maintain nitrogen levels before the sowing cycle."
+  },
+  "timeline": {
+    "step1Title": "Ask",
+    "step1Desc": "Speak or type your problem in your local language. No need to look up confusing scientific jargon.",
+    "voiceInput": "Voice Input",
+    "step2Title": "Understand",
+    "step2Desc": "The AI instantly processes the context. It analyzes your historical crop history, local weather forecasts, and satellite data to pinpoint the exact issue.",
+    "deepProcessing": "Deep Processing",
+    "step3Title": "Advice",
+    "step3Desc": "Receive actionable, clear steps to fix the problem. You will get exact chemical or organic dosages, timing suggestions based on the rain forecast, and immediate fixes.",
+    "actionableFixes": "Actionable Fixes",
+    "step4Title": "Thrive",
+    "step4Desc": "Watch your yield increase safely. By avoiding broad-spectrum spraying and applying targeted fertilizer only when necessary, your costs decrease while plant health soars.",
+    "costReduction": "Cost Reduction"
+  },
+  "weather": {
+    "location": "Ludhiana, PB",
+    "day": "Monday, 14 Oct",
+    "humidity": "Humidity",
+    "rain": "Rain",
+    "wind": "Wind",
+    "aiAlert": "AI ALERT",
+    "alertTitle": "Heavy rain expected in 4 hours. Avoid spraying fertilizer today.",
+    "alertDesc": "We’ve detected a high-probability storm cell. Save your inputs and wait for Wednesday morning for the best absorption window.",
+    "setAlert": "Set Alert",
+    "viewDetail": "View Detail"
+  },
+  "pricing": {
+    "title": "Simple Pricing.",
+    "desc": "Choose a plan that fits your farm's scale. No hidden fees.",
+    "popular": "Popular",
+    "planName": "Pro Farmer",
+    "price": "₹149",
+    "perMonth": "/month",
+    "feature1": "Unlimited Voice Queries",
+    "feature2": "Advanced Pest Diagnosis",
+    "feature3": "Personalized Market Price Alerts",
+    "cta": "Get Started"
+  },
+  "faq": {
+    "title": "Common Questions",
+    "q1": "Does it work without internet?",
+    "a1": "Yes, Anaaj.ai supports offline caching for weather and basic advisory tips. Voice interactions require a basic 2G connection for cloud processing.",
+    "q2": "Is my data safe?",
+    "a2": "Absolutely. We never sell farmer data to third parties. Your soil history is encrypted and used only to provide better advice to you.",
+    "q3": "Which languages are supported?",
+    "a3": "We currently support Hindi, Gujarati, Punjabi, Marathi, Telugu, Tamil, and English. We are adding new languages every month."
+  },
+  "marketplace": {
+    "label": "Marketplace",
+    "title": "Top Featured Vendors",
+    "viewAll": "View All Sellers"
+  },
+  "appShowcase": {
+    "title": "The entire farm in your pocket.",
+    "subtitle": "Voice-first design.",
+    "desc": "We know you have your hands dirty. That's why every feature of Anaaj.ai is accessible via voice commands. Just double-tap anywhere to talk.",
+    "offlineSupport": "Offline Support",
+    "dataPrivacy": "Data Privacy"
+  },
+  "founders": {
+    "label": "The Visionaries",
+    "title": "Meet the Founders",
+    "desc": "Driven by a singular goal: to make expert agricultural knowledge accessible to every farmer in India.",
+    "ashish": {
+      "role": "Founder & Lead Visionary",
+      "desc": "A technologist at heart with a deep-rooted passion for agriculture. Ashish founded Anaaj AI to bridge the technological gap in rural India, leveraging AI to empower the next generation of farmers with multilingual, voice-first intelligence."
+    },
+    "mehak": {
+      "role": "Co-Founder & Agronomy Lead",
+      "desc": "With a PhD in Plant Pathology, Mehak ensures that every insight provided by Anaaj AI is scientifically accurate and localized. She leads our research on crop diseases and pest management across diverse Indian agro-climatic zones."
+    },
+    "vikram": {
+      "role": "Product Head",
+      "desc": "Vikram specializes in building intuitive user experiences for rural users. He focuses on the 'Zero Literacy' interface, ensuring that our voice-first technology is accessible to everyone, regardless of their technical background."
+    },
+    "sanjay": {
+      "role": "Operations & Farmer Outreach",
+      "desc": "Sanjay leads our on-ground efforts, working directly with farmer cooperatives and FPOs. He ensures that Anaaj AI is not just a tool, but a trusted companion in every village we operate in."
+    }
+  },
+  "map": {
+    "presence": "Our Presence",
+    "title": "Rooted in Punjab,",
+    "titleItalic": "Growing Globally.",
+    "description": "Our headquarters at the Agro-Tech Hub is the nerve center of Anaaj.ai, coordinating with thousands of local data nodes across the agricultural heartlands of India.",
+    "innovationHQ": "Innovation HQ",
+    "innovationHQDesc": "Sector 82, Mohali, Punjab",
+    "trainingCenter": "Training Center",
+    "trainingCenterDesc": "Agricultural University Road, Ludhiana",
+    "dataNodes": "Data Nodes",
+    "dataNodesDesc": "Active in 40+ districts across 4 states",
+    "statusActive": "Status: Active",
+    "address": "Agro-Tech Hub, Level 4, Sector 82, Mohali, Punjab 140308"
+  },
+  "finalCTA": {
+    "title1": "Your harvest,",
+    "title2": "our intelligence.",
+    "desc": "Launch-ready support starts with truthful product surfaces. Download the current Android build when it is published, or talk to the team for rollout support.",
+    "getAndroid": "Get for Android",
+    "comingSoon": "Android build link coming soon",
+    "talkTeam": "Talk to the Team"
+  },
+  "youtube": {
+    "label": "Anaaj TV",
+    "title": "Latest Insights",
+    "subtitle": "from our Channel.",
+    "visit": "Visit Our Channel",
+    "join": "Join the Community",
+    "subscribe": "Subscribe for daily farming tips."
+  },
+  "pages": {
+    "home": {
+      "title": "Anaaj.ai | India's #1 Multilingual AI Farming Assistant",
+      "metaDesc": "Anaaj.ai is India's first multilingual AI farming assistant. Get real-time crop advice, pest diagnosis, weather alerts, and market prices in Hindi, Punjabi, Gujarati & 12+ Indian languages."
+    },
+    "about": {
+      "title": "About Us | Anaaj.ai - Rooted in Intelligence",
+      "metaDesc": "Learn about Anaaj.ai's mission to empower Indian farmers with precision AI technology and multilingual support."
+    },
+    "contact": {
+      "title": "Contact Us | Anaaj.ai Support",
+      "metaDesc": "Get in touch with the Anaaj.ai team for support, partnerships, or demonstrations."
+    },
+    "blog": {
+      "title": "Blog | Anaaj.ai Farming Insights",
+      "metaDesc": "Latest stories, guides, and technical updates from the world of AI-driven precision farming."
+    },
+    "sitemap": {
+      "title": "Sitemap | Anaaj.ai",
+      "metaDesc": "Find all pages and resources available on Anaaj.ai."
+    }
+  },
+  "aboutUs": {
+    "hero": {
+      "established": "Established 2024",
+      "titleLine1": "Rooted in",
+      "titleLine2": "Intelligence.",
+      "description": "We are building the first \"Zero Literacy\" agricultural operating system. A world where expertise doesn't require a degree, but simply a voice.",
+      "trustedFarmers": "500k+",
+      "trustedFarmersLabel": "Trusted Farmers"
+    },
+    "mission": {
+      "label": "Our Mission",
+      "title": "Bridging the",
+      "titleItalic": "Silent Gap.",
+      "p1": "For decades, the latest in agronomy was locked behind complex interfaces and English-centric technology. Meanwhile, the 140 million farmers who feed India were left to navigate the climate crisis with fragmented information.",
+      "quote": "\"At Anaaj AI, we believe translation isn't enough. Empowerment requires a platform that understands culture, dialect, and the weight of a seed.\"",
+      "p2": "Today, we provide instant, scientific crop advice through a platform that listens first. No typing in English, no complex dashboards—just spoken wisdom."
+    },
+    "dna": {
+      "title": "Our DNA.",
+      "description": "The principles that guide every model we train and every village we enter.",
+      "multilingual": {
+        "title": "Mother Tongue First",
+        "desc": "Support for 12+ Indian languages and hundreds of local dialects, making tech invisible."
+      },
+      "scientific": {
+        "title": "Scientific Rigor",
+        "desc": "Advice validated by PhD agronomists and local research stations."
+      },
+      "sustainable": {
+        "title": "Earth Centric",
+        "desc": "Promoting regenerative practices that ensure the soil stays fertile for centuries."
+      },
+      "builtForScale": {
+        "title": "Built for Scale",
+        "desc": "Designed to reach the last mile, from the Himalayas to Kanyakumari."
+      },
+      "privacy": {
+        "title": "Zero compromise on privacy."
+      }
+    },
+    "impact": {
+      "title": "The Future is",
+      "titleAudible": "Audible.",
+      "description": "We aren't just predicting the harvest; we are empowering the harvester. By 2030, our goal is to support 50 million farmers across the Global South.",
+      "cta": "Join the Movement",
+      "statValue": "50+",
+      "statLabel": "Villages Transformed"
+    }
+  },
+  "liveChat": {
+    "title": "Speaks Your Language",
+    "description": "Whether it's Hindi, Gujarati, or Punjabi, Anaaj.ai understands local dialects and context. Just speak naturally, and get instant answers.",
+    "languages": {
+      "hindi": "Hindi",
+      "gujarati": "Gujarati",
+      "punjabi": "Punjabi",
+      "more": "+ 12 more"
+    },
+    "chat": {
+      "user": {
+        "message": "મારી મગફળીના પાંદડા કેમ પીળા પડે છે?",
+        "translation": "(Why are my groundnut leaves turning yellow?)"
+      },
+      "ai": {
+        "message": "This could be Nitrogen deficiency or waterlogging. I see you had heavy rain yesterday. Try draining the excess water first."
+      }
+    }
+  },
+  "story": {
+    "title": "We Believe in the Farmer.",
+    "date": "Story of Ramesh",
+    "scroll": "Keep scrolling to expand"
+  },
+  "contactUs": {
+    "label": "Talk To Us",
+    "title": "Contact the AnaajAI team",
+    "description": "Have questions about our technology or looking for a partnership? Fill out the form below and we'll get back to you.",
+    "form": {
+      "name": "Full Name",
+      "namePlaceholder": "John Doe",
+      "email": "Email Address",
+      "emailPlaceholder": "john@example.com",
+      "subject": "Subject",
+      "subjectPlaceholder": "How can we help?",
+      "message": "Message",
+      "messagePlaceholder": "Your message here...",
+      "submit": "Send Message",
+      "sending": "Sending..."
+    },
+    "status": {
+      "success": "Message sent! We'll be in touch soon.",
+      "errorDefault": "Something went wrong. Please try again.",
+      "errorNetwork": "Network error. Please check your connection."
+    },
+    "sidebar": {
+      "email": {
+        "label": "Email support",
+        "desc": "Best for technical issues, launch questions, and partnership conversations."
+      },
+      "phone": {
+        "label": "Phone support",
+        "desc": "Best for urgent farmer onboarding or deployment coordination."
+      },
+      "address": {
+        "label": "Headquarters",
+        "line1": "Agro-Tech Hub, Level 4",
+        "line2": "Sector 82, Mohali, Punjab",
+        "line3": "India 140308"
+      },
+      "follow": "Follow Us"
+    }
+  },
+  "blog": {
+    "label": "Knowledge Hub",
+    "titleLine1": "Farming",
+    "titleLine2": "Knowledge Base",
+    "description": "Expert advice, success stories, and latest updates from the world of AI-powered agriculture.",
+    "featured": "Featured",
+    "readMore": "Read More",
+    "backToBlog": "Back to Blog",
+    "articleNotFound": "Article Not Found",
+    "notFoundDescription": "The article you're looking for doesn't exist or has been moved.",
+    "back": "Back",
+    "copied": "Copied!",
+    "copyLink": "Copy Link",
+    "shareArticle": "Share this article",
+    "topicsCovered": "Topics Covered",
+    "writtenBy": "Written by",
+    "authorExpertise": "Expert contributor at Anaaj.ai, helping Indian farmers adopt modern agricultural practices through AI-powered insights and guidance.",
+    "getExpertAdvice": "Get Expert Advice Anytime",
+    "getExpertAdviceDesc": "Ask questions in Hindi, Punjabi, Gujarati or English. Our AI assistant gives instant, personalized farming advice.",
+    "downloadFreeApp": "Download Free App",
+    "relatedArticles": "Related Articles",
+    "viewAllArticles": "View All Articles",
+    "needHelp": "Need Help?",
+    "needHelpDesc": "Have questions about this article or need personalized advice for your farm?",
+    "contactExperts": "Contact Our Experts",
+    "joinFarmers": "Join 500K+ Farmers",
+    "transformFarming": "Transform Your Farming with AI",
+    "transformFarmingDesc": "Get personalized crop advice, disease detection, weather alerts, and market prices—all in your native language.",
+    "downloadAnaaj": "Download Anaaj.ai",
+    "readMoreArticles": "Read More Articles",
+    "keyTakeaway": "Key Takeaway",
+    "readTime": "{{count}} min read",
+    "categories": {
+      "how-to": "How-To Guides",
+      "success-story": "Farmer Success Stories",
+      "education": "Educational Guides",
+      "news": "News & Updates"
+    }
+  },
+  "sitemapPage": {
+    "title": "Global Sitemap",
+    "description": "Explore all parts of the Anaaj Portal.",
+    "categories": {
+      "navigation": "Navigation",
+      "company": "Company",
+      "resources": "Blog & Resources",
+      "legal": "Support & Legal"
+    },
+    "links": {
+      "home": "Home",
+      "blog": "Blog",
+      "contact": "Contact",
+      "download": "Download App",
+      "about": "About Us",
+      "sustainability": "Sustainability Report",
+      "sitemap": "Global Sitemap",
+      "howTo": "How-To Guides",
+      "successStories": "Farmer Success Stories",
+      "educational": "Educational Guides",
+      "news": "News & Updates",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service"
+    },
+    "footer": {
+      "title": "Can't find what you're looking for?",
+      "desc": "Reach the team directly or download the Android app for the authenticated AI assistant experience.",
+      "button": "Contact Support"
+    }
+  },
+  "sustainability": {
+    "label": "Sustainability Report 2026",
+    "titleLine1": "Growing a Greener",
+    "titleLine2": "Future.",
+    "description": "At Anaaj.ai, sustainability isn't a buzzword—it's our operational core. We help farmers minimize chemical usage and maximize natural output.",
+    "stats": {
+      "chemicalReduction": {
+        "label": "Chemical Reduction",
+        "value": "40%"
+      },
+      "waterSaved": {
+        "label": "Water Saved",
+        "value": "25B Liters"
+      },
+      "farmersImpacted": {
+        "label": "Farmers Impacted",
+        "value": "500K+"
+      }
+    },
+    "precision": {
+      "title": "Precision for the planet.",
+      "desc": "Standard agricultural methods often involve broad-spectrum chemical spraying and over-irrigation. Anaaj.ai provides localized diagnostic intelligence that tells farmers exactly when, where, and how much treatment is needed.",
+      "soil": {
+        "title": "Soil Health Preservation",
+        "desc": "Preventing nutrient depletion through precise crop rotation advice."
+      },
+      "resource": {
+        "title": "Resource Optimization",
+        "desc": "Reducing electricity and fuel waste by optimizing irrigation timing."
+      }
+    },
+    "testimonial": {
+      "text": "\"My land feels alive again. The soil is darker and richer since I started using Anaaj's advice.\"",
+      "author": "— GURPREET S., PUNJAB"
+    }
+  },
+  "downloadPage": {
+    "label": "Now Available",
+    "title": "Get Anaaj.ai for your device.",
+    "description": "Experience real-time agronomy, voice intelligence, and personalized market insights directly from your pocket.",
+    "android": {
+      "title": "Android (APK)",
+      "version": "Version 1.0.1",
+      "updated": "Updated: April 2026",
+      "desc": "Download the current Android release directly when a signed production artifact is available. The link below is controlled by deployment configuration so the website does not advertise a stale build.",
+      "button": "Download Android Build",
+      "comingSoon": "Android release link coming soon",
+      "info": "Install instructions depend on how the current Android artifact is distributed."
+    },
+    "ios": {
+      "title": "iOS (App Store)",
+      "badge": "Coming Soon",
+      "desc": "We're currently fine-tuning the Anaaj.ai experience for iOS. Keep an eye out for the official App Store release in the coming months.",
+      "button": "Available Soon"
+    },
+    "news": {
+      "title": "What's New",
+      "version": "v1.0.1",
+      "date": "April 02, 2026",
+      "baseline": {
+        "title": "Current launch baseline",
+        "item1": "Android app, backend API, and public website are aligned around launch-safe behavior.",
+        "item2": "Public site messaging now reflects actual live capabilities instead of demo-only interactions.",
+        "item3": "Checkout and subscription flows are designed around verified payment confirmation.",
+        "item4": "Release links are now deployment-driven instead of hardcoded in the repo."
+      }
+    }
+  },
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last Updated: March 2026",
+    "section1": {
+      "title": "1. Data Ownership",
+      "text": "At Anaaj.ai, we operate on a fundamental principle: <0>Your data belongs to you.</0> We do not sell your personal information or agricultural data to third-party marketers. Your soil history, crop data, and voice recordings are used solely to provide more accurate agricultural advice to you."
+    },
+    "section2": {
+      "title": "2. Information Collection",
+      "text": "We collect information necessary to provide our services, including:",
+      "items": [
+        "Profile data (name, phone number, location).",
+        "Voice recordings (processed to understand your farming queries).",
+        "Satellite and GPS data (to provide localized weather and soil insights).",
+        "Crop health photos (used for pest and disease diagnosis)."
+      ]
+    },
+    "section3": {
+      "title": "3. Data Security",
+      "text": "We use industry-standard encryption protocols (SSL/TLS) to protect your data during transmission and storage. Access to your personal data is restricted to authorized Anaaj.ai personnel who require it to provide support and technical improvements."
+    },
+    "section4": {
+      "title": "4. Sharing Information",
+      "text": "We may share anonymous, aggregated data at a regional level (e.g., broad pest outbreak alerts) with government organizations to help prevent regional crop failures. This data is fully anonymized and cannot be linked back to individual farmers."
+    },
+    "section5": {
+      "title": "5. Your Rights",
+      "text": "You have the right to request a full copy of your data, or request the deletion of your account and all associated data at any time through our support portal or mobile app settings."
+    },
+    "questions": {
+      "title": "Questions?",
+      "text": "If you have any questions regarding your privacy, please contact us at ",
+      "email": "privacy@anaajai.com"
+    }
+  },
+  "checkout": {
+    "title": "Complete your payment",
+    "subtitle": "Secure checkout",
+    "description": "This page verifies your payment directly with AnaajAI before activating your order or subscription.",
+    "loading": "Loading checkout session...",
+    "ready": "Secure checkout is ready.",
+    "preparing": "Preparing secure checkout...",
+    "linkIncomplete": "The checkout link is incomplete. Please start the payment again from the app.",
+    "unableToLoad": "Unable to load checkout session",
+    "sdkUnavailable": "Checkout SDK is not available. Please refresh and try again.",
+    "verifying": "Verifying payment...",
+    "verifiedSubscription": "Payment verified. Your {{tier}} subscription is active. You can return to the app.",
+    "verifiedOrder": "Payment verified. Order {{id}} is confirmed. You can return to the app.",
+    "verificationFailed": "Payment verification failed",
+    "closed": "Checkout was closed. You can reopen it whenever you are ready.",
+    "subscription": "Subscription",
+    "order": "Order",
+    "processing": "Processing...",
+    "openRazorpay": "Open Razorpay Checkout",
+    "status": "Status",
+    "footer": "After the status changes to verified, you can return to the mobile app and refresh payment status there."
+  },
+  "vendorProfile": {
+    "verified": "Verified Partner",
+    "aboutTitle": "About the Vendor",
+    "stats": {
+      "products": "Products",
+      "followers": "Followers",
+      "following": "Following"
+    },
+    "followButton": "Follow @{{username}}",
+    "exploreTitle": "Explore Products",
+    "itemsCount": "{{count}} Items",
+    "notFound": {
+      "title": "Vendor Not Found",
+      "button": "Return Home"
+    }
+  },
+  "vendors": {
+    "organicroots": {
+      "name": "Organic Roots",
+      "bio": "Premium supplier of bio-fertilizers and organic compost based in Punjab. Ensuring healthy soil for generations.",
+      "longBio": "Organic Roots began with a simple mission: bringing sustainable soil health back to the heartland of India. We craft specialized bio-compost that restores essential microbes, boosting crop yields naturally without relying on harsh chemicals.",
+      "products": {
+        "p1": "Bio-Active Compost 50kg",
+        "p2": "Organic Potash Blend"
+      }
+    },
+    "aerotech": {
+      "name": "AeroTech Drones",
+      "bio": "Specializing in high-precision agricultural drones for targeted spraying and crop monitoring.",
+      "longBio": "AeroTech bridges the gap between aerospace engineering and traditional farming. Our specialized drones enable hyper-targeted pesticide spraying and thermal field monitoring.",
+      "products": {
+        "p1": "Sprayer Drone X1",
+        "p2": "Thermal Sensor Kit"
+      }
+    },
+    "greenseed": {
+      "name": "GreenSeed Co.",
+      "bio": "Certified high-yield, drought-resistant seeds tailored for unpredictable weather patterns.",
+      "longBio": "Founded by agronomists deeply concerned with climate change, GreenSeed Co. offers hybrid seeds that require less water and exhibit higher resilience to sudden temperature changes.",
+      "products": {
+        "p1": "Drought-Resistant Wheat 10kg",
+        "p2": "Hybrid Corn Pack"
+      }
+    },
+    "agritechdev": {
+      "name": "AgriTech Solutions",
+      "bio": "Pioneering smart agricultural development and sustainable farming hardware.",
+      "longBio": "AgriTech Solutions is the premier provider of smart farm implements. From automated irrigation valves driven by IoT sensors to advanced soil tracking telemetry devices.",
+      "products": {
+        "p1": "Smart IoT Valve Controller",
+        "p2": "Soil Moisture Sensor Pro"
+      }
+    },
+    "sunlightfarms": {
+      "name": "Sunlight Supply",
+      "bio": "Industrial-grade greenhouse materials and hydroponic growth solutions.",
+      "longBio": "Sunlight Supply enables year-round harvesting regardless of external weather conditions. We supply UV-resistant greenhouse film, structural poly-tunnels, and modular hydroponic nutrient reservoirs.",
+      "products": {
+        "p1": "UV-Resistant Poly Film 50m",
+        "p2": "Hydroponic Nutrient Solution"
+      }
+    }
+  },
+  "termsOfService": {
+    "title": "Terms of Service",
+    "effectiveDate": "Effective Date: March 2026",
+    "section1": {
+      "title": "1. Acceptance of Terms",
+      "text": "By accessing or using the Anaaj.ai website or mobile application, you agree to be bound by these Terms of Service. If you do not agree to all of these terms, do not use our services."
+    },
+    "section2": {
+      "title": "2. Nature of Advisory Service",
+      "text": "Anaaj.ai provides agricultural advice based on AI models, satellite data, and user input. While we strive for extreme accuracy, our advice is provided \"as is\". Agricultural outcomes depend on many factors beyond our control, including extreme weather and implementation methods. We are not liable for any crop results or financial losses."
+    },
+    "section3": {
+      "title": "3. User Responsibilities",
+      "text": "You are responsible for the accuracy of the information you provide (such as crop type and location). You agree to use the service only for lawful agricultural purposes and not to attempt to reverse engineer or disrupt the AI systems."
+    },
+    "section4": {
+      "title": "4. Intellectual Property",
+      "text": "All software, brand names, and logos associated with Anaaj.ai are the property of Anaaj.ai Precision Ltd. You are granted a limited, non-exclusive license to use the service for personal or commercial agricultural use."
+    },
+    "section5": {
+      "title": "5. Termination",
+      "text": "We reserve the right to suspend or terminate accounts that violate these terms or engage in fraudulent activities that threaten the integrity of our advisory models."
+    },
+    "copyright": "© 2026 Anaaj.ai Precision Ltd. All Rights Reserved."
+  }
+}

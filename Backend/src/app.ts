@@ -17,6 +17,7 @@ import { notificationRoutes } from './routes/notificationRoutes';
 import { paymentRoutes } from './routes/paymentRoutes';
 import { imageAnalysisRoutes } from './routes/imageAnalysisRoutes';
 import { farmingAssistantRoutes } from './routes/farmingAssistantRoutes';
+import { contactRoutes } from './routes/contactRoutes';
 import { chatV1Routes } from './chat/routes/chat.routes';
 import { logger } from './utils/logger';
 import { env } from './config/env';
@@ -219,6 +220,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(paymentRoutes);
   await app.register(imageAnalysisRoutes);
   await app.register(farmingAssistantRoutes);
+  await app.register(contactRoutes);
 
   logger.info(`All routes registered [env=${env.NODE_ENV}]`);
 

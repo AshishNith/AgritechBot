@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 interface YouTubeVideo {
   id: string;
@@ -14,6 +15,7 @@ const RSS_FEED_URL = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHAN
 const PROXY_URL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_FEED_URL)}`;
 
 export default function YouTubeSection() {
+  const { t, i18n } = useTranslation();
   const [videos, setVideos] = useState<YouTubeVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -51,6 +53,7 @@ export default function YouTubeSection() {
     return (
       <section className="py-24 bg-surface flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-fixed"></div>
+        <span className="ml-4 text-stone-400 font-body">{t('common.loading')}</span>
       </section>
     );
   }
@@ -78,11 +81,11 @@ export default function YouTubeSection() {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-tertiary-container text-tertiary-fixed w-fit mb-4">
               <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>play_circle</span>
-              <span className="text-xs font-bold uppercase tracking-widest font-label font-body">Anaaj TV</span>
+              <span className="text-xs font-bold uppercase tracking-widest font-label font-body">{t('youtube.label')}</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-headline font-bold text-on-surface-variant leading-tight">
-              Latest Insights <br />
-              <span className="text-tertiary-fixed">from our Channel.</span>
+              {t('youtube.title')} <br />
+              <span className="text-tertiary-fixed">{t('youtube.subtitle')}</span>
             </h2>
           </motion.div>
 
@@ -95,7 +98,7 @@ export default function YouTubeSection() {
             viewport={{ once: true }}
             className="flex items-center gap-2 text-stone-400 hover:text-tertiary-fixed transition-colors font-body font-medium"
           >
-            Visit Our Channel
+            {t('youtube.visit')}
             <span className="material-symbols-outlined">trending_flat</span>
           </motion.a>
         </div>
@@ -125,7 +128,7 @@ export default function YouTubeSection() {
                 {mainVideo.title}
               </h3>
               <p className="text-stone-400 mt-2 font-body font-medium">
-                {new Date(mainVideo.pubDate).toLocaleDateString('en-IN', {
+                {new Date(mainVideo.pubDate).toLocaleDateString(i18n.language === 'en' ? 'en-IN' : i18n.language, {
                   day: 'numeric',
                   month: 'long',
                   year: 'numeric'
@@ -161,7 +164,7 @@ export default function YouTubeSection() {
                     {video.title}
                   </h4>
                   <p className="text-xs text-stone-500 mt-1 font-body font-medium">
-                    {new Date(video.pubDate).toLocaleDateString('en-IN', {
+                    {new Date(video.pubDate).toLocaleDateString(i18n.language === 'en' ? 'en-IN' : i18n.language, {
                       month: 'short',
                       year: 'numeric'
                     })}
@@ -180,8 +183,8 @@ export default function YouTubeSection() {
               onClick={() => window.open(`https://youtube.com/channel/${CHANNEL_ID}?sub_confirmation=1`, '_blank')}
             >
               <div>
-                <span className="text-tertiary-fixed font-bold block text-lg font-headline">Join the Community</span>
-                <span className="text-stone-400 text-sm font-body">Subscribe for daily farming tips.</span>
+                <span className="text-tertiary-fixed font-bold block text-lg font-headline">{t('youtube.join')}</span>
+                <span className="text-stone-400 text-sm font-body">{t('youtube.subscribe')}</span>
               </div>
               <div className="w-12 h-12 rounded-full bg-tertiary-fixed text-white flex items-center justify-center transition-transform group-hover:scale-110">
                 <span className="material-symbols-outlined">add</span>

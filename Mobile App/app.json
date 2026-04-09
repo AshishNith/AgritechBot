@@ -76,11 +76,11 @@
     ],
     "extra": {
       "apiBaseUrl": "https://backend.goran.in",
-      "paymentWebBaseUrl": "https://anaajai.com",
+      "paymentWebBaseUrl": "https://anaaj.ai",
       "eas": {
-        "projectId": "cc65912f-60eb-4ddb-ba4c-7c4fceae42da"
+        "projectId": "ed5779df-e2ca-4ec8-aac9-c9449ad5cb0c"
       }
     },
-    "owner": "ig_ashish.ranjan2"
+    "owner": "ig_ashish.ranjan3"
   }
 }

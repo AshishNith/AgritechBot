@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
-import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
+import { Menu, X, Languages, Check } from 'lucide-react';
+import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { scrollY } = useScroll();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showLangMenu, setShowLangMenu] = useState(false);
+  const { t, i18n } = useTranslation();
+
+  const languages = [
+    { code: 'hi', name: 'हिन्दी' },
+    { code: 'pa', name: 'ਪੰਜਾਬੀ' },
+    { code: 'gu', name: 'ગુજરાતી' },
+    { code: 'en', name: 'English' }
+  ];
 
   // Trigger floating pill state after 50px of scroll
   useMotionValueEvent(scrollY, "change", (latest) => {
@@ -45,13 +55,16 @@ export default function Navbar() {
         {/* Desktop Menu */}
         <div className="hidden md:flex gap-8 items-center bg-white/5 px-6 py-2 rounded-full border border-white/10">
           <Link to="/" className={`font-headline font-bold text-sm tracking-widest uppercase transition-colors ${isActive('/') ? 'text-lime-400' : 'text-stone-300 hover:text-white'}`}>
-            Home
+            {t('nav.home')}
           </Link>
           <Link to="/blog" className={`font-headline font-bold text-sm tracking-widest uppercase transition-colors ${isActive('/blog') || location.pathname.startsWith('/blog/') ? 'text-lime-400' : 'text-stone-300 hover:text-white'}`}>
-            Blog
+            {t('nav.blog')}
+          </Link>
+          <Link to="/about" className={`font-headline font-bold text-sm tracking-widest uppercase transition-colors ${isActive('/about') ? 'text-lime-400' : 'text-stone-300 hover:text-white'}`}>
+            {t('nav.about')}
           </Link>
           <Link to="/contact" className={`font-headline font-bold text-sm tracking-widest uppercase transition-colors ${isActive('/contact') ? 'text-lime-400' : 'text-stone-300 hover:text-white'}`}>
-            Contact
+            {t('nav.contact')}
           </Link>
         </div>
         
@@ -59,13 +72,48 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-4">
           <Link to="/download" className="flex items-center gap-2 text-stone-300 hover:text-lime-400 font-bold text-sm tracking-wider uppercase transition-colors mr-2">
             <span className="material-symbols-outlined text-sm">download</span>
-            Get App
+            {t('nav.getApp')}
           </Link>
-          <button className="material-symbols-outlined text-white hover:scale-105 transition-transform duration-200">
-            language
-          </button>
+          
+          <div className="relative">
+            <button 
+              onClick={() => setShowLangMenu(!showLangMenu)}
+              className="flex items-center gap-2 text-white hover:text-lime-400 transition-colors p-2"
+            >
+              <Languages size={20} />
+              <span className="text-xs font-bold uppercase tracking-tighter bg-white/10 px-1.5 py-0.5 rounded">
+                {i18n.language}
+              </span>
+            </button>
+
+            <AnimatePresence>
+              {showLangMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute right-0 mt-3 w-48 bg-emerald-950/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl py-2 overflow-hidden z-[110]"
+                >
+                  {languages.map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={() => {
+                        i18n.changeLanguage(lang.code);
+                        setShowLangMenu(false);
+                      }}
+                      className="w-full text-left px-4 py-3 text-sm font-medium flex items-center justify-between transition-colors hover:bg-white/10 text-stone-200"
+                    >
+                      <span>{lang.name}</span>
+                      {i18n.language === lang.code && <Check size={16} className="text-lime-400" />}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           <Link to="/download" className="bg-white text-emerald-950 px-6 py-2.5 rounded-full font-bold hover:scale-105 hover:bg-lime-400 active:opacity-80 transition-all shadow-lg text-sm uppercase tracking-wider">
-            Download App
+            {t('nav.downloadApp')}
           </Link>
         </div>
 
@@ -82,20 +130,43 @@ export default function Navbar() {
         <div className={`md:hidden absolute top-full left-0 w-full mt-2 rounded-[2rem] overflow-hidden bg-emerald-950/95 backdrop-blur-3xl shadow-2xl border border-white/10 origin-top transform transition-all duration-300 ${isScrolled ? 'w-[calc(100%+0rem)]' : ''}`}>
           <div className="flex flex-col px-6 py-8 gap-6 text-center">
             <Link to="/" onClick={toggleMenu} className={`font-headline font-bold text-xl uppercase tracking-widest ${isActive('/') ? 'text-lime-400' : 'text-stone-200'}`}>
-              Home
+              {t('nav.home')}
             </Link>
             <Link to="/blog" onClick={toggleMenu} className={`font-headline font-bold text-xl uppercase tracking-widest ${isActive('/blog') || location.pathname.startsWith('/blog/') ? 'text-lime-400' : 'text-stone-200'}`}>
-              Blog
+              {t('nav.blog')}
+            </Link>
+            <Link to="/about" onClick={toggleMenu} className={`font-headline font-bold text-xl uppercase tracking-widest ${isActive('/about') ? 'text-lime-400' : 'text-stone-200'}`}>
+              {t('nav.about')}
             </Link>
             <Link to="/contact" onClick={toggleMenu} className={`font-headline font-bold text-xl uppercase tracking-widest ${isActive('/contact') ? 'text-lime-400' : 'text-stone-200'}`}>
-              Contact
+              {t('nav.contact')}
             </Link>
             <Link to="/download" onClick={toggleMenu} className={`font-headline font-bold text-xl uppercase tracking-widest ${isActive('/download') ? 'text-lime-400' : 'text-stone-200'}`}>
-              Get App
+              {t('nav.getApp')}
             </Link>
-            <hr className="border-white/10 mx-10 my-2" />
+            
+            <div className="flex justify-center gap-2 py-2 flex-wrap px-4">
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => {
+                    i18n.changeLanguage(lang.code);
+                    toggleMenu();
+                  }}
+                  className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
+                    i18n.language === lang.code 
+                      ? 'bg-lime-400 border-lime-400 text-emerald-900' 
+                      : 'border-white/20 text-white'
+                  }`}
+                >
+                  {lang.name}
+                </button>
+              ))}
+            </div>
+
+            <hr className="border-white/10 mx-10 my-1" />
             <Link to="/download" onClick={toggleMenu} className="bg-lime-400 text-emerald-950 text-center px-6 py-4 rounded-2xl font-bold mx-4 shadow-xl uppercase tracking-widest hover:scale-105 transition-transform">
-              Download App
+              {t('nav.downloadApp')}
             </Link>
           </div>
         </div>

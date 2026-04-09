@@ -1,10 +1,11 @@
-import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { FlipCard } from './ui/flip-card';
 import { vendors } from '../data/vendors';
 import { Link } from 'react-router-dom';
 
 export default function Marketplace() {
+  const { t } = useTranslation();
   return (
     <motion.section 
       initial={{ opacity: 0, scale: 0.95 }} 
@@ -17,14 +18,14 @@ export default function Marketplace() {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary w-fit mb-6">
             <span className="material-symbols-outlined text-sm">storefront</span>
-            <span className="text-xs font-bold uppercase tracking-widest">Marketplace</span>
+            <span className="text-xs font-bold uppercase tracking-widest">{t('marketplace.label')}</span>
           </div>
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-headline font-bold text-primary max-w-2xl leading-tight">
-            Top Featured Vendors
+            {t('marketplace.title')}
           </h2>
         </div>
         <button className="flex items-center gap-2 border-2 border-primary text-primary px-6 py-3 md:px-8 md:py-4 rounded-2xl font-bold hover:bg-primary hover:text-on-primary transition-colors whitespace-nowrap">
-          View All Sellers
+          {t('marketplace.viewAll')}
           <span className="material-symbols-outlined">arrow_forward</span>
         </button>
       </div>

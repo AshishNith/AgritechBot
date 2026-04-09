@@ -1,42 +1,45 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 export default function Sitemap() {
+  const { t } = useTranslation();
+
   const categories = [
     {
-      title: 'Navigation',
+      title: t('sitemapPage.categories.navigation'),
       links: [
-        { name: 'Home', path: '/' },
-        { name: 'Blog', path: '/blog' },
-        { name: 'Contact', path: '/contact' },
-        { name: 'Download App', path: '/download' },
+        { name: t('sitemapPage.links.home'), path: '/' },
+        { name: t('sitemapPage.links.blog'), path: '/blog' },
+        { name: t('sitemapPage.links.contact'), path: '/contact' },
+        { name: t('sitemapPage.links.download'), path: '/download' },
       ]
     },
     {
-      title: 'Company',
+      title: t('sitemapPage.categories.company'),
       links: [
-        { name: 'About Us', path: '/about' },
-        { name: 'Sustainability Report', path: '/sustainability' },
-        { name: 'Global Sitemap', path: '/sitemap' },
+        { name: t('sitemapPage.links.about'), path: '/about' },
+        { name: t('sitemapPage.links.sustainability'), path: '/sustainability' },
+        { name: t('sitemapPage.links.sitemap'), path: '/sitemap' },
       ]
     },
     {
-      title: 'Blog & Resources',
+      title: t('sitemapPage.categories.resources'),
       links: [
-        { name: 'How-To Guides', path: '/blog#how-to' },
-        { name: 'Farmer Success Stories', path: '/blog#success-story' },
-        { name: 'Educational Guides', path: '/blog#education' },
-        { name: 'News & Updates', path: '/blog#news' },
+        { name: t('sitemapPage.links.howTo'), path: '/blog#how-to' },
+        { name: t('sitemapPage.links.successStories'), path: '/blog#success-story' },
+        { name: t('sitemapPage.links.educational'), path: '/blog#education' },
+        { name: t('sitemapPage.links.news'), path: '/blog#news' },
       ]
     },
     {
-      title: 'Support & Legal',
+      title: t('sitemapPage.categories.legal'),
       links: [
-        { name: 'Contact Support', path: '/contact' },
-        { name: 'Privacy Policy', path: '/privacy' },
-        { name: 'Terms of Service', path: '/terms' },
+        { name: t('sitemapPage.links.contact'), path: '/contact' },
+        { name: t('sitemapPage.links.privacy'), path: '/privacy' },
+        { name: t('sitemapPage.links.terms'), path: '/terms' },
       ]
     }
   ];
@@ -44,8 +47,8 @@ export default function Sitemap() {
   return (
     <div className="pt-32 pb-24 bg-surface min-h-screen">
       <Helmet>
-        <title>Sitemap - Anaaj.ai | Navigate Our AI Farming Platform</title>
-        <meta name="description" content="Browse all pages on Anaaj.ai - India's AI farming assistant. Find links to Home, About Us, Contact, Download App, Sustainability Report, Privacy Policy and Terms." />
+        <title>{t('pages.sitemap.title')}</title>
+        <meta name="description" content={t('pages.sitemap.metaDesc')} />
         <link rel="canonical" href="https://anaaj.ai/sitemap" />
       </Helmet>
       <div className="max-w-7xl mx-auto px-8">
@@ -55,8 +58,8 @@ export default function Sitemap() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-16"
         >
-          <h1 className="text-5xl font-headline font-bold text-primary mb-4">Global Sitemap</h1>
-          <p className="text-on-surface-variant font-medium">Explore all parts of the Anaaj Portal.</p>
+          <h1 className="text-5xl font-headline font-bold text-primary mb-4">{t('sitemapPage.title')}</h1>
+          <p className="text-on-surface-variant font-medium">{t('sitemapPage.description')}</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
@@ -88,10 +91,10 @@ export default function Sitemap() {
         </div>
 
         <div className="mt-32 p-12 rounded-[3rem] bg-primary-container text-on-primary-container flex flex-col items-center text-center">
-          <h3 className="text-3xl font-headline font-bold mb-4">Can't find what you're looking for?</h3>
-          <p className="mb-8 opacity-80">Reach the team directly or download the Android app for the authenticated AI assistant experience.</p>
+          <h3 className="text-3xl font-headline font-bold mb-4">{t('sitemapPage.footer.title')}</h3>
+          <p className="mb-8 opacity-80">{t('sitemapPage.footer.desc')}</p>
           <Link to="/contact" className="bg-primary text-on-primary px-8 py-4 rounded-2xl font-bold hover:scale-105 transition-transform shadow-xl">
-            Contact Support
+            {t('sitemapPage.footer.button')}
           </Link>
         </div>
 
