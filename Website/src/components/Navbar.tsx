@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Languages, Check } from 'lucide-react';
+import { Menu, X, Languages, Check, Download } from 'lucide-react';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
@@ -70,20 +70,20 @@ export default function Navbar() {
         
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-4">
-          <Link to="/download" className="flex items-center gap-2 text-stone-300 hover:text-lime-400 font-bold text-sm tracking-wider uppercase transition-colors mr-2">
-            <span className="material-symbols-outlined text-sm">download</span>
-            {t('nav.getApp')}
-          </Link>
+
           
           <div className="relative">
             <button 
               onClick={() => setShowLangMenu(!showLangMenu)}
-              className="flex items-center gap-2 text-white hover:text-lime-400 transition-colors p-2"
+              className="flex items-center gap-3 text-stone-300 hover:text-white transition-all group px-3 py-2 rounded-full hover:bg-white/5 ml-2"
             >
-              <Languages size={20} />
-              <span className="text-xs font-bold uppercase tracking-tighter bg-white/10 px-1.5 py-0.5 rounded">
-                {i18n.language}
-              </span>
+              <Languages size={18} className="group-hover:text-lime-400 transition-colors" />
+              <div className="flex flex-col items-start leading-none gap-1">
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-60">Language</span>
+                <span className="text-[11px] font-medium text-lime-400/80 group-hover:text-lime-400 transition-colors">
+                  भाषा / ਭਾਸ਼ਾ / ભાષા
+                </span>
+              </div>
             </button>
 
             <AnimatePresence>
@@ -112,7 +112,8 @@ export default function Navbar() {
             </AnimatePresence>
           </div>
 
-          <Link to="/download" className="bg-white text-emerald-950 px-6 py-2.5 rounded-full font-bold hover:scale-105 hover:bg-lime-400 active:opacity-80 transition-all shadow-lg text-sm uppercase tracking-wider">
+          <Link to="/download" className="flex items-center gap-2 bg-white text-emerald-950 px-6 py-2.5 rounded-full font-bold hover:scale-105 hover:bg-lime-400 active:opacity-80 transition-all shadow-lg text-sm uppercase tracking-wider group">
+            <Download size={18} className="transition-transform group-hover:-translate-y-0.5" />
             {t('nav.downloadApp')}
           </Link>
         </div>
@@ -141,9 +142,7 @@ export default function Navbar() {
             <Link to="/contact" onClick={toggleMenu} className={`font-headline font-bold text-xl uppercase tracking-widest ${isActive('/contact') ? 'text-lime-400' : 'text-stone-200'}`}>
               {t('nav.contact')}
             </Link>
-            <Link to="/download" onClick={toggleMenu} className={`font-headline font-bold text-xl uppercase tracking-widest ${isActive('/download') ? 'text-lime-400' : 'text-stone-200'}`}>
-              {t('nav.getApp')}
-            </Link>
+
             
             <div className="flex justify-center gap-2 py-2 flex-wrap px-4">
               {languages.map((lang) => (
@@ -165,7 +164,8 @@ export default function Navbar() {
             </div>
 
             <hr className="border-white/10 mx-10 my-1" />
-            <Link to="/download" onClick={toggleMenu} className="bg-lime-400 text-emerald-950 text-center px-6 py-4 rounded-2xl font-bold mx-4 shadow-xl uppercase tracking-widest hover:scale-105 transition-transform">
+            <Link to="/download" onClick={toggleMenu} className="flex items-center justify-center gap-3 bg-lime-400 text-emerald-950 text-center px-6 py-4 rounded-2xl font-bold mx-4 shadow-xl uppercase tracking-widest hover:scale-105 transition-transform group">
+              <Download size={20} />
               {t('nav.downloadApp')}
             </Link>
           </div>

@@ -49,6 +49,7 @@
         "INTERNET"
       ]
     },
+    
     "plugins": [
       [
         "expo-av",

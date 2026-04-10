@@ -47,3 +47,5 @@ Thumbs.db
 .cache
 
 android
+*.exe
+Website/public/Founders/linked-helper.exe
