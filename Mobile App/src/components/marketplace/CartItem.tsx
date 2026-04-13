@@ -2,7 +2,8 @@ import { StyleSheet, View, Pressable, Image } from 'react-native';
 import { AppText } from '../ui';
 import { CartItem as CartItemType } from '../../store/useMarketplaceStore';
 import { IconMap } from '../IconMap';
-import { useTheme } from '../../providers/ThemeContext';
+import { useAppStore } from '../../store/useAppStore';
+import { getLocalizedProductContent } from '../../utils/localizationHelper';
 
 interface CartItemProps {
   item: CartItemType;
@@ -12,8 +13,11 @@ interface CartItemProps {
 
 export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
   const { isDark, colors } = useTheme();
+  const language = useAppStore((state) => state.language);
   const { product, quantity } = item;
   const itemTotal = product.price * quantity;
+
+  const localized = getLocalizedProductContent(product, language);
 
   const MinusIcon = IconMap['Minus'];
   const PlusIcon = IconMap['Plus'];
@@ -35,10 +39,10 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
       />
       <View style={styles.content}>
         <AppText variant="label" numberOfLines={2}>
-          {product.name}
+          {localized.name}
         </AppText>
         <AppText color={colors.textMuted} style={styles.unit}>
-          {product.unit}
+          {localized.unit}
         </AppText>
         <AppText variant="label" color={colors.primary} style={styles.price}>
           ₹{product.price.toFixed(0)}

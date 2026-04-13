@@ -147,6 +147,8 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
     // Log for debugging
     logger.info({ userId, duration: Date.now() - startTime }, 'AI Analysis complete, processing response');
 
+    let updatedWallet: any = null;
+
     // Sanitize and Extract JSON response
     try {
       const startIdx = diagnosisJson.indexOf('{');
@@ -156,6 +158,22 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
       }
     } catch (e) {
       logger.warn('Failed to sanitize JSON response structure');
+    }
+
+    // Fallback for empty or invalid diagnosis to prevent Mongoose Validation Error
+    if (!diagnosisJson || diagnosisJson.trim() === '' || diagnosisJson === '{}') {
+      logger.warn({ userId }, 'AI returned empty diagnosis; using fallback');
+      diagnosisJson = JSON.stringify({
+        crop: "Unknown",
+        problem: "Analysis Unavailable",
+        confidence: 0,
+        severity: "Low",
+        severityScore: 0,
+        summary: "The AI was unable to process this image clearly. Please ensure the crop is well-lit and clearly visible in the photo.",
+        recommendations: { immediate: ["Try taking a clearer photo"], organic: [], chemical: [] },
+        products: [],
+        expertHelp: "If the problem persists, please contact a local agricultural expert."
+      });
     }
 
     // Upload to Cloudinary for permanent storage
@@ -184,7 +202,7 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
       
       // ✅ UNIFIED USAGE & WALLET SYNC
       try {
-        await incrementUsage(userId.toString(), 'scan');
+        updatedWallet = await incrementUsage(userId.toString(), 'scan');
         logger.info({ userId, analysisId: analysis._id }, 'Scan usage incremented and wallet synced');
       } catch (usageError) {
         // If it throws NO_CREDITS here, it means credits were consumed between our check and now
@@ -196,10 +214,15 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
 
       return reply.send({
         id: analysis._id,
-        diagnosis: diagnosisJson,
+        diagnosis: JSON.parse(diagnosisJson), // Return as object for easier UI consumption if it was stringified
         imageUrl: imageUrl, // Return Cloudinary URL to frontend
         isStructured: true,
         createdAt: analysis.createdAt,
+        wallet: updatedWallet ? {
+          imageCredits: updatedWallet.imageCredits,
+          topupImageCredits: updatedWallet.topupImageCredits,
+          totalRemaining: updatedWallet.imageCredits + updatedWallet.topupImageCredits,
+        } : undefined,
       });
     } catch (saveError) {
       logger.warn({ err: saveError, userId }, 'Analysis completed but failed to save to MongoDB; returning diagnosis anyway');

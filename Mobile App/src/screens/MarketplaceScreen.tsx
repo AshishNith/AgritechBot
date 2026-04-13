@@ -13,6 +13,7 @@ import { useAppStore } from '../store/useAppStore';
 import { useMarketplaceStore } from '../store/useMarketplaceStore';
 import { Product } from '../types/api';
 import { useTheme } from '../providers/ThemeContext';
+import { getLocalizedProductContent } from '../utils/localizationHelper';
 
 const priorityCategories = ['Fertilizers', 'Seeds', 'Tools', 'Pesticides'];
 
@@ -127,10 +128,10 @@ export function MarketplaceScreen() {
                 {t(language, 'aiPick')}
               </AppText>
               <AppText variant="title" color={colors.textOnDark} style={{ marginTop: 8 }}>
-                {aiPick.name}
+                {getLocalizedProductContent(aiPick, language).name}
               </AppText>
               <AppText color="rgba(255,255,255,0.85)" style={{ marginTop: 8 }}>
-                {aiPick.farmerFriendlyInfo?.whyUse ?? t(language, 'marketSubtitle')}
+                {getLocalizedProductContent(aiPick, language).whyUse ?? t(language, 'marketSubtitle')}
               </AppText>
               <Pressable
                 onPress={() => {
@@ -150,16 +151,19 @@ export function MarketplaceScreen() {
             <>
               <SectionHeader title={t(language, 'topFertilizers')} />
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sectionScroller}>
-                {grouped.fertilizers.map((product) => (
-                  <ProductFlowCard
-                    key={product.id}
-                    name={product.name}
-                    price={product.price}
-                    image={product.images[0]}
-                    onPress={() => navigation.navigate('ProductDetail', { productId: product.id })}
-                    onAddToCart={() => addToCartMutation.mutate(product)}
-                  />
-                ))}
+                {grouped.fertilizers.map((product) => {
+                  const localized = getLocalizedProductContent(product, language);
+                  return (
+                    <ProductFlowCard
+                      key={product.id}
+                      name={localized.name}
+                      price={product.price}
+                      image={product.images[0]}
+                      onPress={() => navigation.navigate('ProductDetail', { productId: product.id })}
+                      onAddToCart={() => addToCartMutation.mutate(product)}
+                    />
+                  );
+                })}
               </ScrollView>
             </>
           )}
@@ -168,16 +172,19 @@ export function MarketplaceScreen() {
             <>
               <SectionHeader title={t(language, 'essentialSeeds')} />
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sectionScroller}>
-                {grouped.seeds.map((product) => (
-                  <ProductFlowCard
-                    key={product.id}
-                    name={product.name}
-                    price={product.price}
-                    image={product.images[0]}
-                    onPress={() => navigation.navigate('ProductDetail', { productId: product.id })}
-                    onAddToCart={() => addToCartMutation.mutate(product)}
-                  />
-                ))}
+                {grouped.seeds.map((product) => {
+                  const localized = getLocalizedProductContent(product, language);
+                  return (
+                    <ProductFlowCard
+                      key={product.id}
+                      name={localized.name}
+                      price={product.price}
+                      image={product.images[0]}
+                      onPress={() => navigation.navigate('ProductDetail', { productId: product.id })}
+                      onAddToCart={() => addToCartMutation.mutate(product)}
+                    />
+                  );
+                })}
               </ScrollView>
             </>
           )}
@@ -186,28 +193,31 @@ export function MarketplaceScreen() {
             <>
               <SectionHeader title={t(language, 'modernTools')} />
               <View style={{ gap: 12 }}>
-                {grouped.tools.map((product) => (
-                  <Pressable
-                    key={product.id}
-                    onPress={() => navigation.navigate('ProductDetail', { productId: product.id })}
-                    style={[
-                      styles.toolRow,
-                      {
-                        backgroundColor: colors.surface,
-                        borderColor: colors.border,
-                      },
-                    ]}
-                  >
-                    <Image source={{ uri: product.images[0] }} style={styles.toolImage} />
-                    <View style={{ flex: 1 }}>
-                      <AppText variant="label">{product.name}</AppText>
-                      <AppText color={colors.textMuted} numberOfLines={2}>
-                        {product.description}
-                      </AppText>
-                    </View>
-                    <AppText variant="label">₹{product.price}</AppText>
-                  </Pressable>
-                ))}
+                {grouped.tools.map((product) => {
+                  const localized = getLocalizedProductContent(product, language);
+                  return (
+                    <Pressable
+                      key={product.id}
+                      onPress={() => navigation.navigate('ProductDetail', { productId: product.id })}
+                      style={[
+                        styles.toolRow,
+                        {
+                          backgroundColor: colors.surface,
+                          borderColor: colors.border,
+                        },
+                      ]}
+                    >
+                      <Image source={{ uri: product.images[0] }} style={styles.toolImage} />
+                      <View style={{ flex: 1 }}>
+                        <AppText variant="label">{localized.name}</AppText>
+                        <AppText color={colors.textMuted} numberOfLines={2}>
+                          {localized.description}
+                        </AppText>
+                      </View>
+                      <AppText variant="label">₹{product.price}</AppText>
+                    </Pressable>
+                  );
+                })}
               </View>
             </>
           )}
@@ -216,16 +226,19 @@ export function MarketplaceScreen() {
             <>
               <SectionHeader title={t(language, 'cropCare')} />
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sectionScroller}>
-                {grouped.cropCare.map((product) => (
-                  <ProductFlowCard
-                    key={product.id}
-                    name={product.name}
-                    price={product.price}
-                    image={product.images[0]}
-                    onPress={() => navigation.navigate('ProductDetail', { productId: product.id })}
-                    onAddToCart={() => addToCartMutation.mutate(product)}
-                  />
-                ))}
+                {grouped.cropCare.map((product) => {
+                  const localized = getLocalizedProductContent(product, language);
+                  return (
+                    <ProductFlowCard
+                      key={product.id}
+                      name={localized.name}
+                      price={product.price}
+                      image={product.images[0]}
+                      onPress={() => navigation.navigate('ProductDetail', { productId: product.id })}
+                      onAddToCart={() => addToCartMutation.mutate(product)}
+                    />
+                  );
+                })}
               </ScrollView>
             </>
           )}

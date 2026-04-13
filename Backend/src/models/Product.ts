@@ -10,18 +10,39 @@ export interface IProductReview {
 export interface IProduct extends Document {
   slug?: string;
   brand?: string;
-  name: string;
   nameHi?: string;
+  nameGu?: string;
+  namePa?: string;
   description: string;
   descriptionHi?: string;
+  descriptionGu?: string;
+  descriptionPa?: string;
   category: string;
+  categoryHi?: string;
+  categoryGu?: string;
+  categoryPa?: string;
   subCategory?: string;
+  subCategoryHi?: string;
+  subCategoryGu?: string;
+  subCategoryPa?: string;
   farmerFriendlyInfo?: {
     whyUse?: string;
+    whyUseHi?: string;
+    whyUseGu?: string;
+    whyUsePa?: string;
     howToUse?: string;
+    howToUseHi?: string;
+    howToUseGu?: string;
+    howToUsePa?: string;
     bestForCrops?: string[];
     resultTime?: string;
+    resultTimeHi?: string;
+    resultTimeGu?: string;
+    resultTimePa?: string;
     safety?: string;
+    safetyHi?: string;
+    safetyGu?: string;
+    safetyPa?: string;
   };
   pricing?: {
     price: number;
@@ -33,16 +54,21 @@ export interface IProduct extends Document {
   };
   price: number;
   unit: string;
+  unitHi?: string;
+  unitGu?: string;
+  unitPa?: string;
   images: string[];
   ratings?: {
     average?: number;
     count?: number;
   };
   reviews?: IProductReview[];
-  inventory?: {
     available?: boolean;
     warehouseLocation?: string;
     deliveryTime?: string;
+    deliveryTimeHi?: string;
+    deliveryTimeGu?: string;
+    deliveryTimePa?: string;
   };
   aiMetadata?: {
     tags?: string[];
@@ -69,20 +95,42 @@ const productSchema = new Schema<IProduct>(
     slug: { type: String, trim: true, index: true, sparse: true, unique: true },
     brand: { type: String, trim: true },
     nameHi: { type: String, trim: true },
+    nameGu: { type: String, trim: true },
+    namePa: { type: String, trim: true },
     description: { type: String, required: true },
     descriptionHi: { type: String },
+    descriptionGu: { type: String },
+    descriptionPa: { type: String },
     category: {
       type: String,
       required: true,
       index: true,
     },
+    categoryHi: { type: String },
+    categoryGu: { type: String },
+    categoryPa: { type: String },
     subCategory: { type: String, trim: true, index: true },
+    subCategoryHi: { type: String },
+    subCategoryGu: { type: String },
+    subCategoryPa: { type: String },
     farmerFriendlyInfo: {
       whyUse: { type: String },
+      whyUseHi: { type: String },
+      whyUseGu: { type: String },
+      whyUsePa: { type: String },
       howToUse: { type: String },
+      howToUseHi: { type: String },
+      howToUseGu: { type: String },
+      howToUsePa: { type: String },
       bestForCrops: [{ type: String }],
       resultTime: { type: String },
+      resultTimeHi: { type: String },
+      resultTimeGu: { type: String },
+      resultTimePa: { type: String },
       safety: { type: String },
+      safetyHi: { type: String },
+      safetyGu: { type: String },
+      safetyPa: { type: String },
     },
     pricing: {
       price: { type: Number, min: 0 },
@@ -94,6 +142,9 @@ const productSchema = new Schema<IProduct>(
     },
     price: { type: Number, required: true, min: 0 },
     unit: { type: String, required: true, default: 'kg' },
+    unitHi: { type: String },
+    unitGu: { type: String },
+    unitPa: { type: String },
     images: [String],
     ratings: {
       average: { type: Number, min: 0, max: 5, default: 0 },
@@ -111,6 +162,9 @@ const productSchema = new Schema<IProduct>(
       available: { type: Boolean, default: true },
       warehouseLocation: { type: String },
       deliveryTime: { type: String },
+      deliveryTimeHi: { type: String },
+      deliveryTimeGu: { type: String },
+      deliveryTimePa: { type: String },
     },
     aiMetadata: {
       tags: [{ type: String }],

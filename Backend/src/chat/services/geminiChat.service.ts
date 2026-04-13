@@ -542,23 +542,33 @@ export async function sendChatMessage(params: {
       .join(' ')
   );
 
-  const model = gemini.getGenerativeModel({
+  // Part 1: Dynamically determine if we should pass system/tool config
+  const useCache = Boolean(kbCacheName);
+  const modelOptions: any = {
     model: env.GEMINI_MODEL,
-    systemInstruction: SYSTEM_PROMPT,
-    tools: TOOL_DEFINITIONS,
-    toolConfig: TOOL_CONFIG,
     generationConfig: {
       maxOutputTokens: 1024,
       temperature: 0.4,
       topP: 0.8,
     },
-  });
+  };
+
+  // Only add these to the request if NOT using a cache (as they are now in the cache)
+  if (!useCache) {
+    modelOptions.systemInstruction = SYSTEM_PROMPT;
+    modelOptions.tools = TOOL_DEFINITIONS;
+    modelOptions.toolConfig = TOOL_CONFIG;
+  }
+
+  const model = gemini.getGenerativeModel(modelOptions);
+
+  let updatedWallet: any;
 
   try {
     let result = await withTimeout(
       model.generateContent({
         contents: built.contents,
-        ...(kbCacheName ? { cachedContent: kbCacheName } : {}),
+        ...(useCache ? { cachedContent: kbCacheName } : {}),
       }),
       GEMINI_API_TIMEOUT_MS,
       'AI response timed out. Please try again.'
@@ -641,7 +651,7 @@ export async function sendChatMessage(params: {
 
     // ✅ WALLET CREDIT DEDUCTION - After successful AI response
     try {
-      await deductCredit(params.farmerId, 'chat');
+      updatedWallet = await deductCredit(params.farmerId, 'chat');
       logger.info({ farmerId: params.farmerId, sessionId: params.sessionId }, 'Chat credit deducted from wallet');
     } catch (deductError) {
       // Log but don't fail the request - message already sent
@@ -664,6 +674,11 @@ export async function sendChatMessage(params: {
       audioMimeType,
       suggestedQueries: querySuggestions,
       recommendedProducts, // Part 4D: Return products to UI
+      wallet: updatedWallet ? {
+        chatCredits: updatedWallet.chatCredits,
+        topupCredits: updatedWallet.topupCredits,
+        totalRemaining: updatedWallet.chatCredits + updatedWallet.topupCredits,
+      } : undefined,
     };
   } catch (error) {
     const processingTimeMs = Date.now() - startedAt;

@@ -16,7 +16,8 @@
     "contact": "Contact",
     "getApp": "Get App",
     "downloadApp": "Download App",
-    "blogWithGuides": "Blog & Guides"
+    "blogWithGuides": "Blog & Guides",
+    "founders": "Founders"
   },
   "hero": {
     "tagline": "The Future of Farming",
@@ -137,21 +138,21 @@
     "label": "The Visionaries",
     "title": "Meet the Founders",
     "desc": "Driven by a singular goal: to make expert agricultural knowledge accessible to every farmer in India.",
-    "ashish": {
-      "role": "Founder & Lead Visionary",
-      "desc": "A technologist at heart with a deep-rooted passion for agriculture. Ashish founded Anaaj AI to bridge the technological gap in rural India, leveraging AI to empower the next generation of farmers with multilingual, voice-first intelligence."
+    "prashant": {
+      "role": "Co-Founder & CEO",
+      "desc": "A strategic visionary with deep expertise in scaling digital ecosystems. Prashant leads the mission to bridge the gap between advanced AI and grassroots agriculture in India."
     },
-    "mehak": {
-      "role": "Co-Founder & Agronomy Lead",
-      "desc": "With a PhD in Plant Pathology, Mehak ensures that every insight provided by Anaaj AI is scientifically accurate and localized. She leads our research on crop diseases and pest management across diverse Indian agro-climatic zones."
+    "prakash": {
+      "role": "Chairman",
+      "desc": "With decades of experience in the agricultural sector, Mr. Prakash Chand Jain provides the foundational wisdom and strategic direction that roots Anaaj.ai in real-world farming needs."
     },
-    "vikram": {
-      "role": "Product Head",
-      "desc": "Vikram specializes in building intuitive user experiences for rural users. He focuses on the 'Zero Literacy' interface, ensuring that our voice-first technology is accessible to everyone, regardless of their technical background."
+    "prateek": {
+      "role": "Director of Innovation",
+      "desc": "Prateek focuses on the intersection of hardware and software, ensuring that our AI solutions are perfectly optimized for the diverse technical landscape of rural India."
     },
-    "sanjay": {
-      "role": "Operations & Farmer Outreach",
-      "desc": "Sanjay leads our on-ground efforts, working directly with farmer cooperatives and FPOs. He ensures that Anaaj AI is not just a tool, but a trusted companion in every village we operate in."
+    "prashant_v": {
+      "role": "Head of Operations",
+      "desc": "Specializing in ground-level deployment, Prashant ensures that our technology reaches every corner of the field, managing complex logistics and farmer support networks."
     }
   },
   "map": {

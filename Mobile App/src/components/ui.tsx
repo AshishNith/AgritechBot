@@ -1,6 +1,7 @@
 import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 import { IconMap } from './IconMap';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -58,6 +59,7 @@ export function Screen({
      right?: ReactNode;
   };
 }>) {
+  const navigation = useNavigation();
   const { isDark, colors } = useTheme();
   const effectiveDark = dark ?? isDark;
 
@@ -74,7 +76,7 @@ export function Screen({
       {headerProps && (
         <View style={[styles.screenHeader, { borderBottomColor: colors.border }]}>
            {headerProps.showBack && (
-             <Pressable onPress={() => require('@react-navigation/native').useNavigation().goBack()}>
+             <Pressable onPress={() => navigation.goBack()}>
                 {(() => { const Icon = IconMap['ChevronLeft']; return Icon ? <Icon size={24} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
              </Pressable>
            )}

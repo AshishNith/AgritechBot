@@ -14,6 +14,7 @@ import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
 import { useMarketplaceStore } from '../store/useMarketplaceStore';
 import { useTheme } from '../providers/ThemeContext';
+import { getLocalizedProductContent } from '../utils/localizationHelper';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProductDetail'>;
 
@@ -40,8 +41,10 @@ export function ProductDetailScreen({ route }: Props) {
   const listPrice = product.pricing?.price ?? Math.round(effectivePrice * 1.2);
   const ratingAverage = product.ratings?.average ?? 4.8;
   const ratingCount = product.ratings?.count ?? 0;
-  const localizedName = language === 'Hindi' ? (product.nameHi || product.name) : product.name;
-  const localizedDescription = language === 'Hindi' ? (product.descriptionHi || product.description) : product.description;
+  
+  const localized = getLocalizedProductContent(product, language);
+  const localizedName = localized.name;
+  const localizedDescription = localized.description;
 
   const galleryImages = useMemo(() => {
     const productImages = (product.images ?? []).filter(Boolean);
@@ -172,7 +175,7 @@ export function ProductDetailScreen({ route }: Props) {
         </View>
         <View style={styles.content}>
           <View style={styles.badgeRow}>
-            <Pill label={product.subCategory || t(language, 'certified')} active />
+            <Pill label={localized.subCategory || t(language, 'certified')} active />
             {product.aiMetadata?.season?.[0] ? <Pill label={product.aiMetadata.season[0]} /> : null}
           </View>
           <AppText variant="title" style={{ marginTop: 16 }}>
@@ -188,7 +191,7 @@ export function ProductDetailScreen({ route }: Props) {
                 ₹{listPrice.toFixed(2)}
               </AppText>
             ) : null}
-            <AppText color={colors.textMuted}>/ {product.pricing?.unit ?? product.unit}</AppText>
+            <AppText color={colors.textMuted}>/ {localized.unit}</AppText>
           </View>
           <View style={styles.languageRow}>
             <Pill label={language} active />
@@ -209,11 +212,11 @@ export function ProductDetailScreen({ route }: Props) {
           <AppText color={colors.textMuted} style={{ marginTop: 8 }}>
             {localizedDescription}
           </AppText>
-          {product.farmerFriendlyInfo?.whyUse ? (
+          {localized.whyUse ? (
             <ScreenCard style={{ marginTop: 12 }}>
               <AppText variant="label">{t(language, 'whyUse')}</AppText>
               <AppText color={colors.textMuted} style={{ marginTop: 6 }}>
-                {product.farmerFriendlyInfo.whyUse}
+                {localized.whyUse}
               </AppText>
             </ScreenCard>
           ) : null}
@@ -222,9 +225,9 @@ export function ProductDetailScreen({ route }: Props) {
           </AppText>
           <View style={{ gap: 12, marginTop: 12 }}>
             {[
-              product.farmerFriendlyInfo?.resultTime ? `${t(language, 'resultIn')} ${product.farmerFriendlyInfo.resultTime}` : t(language, 'farmerFriendlyFormula'),
-              product.farmerFriendlyInfo?.safety ? `${t(language, 'safety')}: ${product.farmerFriendlyInfo.safety}` : t(language, 'safeUsage'),
-              product.aiMetadata?.useCases?.length ? `${t(language, 'useCases')}: ${product.aiMetadata.useCases.slice(0, 2).join(', ')}` : t(language, 'cropSupport'),
+              localized.resultTime ? `${t(language, 'resultIn')} ${localized.resultTime}` : t(language, 'farmerFriendlyFormula'),
+              localized.safety ? `${t(language, 'safety')}: ${localized.safety}` : t(language, 'safeUsage'),
+              localized.useCases?.length ? `${t(language, 'useCases')}: ${localized.useCases.slice(0, 2).join(', ')}` : t(language, 'cropSupport'),
             ].map((item) => (
               <View key={item} style={styles.benefitRow}>
                 <View style={[styles.benefitDot, { backgroundColor: colors.primary }]} />
@@ -237,9 +240,9 @@ export function ProductDetailScreen({ route }: Props) {
           </AppText>
           <View style={{ marginTop: 12, gap: 16 }}>
             {[
-              product.farmerFriendlyInfo?.howToUse ?? t(language, 'followLabel'),
-              product.farmerFriendlyInfo?.bestForCrops?.length ? `${t(language, 'bestFor')}: ${product.farmerFriendlyInfo.bestForCrops.join(', ')}` : t(language, 'applyRecommended'),
-              product.inventory?.deliveryTime ? `${t(language, 'expectedDelivery')}: ${product.inventory.deliveryTime}` : t(language, 'repeatUsage'),
+              localized.howToUse ?? t(language, 'followLabel'),
+              localized.bestForCrops?.length ? `${t(language, 'bestFor')}: ${localized.bestForCrops.join(', ')}` : t(language, 'applyRecommended'),
+              localized.deliveryTime ? `${t(language, 'expectedDelivery')}: ${localized.deliveryTime}` : t(language, 'repeatUsage'),
             ].map((step, index) => (
               <View key={step} style={styles.stepRow}>
                 <View style={[styles.stepBadge, { backgroundColor: colors.primary }]}>

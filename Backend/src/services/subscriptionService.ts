@@ -137,8 +137,9 @@ export async function incrementUsage(
 
     // Sync to Wallet model (New Credit System)
     try {
-      await deductCredit(userId, type);
+      const updatedWallet = await deductCredit(userId, type);
       logger.info({ userId, type }, 'Wallet credit sync successful during usage increment');
+      return updatedWallet;
     } catch (walletErr) {
       // If it's a credit error, rethrow it so the controller can return 402 if needed
       if (typeof walletErr === 'object' && walletErr !== null && (walletErr as any).code === 'NO_CREDITS') {
@@ -146,9 +147,11 @@ export async function incrementUsage(
       }
       // For other wallet errors (connection, etc), log but don't fail the primary increment
       logger.warn({ userId, type, err: walletErr }, 'Wallet credit sync skipped or failed during usage increment');
+      return null;
     }
   } catch (error) {
     logger.error({ error, userId, type }, 'Error incrementing usage');
+    throw error;
   }
 }
 

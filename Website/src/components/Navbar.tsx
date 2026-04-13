@@ -63,6 +63,9 @@ export default function Navbar() {
           <Link to="/about" className={`font-headline font-bold text-sm tracking-widest uppercase transition-colors ${isActive('/about') ? 'text-lime-400' : 'text-stone-300 hover:text-white'}`}>
             {t('nav.about')}
           </Link>
+          <Link to="/founders" className={`font-headline font-bold text-sm tracking-widest uppercase transition-colors ${isActive('/founders') ? 'text-lime-400' : 'text-stone-300 hover:text-white'}`}>
+            {t('nav.founders')}
+          </Link>
           <Link to="/contact" className={`font-headline font-bold text-sm tracking-widest uppercase transition-colors ${isActive('/contact') ? 'text-lime-400' : 'text-stone-300 hover:text-white'}`}>
             {t('nav.contact')}
           </Link>
@@ -138,6 +141,9 @@ export default function Navbar() {
             </Link>
             <Link to="/about" onClick={toggleMenu} className={`font-headline font-bold text-xl uppercase tracking-widest ${isActive('/about') ? 'text-lime-400' : 'text-stone-200'}`}>
               {t('nav.about')}
+            </Link>
+            <Link to="/founders" onClick={toggleMenu} className={`font-headline font-bold text-xl uppercase tracking-widest ${isActive('/founders') ? 'text-lime-400' : 'text-stone-200'}`}>
+              {t('nav.founders')}
             </Link>
             <Link to="/contact" onClick={toggleMenu} className={`font-headline font-bold text-xl uppercase tracking-widest ${isActive('/contact') ? 'text-lime-400' : 'text-stone-200'}`}>
               {t('nav.contact')}

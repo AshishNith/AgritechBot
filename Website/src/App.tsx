@@ -15,6 +15,8 @@ import Sitemap from './pages/Sitemap';
 import Checkout from './pages/Checkout';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
+import Founders from './pages/Founders';
+import MemberProfile from './pages/MemberProfile';
 
 export default function App() {
   return (
@@ -37,6 +39,8 @@ export default function App() {
             <Route path="/sitemap" element={<Sitemap />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/founders" element={<Founders />} />
+            <Route path="/members/:slug" element={<MemberProfile />} />
           </Routes>
         </main>
 

@@ -4,6 +4,8 @@ import { GoogleAICacheManager } from '@google/generative-ai/server';
 import { cache } from '../../services/cache/redisCache';
 import { env } from '../../config/env';
 import { logger } from '../../utils/logger';
+import { SYSTEM_PROMPT } from '../data/systemPrompt';
+import { TOOL_CONFIG, TOOL_DEFINITIONS } from '../tools';
 
 const KB_CACHE_KEY = 'gemini:kb:cacheId';
 const KB_CACHE_TTL_SECONDS = 55 * 60;
@@ -44,8 +46,9 @@ async function createKnowledgeBaseCache(): Promise<string> {
     model: getModelName(),
     displayName: 'anaaj-ai-agri-knowledge',
     ttlSeconds: KB_REMOTE_TTL_SECONDS,
-    systemInstruction:
-      'Curated agricultural knowledge for Anaaj.ai. Treat this as trusted agronomy background knowledge, not a direct user message.',
+    systemInstruction: SYSTEM_PROMPT,
+    tools: TOOL_DEFINITIONS,
+    toolConfig: TOOL_CONFIG,
     contents: [
       {
         role: 'user',

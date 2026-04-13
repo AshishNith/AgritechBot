@@ -36,27 +36,55 @@ export interface Product {
   brand?: string;
   name: string;
   nameHi?: string;
+  nameGu?: string;
+  namePa?: string;
   description: string;
   descriptionHi?: string;
+  descriptionGu?: string;
+  descriptionPa?: string;
   category: string;
+  categoryHi?: string;
+  categoryGu?: string;
+  categoryPa?: string;
   subCategory?: string;
+  subCategoryHi?: string;
+  subCategoryGu?: string;
+  subCategoryPa?: string;
   farmerFriendlyInfo?: {
     whyUse?: string;
+    whyUseHi?: string;
+    whyUseGu?: string;
+    whyUsePa?: string;
     howToUse?: string;
+    howToUseHi?: string;
+    howToUseGu?: string;
+    howToUsePa?: string;
     bestForCrops?: string[];
     resultTime?: string;
+    resultTimeHi?: string;
+    resultTimeGu?: string;
+    resultTimePa?: string;
     safety?: string;
+    safetyHi?: string;
+    safetyGu?: string;
+    safetyPa?: string;
   };
   pricing?: {
     price: number;
     discountPrice?: number;
     currency?: string;
     unit?: string;
+    unitHi?: string;
+    unitGu?: string;
+    unitPa?: string;
     stock?: number;
     minOrderQty?: number;
   };
   price: number;
   unit: string;
+  unitHi?: string;
+  unitGu?: string;
+  unitPa?: string;
   images: string[];
   ratings?: {
     average?: number;
@@ -72,6 +100,9 @@ export interface Product {
     available?: boolean;
     warehouseLocation?: string;
     deliveryTime?: string;
+    deliveryTimeHi?: string;
+    deliveryTimeGu?: string;
+    deliveryTimePa?: string;
   };
   aiMetadata?: {
     tags?: string[];

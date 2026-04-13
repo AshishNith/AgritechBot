@@ -1,77 +1,70 @@
 import { motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
-import { StackedCards, GlassCardData } from './ui/StackedCards';
-
-// We'll move the data generation inside the component to use the translation hook
+import { FounderCard } from './ui/FounderCard';
+import { members } from '../data/members';
 
 export default function Founders() {
-  const { t } = useTranslation();
-
-  const foundersData: GlassCardData[] = [
-    {
-      id: 1,
-      title: "Ashish Ranjan",
-      role: t('founders.ashish.role'),
-      description: t('founders.ashish.desc'),
-      image: "https://res.cloudinary.com/dvwpxb2oa/image/upload/v1/AnaajAI/founder_ashish.jpg",
-      linkedin: "#",
-      twitter: "#",
-      color: "#061b0e"
-    },
-    {
-      id: 2,
-      title: "Mehak Sharma",
-      role: t('founders.mehak.role'),
-      description: t('founders.mehak.desc'),
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1976&auto=format&fit=crop",
-      linkedin: "#",
-      twitter: "#",
-      color: "#586151"
-    },
-    {
-      id: 3,
-      title: "Vikram Singh",
-      role: t('founders.vikram.role'),
-      description: t('founders.vikram.desc'),
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop",
-      linkedin: "#",
-      twitter: "#",
-      color: "#bef500"
-    },
-    {
-      id: 4,
-      title: "Sanjay Verma",
-      role: t('founders.sanjay.role'),
-      description: t('founders.sanjay.desc'),
-      image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=1974&auto=format&fit=crop",
-      linkedin: "#",
-      twitter: "#",
-      color: "#4d6453"
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
     }
-  ];
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+  };
 
   return (
-    <section className="py-24 bg-surface overflow-hidden">
-      <div className="max-w-7xl mx-auto px-8">
+    <section className="relative overflow-hidden bg-gradient-to-b from-surface to-surface-container-low py-32">
+      {/* Background Decor */}
+      <div className="pointer-events-none absolute left-0 top-0 h-full w-full opacity-30">
+        <div className="absolute -left-20 top-1/4 h-96 w-96 rounded-full bg-primary/10 blur-[120px]" />
+        <div className="absolute -right-20 bottom-1/4 h-96 w-96 rounded-full bg-secondary/10 blur-[120px]" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-7xl px-8">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-20"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-tertiary-container text-tertiary-fixed w-fit mb-6 shadow-sm">
-            <span className="material-symbols-outlined text-sm">visibility</span>
-            <span className="text-xs font-bold uppercase tracking-widest font-label">{t('founders.label')}</span>
+          <div className="mb-8 inline-flex w-fit items-center gap-2 rounded-full border border-primary/10 bg-primary-container/30 px-4 py-2 text-primary-fixed backdrop-blur-sm">
+            <span className="material-symbols-outlined text-sm">group</span>
+            <span className="font-label text-xs font-bold uppercase tracking-[0.3em]">Our Team</span>
           </div>
-          <h2 className="text-5xl md:text-7xl font-headline font-bold text-primary tracking-tight">
-            {t('founders.title')}
+          <h2 className="mb-8 text-5xl font-headline font-bold leading-tight tracking-tight text-primary md:text-7xl">
+            Meet Our Core Members
           </h2>
-          <p className="mt-6 text-xl text-on-surface-variant max-w-2xl mx-auto font-body">
-            {t('founders.desc')}
+          <p className="mx-auto max-w-3xl font-body text-lg leading-relaxed text-on-surface-variant md:text-xl">
+            The people guiding our direction and building meaningful impact with consistent, long-term execution.
           </p>
         </motion.div>
 
-        <StackedCards cards={foundersData} />
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
+        >
+          {members.map((member) => (
+            <motion.div key={member.id} variants={itemVariants}>
+              <FounderCard
+                name={member.name}
+                role={member.role}
+                description={member.description}
+                image={member.image}
+                color={member.color}
+                profilePath={`/members/${member.slug}`}
+              />
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
     </section>
   );
