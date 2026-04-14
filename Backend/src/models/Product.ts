@@ -8,6 +8,7 @@ export interface IProductReview {
 }
 
 export interface IProduct extends Document {
+  name: string;
   slug?: string;
   brand?: string;
   nameHi?: string;
@@ -63,6 +64,7 @@ export interface IProduct extends Document {
     count?: number;
   };
   reviews?: IProductReview[];
+  inventory?: {
     available?: boolean;
     warehouseLocation?: string;
     deliveryTime?: string;

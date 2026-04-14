@@ -70,7 +70,7 @@ export function PriceSummary({ subtotal, tax = 0, shipping = 0, discount = 0, to
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
     borderWidth: 1,
   },
@@ -78,11 +78,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   divider: {
     height: 1,
-    marginVertical: 12,
+    marginVertical: 14,
   },
   totalRow: {
     flexDirection: 'row',
@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   totalAmount: {
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: '700',
   },
 });

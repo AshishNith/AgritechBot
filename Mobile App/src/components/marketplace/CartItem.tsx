@@ -4,6 +4,7 @@ import { CartItem as CartItemType } from '../../store/useMarketplaceStore';
 import { IconMap } from '../IconMap';
 import { useAppStore } from '../../store/useAppStore';
 import { getLocalizedProductContent } from '../../utils/localizationHelper';
+import { useTheme } from '../../providers/ThemeContext';
 
 interface CartItemProps {
   item: CartItemType;
@@ -37,41 +38,47 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
         source={{ uri: product.images?.[0] || 'https://via.placeholder.com/80' }}
         style={styles.image}
       />
-      <View style={styles.content}>
-        <AppText variant="label" numberOfLines={2}>
-          {localized.name}
-        </AppText>
-        <AppText color={colors.textMuted} style={styles.unit}>
-          {localized.unit}
-        </AppText>
-        <AppText variant="label" color={colors.primary} style={styles.price}>
-          ₹{product.price.toFixed(0)}
-        </AppText>
-      </View>
+      
+      <View style={styles.middleSection}>
+        <View style={styles.content}>
+          <AppText variant="label" numberOfLines={2}>
+            {localized.name}
+          </AppText>
+          <AppText color={colors.textMuted} style={styles.unit}>
+            {localized.unit || '1 unit'}
+          </AppText>
+          <AppText variant="label" color={colors.primary} style={styles.price}>
+            ₹{product.price.toFixed(0)}
+          </AppText>
+        </View>
 
-      <View style={[styles.quantitySection, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : colors.surfaceMuted }]}>
-        <Pressable
-          onPress={() => onQuantityChange(Math.max(0, quantity - 1))}
-          style={styles.quantityButton}
-        >
-          {MinusIcon ? <MinusIcon size={18} color={colors.primary} /> : null}
-        </Pressable>
-        <AppText style={styles.quantityText}>{quantity}</AppText>
-        <Pressable
-          onPress={() => onQuantityChange(quantity + 1)}
-          style={styles.quantityButton}
-        >
-          {PlusIcon ? <PlusIcon size={18} color={colors.primary} /> : null}
-        </Pressable>
+        <View style={styles.actionsRow}>
+          <View style={[styles.quantitySection, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : colors.surfaceMuted }]}>
+            <Pressable
+              onPress={() => onQuantityChange(Math.max(0, quantity - 1))}
+              style={styles.quantityButton}
+            >
+              {MinusIcon ? <MinusIcon size={16} color={colors.primary} /> : null}
+            </Pressable>
+            <AppText style={styles.quantityText}>{quantity}</AppText>
+            <Pressable
+              onPress={() => onQuantityChange(quantity + 1)}
+              style={styles.quantityButton}
+            >
+              {PlusIcon ? <PlusIcon size={16} color={colors.primary} /> : null}
+            </Pressable>
+          </View>
+
+          <Pressable onPress={onRemove} style={styles.removeButton}>
+            {TrashIcon ? <TrashIcon size={16} color={colors.danger} /> : null}
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.rightSection}>
         <AppText variant="label" color={colors.primary}>
           ₹{itemTotal.toFixed(0)}
         </AppText>
-        <Pressable onPress={onRemove} style={styles.removeButton}>
-          {TrashIcon ? <TrashIcon size={16} color={colors.danger} /> : null}
-        </Pressable>
       </View>
     </View>
   );
@@ -81,39 +88,47 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
   },
   image: {
-    width: 70,
-    height: 70,
-    borderRadius: 8,
-    marginRight: 12,
+    width: 80,
+    height: 80,
+    borderRadius: 12,
+  },
+  middleSection: {
+    flex: 1,
+    marginLeft: 12,
+    justifyContent: 'space-between',
   },
   content: {
-    flex: 1,
+    marginBottom: 8,
   },
   unit: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: 11,
+    marginTop: 2,
   },
   price: {
     marginTop: 4,
     fontSize: 14,
   },
+  actionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   quantitySection: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 12,
-    borderRadius: 8,
+    borderRadius: 10,
     paddingHorizontal: 4,
     paddingVertical: 2,
   },
   quantityButton: {
-    width: 24,
-    height: 32,
+    width: 28,
+    height: 28,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -121,14 +136,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     fontSize: 14,
     fontWeight: '600',
+    minWidth: 24,
+    textAlign: 'center',
+  },
+  removeButton: {
+    padding: 4,
   },
   rightSection: {
     alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    height: '100%',
-    paddingVertical: 2,
-  },
-  removeButton: {
-    marginTop: 8,
+    justifyContent: 'center',
+    marginLeft: 8,
+    minWidth: 50,
   },
 });

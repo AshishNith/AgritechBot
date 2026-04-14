@@ -124,13 +124,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    paddingBottom: 16,
     paddingTop: 8,
   },
   backButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     paddingBottom: 200,
   },
   continueShopping: {
-    marginTop: 12,
+    marginTop: 14,
     paddingVertical: 12,
   },
 });
