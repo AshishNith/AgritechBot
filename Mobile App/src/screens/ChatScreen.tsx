@@ -67,7 +67,6 @@ export function ChatScreen() {
   const { 
     wallet, 
     requireChat, 
-    deductChat, 
     chatPaywallVisible, 
     dismissChatPaywall, 
     refetchWallet 
@@ -99,6 +98,8 @@ export function ChatScreen() {
   const activeSoundRef = useRef<Audio.Sound | null>(null);
   const recordingModeRef = useRef<'transcribe' | 'voice' | null>(null);
   const ignoreNextTapRef = useRef(false);
+  const lastSendTimeRef = useRef<number>(0);
+  const SEND_DEBOUNCE_MS = 500;
   
   // Pulsing animation for mic button while recording
   const micPulse = useRef(new Animated.Value(1)).current;
@@ -228,7 +229,7 @@ export function ChatScreen() {
 
   useEffect(() => {
     return () => {
-      activeSoundRef.current?.unloadAsync().catch(() => undefined);
+      stopAudio();
     };
   }, []);
 
@@ -389,13 +390,19 @@ export function ChatScreen() {
       return;
     }
 
+    // Prevent duplicate sends with debounce
+    const now = Date.now();
+    if (now - lastSendTimeRef.current < SEND_DEBOUNCE_MS) {
+      return;
+    }
+    lastSendTimeRef.current = now;
+
     // Prevent duplicate sends while mutation is pending
     if (askMutation.isPending) {
       return;
     }
 
     if (!requireChat()) return;
-    deductChat();
 
     const localChatId = chatId ?? 'local';
     setMessages((current) => [
@@ -423,6 +430,13 @@ export function ChatScreen() {
       return;
     }
 
+    // Prevent duplicate retries with debounce
+    const now = Date.now();
+    if (now - lastSendTimeRef.current < SEND_DEBOUNCE_MS) {
+      return;
+    }
+    lastSendTimeRef.current = now;
+
     // Prevent duplicate retries while mutation is pending
     if (askMutation.isPending || voiceMutation.isPending) {
       return;
@@ -433,7 +447,6 @@ export function ChatScreen() {
       if (!outgoing) return;
 
       if (!requireChat()) return;
-      deductChat();
 
       const localChatId = chatId ?? 'local';
       setMessages((current) => [
@@ -454,7 +467,6 @@ export function ChatScreen() {
       });
     } else if (lastFailedDraft.type === 'voice') {
       if (!requireChat()) return;
-      deductChat();
       voiceMutation.mutate(lastFailedDraft.clip);
     }
   };
@@ -496,6 +508,14 @@ export function ChatScreen() {
     activeSoundRef.current = sound;
     await sound.loadAsync({ uri: audioUrl });
     await sound.playAsync();
+  };
+
+  const stopAudio = async () => {
+    if (activeSoundRef.current) {
+      await activeSoundRef.current.stopAsync();
+      await activeSoundRef.current.unloadAsync();
+      activeSoundRef.current = null;
+    }
   };
 
   // Full voice pipeline: STT → AI → TTS

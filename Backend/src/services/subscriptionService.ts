@@ -2,6 +2,7 @@ import { Subscription, TIER_FEATURES } from '../models/Subscription';
 import { User } from '../models/User';
 import { logger } from '../utils/logger';
 import { deductCredit } from './walletService';
+import mongoose from 'mongoose';
 
 export interface LimitCheckResult {
   allowed: boolean;
@@ -42,7 +43,7 @@ async function ensureSubscription(userId: string) {
 
 /**
  * Validates if a user has remaining quota to perform an action.
- * Handles automatic monthly reset.
+ * Handles automatic monthly reset based on calendar month (1st of each month).
  */
 export async function checkLimit(
   userId: string,
@@ -59,31 +60,26 @@ export async function checkLimit(
       return { allowed: false, reason: 'EXPIRED' };
     }
 
-    // Monthly Reset logic
-    const oneMonthInMs = 30 * 24 * 60 * 60 * 1000;
-    const timeSinceReset = now.getTime() - sub.startDate.getTime();
+    // Monthly Reset logic - use calendar month (1st of each month)
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastResetMonthStart = new Date(sub.startDate.getFullYear(), sub.startDate.getMonth(), 1);
     
-    if (timeSinceReset > oneMonthInMs) {
-      logger.info({ userId }, 'Performing monthly usage reset');
-      
-      // Calculate new start date (should be exactly 1 month after previous or now)
-      const newStartDate = new Date(sub.startDate.getTime() + oneMonthInMs);
-      // If it's been multiple months, just use now
-      const finalStartDate = (now.getTime() - newStartDate.getTime() > oneMonthInMs) ? now : newStartDate;
+    if (currentMonthStart.getTime() > lastResetMonthStart.getTime()) {
+      logger.info({ userId, lastReset: sub.startDate }, 'Performing monthly usage reset (calendar month)');
 
       await Subscription.updateOne(
         { _id: sub._id },
         { 
           $set: { 
             queriesUsed: 0, 
-            scansUsed: 0, 
-            startDate: finalStartDate 
+            scansUsed: 0,
+            startDate: currentMonthStart 
           } 
         }
       );
       sub.queriesUsed = 0;
       sub.scansUsed = 0;
-      sub.startDate = finalStartDate;
+      sub.startDate = currentMonthStart;
     }
 
     const currentUsage = type === 'chat' ? sub.queriesUsed : sub.scansUsed;
@@ -113,45 +109,42 @@ export async function checkLimit(
 
 /**
  * Increments usage count upon successful completion of the action.
- * Also syncs to User model for backup/easy access.
+ * Also syncs to User model atomically using MongoDB transactions.
+ * Note: Wallet credit deduction is handled separately in geminiChat.service.ts
  */
 export async function incrementUsage(
   userId: string,
   type: 'chat' | 'scan'
 ) {
+  const session = await mongoose.startSession();
   try {
+    session.startTransaction();
+
     const incField = type === 'chat' ? 'queriesUsed' : 'scansUsed';
     const userIncField = type === 'chat' ? 'usageLimits.chatCount' : 'usageLimits.scanCount';
 
     // Update Subscription
     await Subscription.updateOne(
       { userId },
-      { $inc: { [incField]: 1 } }
+      { $inc: { [incField]: 1 } },
+      { session }
     );
 
     // Sync to User model
     await User.updateOne(
       { _id: userId },
-      { $inc: { [userIncField]: 1 } }
+      { $inc: { [userIncField]: 1 } },
+      { session }
     );
 
-    // Sync to Wallet model (New Credit System)
-    try {
-      const updatedWallet = await deductCredit(userId, type);
-      logger.info({ userId, type }, 'Wallet credit sync successful during usage increment');
-      return updatedWallet;
-    } catch (walletErr) {
-      // If it's a credit error, rethrow it so the controller can return 402 if needed
-      if (typeof walletErr === 'object' && walletErr !== null && (walletErr as any).code === 'NO_CREDITS') {
-        throw walletErr;
-      }
-      // For other wallet errors (connection, etc), log but don't fail the primary increment
-      logger.warn({ userId, type, err: walletErr }, 'Wallet credit sync skipped or failed during usage increment');
-      return null;
-    }
+    await session.commitTransaction();
+    logger.info({ userId, type }, 'Usage incremented successfully with transaction');
   } catch (error) {
-    logger.error({ error, userId, type }, 'Error incrementing usage');
+    await session.abortTransaction();
+    logger.error({ error, userId, type }, 'Error incrementing usage - transaction rolled back');
     throw error;
+  } finally {
+    session.endSession();
   }
 }
 

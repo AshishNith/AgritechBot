@@ -536,26 +536,14 @@ export const apiService = {
     await upsertLocalScanHistory(item);
   },
   async getScanHistory() {
-    let backendHistory: ScanHistoryItem[] = [];
-
     try {
       const { data } = await api.get<{
         history: ScanHistoryItem[];
       }>('/api/v1/image-analysis/history');
-      backendHistory = data.history || [];
+      return data.history || [];
     } catch {
-      backendHistory = [];
+      return [];
     }
-
-    const localHistory = await readLocalScanHistory();
-    const merged = [...backendHistory, ...localHistory].reduce<ScanHistoryItem[]>((acc, item) => {
-      if (!acc.some((existing) => existing._id === item._id)) {
-        acc.push(item);
-      }
-      return acc;
-    }, []);
-
-    return merged.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   },
 
   // ── Farming Assistant ──

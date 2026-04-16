@@ -2,16 +2,18 @@
  * useWallet — convenience hook for consuming wallet state in screens.
  *
  * Usage in ChatScreen:
- *   const { canChat, requireChat, deductChat } = useWallet();
+ *   const { canChat, requireChat } = useWallet();
  *
  *   Before sending a message:
  *     if (!requireChat()) return;   // shows paywall if 0 credits
- *     deductChat();                 // optimistic deduction
  *     await apiService.askChat(...)
- *     // On error, call refetchWallet() to reconcile
+ *     // Credits are deducted on server side
+ *
+ * Note: Optimistic deduction has been removed to prevent double deduction.
+ * All credit management is now handled entirely by the backend.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiService } from '../api/services';
 import { useWalletStore } from '../store/useWalletStore';
@@ -24,8 +26,6 @@ export function useWallet() {
   const lastFetched = useWalletStore((s) => s.lastFetched);
   const canChat = useWalletStore((s) => s.canChat);
   const canScan = useWalletStore((s) => s.canScan);
-  const deductChatCredit = useWalletStore((s) => s.deductChatCredit);
-  const deductScanCredit = useWalletStore((s) => s.deductScanCredit);
 
   const chatPaywallVisible = useWalletStore((s) => s.chatPaywallVisible);
   const scanPaywallVisible = useWalletStore((s) => s.scanPaywallVisible);
@@ -78,20 +78,6 @@ export function useWallet() {
   }, [wallet, canScan, walletQuery.isLoading, walletQuery.isPending, setScanPaywallVisible]);
 
   /**
-   * Optimistically deduct 1 chat credit. Server will confirm.
-   */
-  const deductChat = useCallback(() => {
-    deductChatCredit();
-  }, [deductChatCredit]);
-
-  /**
-   * Optimistically deduct 1 scan credit.
-   */
-  const deductScan = useCallback(() => {
-    deductScanCredit();
-  }, [deductScanCredit]);
-
-  /**
    * Refetch wallet from server (e.g. after payment or on error).
    */
   const refetchWallet = useCallback(async () => {
@@ -116,10 +102,6 @@ export function useWallet() {
     // Gate methods (show paywall if needed)
     requireChat,
     requireScan,
-
-    // Optimistic deductions
-    deductChat,
-    deductScan,
 
     // Paywall visibility state (pass to <PaywallBottomSheet>)
     chatPaywallVisible,

@@ -43,30 +43,6 @@ export const vendors: VendorData[] = [
     ]
   },
   {
-    id: "aerotech",
-    name: "AeroTech Drones",
-    username: "aerotech_agri",
-    image: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=400&q=80&auto=format&fit=crop",
-    heroImage: "https://images.unsplash.com/photo-1473968512647-3e44a224fe8f?w=1200&q=80&auto=format&fit=crop",
-    bio: "Specializing in high-precision agricultural drones for targeted spraying and crop monitoring.",
-    longBio: "AeroTech bridges the gap between aerospace engineering and traditional farming. Our specialized drones enable hyper-targeted pesticide spraying and thermal field monitoring.",
-    stats: { following: 45, followers: 12400, posts: 18 },
-    products: [
-      {
-        name: "Sprayer Drone X1",
-        price: 45000,
-        image: "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=600&q=80&auto=format&fit=crop",
-        tag: "Hardware"
-      },
-      {
-        name: "Thermal Sensor Kit",
-        price: 12000,
-        image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&q=80&auto=format&fit=crop",
-        tag: "Accessory"
-      }
-    ]
-  },
-  {
     id: "greenseed",
     name: "GreenSeed Co.",
     username: "greenseed_official",
@@ -126,7 +102,7 @@ export const vendors: VendorData[] = [
     products: [
       {
         name: "UV-Resistant Poly Film 50m",
-        price: 14000,
+        price: 4000,
         image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&q=80&auto=format&fit=crop",
         tag: "Materials"
       },

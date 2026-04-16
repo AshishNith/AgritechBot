@@ -33,7 +33,7 @@ export function ImageScanScreen({ route }: { route: any }) {
   const analysisInProgress = React.useRef(false);
   const isPickingImage = React.useRef(false);
   
-  const { wallet, refetchWallet, deductScan, requireScan, scanPaywallVisible, dismissScanPaywall } = useWallet();
+  const { wallet, refetchWallet, requireScan, scanPaywallVisible, dismissScanPaywall } = useWallet();
 
   // Sync route params when navigating from history
   useEffect(() => {
@@ -131,13 +131,11 @@ export function ImageScanScreen({ route }: { route: any }) {
     if (!requireScan()) return;
     
     analysisInProgress.current = true;
-    deductScan();
     setAnalyzing(true);
     setResult(null);
     try {
       const response = await apiService.analyzeCrop(base64, mimeType, currentLanguage);
       setResult(response.diagnosis);
-      refetchHistory();
       void refetchWallet();
     } catch (error: any) {
       analysisInProgress.current = false;
@@ -146,7 +144,7 @@ export function ImageScanScreen({ route }: { route: any }) {
       const statusCode = error?.response?.status;
       const errorMessage = error?.message || t('errUnknown');
 
-      // Always refetch wallet on error to reconcile optimistic deduction
+      // Always refetch wallet on error to get accurate state
       void refetchWallet();
 
       if (statusCode === 402 || statusCode === 403) {

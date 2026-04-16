@@ -97,34 +97,38 @@ export async function resetPlanCredits(userId: string): Promise<IWallet> {
 
 export async function runMonthlyReset(): Promise<{ resetCount: number }> {
   const now = new Date();
-  const cutoff = new Date(now.getTime() - 28 * 24 * 60 * 60 * 1000);
+  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
   const wallets = await Wallet.find({
     plan: { $in: ['basic', 'pro'] },
     planExpiry: { $gt: now },
-    lastReset: { $lt: cutoff },
   });
 
   let resetCount = 0;
 
   for (const wallet of wallets) {
-    const userId = wallet.userId.toString();
-    const plan = wallet.plan;
-    const planLimit = PLAN_LIMITS[plan].chatCredits;
-    const rolloverCredits =
-      plan === 'pro'
-        ? Math.min(wallet.chatCredits, Math.floor(planLimit * 0.25))
-        : 0;
+    const lastResetMonthStart = new Date(wallet.lastReset.getFullYear(), wallet.lastReset.getMonth(), 1);
+    
+    // Only reset if the current month is different from the last reset month
+    if (currentMonthStart.getTime() > lastResetMonthStart.getTime()) {
+      const userId = wallet.userId.toString();
+      const plan = wallet.plan;
+      const planLimit = PLAN_LIMITS[plan].chatCredits;
+      const rolloverCredits =
+        plan === 'pro'
+          ? Math.min(wallet.chatCredits, Math.floor(planLimit * 0.25))
+          : 0;
 
-    const updatedWallet = await resetPlanCredits(userId);
+      const updatedWallet = await resetPlanCredits(userId);
 
-    if (plan === 'pro' && rolloverCredits > 0) {
-      updatedWallet.chatCredits = Math.min(updatedWallet.chatCredits + rolloverCredits, planLimit);
-      await updatedWallet.save();
+      if (plan === 'pro' && rolloverCredits > 0) {
+        updatedWallet.chatCredits = Math.min(updatedWallet.chatCredits + rolloverCredits, planLimit);
+        await updatedWallet.save();
+      }
+
+      logger.info({ userId, plan }, 'Monthly credits reset (calendar month)');
+      resetCount += 1;
     }
-
-    logger.info({ userId, plan }, 'Monthly credits reset');
-    resetCount += 1;
   }
 
   return { resetCount };
