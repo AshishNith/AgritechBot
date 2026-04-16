@@ -29,7 +29,7 @@ export function ImageScanScreen({ route }: { route: any }) {
 
   const [image, setImage] = useState<string | null>(route.params?.image || null);
   const [analyzing, setAnalyzing] = useState(false);
-  const [result, setResult] = useState<string | null>(route.params?.result || null);
+  const [result, setResult] = useState<any | null>(route.params?.result || null);
   const analysisInProgress = React.useRef(false);
   const isPickingImage = React.useRef(false);
   
@@ -162,16 +162,17 @@ export function ImageScanScreen({ route }: { route: any }) {
     }
   };
 
-  const safeJsonParse = (str: string | null) => {
-    if (!str) return null;
+  const safeJsonParse = (val: any) => {
+    if (!val) return null;
+    if (typeof val === 'object') return val;
     try {
-      return JSON.parse(str);
+      return JSON.parse(val);
     } catch (e) {
       try {
-        const startIdx = str.indexOf('{');
-        const endIdx = str.lastIndexOf('}');
+        const startIdx = val.indexOf('{');
+        const endIdx = val.lastIndexOf('}');
         if (startIdx !== -1 && endIdx !== -1 && endIdx >= startIdx) {
-          const jsonStr = str.substring(startIdx, endIdx + 1);
+          const jsonStr = val.substring(startIdx, endIdx + 1);
           const sanitized = jsonStr.replace(/[\u0000-\u001F\u007F-\u009F]/g, " "); 
           return JSON.parse(sanitized);
         }
@@ -196,7 +197,9 @@ export function ImageScanScreen({ route }: { route: any }) {
             <AppText variant="heading" style={{ fontSize: 18 }}>Diagnosis Report</AppText>
           </View>
           <View style={styles.resultBody}>
-            <AppText style={{ lineHeight: 24 }}>{result}</AppText>
+            <AppText style={{ lineHeight: 24 }}>
+              {typeof result === 'string' ? result : JSON.stringify(result, null, 2)}
+            </AppText>
           </View>
           <GradientButton
             label="Talk to Expert"
