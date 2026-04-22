@@ -195,7 +195,18 @@ export function ChatScreen() {
         const sortedMessages = [...data.messages].sort((a, b) => 
           new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
         );
-        setMessages(sortedMessages);
+
+        // Deduplicate by ID and filter out empty messages
+        const seen = new Set<string>();
+        const dedupedMessages = sortedMessages.filter((msg) => {
+          if (seen.has(msg.id)) return false;
+          seen.add(msg.id);
+          // Filter out messages with empty content (e.g. orphaned tool messages)
+          if (!msg.content || msg.content.trim() === '') return false;
+          return true;
+        });
+
+        setMessages(dedupedMessages.length ? dedupedMessages : [buildStarterMessage(language)]);
       })
       .catch(() => {
         if (cancelled) {

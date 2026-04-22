@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import knowledgeBase from '../data/knowledgeBase.json';
 import { ChatMessageModel } from '../models/ChatMessage.model';
 import { ChatSessionModel } from '../models/ChatSession.model';
@@ -85,9 +86,9 @@ export async function listChatSessions(params: {
 }> {
   const { farmerId, page, limit } = params;
   const skip = (page - 1) * limit;
-
+  const farmerObjectId = new mongoose.Types.ObjectId(farmerId);
   const query = { 
-    farmerId, 
+    farmerId: farmerObjectId, 
     status: 'active', 
     $or: [
       { 'metadata.type': 'chat' },
@@ -97,51 +98,21 @@ export async function listChatSessions(params: {
 
   const [sessions, total] = await Promise.all([
     ChatSessionModel.find(query)
-      .sort({ lastMessageAt: -1, updatedAt: -1 })
+      .sort({ lastMessageAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean(),
     ChatSessionModel.countDocuments(query),
   ]);
 
-  const sessionIds = sessions.map((session) => session._id);
-  const latestMessages = sessionIds.length
-    ? await ChatMessageModel.aggregate<{ _id: string; preview: string }>([
-        { $match: { sessionId: { $in: sessionIds }, 'content.text': { $exists: true } } },
-        { $sort: { createdAt: -1 } },
-        {
-          $group: {
-            _id: '$sessionId',
-            preview: { $first: '$content.text' },
-          },
-        },
-      ])
-    : [];
-
-  const previewMap = new Map(latestMessages.map((entry) => [String(entry._id), entry.preview]));
-
-  const normalizedSessions: Array<{
-    sessionId: string;
-    title: string;
-    status: 'active' | 'archived';
-    messageCount: number;
-    updatedAt: Date;
-    lastMessageAt: Date;
-    preview: string;
-    metadata: {
-      cropsDiscussed: string[];
-      problemsSolved: string[];
-      location?: string;
-      season?: string;
-    };
-  }> = sessions.map((session) => ({
+  const normalizedSessions = sessions.map((session) => ({
     sessionId: String(session._id),
     title: session.title,
     status: session.status,
     messageCount: session.messageCount,
     updatedAt: session.updatedAt,
     lastMessageAt: session.lastMessageAt,
-    preview: previewMap.get(String(session._id)) || '',
+    preview: session.metadata?.lastMessagePreview || '',
     metadata: session.metadata,
   }));
 
@@ -336,6 +307,9 @@ export async function touchChatSession(params: {
   session.metadata.season = detectCurrentSeason();
   session.metadata.cropsDiscussed = unique([...session.metadata.cropsDiscussed, ...cropsDiscussed]);
   session.metadata.problemsSolved = unique([...session.metadata.problemsSolved, ...problemsSolved]);
+  
+  // OPTIMIZATION: Persist preview text for fast listing
+  session.metadata.lastMessagePreview = params.assistantText.trim() || params.userText.trim();
 
   await session.save();
 }

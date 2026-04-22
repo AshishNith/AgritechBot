@@ -14,7 +14,7 @@ export async function connectDB(): Promise<void> {
         maxPoolSize: env.MONGODB_MAX_POOL_SIZE,
         minPoolSize: Math.min(10, env.MONGODB_MAX_POOL_SIZE),
         socketTimeoutMS: 30000,
-        serverSelectionTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 30000,
       });
       logger.info(
         { poolSize: env.MONGODB_MAX_POOL_SIZE, attempt },

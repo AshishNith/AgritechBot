@@ -88,14 +88,24 @@ export async function getKnowledgeBaseCacheName(): Promise<string | undefined> {
   } catch (error) {
     const status = (error as { status?: number }).status;
     const message = (error as { message?: string }).message || '';
-    if (
-      status === 429 &&
-      /TotalCachedContentStorageTokensPerModelFreeTier limit exceeded/i.test(message)
-    ) {
-      cacheRetryBlockedUntil = Date.now() + KB_CACHE_TTL_SECONDS * 1000;
+
+    if (status === 404 || (status === 400 && /too small/i.test(message))) {
       if (!cacheUnavailableLogged) {
         logger.warn(
-          'Gemini knowledge caching is unavailable on the current API tier. Chat will continue without cached KB context.'
+          { model: getModelName(), status, message },
+          'Gemini knowledge caching is not supported for this model or content size. Chat will continue without cached context.'
+        );
+        cacheUnavailableLogged = true;
+      }
+      return undefined;
+    }
+
+    if (status === 429) {
+      cacheRetryBlockedUntil = Date.now() + 30 * 60 * 1000; // Block for 30 mins
+      if (!cacheUnavailableLogged) {
+        logger.warn(
+          { status, message },
+          'Gemini knowledge caching quota hit. Disabling caching for 30 minutes.'
         );
         cacheUnavailableLogged = true;
       }
@@ -117,14 +127,23 @@ export async function refreshKnowledgeBaseCache(): Promise<void> {
   } catch (error) {
     const status = (error as { status?: number }).status;
     const message = (error as { message?: string }).message || '';
-    if (
-      status === 429 &&
-      /TotalCachedContentStorageTokensPerModelFreeTier limit exceeded/i.test(message)
-    ) {
-      cacheRetryBlockedUntil = Date.now() + KB_CACHE_TTL_SECONDS * 1000;
+
+    if (status === 404 || (status === 400 && /too small/i.test(message))) {
       if (!cacheUnavailableLogged) {
         logger.warn(
-          'Gemini knowledge caching is unavailable on the current API tier. Startup will continue without cached KB context.'
+          { model: getModelName(), status, message },
+          'Gemini knowledge caching not supported or content too small for startup refresh. Proceeding without cache.'
+        );
+        cacheUnavailableLogged = true;
+      }
+      return;
+    }
+
+    if (status === 429) {
+      cacheRetryBlockedUntil = Date.now() + 30 * 60 * 1000;
+      if (!cacheUnavailableLogged) {
+        logger.warn(
+          'Gemini knowledge caching quota hit during startup. Disabling caching for 30 minutes.'
         );
         cacheUnavailableLogged = true;
       }

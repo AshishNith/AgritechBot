@@ -53,7 +53,7 @@ let activeBaseUrl = baseUrls[0] || (__DEV__ ? 'http://localhost:4000' : 'https:/
 
 export const api = axios.create({
   baseURL: activeBaseUrl,
-  timeout: 30000,
+  timeout: 60000,
 });
 
 api.interceptors.response.use(

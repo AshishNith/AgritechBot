@@ -12,6 +12,7 @@ export interface IChatSession extends Document {
     location?: string;
     season?: string;
     type: 'chat' | 'scan';
+    lastMessagePreview?: string;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -70,6 +71,7 @@ const chatSessionSchema = new Schema<IChatSession>(
   }
 );
 
+chatSessionSchema.index({ farmerId: 1, status: 1, lastMessageAt: -1 });
 chatSessionSchema.index({ farmerId: 1, lastMessageAt: -1 });
 
 export const ChatSessionModel = mongoose.model<IChatSession>('ChatSession', chatSessionSchema);

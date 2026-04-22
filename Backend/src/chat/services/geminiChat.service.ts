@@ -37,8 +37,9 @@ const RESERVED_CONTEXT_TOKENS = 500;
 const HISTORY_TOKEN_BUDGET =
   MAX_TOTAL_TOKENS - RESERVED_OUTPUT_TOKENS - RESERVED_SYSTEM_TOKENS - RESERVED_CONTEXT_TOKENS;
 
-// API timeout for Gemini calls (30 seconds)
-const GEMINI_API_TIMEOUT_MS = 30_000;
+// API timeout for Gemini calls (20 seconds - shorter than mobile app's 30s to allow graceful error return)
+const GEMINI_API_TIMEOUT_MS = 20_000;
+const CACHE_RETRIEVAL_TIMEOUT_MS = 5_000;
 
 let quotaBlockedUntil = 0;
 
@@ -525,15 +526,25 @@ export async function sendChatMessage(params: {
     throw new Error('Chat session not found');
   }
 
-  const kbCacheName = await getKnowledgeBaseCacheName();
-  const built = await buildConversationContents({
-    sessionId: params.sessionId,
-    farmerId: params.farmerId,
-    newUserMessage: params.text,
-    preferredLanguage: language,
-    imageBase64: params.imageBase64,
-    imageMimeType: params.imageMimeType,
-  });
+  // OPTIMIZATION: Parallelize KB cache retrieval and conversation building
+  const [kbCacheName, built] = await Promise.all([
+    withTimeout(
+      getKnowledgeBaseCacheName(),
+      CACHE_RETRIEVAL_TIMEOUT_MS,
+      'Cache retrieval timed out'
+    ).catch((err) => {
+      logger.warn({ err }, 'Knowledge base cache retrieval timed out or failed. Proceeding without cache.');
+      return undefined;
+    }),
+    buildConversationContents({
+      sessionId: params.sessionId,
+      farmerId: params.farmerId,
+      newUserMessage: params.text,
+      preferredLanguage: language,
+      imageBase64: params.imageBase64,
+      imageMimeType: params.imageMimeType,
+    }),
+  ]);
   const inputTokens = estimateTextTokens(
     built.contents
       .flatMap((content) =>
@@ -577,11 +588,21 @@ export async function sendChatMessage(params: {
     let recommendedProducts: any[] = [];
     const functionCalls = result.response.functionCalls();
     if (functionCalls?.length) {
-     const { result: chatResult, products: recommendedProducts } = await runToolLoop({
-      model,
-      contents: built.contents,
-    });
-      result = chatResult;
+      // Add timeout to tool loop to prevent hanging the whole request
+      const toolLoopResult = await withTimeout(
+        runToolLoop({
+          model,
+          contents: built.contents,
+        }),
+        30_000,
+        'Tool execution taking too long'
+      ).catch((err) => {
+        logger.error({ err, sessionId: params.sessionId }, 'Tool loop failed or timed out');
+        // Fallback: return the original response if possible, or rethrow
+        return { result, products: [] };
+      });
+      result = toolLoopResult.result;
+      recommendedProducts = toolLoopResult.products;
     }
 
     const responseText = result.response.text().trim();
@@ -594,13 +615,19 @@ export async function sendChatMessage(params: {
     const shouldGenerateVoice = true; // Part 4B: Always generate voice for AI replies
 
     // OPTIMIZATION: Run TTS and suggestions generation in parallel (non-blocking)
+    // TTS has a 10s timeout to prevent hanging the entire response
+    const TTS_TIMEOUT_MS = 10_000;
     const [ttsResult, suggestions] = await Promise.allSettled([
       // TTS (only if needed)
       shouldGenerateVoice
-        ? textToSpeech(responseText, getLanguageLabel(language))
+        ? withTimeout(
+            textToSpeech(responseText, getLanguageLabel(language)),
+            TTS_TIMEOUT_MS,
+            'TTS timed out'
+          )
             .then((audio) => ({ audioBase64: audio, audioMimeType: 'audio/mp3' as const }))
             .catch((err) => {
-              logger.warn({ err, sessionId: params.sessionId }, 'TTS failed');
+              logger.warn({ err, sessionId: params.sessionId }, 'TTS failed or timed out');
               return undefined;
             })
         : Promise.resolve(undefined),
@@ -682,22 +709,18 @@ export async function sendChatMessage(params: {
     };
   } catch (error) {
     const processingTimeMs = Date.now() - startedAt;
+
+    // NOTE: We intentionally do NOT persist failed exchanges to the database.
+    // Persisting user + error messages on failure caused duplicate messages when:
+    //   - The user retries and the retry succeeds (original error pair + success pair)
+    //   - The backend succeeded but the response was lost (timeout), creating orphans
+    // Error messages are transient UI feedback and should not be stored as chat history.
+
     if (isQuotaError(error)) {
       const delayMs = parseRetryDelayMs(error);
       quotaBlockedUntil = Date.now() + delayMs;
       const retryAfterSeconds = Math.max(1, Math.ceil(delayMs / 1000));
       const msg = getQuotaExceededMessage(language, retryAfterSeconds);
-
-      await persistFailedExchange({
-        sessionId: params.sessionId,
-        farmerId: params.farmerId,
-        userText: params.text,
-        imageBase64: params.imageBase64,
-        language,
-        processingTimeMs,
-        errorCode: 'quota',
-        errorMessage: msg,
-      });
 
       logger.warn(
         { retryAfterSeconds, blockedUntil: new Date(quotaBlockedUntil).toISOString() },
@@ -709,17 +732,6 @@ export async function sendChatMessage(params: {
     if (isTemporaryProviderError(error)) {
       const message = getSafeFriendlyErrorMessage(language, 'provider_unavailable');
 
-      await persistFailedExchange({
-        sessionId: params.sessionId,
-        farmerId: params.farmerId,
-        userText: params.text,
-        imageBase64: params.imageBase64,
-        language,
-        processingTimeMs,
-        errorCode: 'provider_unavailable',
-        errorMessage: message,
-      });
-
       logger.warn(
         { err: error, sessionId: params.sessionId, farmerId: params.farmerId },
         'Gemini provider temporarily unavailable'
@@ -727,26 +739,18 @@ export async function sendChatMessage(params: {
       throw new HttpError(message, 503);
     }
 
+    const isLocalTimeout = error instanceof Error && error.message.includes('timed out');
     const timeout =
-      error instanceof GoogleGenerativeAIFetchError &&
-      (error.status === 408 || /timeout/i.test(error.message));
+      isLocalTimeout ||
+      (error instanceof GoogleGenerativeAIFetchError &&
+        (error.status === 408 || /timeout/i.test(error.message)));
     const safety = error instanceof GoogleGenerativeAIResponseError;
     const code = timeout ? 'timeout' : safety ? 'safety' : 'provider_error';
+    const statusCode = timeout ? 504 : safety ? 400 : 500;
     const message = getSafeFriendlyErrorMessage(language, code);
 
-    await persistFailedExchange({
-      sessionId: params.sessionId,
-      farmerId: params.farmerId,
-      userText: params.text,
-      imageBase64: params.imageBase64,
-      language,
-      processingTimeMs,
-      errorCode: code,
-      errorMessage: message,
-    });
-
     logger.error({ err: error, sessionId: params.sessionId, farmerId: params.farmerId }, 'Chat message processing failed');
-    throw new Error(message);
+    throw new HttpError(message, statusCode);
   }
 }
 

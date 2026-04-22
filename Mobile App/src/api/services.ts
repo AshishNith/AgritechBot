@@ -343,7 +343,13 @@ export const apiService = {
     return {
       chatId: data.sessionId,
       messages: data.messages
-        .filter((msg) => msg.role !== 'system')
+        .filter((msg) => {
+          // Filter out system messages and tool interaction messages
+          if (msg.role === 'system') return false;
+          const contentType = msg.content?.type;
+          if (contentType === 'tool_call' || contentType === 'tool_result') return false;
+          return true;
+        })
         .map((msg) => ({
           id: String(msg._id),
           chatId: String(data.sessionId),

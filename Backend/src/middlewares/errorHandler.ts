@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyError, FastifyRequest, FastifyReply } from 'fas
 import { logger } from '../utils/logger';
 import { env } from '../config/env';
 import { AppError } from '../utils/AppError';
+import { HttpError } from '../chat/utils/httpError';
 
 export function registerErrorHandler(app: FastifyInstance): void {
   app.setErrorHandler((error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
@@ -30,13 +31,25 @@ export function registerErrorHandler(app: FastifyInstance): void {
     }
 
     const isAppError = error instanceof AppError;
-    const translationKey = isAppError ? (error as AppError).translationKey : (statusCode >= 500 ? 'errServerBusy' : 'errUnknown');
+    const isHttpError = error instanceof HttpError;
+    const translationKey = isAppError 
+      ? (error as AppError).translationKey 
+      : (statusCode === 429 ? 'errLimitReached' : (statusCode >= 500 ? 'errServerBusy' : 'errUnknown'));
+
+    // Pass through the message for:
+    // - All non-500 errors (client errors with meaningful messages)
+    // - HttpError instances (intentionally set user-friendly messages from chat service)
+    // - AppError instances (application-level errors with translated messages)
+    // Only mask truly unexpected 500 errors for security.
+    const responseMessage = (statusCode < 500 || isHttpError || isAppError)
+      ? error.message
+      : 'Internal Server Error';
 
     reply.status(statusCode).send({
       success: false,
       statusCode,
       code: translationKey,
-      message: statusCode >= 500 ? 'Internal Server Error' : error.message,
+      message: responseMessage,
       requestId: request.id,
       ...(statusCode === 429 && typeof retryAfterSeconds === 'number' && retryAfterSeconds > 0
         ? { retryAfterSeconds }
