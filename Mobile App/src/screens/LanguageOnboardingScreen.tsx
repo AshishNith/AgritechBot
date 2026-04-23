@@ -56,7 +56,12 @@ export function LanguageOnboardingScreen({ navigation }: Props) {
       </View>
       <View style={styles.bottom}>
         <ProgressDots total={3} active={0} />
-        <GradientButton label={t(language, 'getStarted')} onPress={() => navigation.navigate('VoiceIntro')} style={{ marginTop: 18 }} />
+        <GradientButton 
+          label={t(language, 'getStarted')} 
+          onPress={() => navigation.navigate('VoiceIntro')} 
+          style={{ marginTop: 18, opacity: language ? 1 : 0.5 }} 
+          disabled={!language}
+        />
       </View>
     </Screen>
   );

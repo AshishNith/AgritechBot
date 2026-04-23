@@ -8,7 +8,7 @@ import { useWalletStore } from './useWalletStore';
 interface AppState {
   token: string | null;
   user: UserProfile | null;
-  language: AppLanguage;
+  language: AppLanguage | null;
   phoneDraft: string;
   hasCompletedOnboarding: boolean;
   selectedCrops: string[];
@@ -18,7 +18,7 @@ interface AppState {
   hasPlayedGreeting: boolean;
   setToken: (token: string | null) => void;
   setUser: (user: UserProfile | null) => void;
-  setLanguage: (language: AppLanguage) => void;
+  setLanguage: (language: AppLanguage | null) => void;
   setPhoneDraft: (phone: string) => void;
   completeOnboarding: () => void;
   setHasCompletedOnboarding: (completed: boolean) => void;
@@ -35,7 +35,7 @@ export const useAppStore = create<AppState>()(
     (set) => ({
       token: null,
       user: null,
-      language: 'Hindi',
+      language: null,
       phoneDraft: '+91',
       hasCompletedOnboarding: false,
       selectedCrops: [],

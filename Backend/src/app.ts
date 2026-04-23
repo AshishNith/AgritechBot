@@ -166,7 +166,7 @@ export async function buildApp(): Promise<FastifyInstance> {
       database: dbStatus,
       redis: redisStatus,
       version: APP_VERSION,
-      name: "Ashish Ranjan",
+      date: "23/4/2026",
       environment: env.NODE_ENV,
       deployedAt: formatDateTime(env.DEPLOYED_AT),
       timestamp: formatDateTime(new Date()),

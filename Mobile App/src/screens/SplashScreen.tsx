@@ -17,14 +17,19 @@ export function SplashScreen({ navigation }: Props) {
   const token = useAppStore((state) => state.token);
   const user = useAppStore((state) => state.user);
   const hasCompletedOnboarding = useAppStore((state) => state.hasCompletedOnboarding);
+  const language = useAppStore((state) => state.language);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace('Login');
+      if (!language) {
+        navigation.replace('LanguageOnboarding');
+      } else {
+        navigation.replace('Login');
+      }
     }, 2200);
 
     return () => clearTimeout(timer);
-  }, [token, user, navigation, hasCompletedOnboarding]);
+  }, [token, user, navigation, hasCompletedOnboarding, language]);
 
   return (
     <Screen dark padded={false}>

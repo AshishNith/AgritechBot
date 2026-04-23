@@ -11,6 +11,7 @@ import { t } from '../constants/localization';
 import { theme } from '../constants/theme';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
+import { useTheme } from '../providers/ThemeContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -32,6 +33,7 @@ export function LoginScreen({ navigation }: Props) {
   const phoneDraft = useAppStore((state) => state.phoneDraft);
   const setPhoneDraft = useAppStore((state) => state.setPhoneDraft);
   const language = useAppStore((state) => state.language);
+  const { colors } = useTheme();
   const [phone, setPhone] = useState(phoneDraft);
   const [error, setError] = useState<string | null>(null);
 
@@ -85,7 +87,7 @@ export function LoginScreen({ navigation }: Props) {
               keyboardType="phone-pad"
               placeholder="98765 43210"
               placeholderTextColor={theme.colors.textMuted}
-              style={styles.input}
+              style={[styles.input, { color: colors.text }]}
               editable={!sendOtpMutation.isPending}
             />
           </View>

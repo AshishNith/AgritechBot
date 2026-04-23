@@ -82,6 +82,9 @@ export function RootNavigator() {
         {!token ? (
           <>
             <Stack.Screen name="Splash" getComponent={() => require('../screens/SplashScreen').SplashScreen} />
+            <Stack.Screen name="LanguageOnboarding" getComponent={() => require('../screens/LanguageOnboardingScreen').LanguageOnboardingScreen} />
+            <Stack.Screen name="VoiceIntro" getComponent={() => require('../screens/VoiceIntroScreen').VoiceIntroScreen} />
+            <Stack.Screen name="CropIntro" getComponent={() => require('../screens/CropIntroScreen').CropIntroScreen} />
             <Stack.Screen name="Login" getComponent={() => require('../screens/LoginScreen').LoginScreen} />
             <Stack.Screen name="Otp" getComponent={() => require('../screens/OtpScreen').OtpScreen} />
           </>

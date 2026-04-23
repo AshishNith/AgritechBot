@@ -2156,11 +2156,12 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
   },
 };
 
-export function t(language: AppLanguage, key: TranslationKey): string {
-  return translations[language]?.[key] ?? translations.English[key];
+export function t(language: AppLanguage | null, key: TranslationKey): string {
+  const langToUse = language || 'English';
+  return translations[langToUse]?.[key] ?? translations.English[key];
 }
 
-export function localeForLanguage(language: AppLanguage): string {
+export function localeForLanguage(language: AppLanguage | null): string {
   if (language === 'Hindi') return 'hi-IN';
   if (language === 'Gujarati') return 'gu-IN';
   if (language === 'Punjabi') return 'pa-IN';
