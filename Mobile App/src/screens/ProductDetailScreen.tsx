@@ -2,7 +2,7 @@ import { IconMap } from '../components/IconMap';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, Pressable, ScrollView, StyleSheet, View, Alert, Share, Linking, TouchableOpacity } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, View, Alert, Share, Linking, TouchableOpacity, Dimensions } from 'react-native';
 import { LeafletMap } from '../components/LeafletMap';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -15,6 +15,9 @@ import { useAppStore } from '../store/useAppStore';
 import { useMarketplaceStore } from '../store/useMarketplaceStore';
 import { useTheme } from '../providers/ThemeContext';
 import { getLocalizedProductContent } from '../utils/localizationHelper';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const GALLERY_WIDTH = SCREEN_WIDTH - 32; // paddingHorizontal 16 * 2
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProductDetail'>;
 
@@ -140,19 +143,42 @@ export function ProductDetailScreen({ route }: Props) {
           </View>
         </View>
         <View style={styles.galleryWrap}>
-          <View style={[styles.heroImageFrame, { borderColor: colors.border }]}>
-            <Image source={{ uri: activeImage }} style={styles.heroImage} />
-            {galleryImages.length > 1 ? (
-              <>
-                <Pressable onPress={handlePrevImage} style={[styles.imageNavButton, styles.imageNavButtonLeft]}>
-                  {(() => { const IconComp = IconMap['ChevronLeft']; return IconComp ? <IconComp size={20} color={colors.text} /> : null; })()}
-                </Pressable>
-                <Pressable onPress={handleNextImage} style={[styles.imageNavButton, styles.imageNavButtonRight]}>
-                  {(() => { const IconComp = IconMap['ChevronRight']; return IconComp ? <IconComp size={20} color={colors.text} /> : null; })()}
-                </Pressable>
-              </>
-            ) : null}
-          </View>
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={(e) => {
+              const x = e.nativeEvent.contentOffset.x;
+              const index = Math.round(x / (e.nativeEvent.layoutMeasurement.width || 1));
+              if (index !== activeImageIndex) setActiveImageIndex(index);
+            }}
+            scrollEventThrottle={16}
+            style={[styles.heroImageFrame, { borderColor: colors.border }]}
+          >
+            {galleryImages.map((image, index) => (
+              <View key={index} style={styles.swipeImageContainer}>
+                <Image source={{ uri: image }} style={styles.heroImage} resizeMode="cover" />
+              </View>
+            ))}
+          </ScrollView>
+
+          {galleryImages.length > 1 && (
+            <View style={styles.paginationRow}>
+              {galleryImages.map((_, index) => (
+                <View 
+                  key={index} 
+                  style={[
+                    styles.paginationDot, 
+                    { 
+                      backgroundColor: index === activeImageIndex ? colors.primary : colors.textMuted + '30',
+                      width: index === activeImageIndex ? 18 : 6
+                    }
+                  ]} 
+                />
+              ))}
+            </View>
+          )}
+
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -415,25 +441,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   heroImage: {
-    width: '100%',
+    width: GALLERY_WIDTH,
     height: 320,
   },
-  imageNavButton: {
-    position: 'absolute',
-    top: '50%',
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    marginTop: -17,
-    alignItems: 'center',
+  swipeImageContainer: {
+    width: GALLERY_WIDTH,
+    height: 320,
+  },
+  paginationRow: {
+    flexDirection: 'row',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.88)',
+    alignItems: 'center',
+    gap: 5,
+    marginTop: 12,
   },
-  imageNavButtonLeft: {
-    left: 10,
-  },
-  imageNavButtonRight: {
-    right: 10,
+  paginationDot: {
+    height: 6,
+    borderRadius: 3,
   },
   thumbnailRow: {
     paddingTop: 12,

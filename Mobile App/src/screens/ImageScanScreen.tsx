@@ -32,7 +32,7 @@ export function ImageScanScreen({ route }: { route: any }) {
   const [result, setResult] = useState<any | null>(route.params?.result || null);
   const analysisInProgress = React.useRef(false);
   const isPickingImage = React.useRef(false);
-  
+
   const { wallet, refetchWallet, requireScan, scanPaywallVisible, dismissScanPaywall } = useWallet();
 
   // Sync route params when navigating from history
@@ -77,7 +77,7 @@ export function ImageScanScreen({ route }: { route: any }) {
 
   const pickImage = async (useCamera: boolean = false) => {
     if (analyzing || analysisInProgress.current || isPickingImage.current) return;
-    
+
     // ✅ Instant credit check before proceeding to camera/gallery
     if (!requireScan()) return;
 
@@ -106,7 +106,7 @@ export function ImageScanScreen({ route }: { route: any }) {
       if (asset) {
         setImage(asset.uri);
         setResult(null);
-        
+
         if (asset.base64) {
           handleAnalyze(asset.base64, asset.mimeType || 'image/jpeg');
         } else {
@@ -133,14 +133,14 @@ export function ImageScanScreen({ route }: { route: any }) {
   const handleAnalyze = async (base64: string, mimeType: string) => {
     if (analyzing || analysisInProgress.current) return;
     if (!requireScan()) return;
-    
+
     analysisInProgress.current = true;
     setAnalyzing(true);
     setResult(null);
     try {
       const response = await apiService.analyzeCrop(base64, mimeType, currentLanguage);
       setResult(response.diagnosis);
-      
+
       // ✅ Real-time wallet update from response
       if (response.wallet) {
         useWalletStore.getState().setWallet(response.wallet);
@@ -150,7 +150,7 @@ export function ImageScanScreen({ route }: { route: any }) {
     } catch (error: any) {
       analysisInProgress.current = false;
       console.error('[ImageScan] Analysis error:', error);
-      
+
       const statusCode = error?.response?.status;
       const errorMessage = error?.message || t('errUnknown');
 
@@ -183,7 +183,7 @@ export function ImageScanScreen({ route }: { route: any }) {
         const endIdx = val.lastIndexOf('}');
         if (startIdx !== -1 && endIdx !== -1 && endIdx >= startIdx) {
           const jsonStr = val.substring(startIdx, endIdx + 1);
-          const sanitized = jsonStr.replace(/[\u0000-\u001F\u007F-\u009F]/g, " "); 
+          const sanitized = jsonStr.replace(/[\u0000-\u001F\u007F-\u009F]/g, " ");
           return JSON.parse(sanitized);
         }
       } catch (innerE) {
@@ -304,7 +304,7 @@ export function ImageScanScreen({ route }: { route: any }) {
         <AppText variant="title" style={{ marginLeft: 16 }}>Crop Diagnosis</AppText>
         <View style={{ flex: 1 }} />
         <WalletCreditBadge type="scan" style={{ marginRight: 12 }} />
-        <Pressable
+        {/* <Pressable
           onPress={() => navigation.navigate('MainTabs', { screen: 'ChatTab' })}
           style={[styles.headerButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : colors.surfaceMuted }]}
         >
@@ -312,26 +312,19 @@ export function ImageScanScreen({ route }: { route: any }) {
             const IconComp = IconMap['History'];
             return IconComp ? <IconComp size={20} color={colors.primary} /> : null;
           })()}
-        </Pressable>
+        </Pressable> */}
       </View>
 
       {/* Subscription Usage Header */}
-      {wallet && (
-        <View style={[styles.usageHeader, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }]}>
+      {/* {wallet && (
+        <View style={[styles.usageHeader, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)', paddingBottom: 16 }]}>
           <View style={styles.usageInfo}>
-            <AppText variant="caption" color={colors.textMuted}>
-              Monthly Scans: <AppText variant="caption" style={{ fontWeight: 'bold' }} color={colors.text}>
-                {Math.max(0, (PLAN_CONFIGS.find(p => p.tier === wallet.plan)?.imageCredits || 0) - wallet.imageCredits)} / {PLAN_CONFIGS.find(p => p.tier === wallet.plan)?.imageCredits || 5}
-              </AppText>
+            <AppText variant="caption" color={colors.textMuted} style={{ fontWeight: '700' }}>
+              {(wallet?.imageCredits || 0) + (wallet?.topupImageCredits || 0)} {t('tokensRemaining') || 'Tokens Left'}
             </AppText>
           </View>
-          <ProgressBar 
-            progress={Math.min(1, (Math.max(0, (PLAN_CONFIGS.find(p => p.tier === wallet.plan)?.imageCredits || 0) - wallet.imageCredits)) / (PLAN_CONFIGS.find(p => p.tier === wallet.plan)?.imageCredits || 5))} 
-            color={(PLAN_CONFIGS.find(p => p.tier === wallet.plan)?.imageCredits || 0) - wallet.imageCredits >= (PLAN_CONFIGS.find(p => p.tier === wallet.plan)?.imageCredits || 5) ? colors.danger : colors.primary}
-            height={4}
-          />
         </View>
-      )}
+      )} */}
 
       <View style={styles.content}>
         {!image && !result ? (
@@ -371,7 +364,7 @@ export function ImageScanScreen({ route }: { route: any }) {
               <View style={styles.historySection}>
                 <View style={styles.historyHead}>
                   <AppText variant="label">Recent Scans</AppText>
-                  <Pressable onPress={() => navigation.navigate('MainTabs', { screen: 'ChatTab' })}>
+                  <Pressable onPress={() => navigation.navigate('MainTabs', { screen: 'ChatTab', params: { mode: 'scans' } as any })}>
                     <AppText variant="caption" color={colors.primary}>View All</AppText>
                   </Pressable>
                 </View>
@@ -380,7 +373,7 @@ export function ImageScanScreen({ route }: { route: any }) {
                     let diag: any = {};
                     try { diag = JSON.parse(scan.diagnosis); } catch (e) { }
                     const displayUri = scan.imageUri || scan.thumbnailUrl || (scan.imageBase64 ? `data:image/jpeg;base64,${scan.imageBase64}` : null);
-                    
+
                     return (
                       <Animated.View key={scan._id} entering={FadeInRight.delay(idx * 100)}>
                         <Pressable

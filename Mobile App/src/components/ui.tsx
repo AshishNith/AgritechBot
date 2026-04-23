@@ -7,6 +7,76 @@ import { LinearGradient } from 'expo-linear-gradient';
 export { PremiumModal } from './ui/PremiumModal';
 export { SkeletonLoader } from './ui/SkeletonLoader';
 
+interface AnimatedIconProps {
+  name: string;
+  size?: number;
+  color?: string;
+  animation?: 'float' | 'pulse' | 'rotate' | 'none';
+  duration?: number;
+  strokeWidth?: number;
+}
+
+export function AnimatedIcon({
+  name,
+  size = 24,
+  color,
+  animation = 'float',
+  duration = 2000,
+  strokeWidth = 2
+}: AnimatedIconProps) {
+  const offset = useSharedValue(0);
+  const rotation = useSharedValue(0);
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    if (animation === 'float') {
+      offset.value = withRepeat(
+        withSequence(
+          withTiming(-4, { duration: duration / 2, easing: Easing.inOut(Easing.sin) }),
+          withTiming(0, { duration: duration / 2, easing: Easing.inOut(Easing.sin) })
+        ),
+        -1,
+        true
+      );
+    } else if (animation === 'rotate') {
+      rotation.value = withRepeat(
+        withTiming(360, { duration, easing: Easing.linear }),
+        -1,
+        false
+      );
+    } else if (animation === 'pulse') {
+      scale.value = withRepeat(
+        withSequence(
+          withTiming(1.15, { duration: duration / 2 }),
+          withTiming(1, { duration: duration / 2 })
+        ),
+        -1,
+        true
+      );
+    }
+  }, [animation, duration]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    if (animation === 'float') {
+      return { transform: [{ translateY: offset.value }] };
+    } else if (animation === 'rotate') {
+      return { transform: [{ rotate: `${rotation.value}deg` }] };
+    } else if (animation === 'pulse') {
+      return { transform: [{ scale: scale.value }] };
+    }
+    return {};
+  });
+
+  const IconComp = IconMap[name];
+  if (!IconComp) return null;
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <IconComp size={size} color={color} strokeWidth={strokeWidth} />
+    </Animated.View>
+  );
+}
+
 import {
   ActivityIndicator,
   Image,
@@ -422,15 +492,16 @@ export function AnaajTabBar({ state, descriptors, navigation }: BottomTabBarProp
   };
 
   return (
-    <View style={[styles.tabShell, { bottom: Math.max(10, insets.bottom + 2) }]}>
+    <View style={styles.tabShell}>
       <BlurView
         intensity={isDark ? 95 : 100}
         tint={isDark ? 'dark' : 'light'}
         style={[
           styles.tabBlur,
           {
-            backgroundColor: isDark ? 'rgba(11, 14, 12, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-            borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0,0,0,0.06)',
+            backgroundColor: isDark ? 'rgba(11, 14, 12, 0.98)' : 'rgba(255, 255, 255, 0.98)',
+            borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0,0,0,0.05)',
+            paddingBottom: Math.max(12, insets.bottom),
           },
         ]}
       >
@@ -726,9 +797,9 @@ const styles = StyleSheet.create({
   },
   tabShell: {
     position: 'absolute',
-    left: 12,
-    right: 12,
-    borderRadius: 28,
+    left: 0,
+    right: 0,
+    bottom: 0,
     overflow: 'visible',
     ...theme.shadow.card,
     elevation: 8,
@@ -737,10 +808,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 28,
-    borderWidth: 1,
+    paddingTop: 12,
+    paddingHorizontal: 16,
+    borderTopWidth: 1,
     overflow: 'visible',
   },
   tabItem: {

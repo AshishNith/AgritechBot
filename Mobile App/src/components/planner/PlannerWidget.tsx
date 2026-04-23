@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { AppText, GlassCard } from '../ui';
+import { Sprout, Calendar, ArrowRight, Sparkles, Layout } from 'lucide-react-native';
+import { AppText, GlassCard, AnimatedIcon } from '../ui';
 import { useTheme } from '../../providers/ThemeContext';
 import { useAppStore } from '../../store/useAppStore';
 import { getPlannerTheme } from '../../constants/plannerTheme';
@@ -39,49 +39,52 @@ export const PlannerWidget: React.FC<PlannerWidgetProps> = ({ onPress, plans = [
       <GlassCard style={styles.container}>
         <View style={styles.header}>
           <View style={styles.titleRow}>
-            <View style={[styles.iconWrap, { backgroundColor: theme.accent + '20' }]}>
-              <Feather name="calendar" size={18} color={theme.accent} />
+            <View style={[styles.iconWrap, { backgroundColor: theme.accent + '15' }]}>
+              <AnimatedIcon name="Calendar" size={18} color={theme.accent} animation="float" />
             </View>
-            <AppText variant="label" style={{ fontSize: 16 }}>{t('plannerTitle')}</AppText>
+            <AppText variant="label" weight="bold" style={{ fontSize: 17 }}>{t('plannerTitle')}</AppText>
           </View>
-          <View style={[styles.badge, { backgroundColor: theme.purpleLight }]}>
-            <AppText style={{ color: theme.purple, fontSize: 10, fontWeight: '700' }}>AI ROADMAPS</AppText>
+          <View style={[styles.badge, { backgroundColor: theme.accent + '10' }]}>
+            <AnimatedIcon name="Sparkles" size={12} color={theme.accent} animation="rotate" duration={4000} />
+            <AppText style={{ color: theme.accent, fontSize: 10, fontWeight: '800', letterSpacing: 0.5, marginLeft: 4 }}>AI GENERATED</AppText>
           </View>
         </View>
 
-        <View style={[styles.statsRow, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}>
-          <View style={styles.stat}>
-            <AppText weight="bold" style={{ fontSize: 24, color: theme.accent }}>{totalPlans}</AppText>
-            <AppText variant="caption" color={theme.text2}>ACTIVE PLANS</AppText>
-          </View>
-          <View style={[styles.divider, { backgroundColor: theme.border }]} />
-          <View style={styles.stat}>
-            <AppText weight="bold" style={{ fontSize: 24, color: theme.amber }}>{stages.length}</AppText>
-            <AppText variant="caption" color={theme.text2}>STAGES</AppText>
-          </View>
-          <View style={[styles.divider, { backgroundColor: theme.border }]} />
-          <View style={styles.stat}>
-            <View style={styles.aiGlow}>
-              <MaterialCommunityIcons name="robot" size={24} color={theme.purple} />
+        <View style={[styles.infoRow, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }]}>
+          <View style={styles.infoCol}>
+            <AppText variant="caption" color={theme.text2} style={styles.infoLabel}>CURRENT CROP</AppText>
+            <View style={styles.cropValRow}>
+              <Sprout size={14} color={theme.accent} style={{ marginRight: 6 }} />
+              <AppText weight="bold" style={{ fontSize: 16 }}>{currentCrop}</AppText>
             </View>
-            <AppText variant="caption" color={theme.text2}>AI ADVISOR</AppText>
+          </View>
+          <View style={[styles.divider, { backgroundColor: theme.border }]} />
+          <View style={styles.infoCol}>
+            <AppText variant="caption" color={theme.text2} style={styles.infoLabel}>ROADMAPS</AppText>
+            <AppText weight="bold" style={{ fontSize: 18, color: theme.accent }}>{totalPlans}</AppText>
           </View>
         </View>
 
-        <View style={styles.timelinePreview}>
-          <View style={[styles.timelineBar, { backgroundColor: theme.surface2 }]}>
-            <View style={[styles.progress, { width: `${progressPercent}%`, backgroundColor: theme.accent }]} />
+        <View style={styles.progressContainer}>
+          <View style={styles.progressHeader}>
+            <AppText variant="caption" weight="bold" color={theme.text}>
+              {stages.length > 0 ? `${stages.length} Suggested Stages` : 'Ready to Generate'}
+            </AppText>
+            <AppText variant="caption" color={theme.accent}>{progressPercent}% COMPLETE</AppText>
           </View>
-          <View style={styles.timelineLabels}>
-            <AppText variant="caption" style={{ fontSize: 10, color: theme.text }}>{currentCrop} Roadmap</AppText>
-            <AppText variant="caption" style={{ fontSize: 10, color: theme.text2 }}>Active Status</AppText>
+          <View style={[styles.progressBar, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }]}>
+            <View style={[styles.progressFill, { width: `${progressPercent}%`, backgroundColor: theme.accent }]} />
           </View>
         </View>
 
         <View style={styles.footer}>
-          <AppText variant="caption" color={theme.accent} style={{ fontWeight: '700' }}>
-            VIEW ALL PLANS →
+          <AppText variant="caption" color={theme.text2} style={{ fontSize: 11 }}>
+            Keep your harvest on track with AI
           </AppText>
+          <View style={styles.actionBtn}>
+            <AppText variant="caption" weight="bold" color={theme.accent}>MANAGE</AppText>
+            <ArrowRight size={14} color={theme.accent} style={{ marginLeft: 4 }} />
+          </View>
         </View>
       </GlassCard>
     </TouchableOpacity>
@@ -113,52 +116,65 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   badge: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 8,
-  },
-  statsRow: {
+    borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    padding: 12,
-    borderRadius: 16,
-    marginBottom: 16,
   },
-  stat: {
+  infoRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+    padding: 16,
+    borderRadius: 20,
+    marginBottom: 20,
+  },
+  infoCol: {
     flex: 1,
+  },
+  infoLabel: {
+    fontSize: 10,
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  cropValRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   divider: {
     width: 1,
-    height: 24,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    height: 30,
+    marginHorizontal: 16,
+    opacity: 0.5,
   },
-  aiGlow: {
-    shadowColor: '#8b5cf6',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
-    elevation: 5,
+  progressContainer: {
+    marginBottom: 20,
   },
-  timelinePreview: {
-    marginBottom: 12,
-  },
-  timelineBar: {
-    height: 8,
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginBottom: 6,
-  },
-  progress: {
-    height: '100%',
-  },
-  timelineLabels: {
+  progressHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  progressBar: {
+    height: 10,
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 5,
   },
   footer: {
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+  },
+  actionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

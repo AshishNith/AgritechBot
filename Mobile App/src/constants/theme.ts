@@ -51,7 +51,6 @@ export const theme = {
   typography: {
     display: {
       fontSize: 28,
-      lineHeight: 36,
       fontWeight: '700' as TextStyle['fontWeight'],
       letterSpacing: -0.5,
     },

@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
 import {
   FlatList,
   RefreshControl,
@@ -25,9 +25,16 @@ import { Alert } from 'react-native';
 export function ChatListScreen() {
   const { isDark, colors } = useTheme();
   const { t } = useI18n();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<any>>();
   const [search, setSearch] = useState('');
   const [mode, setMode] = useState<'chats' | 'scans'>('chats');
+
+  // Sync mode from route params if provided
+  useEffect(() => {
+    if (route.params?.mode) {
+      setMode(route.params.mode);
+    }
+  }, [route.params?.mode]);
 
   const { data: chatData, isLoading: chatLoading, isRefetching: chatRefetching, refetch: chatRefetch } = useQuery({
     queryKey: ['chat-sessions'],
@@ -221,7 +228,7 @@ export function ChatListScreen() {
 
 const styles = StyleSheet.create({
   header: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingTop: Platform.OS === 'ios' ? 90 : 70,
     paddingHorizontal: 20,
     marginBottom: 10,
   },

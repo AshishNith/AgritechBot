@@ -767,9 +767,10 @@ export function ChatScreen() {
 
   // Calculate usage from wallet
   const currentPlan = PLAN_CONFIGS.find(p => p.tier === wallet?.plan);
-  const chatsLimit = currentPlan?.chatCredits || 20;
-  const usedChats = Math.max(0, chatsLimit - (wallet?.chatCredits || 0));
-  const usagePercentage = Math.min(1, usedChats / chatsLimit);
+  const totalLimit = (currentPlan?.chatCredits || 10) + (wallet?.initialTopupCredits || 0);
+  const availableCredits = (wallet?.chatCredits || 0) + (wallet?.topupCredits || 0);
+  const usedChats = Math.max(0, totalLimit - availableCredits);
+  const usagePercentage = totalLimit > 0 ? Math.min(100, (usedChats / totalLimit) * 100) : 0;
 
   return (
     <Screen dark={isDark} padded={false}>
@@ -864,19 +865,14 @@ export function ChatScreen() {
         </View>
 
         {/* Usage Progress Bar */}
-        <View style={[styles.usageBarContainer, { backgroundColor: isDark ? colors.backgroundAlt : colors.surface }]}>
-           <ProgressBar 
-              progress={usagePercentage} 
-              color={usagePercentage > 0.9 ? colors.danger : colors.primary} 
-              height={3}
-           />
+        <View style={[styles.usageBarContainer, { backgroundColor: isDark ? colors.backgroundAlt : colors.surface, paddingBottom: 10 }]}>
            <View style={styles.usageTextRow}>
-              <AppText variant="caption" color={colors.textMuted} style={{ fontSize: 10 }}>
-                {usedChats} / {chatsLimit} Used
+              <AppText variant="caption" color={colors.textMuted} style={{ fontSize: 10, fontWeight: '700' }}>
+                {availableCredits} {tx('tokensRemaining') || 'Tokens Left'}
               </AppText>
-              {usedChats >= chatsLimit * 0.8 && (
+              {usedChats >= totalLimit * 0.8 && (
                 <Pressable onPress={() => navigation.navigate('Subscription', { tab: 'plans' })}>
-                  <AppText variant="caption" color={colors.primary} style={{ fontSize: 10, fontWeight: '700' }}>
+                  <AppText variant="caption" color={colors.primary} style={{ fontSize: 10, fontWeight: '800' }}>
                     {tx('upgradeNow')}
                   </AppText>
                 </Pressable>

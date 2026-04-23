@@ -1,6 +1,6 @@
 import { IconMap } from '../components/IconMap';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useState, useCallback, useEffect } from 'react';
 import { useI18n } from '../hooks/useI18n';
 
@@ -45,6 +45,7 @@ export function NotificationScreen() {
   const [activeTab, setActiveTab] = useState(0);
   const queryClient = useQueryClient();
   const { t: tx } = useI18n();
+  const setUnreadNotificationCount = useAppStore((state) => state.setUnreadNotificationCount);
   const activeType = TABS[activeTab].type;
 
   const { data, isLoading, isError, refetch } = useQuery({
@@ -55,9 +56,9 @@ export function NotificationScreen() {
 
   useEffect(() => {
     if (data?.unreadCount != null) {
-      setUnreadCount(data.unreadCount);
+      setUnreadNotificationCount(data.unreadCount);
     }
-  }, [data?.unreadCount, setUnreadCount]);
+  }, [data?.unreadCount, setUnreadNotificationCount]);
 
   const markReadMutation = useMutation({
     mutationFn: (id: string) => apiService.markNotificationRead(id),
@@ -96,143 +97,168 @@ export function NotificationScreen() {
   };
 
   return (
-    <Screen scrollable refreshControl={
+    <Screen scrollable padded={false} refreshControl={
       <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
     }>
       <View style={styles.header}>
-        <AppText variant="heading">{tx('notifications')}</AppText>
+        <View style={styles.headerTitleRow}>
+          <AppText variant="heading" style={{ fontSize: 28 }}>{tx('notifications')}</AppText>
+          {unreadCount > 0 && (
+            <View style={[styles.badgeCount, { backgroundColor: colors.danger }]}>
+              <AppText color="#fff" variant="caption" weight="bold">{unreadCount}</AppText>
+            </View>
+          )}
+        </View>
+        
         {unreadCount > 0 && (
-          <Pressable onPress={() => markAllReadMutation.mutate()}>
-            <AppText color={colors.primary} variant="label">
-              {markAllReadMutation.isPending ? tx('saving') : tx('markAllRead')}
-            </AppText>
+          <Pressable 
+            onPress={() => markAllReadMutation.mutate()}
+            style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+          >
+            <View style={[styles.markAllBtn, { backgroundColor: colors.primary + '10' }]}>
+              <AppText color={colors.primary} variant="label" style={{ fontSize: 13 }}>
+                {markAllReadMutation.isPending ? tx('saving') : tx('markAllRead')}
+              </AppText>
+            </View>
           </Pressable>
         )}
       </View>
 
-      <View style={styles.tabsRow}>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false} 
+        contentContainerStyle={styles.tabsContainer}
+      >
         {TABS.map((tab, index) => (
           <Pressable
             key={tab.labelKey}
             onPress={() => setActiveTab(index)}
-            style={[styles.tab, { backgroundColor: isDark ? colors.surface : colors.backgroundAlt }, index === activeTab && [styles.tabActive, { backgroundColor: colors.primary }]]}
+            style={[
+              styles.tab, 
+              { backgroundColor: isDark ? colors.surface : colors.backgroundAlt }, 
+              index === activeTab && [styles.tabActive, { backgroundColor: colors.primary }]
+            ]}
           >
             <AppText
               variant="label"
               color={index === activeTab ? colors.textOnDark : colors.textMuted}
+              style={{ fontSize: 13 }}
             >
               {tx(tab.labelKey as any)}
             </AppText>
           </Pressable>
         ))}
+      </ScrollView>
+
+      <View style={styles.listContent}>
+        {isLoading && (
+          <View style={styles.centered}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <AppText color={colors.textMuted} style={{ marginTop: 12 }}>
+              {tx('loadingNotifications')}
+            </AppText>
+          </View>
+        )}
+
+        {isError && !isLoading && (
+          <View style={styles.centered}>
+            {(() => { const IconComp = IconMap['AlertCircle']; return IconComp ? <IconComp size={48} color={colors.danger} /> : null; })()}
+            <AppText color={colors.textMuted} style={{ marginTop: 12 }}>
+              {tx('failedToLoadNotifications')}
+            </AppText>
+            <GradientButton label={tx('retry')} onPress={() => refetch()} secondary style={{ marginTop: 16 }} />
+          </View>
+        )}
+
+        {!isLoading && !isError && notifications.length === 0 && (
+          <EmptyState type="notifications" />
+        )}
+
+        {!isLoading && !isError && notifications.length > 0 && (
+          <View style={{ gap: 12 }}>
+            {notifications.map((item: AppNotification, index) => (
+              <NotificationCard
+                key={item._id}
+                notification={item}
+                index={index}
+                onPress={() => {}}
+                onMarkRead={(id) => markReadMutation.mutate(id)}
+              />
+            ))}
+          </View>
+        )}
+
+        {!isLoading && !isError && notifications.length > 0 && (
+          <View style={[styles.suggestionCard, { backgroundColor: isDark ? 'rgba(82,183,129,0.1)' : colors.primary + '10', borderColor: colors.primary + '30', borderWidth: 1 }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              {(() => { const IconComp = IconMap['Info']; return IconComp ? <IconComp size={18} color={colors.primary} /> : null; })()}
+              <AppText variant="label" color={colors.primary} weight="bold">
+                {tx('stayUpdated')}
+              </AppText>
+            </View>
+            <AppText color={isDark ? colors.textOnDark : colors.textMuted} style={{ fontSize: 13, lineHeight: 18, opacity: 0.8 }}>
+              {tx('stayUpdatedSubtitle')}
+            </AppText>
+          </View>
+        )}
       </View>
-
-      {isLoading && (
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <AppText color={colors.textMuted} style={{ marginTop: 12 }}>
-            {tx('loadingNotifications')}
-          </AppText>
-        </View>
-      )}
-
-      {isError && !isLoading && (
-        <View style={styles.centered}>
-          {(() => { const IconComp = IconMap['AlertCircle']; return IconComp ? <IconComp size={48} color={colors.danger} /> : null; })()}
-          <AppText color={colors.textMuted} style={{ marginTop: 12 }}>
-            {tx('failedToLoadNotifications')}
-          </AppText>
-          <GradientButton label={tx('retry')} onPress={() => refetch()} secondary style={{ marginTop: 16 }} />
-        </View>
-      )}
-
-      {!isLoading && !isError && notifications.length === 0 && (
-        <EmptyState type="notifications" />
-      )}
-
-      {!isLoading && !isError && notifications.length > 0 && (
-        <View style={{ gap: 0 }}>
-          {notifications.map((item: AppNotification, index) => (
-            <NotificationCard
-              key={item._id}
-              notification={item}
-              index={index}
-              onPress={() => {}}
-              onMarkRead={(id) => markReadMutation.mutate(id)}
-            />
-          ))}
-        </View>
-      )}
-
-      {!isLoading && !isError && notifications.length > 0 && (
-        <ScreenCard style={[styles.suggestionCard, { backgroundColor: colors.primaryDark }]}>
-          <AppText variant="label" color={colors.textOnDark}>
-            {tx('stayUpdated')}
-          </AppText>
-          <AppText color="#ddf4e8" style={{ marginTop: 8 }}>
-            {tx('stayUpdatedSubtitle')}
-          </AppText>
-        </ScreenCard>
-      )}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   header: {
+    paddingHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 8,
-    paddingHorizontal: 20,
+    alignItems: 'flex-end',
   },
-  tabsRow: {
+  headerTitleRow: {
     flexDirection: 'row',
-    gap: 8,
-    marginVertical: 18,
+    alignItems: 'center',
+    gap: 12,
+  },
+  badgeCount: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    minWidth: 24,
+    alignItems: 'center',
+  },
+  markAllBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  tabsContainer: {
     paddingHorizontal: 20,
+    paddingVertical: 15,
+    gap: 8,
   },
   tab: {
-    flex: 1,
-    borderRadius: 18,
+    paddingHorizontal: 20,
     paddingVertical: 10,
-    alignItems: 'center',
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
   },
   tabActive: {
-    // Background set dynamically
+    borderColor: 'transparent',
   },
-  alertCard: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  alertCardUnread: {
-    borderLeftWidth: 3,
-  },
-  alertIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  alertHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
-    marginBottom: 6,
-  },
-  unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
   },
   centered: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 60,
+    paddingVertical: 80,
   },
   suggestionCard: {
-    marginTop: 18,
-    paddingBottom: 120,
+    marginTop: 20,
+    padding: 20,
+    borderRadius: 24,
   },
 });

@@ -1,4 +1,4 @@
-import { Switch, Image, Pressable, StyleSheet, View, Modal, TextInput, ActivityIndicator, ScrollView } from 'react-native';
+import { Switch, Image, Pressable, StyleSheet, View, Modal, TextInput, ActivityIndicator, ScrollView, Platform } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useState, useMemo, useCallback, useEffect } from 'react';
@@ -138,33 +138,43 @@ export function ProfileScreen() {
   return (
     <Screen scrollable withTabBar>
       <View style={styles.header}>
-        <AppText variant="heading">{t(language, 'profile')}</AppText>
-        <Pressable onPress={() => navigation.navigate('Notifications')}>
-          <AppText color={theme.colors.primary}>{tx('alerts')}</AppText>
-        </Pressable>
+        <AppText variant="heading" style={{ fontSize: 28 }}>{t(language, 'profile')}</AppText>
+        <View style={styles.headerActions}>
+          <Pressable onPress={() => navigation.navigate('Notifications')} style={[styles.headerIconButton, { backgroundColor: colors.primary + '15' }]}>
+            {(() => { const BellIcon = IconMap['Bell']; return BellIcon ? <BellIcon size={20} color={colors.primary} /> : null; })()}
+          </Pressable>
+        </View>
       </View>
 
-      <ScreenCard style={styles.heroCard}>
-        <Image source={{ uri: designImages.profilePortrait }} style={styles.avatar} />
-        <AppText variant="heading" style={{ marginTop: 14 }}>
-          {user?.name || tx('completeYourProfile')}
-        </AppText>
-        <AppText color={theme.colors.textMuted}>{user?.phone || tx('phoneNotAvailable')}</AppText>
-        <View style={styles.badge}>
-          <AppText variant="label" color={theme.colors.textOnDark}>
-            {!user?.name 
-              ? tx('incompleteProfile') 
-              : wallet?.plan === 'pro' 
-                ? tx('premiumMember') 
-                : wallet?.plan === 'basic' 
-                  ? tx('basicMember') 
-                  : tx('freeMember')}
-          </AppText>
+      <GlassCard style={styles.heroCard}>
+        <View style={styles.heroRow}>
+          <View style={styles.avatarWrap}>
+            <Image source={{ uri: designImages.profilePortrait }} style={styles.avatar} />
+            <View style={[styles.onlineBadge, { backgroundColor: colors.success }]} />
+          </View>
+          <View style={styles.heroDetails}>
+            <AppText variant="title" style={{ fontSize: 22 }}>
+              {user?.name || tx('completeYourProfile')}
+            </AppText>
+            <AppText color={colors.textMuted} style={{ fontSize: 13, marginTop: 2 }}>{user?.phone || tx('phoneNotAvailable')}</AppText>
+            <View style={[styles.membershipBadge, { backgroundColor: colors.primary + '15' }]}>
+               {(() => { const Crown = IconMap['ShieldCheck']; return Crown ? <Crown size={12} color={colors.primary} /> : null; })()}
+               <AppText variant="caption" color={colors.primary} weight="bold" style={{ fontSize: 10, marginLeft: 4 }}>
+                  {!user?.name 
+                    ? tx('incompleteProfile').toUpperCase() 
+                    : wallet?.plan === 'pro' 
+                      ? tx('premiumMember').toUpperCase() 
+                      : wallet?.plan === 'basic' 
+                        ? tx('basicMember').toUpperCase() 
+                        : tx('freeMember').toUpperCase()}
+               </AppText>
+            </View>
+          </View>
         </View>
-        <GradientButton label={tx('editProfile')} secondary style={{ marginTop: 16 }} onPress={() => setEditModalVisible(true)} />
-      </ScreenCard>
+        <GradientButton label={tx('editProfile')} secondary style={{ marginTop: 20, height: 48 }} onPress={() => setEditModalVisible(true)} />
+      </GlassCard>
 
-      <ScreenCard style={{ marginTop: 16 }}>
+      <View style={{ marginTop: 20 }}>
         {(!wallet && (isWalletLoading || isWalletRefetching)) ? (
           <View style={{ padding: 20, alignItems: 'center' }}>
             <ActivityIndicator color={colors.primary} />
@@ -195,21 +205,15 @@ export function ProfileScreen() {
                 <AppText color="#fff" variant="caption" weight="bold">{tx('retry')}</AppText>
               </Pressable>
             </View>
-            <GradientButton
-              label={tx('upgradeToPremium')}
-              secondary
-              onPress={() => navigation.navigate('Subscription', { tab: 'plans' })}
-              style={{ marginTop: 12, height: 44 }}
-            />
           </GlassCard>
         ) : (
           <GlassCard style={styles.planCard}>
             <View style={styles.planInfo}>
               <View style={[styles.planIcon, { backgroundColor: colors.primary + '15' }]}>
-                {(() => { const Icon = IconMap['Crown']; return Icon ? <Icon size={20} color={colors.primary} /> : null; })()}
+                {(() => { const Icon = IconMap['ShieldCheck']; return Icon ? <Icon size={20} color={colors.primary} /> : null; })()}
               </View>
               <View style={{ flex: 1 }}>
-                <AppText variant="label">
+                <AppText variant="label" weight="bold">
                   {(wallet?.plan || 'free').toUpperCase()} {tx('plan') || 'PLAN'}
                 </AppText>
                 <AppText variant="caption" color={colors.textMuted}>
@@ -218,28 +222,14 @@ export function ProfileScreen() {
               </View>
               <Pressable
                 onPress={() => navigation.navigate('Subscription', { tab: 'plans' })}
-                style={styles.manageBtn}
+                style={[styles.manageBtn, { backgroundColor: colors.primary + '10' }]}
               >
                 <AppText color={colors.primary} variant="caption" weight="bold">{tx('manage')}</AppText>
               </Pressable>
             </View>
-            
-            {wallet.plan === 'free' ? (
-              <GradientButton
-                label={tx('upgradeToPremium')}
-                onPress={() => navigation.navigate('Subscription', { tab: 'plans' })}
-                style={{ marginTop: 16, height: 44 }}
-              />
-            ) : wallet.planExpiry ? (
-              <View style={styles.planFooter}>
-                <AppText variant="caption" color={colors.textMuted}>
-                  {tx('expires') || 'Expires'}: {new Date(wallet.planExpiry).toLocaleDateString()}
-                </AppText>
-              </View>
-            ) : null}
           </GlassCard>
         )}
-      </ScreenCard>
+      </View>
 
       <AppText variant="caption" color={theme.colors.textMuted} style={styles.sectionLabel}>
         {tx('commerce')}
@@ -293,17 +283,19 @@ export function ProfileScreen() {
         </Pressable>
       </ScreenCard>
 
-      <AppText variant="caption" color={theme.colors.textMuted} style={styles.sectionLabel}>
-        {tx('securityAndData')}
+      <AppText variant="caption" weight="bold" color={theme.colors.textMuted} style={styles.sectionLabel}>
+        {tx('securityAndData').toUpperCase()}
       </AppText>
-      <ScreenCard>
-        <IconRow icon="ShieldCheck" title={tx('privacySettings')} />
-        <Pressable onPress={() => signOut()} style={{ paddingVertical: 12 }}>
-          <AppText variant="label" color={theme.colors.danger}>
+      <ScreenCard style={{ marginBottom: 40 }}>
+        <IconRow icon="ShieldCheck" title={tx('privacySettings')} subtitle={tx('manageData')} />
+        <Pressable onPress={() => signOut()} style={styles.signOutBtn}>
+          <View style={[styles.signOutIcon, { backgroundColor: theme.colors.danger + '10' }]}>
+            {(() => { const LogOut = IconMap['X']; return LogOut ? <LogOut size={18} color={theme.colors.danger} /> : null; })()}
+          </View>
+          <AppText variant="label" weight="bold" color={theme.colors.danger}>
             {t(language, 'signOut')}
           </AppText>
         </Pressable>
-
       </ScreenCard>
 
       {/* Edit Profile Modal */}
@@ -311,13 +303,20 @@ export function ProfileScreen() {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, isDark ? styles.modalContentDark : styles.modalContentLight]}>
             <View style={styles.modalHeader}>
-              <AppText variant="heading">{tx('editProfile')}</AppText>
-              <Pressable onPress={() => setEditModalVisible(false)}>
-                <AppText color={theme.colors.primary}>{tx('close')}</AppText>
+              <View>
+                <AppText variant="title" style={{ fontSize: 22 }}>{tx('editProfile')}</AppText>
+                <AppText variant="caption" color={colors.textMuted}>{tx('updatePersonalDetails') || 'Update your personal details'}</AppText>
+              </View>
+              <Pressable onPress={() => setEditModalVisible(false)} style={[styles.modalCloseBtn, { backgroundColor: colors.primary + '15' }]}>
+                {(() => { const XIcon = IconMap['X']; return XIcon ? <XIcon size={20} color={colors.primary} /> : null; })()}
               </Pressable>
             </View>
 
-            <ScrollView style={{ maxHeight: '75%', marginTop: 16 }}>
+            <ScrollView 
+              style={{ maxHeight: '80%', marginTop: 24 }} 
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 40 }}
+            >
               {/* Name */}
               <ScreenCard>
                 <AppText variant="label">{t(language, 'name')}</AppText>
@@ -332,8 +331,8 @@ export function ProfileScreen() {
               </ScreenCard>
 
               {/* Language */}
-              <ScreenCard style={{ marginTop: 12 }}>
-                <AppText variant="label">{t(language, 'language')}</AppText>
+              <View style={{ marginTop: 20 }}>
+                <AppText variant="label" weight="bold" style={{ marginBottom: 8, marginLeft: 4 }}>{t(language, 'language')}</AppText>
                 <View style={styles.languageRow}>
                   {languages.map((lang) => (
                     <Pill
@@ -341,14 +340,15 @@ export function ProfileScreen() {
                       label={lang}
                       active={lang === editedLanguage}
                       onPress={() => setEditedLanguage(lang)}
+                      style={{ paddingHorizontal: 16 }}
                     />
                   ))}
                 </View>
-              </ScreenCard>
+              </View>
 
               {/* Crops */}
-              <ScreenCard style={{ marginTop: 12 }}>
-                <AppText variant="label">{tx('cropsGrown')}</AppText>
+              <View style={{ marginTop: 20 }}>
+                <AppText variant="label" weight="bold" style={{ marginBottom: 12, marginLeft: 4 }}>{tx('cropsGrown')}</AppText>
                 <View style={styles.cropsGrid}>
                   {cropOptions.map((crop) => {
                     const active = editedCrops.includes(crop.value);
@@ -363,13 +363,17 @@ export function ProfileScreen() {
                         disabled={updateProfileMutation.isPending}
                         style={[
                           styles.cropTag,
-                          isDark ? styles.cropTagDark : styles.cropTagLight,
-                          active && styles.cropTagActive,
+                          { 
+                            backgroundColor: active ? colors.primary : isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+                            borderColor: active ? colors.primary : colors.border,
+                            borderWidth: 1,
+                          },
                         ]}
                       >
                         <AppText
                           variant="label"
-                          color={active ? theme.colors.textOnDark : theme.colors.text}
+                          color={active ? '#fff' : colors.text}
+                          style={{ fontSize: 13 }}
                         >
                           {crop.label}
                         </AppText>
@@ -377,7 +381,7 @@ export function ProfileScreen() {
                     );
                   })}
                 </View>
-              </ScreenCard>
+              </View>
 
               {/* Land Size */}
               <ScreenCard style={{ marginTop: 12 }}>
@@ -572,24 +576,60 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 12,
+    paddingTop: Platform.OS === 'ios' ? 50 : 20,
+    marginBottom: 24,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  headerIconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   heroCard: {
+    padding: 20,
+    borderRadius: 24,
+  },
+  heroRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 20,
-    borderRadius: 20,
+    gap: 20,
+  },
+  avatarWrap: {
+    position: 'relative',
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    borderWidth: 3,
+    borderColor: 'rgba(82,183,129,0.2)',
   },
-  badge: {
-    marginTop: 12,
-    backgroundColor: theme.colors.primary,
-    paddingHorizontal: 18,
-    paddingVertical: 8,
-    borderRadius: 20,
+  onlineBadge: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
+  heroDetails: {
+    flex: 1,
+  },
+  membershipBadge: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
   },
   subHeader: {
     flexDirection: 'row',
@@ -622,14 +662,21 @@ const styles = StyleSheet.create({
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  modalCloseBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   editInput: {
-    borderRadius: 14,
-    borderWidth: 1,
+    borderRadius: 16,
+    borderWidth: 1.5,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    marginTop: 12,
+    marginTop: 8,
     fontSize: 16,
   },
   editInputDark: {
@@ -750,10 +797,24 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: 'rgba(82,183,129,0.1)',
   },
+  signOutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 12,
+    paddingVertical: 12,
+  },
+  signOutIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   planFooter: {
     marginTop: 14,
     paddingTop: 14,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.06)',
+    borderTopColor: 'rgba(0,0,0,0.05)',
   },
 });

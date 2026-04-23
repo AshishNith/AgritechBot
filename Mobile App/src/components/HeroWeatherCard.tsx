@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
-import { MapPin, Droplets, Wind, Gauge, Lightbulb } from 'lucide-react-native';
+import { MapPin, Droplets, Wind, Gauge, Lightbulb, Sun, Cloud, CloudRain, CloudLightning, CloudSun } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '../providers/ThemeContext';
 import { themeMinimal } from '../constants/theme.minimal';
-import { AppText, GlassCard } from './ui';
+import { AppText, GlassCard, AnimatedIcon } from './ui';
 
 interface HeroWeatherCardProps {
   temperature: number;
@@ -53,15 +53,20 @@ export function HeroWeatherCard({
     }
   };
 
-  // Weather-specific color logic
-  const getWeatherTheme = () => {
-    if (weatherCode >= 95) return { accent: '#ff9c54', bg: 'rgba(255, 156, 84, 0.08)' }; // Stormy
-    if (weatherCode >= 51) return { accent: '#4dabf7', bg: 'rgba(77, 171, 247, 0.08)' }; // Rainy
-    if (weatherCode <= 3) return { accent: '#ffda5e', bg: 'rgba(255, 218, 94, 0.08)' }; // Clear/Cloudy
-    return { accent: colors.primary, bg: 'rgba(82, 183, 129, 0.08)' };
+  // Weather-specific logic for icons and colors
+  const getWeatherConfig = () => {
+    if (weatherCode >= 95) return { icon: CloudLightning, accent: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' }; // Stormy
+    if (weatherCode >= 51) return { icon: CloudRain, accent: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' }; // Rainy
+    if (weatherCode >= 3) return { icon: Cloud, accent: '#64748b', bg: 'rgba(100, 116, 139, 0.1)' }; // Cloudy
+    if (weatherCode >= 1) return { icon: CloudSun, accent: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' }; // Partly Cloudy
+    return { icon: Sun, accent: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' }; // Clear
   };
 
-  const weatherTheme = getWeatherTheme();
+  const weatherConfig = getWeatherConfig();
+  const weatherIconName = weatherCode >= 95 ? 'CloudLightning' :
+    weatherCode >= 51 ? 'CloudRain' :
+      weatherCode >= 3 ? 'Cloud' :
+        weatherCode >= 1 ? 'CloudSun' : 'Sun';
 
   return (
     <Animated.View entering={FadeInDown.delay(100).springify()}>
@@ -82,7 +87,7 @@ export function HeroWeatherCard({
                   {locationName}
                 </AppText>
               </View>
-              
+
               <View style={styles.heroRow}>
                 <AppText weight="bold" style={[styles.temperature, { color: isDark ? '#ffffff' : '#1a1a1a' }]}>
                   {Math.round(temperature)}°
@@ -95,12 +100,16 @@ export function HeroWeatherCard({
             </View>
 
             {/* Right side: Visual Accent */}
-            <View style={[styles.accentCircle, { backgroundColor: weatherTheme.bg }]}>
-               <View style={[styles.accentCore, { backgroundColor: weatherTheme.accent + '20' }]}>
-                  <AppText style={{ fontSize: 28 }}>
-                    {weatherCode >= 51 ? '🌧️' : weatherCode <= 3 ? '☀️' : '⛅'}
-                  </AppText>
-               </View>
+            <View style={[styles.accentCircle, { backgroundColor: weatherConfig.bg }]}>
+              <View style={[styles.accentCore, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
+                <AnimatedIcon
+                  name={weatherIconName}
+                  size={32}
+                  color={weatherConfig.accent}
+                  animation="float"
+                  duration={2500}
+                />
+              </View>
             </View>
           </View>
 
@@ -113,11 +122,11 @@ export function HeroWeatherCard({
 
           {/* Advisory */}
           {advice && (
-            <View style={[styles.adviceBox, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(82,183,129,0.06)', borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(82,183,129,0.1)' }]}>
-              <View style={[styles.adviceIcon, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#ffffff' }]}>
+            <View style={[styles.adviceBox, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : colors.primary + '08', borderColor: isDark ? 'rgba(255,255,255,0.05)' : colors.primary + '15' }]}>
+              <View style={[styles.adviceIcon, { backgroundColor: colors.warning + '15' }]}>
                 <Lightbulb size={12} color={colors.warning} strokeWidth={2.5} />
               </View>
-              <AppText style={styles.adviceText} numberOfLines={1}>
+              <AppText color={isDark ? colors.textOnDark : colors.text} style={styles.adviceText} numberOfLines={1}>
                 {advice}
               </AppText>
             </View>
@@ -131,7 +140,7 @@ export function HeroWeatherCard({
 const styles = StyleSheet.create({
   container: {
     marginBottom: 20,
-    marginHorizontal: 20,
+    marginHorizontal: 0,
   },
   card: {
     padding: 18,
@@ -178,16 +187,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   accentCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   accentCore: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -224,6 +234,5 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 12,
     fontWeight: '600',
-    color: '#666',
   },
 });

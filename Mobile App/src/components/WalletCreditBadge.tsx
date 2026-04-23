@@ -34,7 +34,7 @@ export function WalletCreditBadge({ type = 'chat', style }: WalletCreditBadgePro
     ? '#F59E0B'
     : colors.primary;
 
-  const ZapIcon = IconMap['Zap'];
+  const ZapIcon = IconMap['Sparkles'];
   const ScanIcon = IconMap['Scan'];
   const TheIcon = type === 'chat' ? ZapIcon : ScanIcon;
 

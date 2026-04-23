@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { IconMap } from '../components/IconMap';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -90,7 +91,7 @@ export function MarketplaceScreen() {
   }, [filteredProducts]);
 
   return (
-    <Screen scrollable withTabBar>
+    <Screen scrollable withTabBar padded={false}>
       <View style={styles.headerRow}>
         <View>
           <AppText variant="heading">{t(language, 'marketTitle')}</AppText>
@@ -123,35 +124,61 @@ export function MarketplaceScreen() {
       ) : (
         <>
           {aiPick ? (
-            <View style={{ paddingHorizontal: 20 }}>
-              <ScreenCard style={[styles.recommendationCard, { backgroundColor: colors.primaryDark }]}>
-                <AppText variant="caption" color="rgba(255,255,255,0.85)">
-                  {t(language, 'aiPick')}
-                </AppText>
-                <AppText variant="title" color={colors.textOnDark} style={{ marginTop: 8 }}>
+            <View style={{ paddingHorizontal: 20, marginBottom: 24 }}>
+              <View 
+                style={[
+                  styles.recommendationCard, 
+                  { 
+                    backgroundColor: isDark ? 'rgba(109,207,150,0.1)' : colors.primary + '10', 
+                    borderColor: colors.primary + '30',
+                    borderWidth: 1,
+                  }
+                ]}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                  <View style={[styles.aiBadge, { backgroundColor: colors.primary }]}>
+                    {(() => { const IconComp = IconMap['Sparkles']; return IconComp ? <IconComp size={14} color="#fff" /> : null; })()}
+                  </View>
+                  <AppText variant="caption" color={colors.primary} weight="bold" style={{ letterSpacing: 1 }}>
+                    {t(language, 'aiPick').toUpperCase()}
+                  </AppText>
+                </View>
+
+                <AppText variant="title" color={isDark ? colors.textOnDark : colors.text} style={{ fontSize: 20 }}>
                   {getLocalizedProductContent(aiPick, language).name}
                 </AppText>
-                <AppText color="rgba(255,255,255,0.85)" style={{ marginTop: 8 }}>
+                
+                <AppText color={isDark ? colors.textOnDark : colors.textMuted} style={{ marginTop: 8, fontSize: 13, lineHeight: 18, opacity: 0.8 }}>
                   {getLocalizedProductContent(aiPick, language).whyUse ?? t(language, 'marketSubtitle')}
                 </AppText>
+
                 <Pressable
                   onPress={() => {
                     setFeaturedProduct(aiPick);
                     navigation.navigate('ProductDetail', { productId: aiPick.id });
                   }}
-                  style={styles.aiCardAction}
+                  style={({ pressed }) => [
+                    styles.aiCardAction,
+                    { 
+                      backgroundColor: colors.primary,
+                      opacity: pressed ? 0.9 : 1,
+                      transform: [{ scale: pressed ? 0.98 : 1 }]
+                    }
+                  ]}
                 >
-                  <AppText variant="label" color={colors.primaryDark}>
+                  <AppText variant="label" color="#fff" style={{ fontSize: 13 }}>
                     {t(language, 'viewNow')}
                   </AppText>
                 </Pressable>
-              </ScreenCard>
+              </View>
             </View>
           ) : null}
 
           {grouped.fertilizers.length > 0 && (
             <>
-              <SectionHeader title={t(language, 'topFertilizers')} />
+              <View style={{ paddingHorizontal: 20 }}>
+                <SectionHeader title={t(language, 'topFertilizers')} />
+              </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sectionScroller}>
                 {grouped.fertilizers.map((product) => {
                   const localized = getLocalizedProductContent(product, language);
@@ -172,7 +199,9 @@ export function MarketplaceScreen() {
 
           {grouped.seeds.length > 0 && (
             <>
-              <SectionHeader title={t(language, 'essentialSeeds')} />
+              <View style={{ paddingHorizontal: 20 }}>
+                <SectionHeader title={t(language, 'essentialSeeds')} />
+              </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sectionScroller}>
                 {grouped.seeds.map((product) => {
                   const localized = getLocalizedProductContent(product, language);
@@ -193,7 +222,9 @@ export function MarketplaceScreen() {
 
           {grouped.tools.length > 0 && (
             <>
-              <SectionHeader title={t(language, 'modernTools')} />
+              <View style={{ paddingHorizontal: 20 }}>
+                <SectionHeader title={t(language, 'modernTools')} />
+              </View>
               <View style={{ gap: 12, paddingHorizontal: 20 }}>
                 {grouped.tools.map((product) => {
                   const localized = getLocalizedProductContent(product, language);
@@ -226,7 +257,9 @@ export function MarketplaceScreen() {
 
           {grouped.cropCare.length > 0 && (
             <>
-              <SectionHeader title={t(language, 'cropCare')} />
+              <View style={{ paddingHorizontal: 20 }}>
+                <SectionHeader title={t(language, 'cropCare')} />
+              </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sectionScroller}>
                 {grouped.cropCare.map((product) => {
                   const localized = getLocalizedProductContent(product, language);
@@ -246,12 +279,14 @@ export function MarketplaceScreen() {
           )}
 
           {filteredProducts.length === 0 && (
-            <ScreenCard style={styles.emptyWrap}>
-              <AppText variant="label">{t(language, 'noProductsFound')}</AppText>
-              <AppText color={colors.textMuted} style={{ marginTop: 6 }}>
-                {t(language, 'tryDifferentFilters')}
-              </AppText>
-            </ScreenCard>
+            <View style={{ paddingHorizontal: 20 }}>
+              <ScreenCard style={styles.emptyWrap}>
+                <AppText variant="label">{t(language, 'noProductsFound')}</AppText>
+                <AppText color={colors.textMuted} style={{ marginTop: 6 }}>
+                  {t(language, 'tryDifferentFilters')}
+                </AppText>
+              </ScreenCard>
+            </View>
           )}
         </>
       )}
@@ -321,14 +356,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   recommendationCard: {
-    marginBottom: 24,
-    borderRadius: 20,
+    padding: 20,
+    borderRadius: 24,
+  },
+  aiBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   aiCardAction: {
-    marginTop: 16,
+    marginTop: 20,
     alignSelf: 'flex-start',
-    backgroundColor: '#f4fff8',
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
   },

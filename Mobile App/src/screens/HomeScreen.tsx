@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import * as Location from 'expo-location';
 
 import { apiService } from '../api/services';
-import { AppText, GlassCard, Pill, PulseMic, Screen, ScreenCard } from '../components/ui';
+import { AppText, GlassCard, Pill, PulseMic, Screen, ScreenCard, AnimatedIcon } from '../components/ui';
 import { LeafletMap, MapMarker } from '../components/LeafletMap';
 import { WeatherDashboardWidget } from '../components/WeatherDashboardWidget';
 import { homeWeatherCard, marketplaceFallback, quickChips } from '../constants/designData';
@@ -246,85 +246,116 @@ export function HomeScreen() {
   }, [featured, setFeaturedProduct]);
 
   return (
-    <Screen scrollable withTabBar>
+    <Screen scrollable withTabBar padded={false}>
       <LinearGradient colors={isDark ? [colors.backgroundAlt, colors.background] : ['#edf7f0', '#f6f7f7']} style={StyleSheet.absoluteFillObject} />
       <View style={styles.topRow}>
-        <View style={styles.brandWrap}>
-          <Image
-            source={{ uri: logoImageUrl }}
-            style={isDark ? styles.logoImageDark : styles.logoImage}
-            resizeMode="contain"
-          />
-          {isDark && (
-            <AppText weight="bold" style={{ fontSize: 26, color: colors.textOnDark, marginLeft: 4, lineHeight: 32, flexShrink: 0 }}>
-              {tx('homeTab')}
-            </AppText>
-          )}
+        <View style={styles.brandRow}>
+          <View style={styles.brandWrap}>
+            <Image
+              source={{ uri: logoImageUrl }}
+              style={isDark ? styles.logoImageDark : styles.logoImage}
+              resizeMode="contain"
+            />
+            {isDark && (
+              <AppText weight="bold" style={{ fontSize: 24, color: colors.textOnDark, marginLeft: 6, lineHeight: 30 }}>
+                Anaaj.AI
+              </AppText>
+            )}
+          </View>
+          
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('Notifications')}
+            style={[styles.alertButton, { backgroundColor: unreadCount > 0 ? colors.primary + '20' : colors.surfaceMuted }]}
+          >
+            {(() => { const IconComp = IconMap['Bell']; return IconComp ? <IconComp size={20} color={unreadCount > 0 ? colors.primary : colors.textMuted} /> : null; })()}
+            {unreadCount > 0 && <View style={[styles.alertDot, { backgroundColor: colors.danger }]} />}
+          </TouchableOpacity>
         </View>
-        <Pill
-          label={unreadCount > 0 ? `${tx('alerts')} (${unreadCount})` : tx('alerts')}
-          icon={(() => { const IconComp = IconMap['Bell']; return IconComp ? <IconComp size={16} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
-          onPress={() => navigation.navigate('Notifications')}
-          active={unreadCount > 0}
-        />
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <WalletCreditBadge type="chat" />
-          <WalletCreditBadge type="scan" />
+
+        <View style={styles.infoRow}>
+          <AppText variant="caption" color={colors.textMuted} weight="bold" style={{ letterSpacing: 0.5 }}>
+            {tx('subscriptionStatus').toUpperCase()}
+          </AppText>
+          <View style={styles.badgesWrap}>
+            <WalletCreditBadge type="chat" style={styles.headerBadge} />
+            <WalletCreditBadge type="scan" style={styles.headerBadge} />
+          </View>
         </View>
       </View>
 
       <View style={styles.header}>
-        <AppText variant="display">{greeting}, {user?.name || tx('name')}</AppText>
+        <View>
+          <AppText variant="caption" color={colors.textMuted} weight="bold" style={{ letterSpacing: 1 }}>{greeting.toUpperCase()}</AppText>
+          <AppText variant="display" style={{ fontSize: 32, marginTop: 4 }}>{user?.name || tx('farmer')}</AppText>
+        </View>
+        <View style={styles.weatherIconPlaceholder}>
+           <AnimatedIcon name="CloudSun" size={42} color={colors.primary} animation="float" />
+        </View>
       </View>
 
       {/* New Hero Weather Card */}
-      <HeroWeatherCard
-        temperature={weatherTemperature}
-        condition={weatherCondition}
-        locationName={liveLocationName}
-        humidity={weatherHumidity}
-        windSpeed={weatherWind}
-        soilMoisture={soilMoisture}
-        weatherCode={liveWeather?.current?.weather_code ?? 0}
-        advice={autoSuggestions[0]}
-        onPress={() =>
-          navigation.navigate('WeatherDashboard', {
-            latitude: weatherCoordinates.latitude,
-            longitude: weatherCoordinates.longitude,
-            locationName: liveLocationName,
-          })
-        }
-      />
+      <View style={{ paddingHorizontal: 20 }}>
+        <HeroWeatherCard
+          temperature={weatherTemperature}
+          condition={weatherCondition}
+          locationName={liveLocationName}
+          humidity={weatherHumidity}
+          windSpeed={weatherWind}
+          soilMoisture={soilMoisture}
+          weatherCode={liveWeather?.current?.weather_code ?? 0}
+          advice={autoSuggestions[0]}
+          onPress={() =>
+            navigation.navigate('WeatherDashboard', {
+              latitude: weatherCoordinates.latitude,
+              longitude: weatherCoordinates.longitude,
+              locationName: liveLocationName,
+            })
+          }
+        />
+      </View>
 
       {/* Farm Map Directly Below Weather */}
-      <View style={{ paddingHorizontal: 20 }}>
-        <ScreenCard style={styles.mapCard}>
-        <View style={styles.mapHeader}>
-          <AppText variant="label">{t(language, 'farmMap')}</AppText>
-          <AppText color={colors.textMuted}>{liveLocationName}</AppText>
-        </View>
-        <TouchableOpacity 
-          style={styles.mapContainer} 
-          activeOpacity={0.9}
-          onPress={() => navigation.navigate('FullMap', {
-            latitude: weatherCoordinates.latitude,
-            longitude: weatherCoordinates.longitude,
-            locationName: liveLocationName,
-            markers: mockVendors
-          })}
-        >
-          <LeafletMap 
-            latitude={weatherCoordinates.latitude} 
-            longitude={weatherCoordinates.longitude} 
-            isDark={isDark} 
-            height={180} 
-            zoom={14}
-            mapType="satellite"
-            markers={mockVendors}
-          />
-        </TouchableOpacity>
-      </ScreenCard>
-    </View>
+      <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
+        <GlassCard style={styles.mapCard}>
+          <View style={styles.mapHeader}>
+            <View style={styles.mapTitleRow}>
+              <View style={[styles.mapIconWrap, { backgroundColor: colors.primary + '15' }]}>
+                <AnimatedIcon name="MapPin" size={14} color={colors.primary} animation="pulse" />
+              </View>
+              <View>
+                <AppText variant="label" weight="bold">{t(language, 'farmMap')}</AppText>
+                <AppText variant="caption" color={colors.textMuted}>{liveLocationName}</AppText>
+              </View>
+            </View>
+            <View style={[styles.liveStatus, { backgroundColor: colors.success + '10' }]}>
+              <View style={[styles.liveDot, { backgroundColor: colors.success }]} />
+              <AppText color={colors.success} weight="bold" style={{ fontSize: 10 }}>LIVE</AppText>
+            </View>
+          </View>
+          <TouchableOpacity 
+            style={styles.mapContainer} 
+            activeOpacity={0.9}
+            onPress={() => navigation.navigate('FullMap', {
+              latitude: weatherCoordinates.latitude,
+              longitude: weatherCoordinates.longitude,
+              locationName: liveLocationName,
+              markers: mockVendors
+            })}
+          >
+            <LeafletMap 
+              latitude={weatherCoordinates.latitude} 
+              longitude={weatherCoordinates.longitude} 
+              isDark={isDark} 
+              height="100%" 
+              zoom={14}
+              mapType="satellite"
+              markers={mockVendors}
+            />
+            {/* Subtle Overlay to make map non-interactive on home */}
+            <View style={StyleSheet.absoluteFillObject} />
+          </TouchableOpacity>
+        </GlassCard>
+      </View>
 
     <View style={{ paddingHorizontal: 20, marginTop: 20 }}>
       <PlannerWidget 
@@ -381,9 +412,9 @@ export function HomeScreen() {
       </View>
 
       {/* Mic Area */}
-      <View style={styles.micArea}>
+      <View style={[styles.micArea, { paddingHorizontal: 20 }]}>
         <PulseMic />
-        <AppText color={colors.textMuted} style={{ marginTop: 18 }}>{t(language, 'voiceFarmingHelp')}</AppText>
+        <AppText color={colors.textMuted} style={{ marginTop: 18, textAlign: 'center' }}>{t(language, 'voiceFarmingHelp')}</AppText>
         <Pill label={t(language, 'startListening')} active onPress={() => navigation.navigate('Voice')} style={{ marginTop: 18 }} />
       </View>
     </Screen>
@@ -392,29 +423,78 @@ export function HomeScreen() {
 
 const styles = StyleSheet.create({
   topRow: {
+    marginTop: 16,
+    paddingHorizontal: 20,
+    gap: 16,
+  },
+  brandRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 16,
-    paddingHorizontal: 20,
   },
   brandWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 44,
+    minHeight: 40,
   },
   logoImage: {
-    width: 130,
-    height: 40,
-  },
-  logoImageDark: {
-    width: 34,
+    width: 110,
     height: 34,
   },
+  logoImageDark: {
+    width: 30,
+    height: 30,
+  },
+  alertButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  alertDot: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: '#fff',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.02)',
+    padding: 8,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+  },
+  badgesWrap: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  headerBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
   header: {
-    marginTop: 16,
-    marginBottom: 20,
+    marginTop: 24,
+    marginBottom: 24,
     paddingHorizontal: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  weatherIconPlaceholder: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   weatherInsightPanel: {
     marginTop: 20,
@@ -432,18 +512,42 @@ const styles = StyleSheet.create({
   mapCard: {
     padding: 0,
     overflow: 'hidden',
-    height: 240,
+    height: 260,
+    borderRadius: 24,
   },
   mapHeader: {
     padding: 16,
-    paddingBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  mapTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  mapIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  liveStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 5,
+  },
+  liveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
   mapContainer: {
     flex: 1,
-    height: 170,
     width: '100%',
   },
   mapView: {

@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { CloudRain, Leaf, Sparkles, Package, Info, CalendarClock } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '../providers/ThemeContext';
-import { themeMinimal } from '../constants/theme.minimal';
+import { AppText } from './ui';
 import { AppNotification, NotificationType } from '../types/api';
 
 interface NotificationCardProps {
@@ -23,30 +23,24 @@ const TYPE_ICONS: Record<NotificationType, any> = {
   adaptive_alert: Info,
 };
 
-const PRIORITY_CONFIG = {
-  urgent: {
-    color: themeMinimal.colors.error,
-    bgColor: themeMinimal.colors.errorLight,
-  },
-  high: {
-    color: themeMinimal.colors.warning,
-    bgColor: themeMinimal.colors.warningLight,
-  },
-  medium: {
-    color: themeMinimal.colors.info,
-    bgColor: themeMinimal.colors.infoLight,
-  },
-  low: {
-    color: themeMinimal.colors.textTertiary,
-    bgColor: themeMinimal.colors.backgroundSecondary,
-  },
-};
+
 
 export function NotificationCard({ notification, index, onPress, onMarkRead }: NotificationCardProps) {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const Icon = TYPE_ICONS[notification.type];
+  
+  // Custom priority colors that respect dark mode
+  const getPriorityStyle = (priority: string) => {
+    switch (priority) {
+      case 'urgent': return { color: colors.danger, bg: colors.danger + '15' };
+      case 'high': return { color: colors.warning, bg: colors.warning + '15' };
+      case 'medium': return { color: colors.info, bg: colors.info + '15' };
+      default: return { color: isDark ? colors.textMuted : colors.textSecondary, bg: isDark ? 'rgba(255,255,255,0.06)' : colors.surfaceMuted };
+    }
+  };
+
   const priority = (notification as any).priority || 'low';
-  const config = PRIORITY_CONFIG[priority as keyof typeof PRIORITY_CONFIG];
+  const config = getPriorityStyle(priority);
 
   const handlePress = () => {
     if (!notification.read) {
@@ -61,12 +55,18 @@ export function NotificationCard({ notification, index, onPress, onMarkRead }: N
         onPress={handlePress}
         style={({ pressed }) => [
           styles.card,
-          !notification.read && styles.cardUnread,
-          { opacity: pressed ? 0.7 : 1 },
+          { 
+            backgroundColor: isDark ? colors.surface : colors.surface,
+            borderColor: isDark ? 'rgba(255,255,255,0.06)' : colors.border,
+            opacity: pressed ? 0.7 : 1,
+            // Highlight unread with a subtle left border
+            borderLeftWidth: !notification.read ? 4 : 1,
+            borderLeftColor: !notification.read ? colors.primary : (isDark ? 'rgba(255,255,255,0.06)' : colors.border),
+          },
         ]}
       >
         {/* Icon Badge */}
-        <View style={[styles.iconBadge, { backgroundColor: config.bgColor }]}>
+        <View style={[styles.iconBadge, { backgroundColor: config.bg }]}>
           <Icon size={20} color={config.color} strokeWidth={2} />
         </View>
 
@@ -74,22 +74,22 @@ export function NotificationCard({ notification, index, onPress, onMarkRead }: N
         <View style={styles.content}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title} numberOfLines={1}>
+            <AppText variant="label" style={styles.title} numberOfLines={1}>
               {notification.title}
-            </Text>
-            <Text style={styles.time}>
+            </AppText>
+            <AppText variant="caption" style={styles.time} color={colors.textMuted}>
               {timeAgo(notification.createdAt)}
-            </Text>
+            </AppText>
           </View>
 
           {/* Message */}
-          <Text style={styles.message} numberOfLines={2}>
+          <AppText style={styles.message} numberOfLines={2} color={colors.textMuted}>
             {notification.body}
-          </Text>
+          </AppText>
         </View>
 
         {/* Unread Indicator */}
-        {!notification.read && <View style={styles.unreadDot} />}
+        {!notification.read && <View style={[styles.unreadDot, { backgroundColor: colors.primary }]} />}
       </Pressable>
     </Animated.View>
   );
@@ -109,59 +109,44 @@ function timeAgo(dateStr: string): string {
 const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
-    backgroundColor: themeMinimal.colors.surface,
-    borderRadius: themeMinimal.radius.lg,
-    padding: themeMinimal.spacing.base,
-    marginBottom: themeMinimal.spacing.md,
-    gap: themeMinimal.spacing.md,
+    borderRadius: 16,
+    padding: 16,
+    gap: 12,
     borderWidth: 1,
-    borderColor: themeMinimal.colors.border,
-    ...themeMinimal.shadows.sm,
-  },
-  cardUnread: {
-    backgroundColor: themeMinimal.colors.backgroundSecondary,
   },
   iconBadge: {
     width: 44,
     height: 44,
-    borderRadius: themeMinimal.radius.md,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
   content: {
     flex: 1,
-    gap: themeMinimal.spacing.xs,
+    gap: 4,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: themeMinimal.spacing.sm,
+    alignItems: 'center',
   },
   title: {
     flex: 1,
-    fontSize: themeMinimal.typography.body,
-    fontWeight: themeMinimal.typography.weights.semibold,
-    color: themeMinimal.colors.text,
-    lineHeight: themeMinimal.typography.body * (themeMinimal.typography.lineHeights as any).tight,
+    fontSize: 15,
   },
   time: {
-    fontSize: themeMinimal.typography.caption,
-    fontWeight: (themeMinimal.typography.weights as any).medium,
-    color: themeMinimal.colors.textTertiary,
+    fontSize: 11,
   },
   message: {
-    fontSize: (themeMinimal.typography as any).bodySmall,
-    color: themeMinimal.colors.textSecondary,
-    lineHeight: (themeMinimal.typography as any).bodySmall * (themeMinimal.typography.lineHeights as any).normal,
+    fontSize: 13,
+    lineHeight: 18,
   },
   unreadDot: {
     width: 8,
     height: 8,
-    borderRadius: themeMinimal.radius.full,
-    backgroundColor: themeMinimal.colors.primary,
+    borderRadius: 4,
     position: 'absolute',
-    top: themeMinimal.spacing.base,
-    right: themeMinimal.spacing.base,
+    top: 16,
+    right: 16,
   },
 });
