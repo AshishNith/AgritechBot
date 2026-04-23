@@ -4,9 +4,8 @@ import { Sprout, Calendar, ArrowRight, Sparkles, Layout } from 'lucide-react-nat
 import { AppText, GlassCard, AnimatedIcon } from '../ui';
 import { useTheme } from '../../providers/ThemeContext';
 import { useAppStore } from '../../store/useAppStore';
+import { useI18n } from '../../hooks/useI18n';
 import { getPlannerTheme } from '../../constants/plannerTheme';
-import { translations } from '../../constants/plannerTranslations';
-import { Language } from '../../types/planner';
 
 interface PlannerWidgetProps {
   onPress: () => void;
@@ -16,19 +15,12 @@ interface PlannerWidgetProps {
 export const PlannerWidget: React.FC<PlannerWidgetProps> = ({ onPress, plans = [] }) => {
   const { isDark } = useTheme();
   const { language: appLang } = useAppStore();
-  const langMap: Record<string, Language> = {
-    'English': 'en',
-    'Hindi': 'hi',
-    'Punjabi': 'pa',
-    'Gujarati': 'gu'
-  };
-  const lang = (langMap[appLang] || 'en') as Language;
+  const { t: tx } = useI18n();
   const theme = getPlannerTheme(isDark ? 'dark' : 'light');
-  const t = (key: string) => translations[lang][key] || key;
 
   const totalPlans = plans.length;
   const latestPlan = plans[0];
-  const currentCrop = latestPlan?.crop || 'No Crops';
+  const currentCrop = latestPlan?.crop || tx('noCropsWidget');
 
   // Logic for progress if stages are available
   const stages = latestPlan?.generatedPlan?.stages || [];
@@ -42,17 +34,17 @@ export const PlannerWidget: React.FC<PlannerWidgetProps> = ({ onPress, plans = [
             <View style={[styles.iconWrap, { backgroundColor: theme.accent + '15' }]}>
               <AnimatedIcon name="Calendar" size={18} color={theme.accent} animation="float" />
             </View>
-            <AppText variant="label" weight="bold" style={{ fontSize: 17 }}>{t('plannerTitle')}</AppText>
+            <AppText variant="label" weight="bold" style={{ fontSize: 17 }}>{tx('plannerTitle')}</AppText>
           </View>
           <View style={[styles.badge, { backgroundColor: theme.accent + '10' }]}>
             <AnimatedIcon name="Sparkles" size={12} color={theme.accent} animation="rotate" duration={4000} />
-            <AppText style={{ color: theme.accent, fontSize: 10, fontWeight: '800', letterSpacing: 0.5, marginLeft: 4 }}>AI GENERATED</AppText>
+            <AppText style={{ color: theme.accent, fontSize: 10, fontWeight: '800', letterSpacing: 0.5, marginLeft: 4 }}>{tx('aiBadge')}</AppText>
           </View>
         </View>
 
         <View style={[styles.infoRow, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }]}>
           <View style={styles.infoCol}>
-            <AppText variant="caption" color={theme.text2} style={styles.infoLabel}>CURRENT CROP</AppText>
+            <AppText variant="caption" color={theme.text2} style={styles.infoLabel}>{tx('cropLabel').toUpperCase()}</AppText>
             <View style={styles.cropValRow}>
               <Sprout size={14} color={theme.accent} style={{ marginRight: 6 }} />
               <AppText weight="bold" style={{ fontSize: 16 }}>{currentCrop}</AppText>
@@ -60,7 +52,7 @@ export const PlannerWidget: React.FC<PlannerWidgetProps> = ({ onPress, plans = [
           </View>
           <View style={[styles.divider, { backgroundColor: theme.border }]} />
           <View style={styles.infoCol}>
-            <AppText variant="caption" color={theme.text2} style={styles.infoLabel}>ROADMAPS</AppText>
+            <AppText variant="caption" color={theme.text2} style={styles.infoLabel}>{tx('roadmapLabel').toUpperCase()}</AppText>
             <AppText weight="bold" style={{ fontSize: 18, color: theme.accent }}>{totalPlans}</AppText>
           </View>
         </View>
@@ -68,9 +60,9 @@ export const PlannerWidget: React.FC<PlannerWidgetProps> = ({ onPress, plans = [
         <View style={styles.progressContainer}>
           <View style={styles.progressHeader}>
             <AppText variant="caption" weight="bold" color={theme.text}>
-              {stages.length > 0 ? `${stages.length} Suggested Stages` : 'Ready to Generate'}
+              {stages.length > 0 ? `${stages.length} ${tx('suggestedStages')}` : tx('readyToGenerate')}
             </AppText>
-            <AppText variant="caption" color={theme.accent}>{progressPercent}% COMPLETE</AppText>
+            <AppText variant="caption" color={theme.accent}>{progressPercent}% {tx('completed').toUpperCase()}</AppText>
           </View>
           <View style={[styles.progressBar, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }]}>
             <View style={[styles.progressFill, { width: `${progressPercent}%`, backgroundColor: theme.accent }]} />
@@ -79,10 +71,10 @@ export const PlannerWidget: React.FC<PlannerWidgetProps> = ({ onPress, plans = [
 
         <View style={styles.footer}>
           <AppText variant="caption" color={theme.text2} style={{ fontSize: 11 }}>
-            Keep your harvest on track with AI
+            {tx('plannerSubtitle')}
           </AppText>
           <View style={styles.actionBtn}>
-            <AppText variant="caption" weight="bold" color={theme.accent}>MANAGE</AppText>
+            <AppText variant="caption" weight="bold" color={theme.accent}>{tx('manage').toUpperCase()}</AppText>
             <ArrowRight size={14} color={theme.accent} style={{ marginLeft: 4 }} />
           </View>
         </View>

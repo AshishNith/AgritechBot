@@ -6,6 +6,7 @@ import { Screen, AppText, GlassCard, GradientButton, Pill } from '../components/
 import { IconMap } from '../components/IconMap';
 import { useTheme } from '../providers/ThemeContext';
 import { useAppStore } from '../store/useAppStore';
+import { useI18n } from '../hooks/useI18n';
 import { apiService } from '../api/services';
 
 const WATER_OPTIONS = [
@@ -22,6 +23,7 @@ const FARMING_TYPES = [
 
 export const CropPlannerForm: React.FC = () => {
   const { colors, isDark } = useTheme();
+  const { t: tx } = useI18n();
   const navigation = useNavigation<any>();
   const { user } = useAppStore();
 
@@ -84,19 +86,19 @@ export const CropPlannerForm: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Feather name="arrow-left" size={24} color={colors.text} />
         </TouchableOpacity>
-        <AppText variant="title" style={styles.title}>AI Crop Planner</AppText>
+        <AppText variant="title" style={styles.title}>{tx('aiCropPlanner')}</AppText>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <GlassCard style={styles.card}>
           <AppText color={colors.textMuted} style={styles.introText}>
-            Provide details about your farm, and our AI will generate a comprehensive roadmap for your crop.
+            {tx('aiPlannerSubtitle')}
           </AppText>
 
-          {renderSection('Basic Information', 'form-select', (
+          {renderSection(tx('basicInformation'), 'form-select', (
             <View style={styles.inputGroup}>
               <View style={styles.inputWrap}>
-                <AppText variant="caption" style={styles.label}>Crop Name *</AppText>
+                <AppText variant="caption" style={styles.label}>{tx('cropName')} *</AppText>
                 <GlassCard style={styles.inputField}>
                   <Feather name="search" size={16} color={colors.textMuted} />
                   <TextInput
@@ -110,7 +112,7 @@ export const CropPlannerForm: React.FC = () => {
               </View>
 
               <View style={styles.inputWrap}>
-                <AppText variant="caption" style={styles.label}>Land Size (Acres) *</AppText>
+                <AppText variant="caption" style={styles.label}>{tx('landSizeAcres')} *</AppText>
                 <GlassCard style={styles.inputField}>
                   <MaterialCommunityIcons name="ruler" size={16} color={colors.textMuted} />
                   <TextInput
@@ -125,7 +127,7 @@ export const CropPlannerForm: React.FC = () => {
               </View>
 
               <View style={styles.inputWrap}>
-                <AppText variant="caption" style={styles.label}>District *</AppText>
+                <AppText variant="caption" style={styles.label}>{tx('district')} *</AppText>
                 <GlassCard style={styles.inputField}>
                   <Feather name="map-pin" size={16} color={colors.textMuted} />
                   <TextInput
@@ -139,7 +141,7 @@ export const CropPlannerForm: React.FC = () => {
               </View>
 
               <View style={styles.inputWrap}>
-                <AppText variant="caption" style={styles.label}>Soil Type (Optional)</AppText>
+                <AppText variant="caption" style={styles.label}>{tx('soilTypeOptional')}</AppText>
                 <GlassCard style={styles.inputField}>
                   <MaterialCommunityIcons name="texture-box" size={16} color={colors.textMuted} />
                   <TextInput
@@ -154,7 +156,7 @@ export const CropPlannerForm: React.FC = () => {
             </View>
           ))}
 
-          {renderSection('Water Availability', 'water', (
+          {renderSection(tx('waterAvailability'), 'water', (
             <View style={styles.optionsGrid}>
               {WATER_OPTIONS.map((opt) => (
                 <TouchableOpacity
@@ -178,7 +180,7 @@ export const CropPlannerForm: React.FC = () => {
             </View>
           ))}
 
-          {renderSection('Farming Method', 'clover', (
+          {renderSection(tx('farmingMethod'), 'clover', (
             <View style={styles.optionsGrid}>
               {FARMING_TYPES.map((opt) => (
                 <TouchableOpacity
@@ -204,7 +206,7 @@ export const CropPlannerForm: React.FC = () => {
 
           <View style={styles.footer}>
             <GradientButton
-              label={loading ? 'Generating...' : 'Generate Farming Plan'}
+              label={loading ? tx('generatingPlan') : tx('generateFarmingPlan')}
               onPress={handleSubmit}
               disabled={loading}
               loading={loading}
@@ -218,9 +220,9 @@ export const CropPlannerForm: React.FC = () => {
         <View style={styles.loadingOverlay}>
           <GlassCard style={styles.loadingCard}>
             <ActivityIndicator size="large" color={colors.primary} />
-            <AppText weight="bold" style={{ marginTop: 16 }}>Consulting Digital Agronomist...</AppText>
+            <AppText weight="bold" style={{ marginTop: 16 }}>{tx('consultingAgronomist')}</AppText>
             <AppText variant="caption" style={{ marginTop: 8, textAlign: 'center' }}>
-              Analyzing climate, soil, and resource data to build your custom roadmap.
+              {tx('analyzingData')}
             </AppText>
           </GlassCard>
         </View>

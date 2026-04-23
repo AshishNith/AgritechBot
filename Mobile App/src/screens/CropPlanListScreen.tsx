@@ -5,10 +5,12 @@ import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Screen, AppText, GlassCard, GradientButton } from '../components/ui';
 import { IconMap } from '../components/IconMap';
 import { useTheme } from '../providers/ThemeContext';
+import { useI18n } from '../hooks/useI18n';
 import { apiService } from '../api/services';
 
 export const CropPlanListScreen: React.FC = () => {
   const { colors } = useTheme();
+  const { t: tx } = useI18n();
   const navigation = useNavigation<any>();
   const [loading, setLoading] = React.useState(true);
   const [plans, setPlans] = React.useState<any[]>([]);
@@ -78,7 +80,7 @@ export const CropPlanListScreen: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Feather name="arrow-left" size={24} color={colors.text} />
         </TouchableOpacity>
-        <AppText variant="title">My Farming Plans</AppText>
+        <AppText variant="title">{tx('myFarmingPlans')}</AppText>
         <TouchableOpacity 
           style={styles.addBtn}
           onPress={() => navigation.navigate('CropPlannerForm')}
@@ -97,12 +99,12 @@ export const CropPlanListScreen: React.FC = () => {
             source={{ uri: 'https://res.cloudinary.com/dvwpxb2oa/image/upload/v1713865000/empty-farm_zxcvbn.png' }}
             style={styles.emptyImage}
           />
-          <AppText variant="title" style={styles.emptyTitle}>No Plans Yet</AppText>
+          <AppText variant="title" style={styles.emptyTitle}>{tx('noPlansYet')}</AppText>
           <AppText color={colors.textMuted} style={styles.emptySub}>
-            Generate your first AI-powered farming roadmap to get started.
+            {tx('generatePlanIntro')}
           </AppText>
           <GradientButton 
-            label="Generate New Plan" 
+            label={tx('generateNewPlan')} 
             onPress={() => navigation.navigate('CropPlannerForm')}
             style={styles.emptyBtn}
             leftIcon={(() => { const Icon = IconMap['Sparkles']; return Icon ? <Icon size={18} color="#fff" /> : null; })()}

@@ -77,9 +77,9 @@ export function HomeScreen() {
 
   const { data: plansData, refetch: refetchPlans } = useQuery({
     queryKey: ['crop-plans'],
-    queryFn: () => apiService.get('/crop-planner/plans'),
+    queryFn: () => apiService.getCropPlans(),
   });
-  const plans = plansData?.data || [];
+  const plans = plansData?.success ? plansData.data : [];
 
   useFocusEffect(
     useCallback(() => {

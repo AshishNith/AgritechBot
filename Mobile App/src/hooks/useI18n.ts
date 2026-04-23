@@ -125,7 +125,42 @@ type ExtraTranslationKey =
   | 'stayUpdatedSubtitle'
   | 'farmer'
   | 'manageData'
-  | 'updatePersonalDetails';
+  | 'updatePersonalDetails'
+  | 'myFarmingPlans'
+  | 'noPlansYet'
+  | 'generatePlanIntro'
+  | 'generateNewPlan'
+  | 'aiCropPlanner'
+  | 'aiPlannerSubtitle'
+  | 'basicInformation'
+  | 'cropName'
+  | 'landSizeAcres'
+  | 'district'
+  | 'soilTypeOptional'
+  | 'waterAvailability'
+  | 'farmingMethod'
+  | 'generateFarmingPlan'
+  | 'generatingPlan'
+  | 'consultingAgronomist'
+  | 'analyzingData'
+  | 'cropRoadmap'
+  | 'totalCost'
+  | 'expYield'
+  | 'profitEst'
+  | 'criticalRiskAlerts'
+  | 'alternativeStrategies'
+  | 'lowBudgetApproach'
+  | 'highBudgetApproach'
+  | 'loadingPlan'
+  | 'roadmapLabel'
+  | 'plannerTitle'
+  | 'plannerSubtitle'
+  | 'aiBadge'
+  | 'cropLabel'
+  | 'completed'
+  | 'noCropsWidget'
+  | 'suggestedStages'
+  | 'readyToGenerate';
 
 export type AppTranslationKey = TranslationKey | ExtraTranslationKey;
 
@@ -254,6 +289,41 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     farmer: 'Farmer',
     manageData: 'Manage your data and privacy',
     updatePersonalDetails: 'Update your personal details',
+    myFarmingPlans: 'My Farming Plans',
+    noPlansYet: 'No Plans Yet',
+    generatePlanIntro: 'Generate your first AI-powered farming roadmap to get started.',
+    generateNewPlan: 'Generate New Plan',
+    aiCropPlanner: 'AI Crop Planner',
+    aiPlannerSubtitle: 'Provide details about your farm, and our AI will generate a comprehensive roadmap for your crop.',
+    basicInformation: 'Basic Information',
+    cropName: 'Crop Name',
+    landSizeAcres: 'Land Size (Acres)',
+    district: 'District',
+    soilTypeOptional: 'Soil Type (Optional)',
+    waterAvailability: 'Water Availability',
+    farmingMethod: 'Farming Method',
+    generateFarmingPlan: 'Generate Farming Plan',
+    generatingPlan: 'Generating...',
+    consultingAgronomist: 'Consulting Digital Agronomist...',
+    analyzingData: 'Analyzing climate, soil, and resource data to build your custom roadmap.',
+    cropRoadmap: 'Roadmap',
+    totalCost: 'Total Cost',
+    expYield: 'Exp. Yield',
+    profitEst: 'Profit Est.',
+    criticalRiskAlerts: 'Critical Risk Alerts',
+    alternativeStrategies: 'Alternative Strategies',
+    lowBudgetApproach: 'Low Budget Approach',
+    highBudgetApproach: 'High Budget/Yield Approach',
+    loadingPlan: 'Loading your plan...',
+    roadmapLabel: 'Roadmaps',
+    plannerTitle: 'Crop Roadmap',
+    plannerSubtitle: 'Keep your harvest on track with AI',
+    aiBadge: 'AI GENERATED',
+    cropLabel: 'CURRENT CROP',
+    completed: 'COMPLETE',
+    noCropsWidget: 'No Crops',
+    suggestedStages: 'Suggested Stages',
+    readyToGenerate: 'Ready to Generate',
   },
   Hindi: {
     homeTab: 'होम',
@@ -379,6 +449,41 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     farmer: 'किसान',
     manageData: 'अपने डेटा और गोपनीयता को प्रबंधित करें',
     updatePersonalDetails: 'अपने व्यक्तिगत विवरण अपडेट करें',
+    myFarmingPlans: 'मेरी खेती योजनाएं',
+    noPlansYet: 'अभी तक कोई योजना नहीं',
+    generatePlanIntro: 'शुरू करने के लिए अपना पहला AI-संचालित खेती रोडमैप बनाएं।',
+    generateNewPlan: 'नई योजना बनाएं',
+    aiCropPlanner: 'AI फसल योजनाकार',
+    aiPlannerSubtitle: 'अपने खेत के बारे में विवरण दें, और हमारा AI आपकी फसल के लिए एक व्यापक रोडमैપ तैयार करेगा।',
+    basicInformation: 'मूल जानकारी',
+    cropName: 'फसल का नाम',
+    landSizeAcres: 'भूमि का आकार (एकड़)',
+    district: 'जिला',
+    soilTypeOptional: 'मिट्टी का प्रकार (वैकल्पिक)',
+    waterAvailability: 'पानी की उपलब्धता',
+    farmingMethod: 'खेती का तरीका',
+    generateFarmingPlan: 'खेती की योजना बनाएं',
+    generatingPlan: 'बनाया जा रहा है...',
+    consultingAgronomist: 'डिजिटल कृषिविज्ञानी से परामर्श...',
+    analyzingData: 'कस्टम रोडमैप बनाने के लिए जलवायु, मिट्टी और संसाधन डेटा का विश्लेषण।',
+    cropRoadmap: 'रोडमैप',
+    totalCost: 'कुल लागत',
+    expYield: 'अनुमानित उपज',
+    profitEst: 'लाभ अनुमान',
+    criticalRiskAlerts: 'महत्वपूर्ण जोखिम अलर्ट',
+    alternativeStrategies: 'वैकल्पिक रणनीतियाँ',
+    lowBudgetApproach: 'कम बजट दृष्टिकोण',
+    highBudgetApproach: 'उच्च बजट/उपज दृष्टिकोण',
+    loadingPlan: 'आपकी योजना लोड हो रही है...',
+    roadmapLabel: 'रोडमैप',
+    plannerTitle: 'फसल रोडमैप',
+    plannerSubtitle: 'AI के साथ अपनी फसल को ट्रैक पर रखें',
+    aiBadge: 'AI उत्पन्न',
+    cropLabel: 'वर्तमान फसल',
+    completed: 'पूर्ण',
+    noCropsWidget: 'कोई फसल नहीं',
+    suggestedStages: 'सुझाए गए चरण',
+    readyToGenerate: 'बनाने के लिए तैयार',
   },
   Gujarati: {
     homeTab: 'હોમ',
@@ -504,6 +609,41 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     farmer: 'ખેડૂત',
     manageData: 'તમારા ડેટા અને ગોપનીયતાનું સંચાલન કરો',
     updatePersonalDetails: 'તમારી વ્યક્તિગત વિગતો અપડેટ કરો',
+    myFarmingPlans: 'મારી ખેતી યોજનાઓ',
+    noPlansYet: 'હજુ સુધી કોઈ યોજના નથી',
+    generatePlanIntro: 'શરૂ કરવા માટે તમારો પહેલો AI-સંચાલિત ખેતી રોડમેપ બનાવો.',
+    generateNewPlan: 'નવી યોજના બનાવો',
+    aiCropPlanner: 'AI પાક આયોજક',
+    aiPlannerSubtitle: 'તમારા ખેતર વિશે વિગતો આપો, અને અમારું AI તમારા પાક માટે એક વ્યાપક રોડમેપ તૈયાર કરશે.',
+    basicInformation: 'મૂળભૂત માહિતી',
+    cropName: 'પાકનું નામ',
+    landSizeAcres: 'જમીનનું કદ (એકર)',
+    district: 'જિલ્લો',
+    soilTypeOptional: 'જમીનનો પ્રકાર (વૈકલ્પિક)',
+    waterAvailability: 'પાણીની ઉપલબ્ધતા',
+    farmingMethod: 'ખેતી પદ્ધતિ',
+    generateFarmingPlan: 'ખેતી યોજના બનાવો',
+    generatingPlan: 'બનાવી રહ્યું છે...',
+    consultingAgronomist: 'ડિજિટલ કૃષિવિજ્ઞાની સાથે પરામર્શ...',
+    analyzingData: 'કસ્ટમ રોડમેપ બનાવવા માટે આબોહવા, જમીન અને સંસાધન ડેટાનું વિશ્લેષણ.',
+    cropRoadmap: 'રોડમેપ',
+    totalCost: 'કુલ ખર્ચ',
+    expYield: 'અંદાજિત ઉપજ',
+    profitEst: 'નફાનો અંદાજ',
+    criticalRiskAlerts: 'ક્રિટિકલ રિસ્ક એલર્ટ્સ',
+    alternativeStrategies: 'વૈકલ્પિક વ્યૂહરચનાઓ',
+    lowBudgetApproach: 'ઓછા બજેટનો અભિગમ',
+    highBudgetApproach: 'ઉચ્ચ બજેટ/ઉપજ અભિગમ',
+    loadingPlan: 'તમારી યોજના લોડ થઈ રહી છે...',
+    roadmapLabel: 'રોડમેપ',
+    plannerTitle: 'પાક રોડમેપ',
+    plannerSubtitle: 'AI સાથે તમારા પાકને ટ્રેક પર રાખો',
+    aiBadge: 'AI દ્વારા બનાવાયેલ',
+    cropLabel: 'વર્તમાન પાક',
+    completed: 'પૂર્ણ',
+    noCropsWidget: 'કોઈ પાક નથી',
+    suggestedStages: 'સૂચવેલા તબક્કાઓ',
+    readyToGenerate: 'બનાવવા માટે તૈયાર',
   },
   Punjabi: {
     homeTab: 'ਹੋਮ',
@@ -629,6 +769,41 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     farmer: 'ਕਿਸਾਨ',
     manageData: 'ਆਪਣੇ ਡੇਟਾ ਅਤੇ ਗੋਪਨੀਯਤਾ ਦਾ ਪ੍ਰਬੰਧਨ ਕਰੋ',
     updatePersonalDetails: 'ਆਪਣੇ ਨਿੱਜੀ ਵੇਰਵੇ ਅਪਡੇਟ ਕਰੋ',
+    myFarmingPlans: 'ਮੇਰੀਆਂ ਖੇਤੀ ਯੋਜਨਾਵਾਂ',
+    noPlansYet: 'ਹਾਲੇ ਤੱਕ ਕੋਈ ਯੋਜਨਾ ਨਹੀਂ',
+    generatePlanIntro: 'ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਆਪਣਾ ਪਹਿਲਾ AI-ਸੰਚਾਲਿਤ ਖੇਤੀ ਰੋਡਮੈਪ ਬਣਾਓ।',
+    generateNewPlan: 'ਨਵੀਂ ਯੋਜਨਾ ਬਣਾਓ',
+    aiCropPlanner: 'AI ਫਸਲ ਯੋਜਨਾਕਾਰ',
+    aiPlannerSubtitle: 'ਆਪਣੇ ਖੇਤ ਬਾਰੇ ਵੇਰਵੇ ਦਿਓ, ਅਤੇ ਸਾਡਾ AI ਤੁਹਾਡੀ ਫਸਲ ਲਈ ਇੱਕ ਵਿਆਪਕ ਰੋਡਮੈਪ ਤਿਆર ਕਰੇਗਾ।',
+    basicInformation: 'ਮੂਲ ਜਾਣਕਾਰੀ',
+    cropName: 'ਫਸਲ ਦਾ ਨਾਮ',
+    landSizeAcres: 'ਜ਼ਮੀਨ ਦਾ ਆਕਾਰ (ਏਕੜ)',
+    district: 'ਜ਼ਿਲ੍ਹਾ',
+    soilTypeOptional: 'ਮਿੱਟੀ ਦੀ ਕਿਸਮ (ਵਿਕਲਪਿਕ)',
+    waterAvailability: 'ਪਾਣੀ ਦੀ ਉਪਲਬਧਤਾ',
+    farmingMethod: 'ਖੇਤੀ ਦਾ ਤਰੀਕਾ',
+    generateFarmingPlan: 'ਖੇਤੀ ਯੋਜਨਾ ਬਣਾਓ',
+    generatingPlan: 'ਬਣਾਇਆ ਜਾ ਰਿਹਾ ਹੈ...',
+    consultingAgronomist: 'ਡਿਜੀਟਲ ਖੇਤੀ ਮਾਹਿਰ ਨਾਲ ਸਲਾਹ...',
+    analyzingData: 'ਕਸਟਮ ਰੋਡਮੈਪ ਬਣਾਉਣ ਲਈ ਜਲਵਾਯੂ, ਮਿੱਟੀ ਅਤੇ ਸਾਧਨਾਂ ਦੇ ਡੇਟਾ ਦਾ ਵਿਸ਼ਲੇਸ਼ਣ।',
+    cropRoadmap: 'ਰੋਡਮੈਪ',
+    totalCost: 'ਕੁੱਲ ਲਾਗਤ',
+    expYield: 'ਅਨੁਮਾਨਿਤ ਝਾੜ',
+    profitEst: 'ਮੁਨਾਫਾ ਅਨੁਮਾਨ',
+    criticalRiskAlerts: 'ਮਹੱਤਵਪੂਰਨ ਜੋਖਮ ਅਲਰਟ',
+    alternativeStrategies: 'ਵਿਕਲਪਿਕ ਰਣਨੀਤੀਆਂ',
+    lowBudgetApproach: 'ਘੱਟ ਬਜਟ ਪਹੁੰਚ',
+    highBudgetApproach: 'ਉੱਚ ਬਜટ/ਝਾੜ ਪਹੁੰਚ',
+    loadingPlan: 'ਤੁਹਾਡੀ ਯੋਜਨਾ ਲੋਡ ਹੋ ਰਹੀ ਹੈ...',
+    roadmapLabel: 'ਰੋਡਮੈਪ',
+    plannerTitle: 'ਫਸਲ ਰੋਡਮੈਪ',
+    plannerSubtitle: 'AI ਨਾਲ ਆਪਣੀ ਫਸਲ ਨੂੰ ਟ੍ਰੈਕ ਤੇ ਰੱਖੋ',
+    aiBadge: 'AI ਦੁਆਰਾ ਤਿਆਰ',
+    cropLabel: 'ਮੌਜੂਦਾ ਫਸਲ',
+    completed: 'ਮੁਕੰਮਲ',
+    noCropsWidget: 'ਕੋਈ ਫਸਲ ਨਹੀਂ',
+    suggestedStages: 'ਸੁਝਾਏ ਗਏ ਪੜਾਅ',
+    readyToGenerate: 'ਬਣਾਉਣ ਲਈ ਤਿਆਰ',
   },
 };
 

@@ -25,6 +25,27 @@ export type TranslationKey =
   | 'total'
   | 'deliveryDetails'
   | 'perKg'
+  | 'perPacket'
+  | 'perUnit'
+  | 'perLiter'
+  | 'Wheat'
+  | 'Rice'
+  | 'Cotton'
+  | 'Mustard'
+  | 'Sugarcane'
+  | 'Maize'
+  | 'Vegetables'
+  | 'Fruits'
+  | 'Soil Health'
+  | 'Growth'
+  | 'Yield'
+  | 'Pest Control'
+  | 'Disease Prevention'
+  | 'kg'
+  | 'liter'
+  | 'packet'
+  | 'unit'
+  | 'bag'
   | 'premiumPlan'
   | 'unlockFullPotential'
   | 'advancedAIExperience'
@@ -331,7 +352,6 @@ export type TranslationKey =
   | 'scans'
   | 'left'
   | 'expires'
-  | 'manage'
   | 'retry'
   | 'errConnection'
   | 'errServerBusy'
@@ -1295,6 +1315,7 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     shipping: 'શિપિંગ',
     discount: 'છૂટ',
     total: 'કુલ',
+    deliveryDetails: 'ડિલિવરી વિગતો',
     perKg: 'પ્રતિ કિલો',
     perPacket: 'પ્રતિ પેકેટ',
     perUnit: 'પ્રતિ યુનિટ',
@@ -1725,6 +1746,7 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     shipping: 'ਸ਼ਿਪਿੰਗ',
     discount: 'ਛੂਟ',
     total: 'ਕੁੱਲ',
+    deliveryDetails: 'ਡਿਲੀਵਰੀ ਵੇਰਵੇ',
     perKg: 'ਪ੍ਰਤੀ ਕਿਲੋ',
     perPacket: 'ਪ੍ਰਤੀ ਪੈਕੇਟ',
     perUnit: 'ਪ੍ਰਤੀ ਯੂਨਿਟ',

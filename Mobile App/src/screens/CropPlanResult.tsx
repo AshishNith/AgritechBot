@@ -4,10 +4,12 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Screen, AppText, GlassCard, Pill } from '../components/ui';
 import { useTheme } from '../providers/ThemeContext';
+import { useI18n } from '../hooks/useI18n';
 import { apiService } from '../api/services';
 
 export const CropPlanResult: React.FC = () => {
   const { colors, isDark } = useTheme();
+  const { t: tx } = useI18n();
   const navigation = useNavigation();
   const route = useRoute<any>();
   const { planId } = route.params;
@@ -37,7 +39,7 @@ export const CropPlanResult: React.FC = () => {
     return (
       <Screen style={styles.center}>
         <ActivityIndicator size="large" color={colors.primary} />
-        <AppText style={{ marginTop: 16 }}>Loading your plan...</AppText>
+        <AppText style={{ marginTop: 16 }}>{tx('loadingPlan')}</AppText>
       </Screen>
     );
   }
@@ -51,7 +53,7 @@ export const CropPlanResult: React.FC = () => {
           <Feather name="arrow-left" size={24} color={colors.text} />
         </TouchableOpacity>
         <View>
-          <AppText variant="title">{plan.crop} Roadmap</AppText>
+          <AppText variant="title">{plan.crop} {tx('cropRoadmap')}</AppText>
           <AppText variant="caption" color={colors.textMuted}>{plan.total_duration}</AppText>
         </View>
       </View>
@@ -60,15 +62,15 @@ export const CropPlanResult: React.FC = () => {
         {/* Summary Row */}
         <View style={styles.summaryRow}>
           <GlassCard style={styles.summaryCard}>
-            <AppText variant="caption" color={colors.textMuted}>Total Cost</AppText>
+            <AppText variant="caption" color={colors.textMuted}>{tx('totalCost')}</AppText>
             <AppText weight="bold" style={{ color: colors.primary }}>{plan.total_estimated_cost}</AppText>
           </GlassCard>
           <GlassCard style={styles.summaryCard}>
-            <AppText variant="caption" color={colors.textMuted}>Exp. Yield</AppText>
+            <AppText variant="caption" color={colors.textMuted}>{tx('expYield')}</AppText>
             <AppText weight="bold" style={{ color: '#2563eb' }}>{plan.expected_yield}</AppText>
           </GlassCard>
           <GlassCard style={styles.summaryCard}>
-            <AppText variant="caption" color={colors.textMuted}>Profit Est.</AppText>
+            <AppText variant="caption" color={colors.textMuted}>{tx('profitEst')}</AppText>
             <AppText weight="bold" style={{ color: '#059669' }}>{plan.profit_estimation}</AppText>
           </GlassCard>
         </View>
@@ -78,7 +80,7 @@ export const CropPlanResult: React.FC = () => {
           <GlassCard style={[styles.riskCard, { backgroundColor: '#fef2f2', borderColor: '#fee2e2' }]}>
             <View style={styles.riskHeader}>
               <Feather name="alert-triangle" size={18} color="#ef4444" />
-              <AppText weight="bold" style={{ color: '#991b1b', marginLeft: 8 }}>Critical Risk Alerts</AppText>
+              <AppText weight="bold" style={{ color: '#991b1b', marginLeft: 8 }}>{tx('criticalRiskAlerts')}</AppText>
             </View>
             {plan.risk_alerts.map((risk: string, i: number) => (
               <AppText key={i} variant="caption" style={{ color: '#b91c1c', marginTop: 4 }}>• {risk}</AppText>
@@ -147,19 +149,19 @@ export const CropPlanResult: React.FC = () => {
 
         {/* Alternatives */}
         <View style={styles.alternatives}>
-          <AppText weight="bold" style={{ marginBottom: 12 }}>Alternative Strategies</AppText>
+          <AppText weight="bold" style={{ marginBottom: 12 }}>{tx('alternativeStrategies')}</AppText>
           <View style={{ gap: 12 }}>
             <GlassCard style={styles.altCard}>
               <View style={styles.altHeader}>
                 <Feather name="trending-down" size={16} color={colors.textMuted} />
-                <AppText weight="bold" style={{ marginLeft: 8, fontSize: 13 }}>Low Budget Approach</AppText>
+                <AppText weight="bold" style={{ marginLeft: 8, fontSize: 13 }}>{tx('lowBudgetApproach')}</AppText>
               </View>
               <AppText variant="caption" color={colors.textMuted}>{plan.alternative_suggestions?.low_budget}</AppText>
             </GlassCard>
             <GlassCard style={styles.altCard}>
               <View style={styles.altHeader}>
                 <Feather name="trending-up" size={16} color={colors.primary} />
-                <AppText weight="bold" style={{ marginLeft: 8, fontSize: 13, color: colors.primary }}>High Budget/Yield Approach</AppText>
+                <AppText weight="bold" style={{ marginLeft: 8, fontSize: 13, color: colors.primary }}>{tx('highBudgetApproach')}</AppText>
               </View>
               <AppText variant="caption" color={colors.textMuted}>{plan.alternative_suggestions?.high_budget}</AppText>
             </GlassCard>
