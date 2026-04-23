@@ -1,21 +1,18 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { getFarmerContext } from '../services/contextBuilder.service';
-import { sendChatMessage, sendVoiceMessage, streamChatMessage } from '../services/geminiChat.service';
+import { sendChatMessage, sendVoiceMessage } from '../services/geminiChat.service';
 import { clearChatHistory, getSessionMessages } from '../services/sessionManager.service';
 import { speechToText } from '../../services/voice/sarvamSTT';
+import { logger } from '../../utils/logger';
 
-// Valid image MIME types for crop analysis
+// ── Validation Schemas ──
+
 const VALID_IMAGE_MIME_TYPES = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-  'image/bmp',
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp',
 ]);
 
-// Max image size: 5MB in base64 (~3.75MB decoded)
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB in base64
 
 const messageBodySchema = z.object({
   text: z.string().trim().min(1).max(5000),
@@ -39,6 +36,12 @@ const paginationSchema = z.object({
   limit: z.coerce.number().min(1).max(100).optional().default(50),
 });
 
+// ── Controllers ──
+
+/**
+ * POST /api/v1/chat/sessions/:sessionId/message
+ * Send a text message to the AI and get a response.
+ */
 export async function sendMessageController(request: FastifyRequest, reply: FastifyReply) {
   const parsed = messageBodySchema.safeParse(request.body);
   if (!parsed.success) {
@@ -48,18 +51,28 @@ export async function sendMessageController(request: FastifyRequest, reply: Fast
   const { sessionId } = request.params as { sessionId: string };
   const farmerId = String(request.user!._id);
 
-  const result = await sendChatMessage({
-    farmerId,
-    sessionId,
-    text: parsed.data.text,
-    preferredLanguage: parsed.data.language,
-    imageBase64: parsed.data.imageBase64,
-    imageMimeType: parsed.data.imageMimeType,
-  });
+  try {
+    const result = await sendChatMessage({
+      farmerId,
+      sessionId,
+      text: parsed.data.text,
+      preferredLanguage: parsed.data.language,
+      imageBase64: parsed.data.imageBase64,
+      imageMimeType: parsed.data.imageMimeType,
+    });
 
-  return reply.send(result);
+    return reply.send(result);
+  } catch (error: any) {
+    // Let the error propagate to Fastify's error handler.
+    // HttpError instances carry statusCode + user-friendly message.
+    throw error;
+  }
 }
 
+/**
+ * POST /api/v1/chat/sessions/:sessionId/voice
+ * Full voice pipeline: STT → AI → TTS
+ */
 export async function sendVoiceMessageController(request: FastifyRequest, reply: FastifyReply) {
   const { sessionId } = request.params as { sessionId: string };
   const farmerId = String(request.user!._id);
@@ -76,11 +89,7 @@ export async function sendVoiceMessageController(request: FastifyRequest, reply:
 
   const audioBase64 = Buffer.concat(chunks).toString('base64');
   const language = (data.fields as Record<string, { value?: string }>)?.language?.value as
-    | 'English'
-    | 'Hindi'
-    | 'Gujarati'
-    | 'Punjabi'
-    | undefined;
+    | 'English' | 'Hindi' | 'Gujarati' | 'Punjabi' | undefined;
 
   const result = await sendVoiceMessage({
     farmerId,
@@ -94,26 +103,10 @@ export async function sendVoiceMessageController(request: FastifyRequest, reply:
   return reply.send(result);
 }
 
-export async function streamMessageController(request: FastifyRequest, reply: FastifyReply) {
-  const parsed = messageBodySchema.safeParse(request.body);
-  if (!parsed.success) {
-    return reply.status(400).send({ error: parsed.error.flatten().fieldErrors });
-  }
-
-  const { sessionId } = request.params as { sessionId: string };
-  const farmerId = String(request.user!._id);
-
-  await streamChatMessage({
-    farmerId,
-    sessionId,
-    text: parsed.data.text,
-    preferredLanguage: parsed.data.language,
-    imageBase64: parsed.data.imageBase64,
-    imageMimeType: parsed.data.imageMimeType,
-    reply,
-  });
-}
-
+/**
+ * GET /api/v1/chat/sessions/:sessionId/messages
+ * Fetch paginated messages for a chat session.
+ */
 export async function getSessionMessagesController(request: FastifyRequest, reply: FastifyReply) {
   const parsed = paginationSchema.safeParse(request.query);
   if (!parsed.success) {
@@ -136,12 +129,20 @@ export async function getSessionMessagesController(request: FastifyRequest, repl
   return reply.send({ sessionId, messages });
 }
 
+/**
+ * GET /api/v1/chat/context
+ * Get current farmer context (profile, season, location).
+ */
 export async function getChatContextController(request: FastifyRequest, reply: FastifyReply) {
   const farmerId = String(request.user!._id);
   const context = await getFarmerContext(farmerId);
   return reply.send(context);
 }
 
+/**
+ * DELETE /api/v1/chat/sessions/:sessionId/history
+ * Clear all messages in a chat session.
+ */
 export async function clearHistoryController(request: FastifyRequest, reply: FastifyReply) {
   const { sessionId } = request.params as { sessionId: string };
   const farmerId = String(request.user!._id);
@@ -157,7 +158,6 @@ export async function clearHistoryController(request: FastifyRequest, reply: Fas
 /**
  * POST /api/v1/chat/voice-input
  * STT-only: transcribe audio and return the text. No AI call, no TTS.
- * Used for the "speak to type" flow where the user reviews and edits before sending.
  */
 export async function voiceInputController(request: FastifyRequest, reply: FastifyReply) {
   const data = await request.file();
@@ -173,11 +173,7 @@ export async function voiceInputController(request: FastifyRequest, reply: Fasti
 
   const audioBase64 = Buffer.concat(chunks).toString('base64');
   const language = (data.fields as Record<string, { value?: string }>)?.language?.value as
-    | 'English'
-    | 'Hindi'
-    | 'Gujarati'
-    | 'Punjabi'
-    | undefined;
+    | 'English' | 'Hindi' | 'Gujarati' | 'Punjabi' | undefined;
   const mimeType = data.mimetype || 'audio/m4a';
   const fileName = data.filename || 'voice-input.m4a';
 

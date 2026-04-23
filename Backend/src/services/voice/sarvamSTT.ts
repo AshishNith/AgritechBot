@@ -46,7 +46,7 @@ export async function speechToText(
     if (normalizedMimeType === 'audio/m4a') {
       normalizedMimeType = 'audio/mp4';
     }
-    
+
     const audioBlob = new Blob([audioBuffer], { type: normalizedMimeType });
     const uploadFileName =
       fileName && fileName.trim().length > 0
@@ -98,8 +98,8 @@ export async function speechToText(
     }
 
     const data = (await response.json()) as { transcript?: string; text?: string };
-    
-    logger.info({ 
+
+    logger.info({
       transcriptLength: (data.transcript || data.text || '').length,
       hasTranscript: !!(data.transcript || data.text)
     }, 'Sarvam STT success');

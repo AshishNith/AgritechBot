@@ -7,10 +7,10 @@ import { authMiddleware } from '../middlewares/authMiddleware';
 export async function userRoutes(app: FastifyInstance): Promise<void> {
   app.addHook('preHandler', authMiddleware);
 
-  app.get('/api/user/profile', getProfile);
-  app.post('/api/user/profile', createProfile);
-  app.put('/api/user/profile', updateProfile);
-  app.get('/api/user/wallet', getWalletHandler);
-  app.post('/api/user/wallet/deduct', deductCreditHandler);
-  app.post('/api/user/subscription/dummy-payment', processDummyPayment);
+  app.get('/user/profile', getProfile);
+  app.post('/user/profile', createProfile);
+  app.put('/user/profile', updateProfile);
+  app.get('/user/wallet', getWalletHandler);
+  app.post('/user/wallet/deduct', deductCreditHandler);
+  app.post('/user/subscription/dummy-payment', processDummyPayment);
 }

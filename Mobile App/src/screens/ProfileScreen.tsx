@@ -210,10 +210,10 @@ export function ProfileScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <AppText variant="label">
-                  {wallet.plan.toUpperCase()} {tx('plan') || 'PLAN'}
+                  {(wallet?.plan || 'free').toUpperCase()} {tx('plan') || 'PLAN'}
                 </AppText>
                 <AppText variant="caption" color={colors.textMuted}>
-                  {wallet.chatCredits + (wallet.topupCredits || 0)} {tx('chats') || 'chats'} · {wallet.imageCredits + (wallet.topupImageCredits || 0)} {tx('scans') || 'scans'} {tx('left') || 'left'}
+                  {(wallet?.chatCredits || 0) + (wallet?.topupCredits || 0)} {tx('chats') || 'chats'} · {(wallet?.imageCredits || 0) + (wallet?.topupImageCredits || 0)} {tx('scans') || 'scans'} {tx('left') || 'left'}
                 </AppText>
               </View>
               <Pressable

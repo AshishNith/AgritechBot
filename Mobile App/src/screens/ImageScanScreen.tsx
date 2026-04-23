@@ -15,7 +15,7 @@ import { useWallet } from '../hooks/useWallet';
 import { useTheme } from '../providers/ThemeContext';
 import { useI18n } from '../hooks/useI18n';
 import { WalletCreditBadge } from '../components/WalletCreditBadge';
-import { PLAN_CONFIGS } from '../store/useWalletStore';
+import { PLAN_CONFIGS, useWalletStore } from '../store/useWalletStore';
 import { PaywallBottomSheet } from '../components/PaywallBottomSheet';
 import { useQuery } from '@tanstack/react-query';
 import Animated, { FadeIn, FadeInDown, FadeInRight } from 'react-native-reanimated';
@@ -77,6 +77,10 @@ export function ImageScanScreen({ route }: { route: any }) {
 
   const pickImage = async (useCamera: boolean = false) => {
     if (analyzing || analysisInProgress.current || isPickingImage.current) return;
+    
+    // ✅ Instant credit check before proceeding to camera/gallery
+    if (!requireScan()) return;
+
     isPickingImage.current = true;
     try {
       const hasPermission = await requestImageAccess(useCamera);
@@ -136,7 +140,13 @@ export function ImageScanScreen({ route }: { route: any }) {
     try {
       const response = await apiService.analyzeCrop(base64, mimeType, currentLanguage);
       setResult(response.diagnosis);
-      void refetchWallet();
+      
+      // ✅ Real-time wallet update from response
+      if (response.wallet) {
+        useWalletStore.getState().setWallet(response.wallet);
+      } else {
+        void refetchWallet();
+      }
     } catch (error: any) {
       analysisInProgress.current = false;
       console.error('[ImageScan] Analysis error:', error);

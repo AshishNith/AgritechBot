@@ -39,7 +39,7 @@ import { ChatMessageItem } from '../components/chat/ChatMessageItem';
 import { PaywallBottomSheet } from '../components/PaywallBottomSheet';
 import { Product } from '../types/api';
 import { useWallet } from '../hooks/useWallet';
-import { PLAN_CONFIGS } from '../store/useWalletStore';
+import { PLAN_CONFIGS, useWalletStore } from '../store/useWalletStore';
 
 const starterId = 'starter';
 const MIN_TRANSCRIBE_DURATION_MS = 700;
@@ -177,7 +177,11 @@ export function ChatScreen() {
     }
 
     let cancelled = false;
-    setIsHydratingHistory(true);
+    // Only show hydrating loader if we're starting fresh, not on background syncs
+    setMessages((current) => {
+      if (current.length <= 1) setIsHydratingHistory(true);
+      return current;
+    });
 
     apiService
       .getChatMessages(chatId)
@@ -206,7 +210,7 @@ export function ChatScreen() {
           return true;
         });
 
-        setMessages(dedupedMessages.length ? dedupedMessages : [buildStarterMessage(language)]);
+        setMessages((current) => dedupedMessages.length ? dedupedMessages : [buildStarterMessage(language)]);
       })
       .catch(() => {
         if (cancelled) {
@@ -304,18 +308,27 @@ export function ChatScreen() {
         ? `data:${data.audioMimeType || 'audio/mp3'};base64,${data.audioBase64}`
         : undefined;
 
-      setMessages((current) => [
-        ...current.filter((message) => message.id !== starterId),
-        {
-          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-assistant`,
-          chatId: data.chatId,
-          role: 'assistant',
-          content: data.answer,
-          audioUrl: responseAudioUrl,
-          audioMimeType: data.audioMimeType,
-          createdAt: new Date().toISOString(),
-        },
-      ]);
+      const stableId = data.idempotencyKey || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      setMessages((current) => {
+        // If an assistant message with this stable ID already exists, don't duplicate
+        if (current.some(m => m.id.includes(stableId) && m.role === 'assistant')) {
+           return current;
+        }
+
+        return [
+          ...current.filter((message) => message.id !== starterId),
+          {
+            id: `${stableId}-assistant`,
+            chatId: data.chatId,
+            role: 'assistant',
+            content: data.answer,
+            audioUrl: responseAudioUrl,
+            audioMimeType: data.audioMimeType,
+            createdAt: new Date().toISOString(),
+          },
+        ];
+      });
 
       await queryClient.invalidateQueries({ queryKey: ['chat-history'] });
       if (!chatId || chatId !== data.chatId) {
@@ -330,8 +343,12 @@ export function ChatScreen() {
         await playAudio(responseAudioUrl);
       }
 
-      // Refresh wallet to update usage progress
-      void refetchWallet();
+      // Update wallet in real-time from response
+      if (data.wallet) {
+        useWalletStore.getState().setWallet(data.wallet as any);
+      } else {
+        void refetchWallet();
+      }
     },
     onError: (error: any, variables) => {
       const statusCode = error?.response?.status;
@@ -416,17 +433,28 @@ export function ChatScreen() {
     if (!requireChat()) return;
 
     const localChatId = chatId ?? 'local';
-    setMessages((current) => [
-      ...current.filter((message) => message.id !== starterId),
-      {
-        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-user`,
-        chatId: localChatId,
-        role: 'user',
-        content: outgoing,
-        type: pickedImageBase64 ? 'image' : 'text',
-        createdAt: new Date().toISOString(),
-      },
-    ]);
+    const msgIdHash = outgoing.substring(0, 10).replace(/\s+/g, '');
+    const userMsgId = `${Date.now()}-${msgIdHash}-user`;
+
+    setMessages((current) => {
+      // Avoid adding exact same user message twice consecutively
+      const last = current[current.length - 1];
+      if (last && last.role === 'user' && last.content === outgoing) {
+        return current;
+      }
+
+      return [
+        ...current.filter((message) => message.id !== starterId && !message.id.includes('-error')),
+        {
+          id: userMsgId,
+          chatId: localChatId,
+          role: 'user',
+          content: outgoing,
+          type: pickedImageBase64 ? 'image' : 'text',
+          createdAt: new Date().toISOString(),
+        },
+      ];
+    });
     setInput('');
 
     askMutation.mutate({
@@ -460,17 +488,28 @@ export function ChatScreen() {
       if (!requireChat()) return;
 
       const localChatId = chatId ?? 'local';
-      setMessages((current) => [
-        ...current.filter((message) => message.id !== starterId),
-        {
-          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-user`,
-          chatId: localChatId,
-          role: 'user',
-          content: outgoing,
-          type: lastFailedDraft.imageBase64 ? 'image' : 'text',
-          createdAt: new Date().toISOString(),
-        },
-      ]);
+      setMessages((current) => {
+        // filter out starterId and error bubbles
+        const validMsgs = current.filter((message) => message.id !== starterId && !message.id.includes('-error'));
+        
+        // If the last valid message is a user message with the EXACT same text/type, don't duplicate it.
+        const lastMsg = validMsgs[validMsgs.length - 1];
+        if (lastMsg && lastMsg.role === 'user' && lastMsg.content === outgoing) {
+          return validMsgs; // user message already exists
+        }
+
+        return [
+          ...validMsgs,
+          {
+            id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-user`,
+            chatId: localChatId,
+            role: 'user',
+            content: outgoing,
+            type: lastFailedDraft.imageBase64 ? 'image' : 'text',
+            createdAt: new Date().toISOString(),
+          },
+        ];
+      });
       askMutation.mutate({
         message: outgoing,
         imageBase64: lastFailedDraft.imageBase64,
@@ -478,6 +517,7 @@ export function ChatScreen() {
       });
     } else if (lastFailedDraft.type === 'voice') {
       if (!requireChat()) return;
+      setMessages((current) => current.filter((message) => message.id !== starterId && !message.id.includes('-error')));
       voiceMutation.mutate(lastFailedDraft.clip);
     }
   };
@@ -538,30 +578,37 @@ export function ChatScreen() {
       const voiceAudioUrl = data.audioUrl
         ?? (data.audioBase64 ? `data:${data.audioMimeType || 'audio/mp3'};base64,${data.audioBase64}` : undefined);
 
-      const uniqueSuffix = Math.random().toString(36).substr(2, 9);
+      const stableId = data.idempotencyKey || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
       setChatId(data.chatId);
       setLastFailedDraft(null);
-      setMessages((current) => [
-        ...current.filter((message) => message.id !== starterId),
-        {
-          id: `${Date.now()}-${uniqueSuffix}-voice-user`,
-          chatId: data.chatId,
-          role: 'user',
-          content: data.transcript || '',
-          type: 'text',
-          voiceInput: true,
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: `${Date.now()}-${uniqueSuffix}-voice-assistant`,
-          chatId: data.chatId,
-          role: 'assistant',
-          content: data.answer,
-          audioUrl: voiceAudioUrl,
-          audioMimeType: data.audioMimeType,
-          createdAt: new Date().toISOString(),
-        },
-      ]);
+      setMessages((current) => {
+        if (current.some(m => m.id.includes(stableId) && m.role === 'assistant')) {
+          return current;
+        }
+
+        return [
+          ...current.filter((message) => message.id !== starterId),
+          {
+            id: `${stableId}-user`,
+            chatId: data.chatId,
+            role: 'user',
+            content: data.transcript || '',
+            type: 'text',
+            voiceInput: true,
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: `${stableId}-assistant`,
+            chatId: data.chatId,
+            role: 'assistant',
+            content: data.answer,
+            audioUrl: voiceAudioUrl,
+            audioMimeType: data.audioMimeType,
+            createdAt: new Date().toISOString(),
+          },
+        ];
+      });
 
       await queryClient.invalidateQueries({ queryKey: ['chat-history'] });
       await queryClient.invalidateQueries({ queryKey: ['chat-context'] });

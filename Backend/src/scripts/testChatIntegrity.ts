@@ -25,7 +25,7 @@ async function runDeepDiagnostic() {
   try {
     const kbPath = path.join(__dirname, '..', 'chat', 'data', 'knowledgeBase.json');
     const stats = await fs.stat(kbPath);
-    console.log('✅ Knowledge Base: File exists (', Math.round(stats.size/1024), 'KB )');
+    console.log('✅ Knowledge Base: File exists (', Math.round(stats.size / 1024), 'KB )');
     const content = await fs.readFile(kbPath, 'utf8');
     JSON.parse(content);
     console.log('✅ Knowledge Base: JSON is valid');
@@ -49,7 +49,7 @@ async function runDeepDiagnostic() {
     console.log('--- Testing Caching Manager ---');
     const start = Date.now();
     const cacheManager = new GoogleAICacheManager(env.GEMINI_API_KEY);
-    
+
     // We try to list caches to see if manager is reachable
     const list = await cacheManager.list();
     console.log('✅ Caching Manager: Reachable. Active caches count:', (Array.isArray(list.cachedContents) ? list.cachedContents.length : 0));

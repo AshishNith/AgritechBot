@@ -172,6 +172,7 @@ export interface AskChatResponse {
   recommendedProducts?: Product[];
   model?: string;
   mode?: string;
+  idempotencyKey?: string;
 }
 
 export interface ChatSummary {
@@ -372,6 +373,7 @@ export interface VoiceAskResponse {
   audioBase64?: string;
   audioMimeType?: string;
   chatId: string;
+  idempotencyKey?: string;
 }
 
 export type NotificationType = 'crop_alert' | 'weather' | 'ai_suggestion' | 'order' | 'system' | 'farming_task' | 'adaptive_alert';

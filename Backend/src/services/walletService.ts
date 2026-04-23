@@ -100,8 +100,10 @@ export async function runMonthlyReset(): Promise<{ resetCount: number }> {
   const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
   const wallets = await Wallet.find({
-    plan: { $in: ['basic', 'pro'] },
-    planExpiry: { $gt: now },
+    $or: [
+      { plan: 'free' },
+      { plan: { $in: ['basic', 'pro'] }, planExpiry: { $gt: now } }
+    ]
   });
 
   let resetCount = 0;

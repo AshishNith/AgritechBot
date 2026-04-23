@@ -7,13 +7,13 @@ export async function imageAnalysisRoutes(app: FastifyInstance) {
   const scanLimitCheck = createUsageEnforcementMiddleware('scan');
 
   app.post(
-    '/api/v1/image-analysis/analyze',
+    '/image-analysis/analyze',
     { preHandler: [authMiddleware, scanLimitCheck] },
     analyzeCrop
   );
 
   app.get(
-    '/api/v1/image-analysis/history',
+    '/image-analysis/history',
     { preHandler: [authMiddleware] },
     getAnalysisHistory
   );

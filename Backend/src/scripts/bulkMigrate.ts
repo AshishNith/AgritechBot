@@ -7,7 +7,7 @@ async function bulkMigrate() {
   console.log('--- BULK PREVIEW MIGRATION ---');
   await mongoose.connect(env.MONGODB_URI);
 
-  const sessions = await ChatSessionModel.find({ 
+  const sessions = await ChatSessionModel.find({
     $or: [
       { 'metadata.lastMessagePreview': { $exists: false } },
       { 'metadata.lastMessagePreview': '' }
@@ -21,7 +21,7 @@ async function bulkMigrate() {
       .sort({ createdAt: -1 })
       .select('content.text')
       .lean();
-    
+
     if (lastMessage && lastMessage.content?.text) {
       return {
         updateOne: {

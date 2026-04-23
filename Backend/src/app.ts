@@ -155,7 +155,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     const dbStatus = require('mongoose').connection.readyState === 1 ? 'ok' : 'disconnected';
     const chatMetrics = await getChatHealthMetrics();
 
-    const overallStatus = 
+    const overallStatus =
       dbStatus === 'ok' && redisStatus === 'ok' && chatMetrics.status === 'healthy'
         ? 'ok'
         : 'degraded';
@@ -165,7 +165,7 @@ export async function buildApp(): Promise<FastifyInstance> {
       database: dbStatus,
       redis: redisStatus,
       version: APP_VERSION,
-      name:"Ashish Ranjan",
+      name: "Ashish Ranjan",
       environment: env.NODE_ENV,
       deployedAt: formatDateTime(env.DEPLOYED_AT),
       timestamp: formatDateTime(new Date()),
@@ -207,22 +207,40 @@ export async function buildApp(): Promise<FastifyInstance> {
     };
   });
 
-  // ── API Routes (versioned under /api/v1 + backward-compatible /api) ──
-  await app.register(authRoutes);
-  await app.register(chatRoutes);
-  await app.register(chatV1Routes);
-  await app.register(voiceRoutes);
-  await app.register(userRoutes);
-  await app.register(marketplaceRoutes);
-  await app.register(subscriptionRoutes);
-  await app.register(adminRoutes);
-  await app.register(notificationRoutes);
-  await app.register(paymentRoutes);
-  await app.register(imageAnalysisRoutes);
-  await app.register(farmingAssistantRoutes);
-  await app.register(contactRoutes);
+  // ── API Routes (Standardized under /api/v1) ──
+  await app.register(async (v1) => {
+    await v1.register(authRoutes);
+    await v1.register(chatRoutes);
+    await v1.register(chatV1Routes);
+    await v1.register(voiceRoutes);
+    await v1.register(userRoutes);
+    await v1.register(marketplaceRoutes);
+    await v1.register(subscriptionRoutes);
+    await v1.register(adminRoutes);
+    await v1.register(notificationRoutes);
+    await v1.register(paymentRoutes);
+    await v1.register(imageAnalysisRoutes);
+    await v1.register(farmingAssistantRoutes);
+    await v1.register(contactRoutes);
+  }, { prefix: '/api/v1' });
 
-  logger.info(`All routes registered [env=${env.NODE_ENV}]`);
+  // ── Legacy /api support (for transition period) ──
+  await app.register(async (legacy) => {
+    await legacy.register(authRoutes);
+    await legacy.register(chatRoutes);
+    await legacy.register(voiceRoutes);
+    await legacy.register(userRoutes);
+    await legacy.register(marketplaceRoutes);
+    await legacy.register(paymentRoutes);
+    await legacy.register(notificationRoutes);
+    await legacy.register(imageAnalysisRoutes);
+    await legacy.register(farmingAssistantRoutes);
+    await legacy.register(subscriptionRoutes);
+    await legacy.register(adminRoutes);
+    await legacy.register(contactRoutes);
+  }, { prefix: '/api' });
+
+  logger.info(`All routes registered (Primary: /api/v1) [env=${env.NODE_ENV}]`);
 
   return app;
 }

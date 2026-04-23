@@ -13,7 +13,7 @@ import { RootStackParamList } from '../navigation/types';
 import { useTheme } from '../providers/ThemeContext';
 import { useI18n } from '../hooks/useI18n';
 import { IconMap } from '../components/IconMap';
-import { CHAT_TOPUP_PACKS, SCAN_TOPUP_PACKS, PLAN_CONFIGS } from '../store/useWalletStore';
+import { CHAT_TOPUP_PACKS, SCAN_TOPUP_PACKS, PLAN_CONFIGS, useWalletStore } from '../store/useWalletStore';
 import Animated, { FadeIn, FadeInDown, FadeOut, ZoomIn } from 'react-native-reanimated';
 import { openRazorpayCheckout } from '../utils/razorpayCheckout';
 
@@ -87,11 +87,18 @@ export function SubscriptionScreen() {
         });
       }
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       setPaymentStatus('processing');
       setTimeout(() => {
         setPaymentStatus('success');
-        void refetchWallet();
+        
+        // ✅ Real-time wallet update after payment
+        if (data.wallet) {
+          useWalletStore.getState().setWallet(data.wallet);
+        } else {
+          void refetchWallet();
+        }
+
         setTimeout(() => {
           setShowPaymentModal(false);
           const msg = activeTab === 'plans' 

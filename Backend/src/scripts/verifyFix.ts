@@ -9,8 +9,8 @@ async function verifyOptimization() {
   const TEST_FARMER_ID = '69bcec5152cb8c9cb79490f9';
   const farmerObjectId = new mongoose.Types.ObjectId(TEST_FARMER_ID);
 
-  const query = { 
-    farmerId: farmerObjectId, 
+  const query = {
+    farmerId: farmerObjectId,
     status: 'active',
     $or: [
       { 'metadata.type': 'chat' },
@@ -27,11 +27,11 @@ async function verifyOptimization() {
   const duration = Date.now() - start;
 
   console.log(`- Find 20 sessions: ${duration}ms (Count: ${sessions.length})`);
-  
+
   const explain = await ChatSessionModel.find(query).sort({ lastMessageAt: -1 }).limit(20).explain();
-  const indexUsed = (explain as any).queryPlanner?.winningPlan?.inputStage?.indexName || 
-                    (explain as any).queryPlanner?.winningPlan?.inputStage?.inputStage?.indexName || 'NONE';
-  
+  const indexUsed = (explain as any).queryPlanner?.winningPlan?.inputStage?.indexName ||
+    (explain as any).queryPlanner?.winningPlan?.inputStage?.inputStage?.indexName || 'NONE';
+
   console.log(`- Index Used: ${indexUsed}`);
 
   if (duration < 500) {

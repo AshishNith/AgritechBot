@@ -138,7 +138,7 @@ export async function updateProfile(request: FastifyRequest, reply: FastifyReply
  */
 export async function getUserSubscriptionStatus(request: FastifyRequest, reply: FastifyReply) {
   const status = await getSubscriptionStatus(request.user!._id.toString());
-  
+
   if (!status) {
     return reply.status(404).send({ error: 'Subscription status not found' });
   }

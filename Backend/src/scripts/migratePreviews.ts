@@ -7,7 +7,7 @@ async function migratePreviews() {
   console.log('--- STARTING PREVIEW MIGRATION ---');
   await mongoose.connect(env.MONGODB_URI);
 
-  const sessions = await ChatSessionModel.find({ 
+  const sessions = await ChatSessionModel.find({
     $or: [
       { 'metadata.lastMessagePreview': { $exists: false } },
       { 'metadata.lastMessagePreview': '' }
@@ -20,7 +20,7 @@ async function migratePreviews() {
     const lastMessage = await ChatMessageModel.findOne({ sessionId: session._id })
       .sort({ createdAt: -1 })
       .lean();
-    
+
     if (lastMessage && lastMessage.content?.text) {
       await ChatSessionModel.updateOne(
         { _id: session._id },

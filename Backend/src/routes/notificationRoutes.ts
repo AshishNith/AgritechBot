@@ -10,8 +10,8 @@ import { authMiddleware } from '../middlewares/authMiddleware';
 export async function notificationRoutes(app: FastifyInstance): Promise<void> {
   app.addHook('preHandler', authMiddleware);
 
-  app.get('/api/notifications', getNotifications);
-  app.get('/api/notifications/unread-count', getUnreadCount);
-  app.put('/api/notifications/:id/read', markAsRead);
-  app.put('/api/notifications/read-all', markAllRead);
+  app.get('/notifications', getNotifications);
+  app.get('/notifications/unread-count', getUnreadCount);
+  app.put('/notifications/:id/read', markAsRead);
+  app.put('/notifications/read-all', markAllRead);
 }

@@ -15,17 +15,17 @@ async function runPerformanceDiagnostic() {
   console.log('\n--- 1. Testing Session Listing ---');
   try {
     const start = Date.now();
-    const query = { 
-      farmerId: new mongoose.Types.ObjectId(TEST_FARMER_ID), 
+    const query = {
+      farmerId: new mongoose.Types.ObjectId(TEST_FARMER_ID),
       status: 'active',
       $or: [
         { 'metadata.type': 'chat' },
         { 'metadata.type': { $exists: false } }
       ]
     };
-    
+
     console.log('Query:', JSON.stringify(query));
-    
+
     // Step A: Find sessions
     const subStart = Date.now();
     const sessions = await ChatSessionModel.find(query)
@@ -41,7 +41,7 @@ async function runPerformanceDiagnostic() {
 
     if (sessions.length > 0) {
       const sessionIds = sessions.map(s => s._id);
-      
+
       // Step B: Preview Aggregation (The big one)
       const aggStart = Date.now();
       const latestMessages = await ChatMessageModel.aggregate([
@@ -77,7 +77,7 @@ async function runPerformanceDiagnostic() {
         ChatMessageModel.countDocuments({ sessionId: session._id }),
       ]);
       console.log(`TOTAL MESSAGE RETRIEVAL TIME (${messages.length}/${totalMessages}): ${Date.now() - start}ms`);
-      
+
       // Explain analysis
       const explain = await ChatMessageModel.find({ sessionId: session._id }).explain();
       console.log('\n--- Index Explanation ---');
@@ -103,5 +103,6 @@ async function runPerformanceDiagnostic() {
   } catch (e: any) {
     console.error('Error testing wallet:', e.message);
   }
+}
 
 runPerformanceDiagnostic().catch(console.error);

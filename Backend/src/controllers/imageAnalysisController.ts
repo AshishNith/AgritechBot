@@ -8,7 +8,7 @@ import { logger } from '../utils/logger';
 import { DIAGNOSIS_PROMPT } from '../chat/data/diagnosisPrompt';
 import { randomUUID } from 'crypto';
 import { cloudinaryService } from '../services/cloudinaryService';
-import { getWallet } from '../services/walletService';
+import { getWallet, deductCredit } from '../services/walletService';
 
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
 
@@ -27,24 +27,24 @@ const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 // Validate base64 format - handles both raw base64 and data URLs
 function isValidBase64(str: string): boolean {
   if (!str || str.length === 0) return false;
-  
+
   // Remove data URL prefix if present (e.g., "data:image/jpeg;base64,")
   let base64Data = str;
   if (str.includes(',')) {
     base64Data = str.split(',')[1] || '';
   }
-  
+
   // Empty after prefix removal
   if (base64Data.length === 0) return false;
-  
+
   // Basic character check (allow some flexibility for whitespace/newlines)
   const cleanData = base64Data.replace(/\s/g, '');
-  
+
   // Check valid base64 characters
   if (!/^[A-Za-z0-9+/]*={0,2}$/.test(cleanData)) {
     return false;
   }
-  
+
   // Length should be multiple of 4 (with padding)
   return cleanData.length % 4 === 0;
 }
@@ -73,14 +73,14 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
   const parseResult = analyzeCropSchema.safeParse(request.body);
   if (!parseResult.success) {
     logger.warn({ errors: parseResult.error.flatten() }, 'Image analysis validation failed');
-    return reply.status(400).send({ 
+    return reply.status(400).send({
       error: 'Validation failed',
       details: parseResult.error.flatten().fieldErrors,
     });
   }
 
   const { imageBase64, imageMimeType, language = 'English' } = parseResult.data;
-  
+
   // Clean the base64 data (remove data URL prefix if present)
   let cleanBase64 = imageBase64;
   if (imageBase64.includes(',')) {
@@ -101,10 +101,10 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
 
       if (!hasCredits('scan')) {
         logger.warn({ userId }, 'Image analysis blocked: Insufficient credits');
-        return reply.status(402).send({ 
-          error: 'INSUFFICIENT_CREDITS', 
+        return reply.status(402).send({
+          error: 'INSUFFICIENT_CREDITS',
           message: 'You have run out of scan credits. Please top up to continue.',
-          upgradeRequired: true 
+          upgradeRequired: true
         });
       }
     } catch (walletErr) {
@@ -126,7 +126,9 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
       },
     });
 
-    const prompt = `Analyze this crop image and return a structured diagnosis in JSON format. 
+    const prompt = `Identify the crop and analyze its health. 
+    Focus strictly on identifying any visible problems like diseases, pests, or nutrient deficiencies.
+    If a problem is found, describe the symptoms precisely and suggest professional solutions.
     CRITICAL: YOU MUST RESPOND IN ${language.toUpperCase()}. 
     All string values in the JSON (problem, summary, recommendations, products, expertHelp) MUST be translated into ${language}.
     Ensure the tone follows the Krishi persona: helpful, expert, and professional.`;
@@ -143,7 +145,7 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
 
     const response = await result.response;
     let diagnosisJson = response.text();
-    
+
     // Log for debugging
     logger.info({ userId, duration: Date.now() - startTime }, 'AI Analysis complete, processing response');
 
@@ -199,15 +201,19 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
       });
 
       logger.info({ analysisId: analysis._id, userId }, 'Analysis saved to database');
-      
+
       // ✅ UNIFIED USAGE & WALLET SYNC
       try {
-        updatedWallet = await incrementUsage(userId.toString(), 'scan');
-        logger.info({ userId, analysisId: analysis._id }, 'Scan usage incremented and wallet synced');
+        const [walletResult] = await Promise.all([
+          deductCredit(userId.toString(), 'scan'),
+          incrementUsage(userId.toString(), 'scan')
+        ]);
+        updatedWallet = walletResult;
+        logger.info({ userId, analysisId: analysis._id }, 'Scan credits deducted and usage incremented');
       } catch (usageError) {
         // If it throws NO_CREDITS here, it means credits were consumed between our check and now
         if (typeof usageError === 'object' && usageError !== null && (usageError as any).code === 'NO_CREDITS') {
-           return reply.status(402).send({ error: 'NO_CREDITS', upgradeRequired: true });
+          return reply.status(402).send({ error: 'NO_CREDITS', upgradeRequired: true });
         }
         logger.error({ err: usageError, userId }, 'Failed to increment usage or sync wallet');
       }
@@ -272,7 +278,7 @@ export const getAnalysisHistory = async (request: FastifyRequest, reply: Fastify
       _id: item._id,
       imageUri: item.imageUri, // High-res Cloudinary URL
       thumbnailUrl: null, // No longer storing/returning thumbnails to save DB space
-      diagnosis: item.diagnosis, 
+      diagnosis: item.diagnosis,
       status: item.status,
       createdAt: item.createdAt,
       metadata: {

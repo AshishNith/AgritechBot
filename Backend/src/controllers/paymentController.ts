@@ -141,9 +141,10 @@ export const processDummyPayment = async (request: FastifyRequest, reply: Fastif
 
     logger.info({ userId, tier }, 'Dummy payment processed successfully');
 
+    let updatedWallet: any = null;
     try {
       if (tier === 'basic' || tier === 'pro') {
-        await addPlanCredits(userId.toString(), tier);
+        updatedWallet = await addPlanCredits(userId.toString(), tier);
         logger.info({ userId, tier }, 'Wallet plan credits added via dummy payment');
       }
     } catch (walletErr) {
@@ -154,6 +155,7 @@ export const processDummyPayment = async (request: FastifyRequest, reply: Fastif
       success: true,
       subscriptionTier: subscription.tier,
       expiresAt: subscription.endDate,
+      wallet: updatedWallet,
     });
   } catch (error) {
     logger.error({ err: error, userId }, 'Error processing dummy payment');

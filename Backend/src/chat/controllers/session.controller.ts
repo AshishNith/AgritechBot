@@ -4,9 +4,9 @@ import { getFarmerContext } from '../services/contextBuilder.service';
 import {
   archiveChatSession,
   createChatSession,
-  getChatSessionWithMessages,
   listChatSessions,
   renameChatSession,
+  getSessionMessages,
 } from '../services/sessionManager.service';
 
 const paginationSchema = z.object({
@@ -49,18 +49,17 @@ export async function getSessionController(request: FastifyRequest, reply: Fasti
 
   const { sessionId } = request.params as { sessionId: string };
   const farmerId = String(request.user!._id);
-  const result = await getChatSessionWithMessages({
+  const messages = await getSessionMessages({
     farmerId,
     sessionId,
-    page: parsed.data.page,
     limit: parsed.data.limit,
   });
 
-  if (!result) {
+  if (!messages) {
     return reply.status(404).send({ error: 'Chat session not found' });
   }
 
-  return reply.send(result);
+  return reply.send({ sessionId, messages });
 }
 
 export async function updateSessionController(request: FastifyRequest, reply: FastifyReply) {

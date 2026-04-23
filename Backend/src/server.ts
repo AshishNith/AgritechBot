@@ -14,7 +14,7 @@ async function main(): Promise<void> {
   // Connect to databases
   await connectDB();
   let redisConnected = false;
-  
+
   // Attempt Redis connection (optional in development)
   if (env.REDIS_ENABLED) {
     try {

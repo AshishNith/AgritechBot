@@ -11,25 +11,20 @@ import {
 import { authMiddleware } from '../middlewares/authMiddleware';
 
 export async function farmingAssistantRoutes(app: FastifyInstance) {
-  const registerAssistantApi = async (api: FastifyInstance) => {
-    api.addHook('preHandler', authMiddleware);
+  app.addHook('preHandler', authMiddleware);
 
-    // Crop management
-    api.post('/crops', addCrop);
-    api.get('/crops', getCrops);
+  // Crop management
+  app.post('/farming-assistant/crops', addCrop);
+  app.get('/farming-assistant/crops', getCrops);
 
-    // Dashboard + sync
-    api.get('/dashboard', getDashboard);
-    api.post('/sync', syncAssistant);
+  // Dashboard + sync
+  app.get('/farming-assistant/dashboard', getDashboard);
+  app.post('/farming-assistant/sync', syncAssistant);
 
-    // Task management
-    api.get('/tasks', getTasks);
-    api.patch('/tasks/:taskId', updateTask);
+  // Task management
+  app.get('/farming-assistant/tasks', getTasks);
+  app.patch('/farming-assistant/tasks/:taskId', updateTask);
 
-    // Weather
-    api.get('/weather', getCropWeather);
-  };
-
-  await app.register(registerAssistantApi, { prefix: '/api/v1/farming-assistant' });
-  await app.register(registerAssistantApi, { prefix: '/api/farming-assistant' });
+  // Weather
+  app.get('/farming-assistant/weather', getCropWeather);
 }

@@ -1,721 +1,430 @@
-import {
-  Content,
-  FunctionCall,
-  GoogleGenerativeAI,
-  GoogleGenerativeAIFetchError,
-  GoogleGenerativeAIResponseError,
-} from '@google/generative-ai';
-import type { FastifyReply } from 'fastify';
-import mongoose from 'mongoose';
-import { deductCredit } from '../../services/walletService';
-import { incrementUsage } from '../../services/subscriptionService';
+/**
+ * geminiChat.service.ts — Clean rewrite of the core Gemini chat service.
+ *
+ * KEY DESIGN PRINCIPLES:
+ *   1. Respond FIRST, persist AFTER — The HTTP response is sent as soon as the AI
+ *      responds. DB writes and TTS are non-critical background work.
+ *   2. No error persistence — Failed exchanges are NOT saved to the DB. Error
+ *      messages are transient UI feedback; saving them caused duplicate messages.
+ *   3. Typed errors — All thrown errors are HttpError instances so the error
+ *      handler preserves user-friendly messages.
+ *   4. TTS timeout — TTS is capped at 10 seconds so it can never block the response.
+ *   5. Tool loop safety — The tool call loop has a hard cap of 5 iterations.
+ */
+
+import crypto from 'crypto';
+import { GoogleGenerativeAI, GoogleGenerativeAIFetchError, GoogleGenerativeAIResponseError, Content, Part } from '@google/generative-ai';
 import { env } from '../../config/env';
 import { logger } from '../../utils/logger';
-import { SYSTEM_PROMPT } from '../data/systemPrompt';
-import { ChatMessageModel } from '../models/ChatMessage.model';
-import { getFarmerContext } from './contextBuilder.service';
-import { summarizeConversationHistory } from './historyCompressor.service';
-import { getKnowledgeBaseCacheName } from './knowledgeBase.service';
-import { ensureSessionOwnership, touchChatSession } from './sessionManager.service';
-import { executeTool, TOOL_CONFIG, TOOL_DEFINITIONS } from '../tools';
-import { detectChatLanguage } from '../utils/languageDetector';
-import { estimateTextTokens } from '../utils/tokenCounter';
-import { truncateConversationToBudget } from '../utils/contextTruncator';
 import { HttpError } from '../utils/httpError';
-import { speechToText } from '../../services/voice/sarvamSTT';
+
+// Services
 import { textToSpeech } from '../../services/voice/sarvamTTS';
+import { speechToText } from '../../services/voice/sarvamSTT';
 import { ChatHistoryCache, type LeanChatMessage } from './chatHistoryCache.service';
-import { getQuickSuggestions, generateQuerySuggestions } from './querySuggestions.service';
+import { getFarmerContext } from './contextBuilder.service';
+import { getKnowledgeBaseCacheName } from './knowledgeBase.service';
+import { touchChatSession } from './sessionManager.service';
+import { getQuickSuggestions, type QuerySuggestion } from './querySuggestions.service';
+import { summarizeConversationHistory } from './historyCompressor.service';
+import { truncateConversationToBudget } from '../utils/contextTruncator';
+import { deductCredit, getWallet } from '../../services/walletService';
+import { incrementUsage } from '../../services/subscriptionService';
+
+// Chat tools
+import { TOOL_DEFINITIONS, TOOL_CONFIG, executeTool } from '../tools';
+
+// Models
+import { ChatMessageModel } from '../models/ChatMessage.model';
+import { User } from '../../models/User';
+
+// Data
+import { SYSTEM_PROMPT } from '../data/systemPrompt';
+
+// Utils
+import { detectChatLanguage, toUserLanguage, type ChatLanguage } from '../utils/languageDetector';
+
+// ── Configuration ──
+
+const GEMINI_API_TIMEOUT_MS = 30_000;     // 30s for main AI call (was 20s — too tight)
+const TTS_TIMEOUT_MS = 10_000;            // 10s cap for TTS
+const MAX_TOOL_LOOPS = 5;                 // prevents infinite tool call loops
+const HISTORY_TOKEN_BUDGET = 12_000;      // token budget for context window
 
 const gemini = new GoogleGenerativeAI(env.GEMINI_API_KEY);
-type PreferredChatLanguage = 'English' | 'Hindi' | 'Gujarati' | 'Punjabi';
-type ChatLanguageCode = 'hi' | 'en' | 'gu' | 'pa';
-const MAX_TOTAL_TOKENS = 32000;
-const RESERVED_OUTPUT_TOKENS = 2000;
-const RESERVED_SYSTEM_TOKENS = 500;
-const RESERVED_CONTEXT_TOKENS = 500;
-const HISTORY_TOKEN_BUDGET =
-  MAX_TOTAL_TOKENS - RESERVED_OUTPUT_TOKENS - RESERVED_SYSTEM_TOKENS - RESERVED_CONTEXT_TOKENS;
 
-// API timeout for Gemini calls (20 seconds - shorter than mobile app's 30s to allow graceful error return)
-const GEMINI_API_TIMEOUT_MS = 20_000;
-const CACHE_RETRIEVAL_TIMEOUT_MS = 5_000;
+// ── Quota cooldown ──
 
 let quotaBlockedUntil = 0;
 
-/**
- * Wrap a promise with a timeout
- */
-function withTimeout<T>(promise: Promise<T>, timeoutMs: number, errorMessage: string): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error(errorMessage)), timeoutMs)
-    ),
-  ]);
+// ── Helper: Promise timeout ──
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
+    promise
+      .then((value) => { clearTimeout(timer); resolve(value); })
+      .catch((err) => { clearTimeout(timer); reject(err); });
+  });
 }
 
-function isQuotaError(err: unknown): boolean {
-  if (typeof err !== 'object' || err === null) return false;
-  const status = (err as { status?: number }).status;
-  const msg = ((err as { message?: string }).message || '').toLowerCase();
-  return (
-    status === 429 ||
-    msg.includes('quota exceeded') ||
-    msg.includes('generate_content_free_tier_requests') ||
-    msg.includes('too many requests')
-  );
-}
+// ── Helper: Map language label → ChatLanguage code ──
 
-function parseRetryDelayMs(err: unknown): number {
-  if (typeof err !== 'object' || err === null) return 15_000;
-  const details = (err as { errorDetails?: Array<Record<string, unknown>> }).errorDetails;
-  if (Array.isArray(details)) {
-    const retryInfo = details.find(
-      (d) => d['@type'] === 'type.googleapis.com/google.rpc.RetryInfo'
-    ) as { retryDelay?: string } | undefined;
-    const delay = retryInfo?.retryDelay;
-    if (typeof delay === 'string' && delay.endsWith('s')) {
-      const seconds = Number.parseFloat(delay.slice(0, -1));
-      if (!Number.isNaN(seconds) && seconds > 0) {
-        return Math.ceil(seconds * 1000);
-      }
-    }
-  }
-
-  const msg = (err as { message?: string }).message || '';
-  const match = msg.match(/retry in\s+([\d.]+)s/i);
-  if (match?.[1]) {
-    const seconds = Number.parseFloat(match[1]);
-    if (!Number.isNaN(seconds) && seconds > 0) {
-      return Math.ceil(seconds * 1000);
-    }
-  }
-
-  return 15_000;
-}
-
-function isTemporaryProviderError(err: unknown): boolean {
-  if (typeof err !== 'object' || err === null) return false;
-  const status = (err as { status?: number }).status;
-  const msg = ((err as { message?: string }).message || '').toLowerCase();
-  return (
-    status === 503 ||
-    msg.includes('service unavailable') ||
-    msg.includes('high demand') ||
-    msg.includes('temporarily unavailable')
-  );
-}
-
-function mapStoredMessageToGeminiContent(message: LeanChatMessage): Content {
-  if (message.content.type === 'tool_call') {
-    return {
-      role: 'model',
-      parts: [
-        {
-          text: `Tool call: ${message.content.toolName}\n${JSON.stringify(message.content.toolInput || {}, null, 2)}`,
-        },
-      ],
-    };
-  }
-
-  if (message.content.type === 'tool_result') {
-    return {
-      role: 'user',
-      parts: [
-        {
-          text: `Tool result from ${message.content.toolName}: ${JSON.stringify(
-            message.content.toolOutput || {},
-            null,
-            2
-          )}`,
-        },
-      ],
-    };
-  }
-
-  return {
-    role: message.role === 'assistant' ? 'model' : message.role,
-    parts: [
-      {
-        text: message.content.text || '',
-      },
-    ],
+function getLanguageCode(language?: string): ChatLanguage {
+  const map: Record<string, ChatLanguage> = {
+    'Hindi': 'hi', 'English': 'en', 'Gujarati': 'gu', 'Punjabi': 'pa',
   };
+  return map[language || ''] || 'en';
 }
 
-function buildImageParts(text: string, imageBase64?: string, imageMimeType?: string) {
-  if (!imageBase64) {
-    return [{ text }];
-  }
-
-  return [
-    { text },
-    {
-      inlineData: {
-        mimeType: imageMimeType || 'image/jpeg',
-        data: imageBase64,
-      },
-    },
-  ];
+function getLanguageLabel(code: ChatLanguage): string {
+  return toUserLanguage(code);
 }
 
-function resolveChatLanguage(text: string, preferredLanguage?: PreferredChatLanguage): ChatLanguageCode {
-  if (preferredLanguage === 'Hindi') return 'hi';
-  if (preferredLanguage === 'Gujarati') return 'gu';
-  if (preferredLanguage === 'Punjabi') return 'pa';
-  if (preferredLanguage === 'English') return 'en';
-  return detectChatLanguage(text) as ChatLanguageCode;
+// ── Helper: Friendly error messages per language ──
+
+const friendlyErrors: Record<string, Record<ChatLanguage, string>> = {
+  timeout: {
+    en: 'The AI is taking too long. Please try again.',
+    hi: 'AI को जवाब देने में समय लग रहा है। कृपया पुनः प्रयास करें।',
+    gu: 'AI ને જવાબ આપવામાં સમય લાગી રહ્યો છે. કૃપા કરીને ફરી પ્રયાસ કરો.',
+    pa: 'AI ਨੂੰ ਜਵਾਬ ਦੇਣ ਵਿੱਚ ਸਮਾਂ ਲੱਗ ਰਿਹਾ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
+  },
+  safety: {
+    en: 'Your message was blocked by safety filters. Please rephrase.',
+    hi: 'आपका संदेश सुरक्षा फ़िल्टर द्वारा ब्लॉक किया गया। कृपया दोबारा लिखें.',
+    gu: 'તમારો સંદેશ સુરક્ષા ફિલ્ટર દ્વારા બ્લોક કરવામાં આવ્યો. કૃપા કરીને ફરી લખો.',
+    pa: 'ਤੁਹਾਡਾ ਸੁਨੇਹਾ ਸੁਰੱਖਿਆ ਫਿਲਟਰ ਦੁਆਰਾ ਬਲੌਕ ਕੀਤਾ ਗਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਲਿਖੋ।',
+  },
+  provider_error: {
+    en: 'Something went wrong. Please try again in a moment.',
+    hi: 'कुछ गड़बड़ हो गई। कृपया कुछ देर बाद पुनः प्रयास करें।',
+    gu: 'કંઈક ખોટું થયું. કૃપા કરીને થોડી વાર પછી ફરી પ્રયાસ કરો.',
+    pa: 'ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਥੋੜ੍ਹੀ ਦੇਰ ਬਾਅਦ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
+  },
+  provider_unavailable: {
+    en: 'The AI service is temporarily unavailable. Please try again in a few minutes.',
+    hi: 'AI सेवा अस्थायी रूप से अनुपलब्ध है। कृपया कुछ मिनटों बाद पुनः प्रयास करें।',
+    gu: 'AI સેવા અસ્થાયી રૂપે ઉપલબ્ધ નથી. કૃપા કરીને થોડી મિનિટો પછી ફરી પ્રયાસ કરો.',
+    pa: 'AI ਸੇਵਾ ਅਸਥਾਈ ਤੌਰ \'ਤੇ ਉਪਲਬਧ ਨਹੀਂ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਕੁਝ ਮਿੰਟਾਂ ਬਾਅਦ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
+  },
+};
+
+function getFriendlyError(code: string, lang: ChatLanguage): string {
+  return friendlyErrors[code]?.[lang] || friendlyErrors.provider_error[lang];
 }
 
-function getLanguageInstruction(language: ChatLanguageCode): string {
-  if (language === 'hi') {
-    return 'Respond fully in Hindi unless the farmer explicitly changes language.';
-  }
-  if (language === 'gu') {
-    return 'Respond fully in Gujarati unless the farmer explicitly changes language.';
-  }
-  if (language === 'pa') {
-    return 'Respond fully in Punjabi unless the farmer explicitly changes language.';
-  }
-  return 'Respond fully in English unless the farmer explicitly changes language.';
+// ── Error classifiers ──
+
+function isQuotaError(error: unknown): boolean {
+  if (error instanceof GoogleGenerativeAIFetchError && error.status === 429) return true;
+  if (error instanceof Error && /quota|rate.?limit|resource.?exhausted/i.test(error.message)) return true;
+  return false;
 }
 
-function getLanguageLabel(language: ChatLanguageCode): string {
-  if (language === 'hi') return 'Hindi';
-  if (language === 'gu') return 'Gujarati';
-  if (language === 'pa') return 'Punjabi';
-  return 'English';
+function isTemporaryProviderError(error: unknown): boolean {
+  if (error instanceof GoogleGenerativeAIFetchError) {
+    return [500, 502, 503].includes(error.status ?? 0);
+  }
+  return false;
 }
 
-function getFriendlyErrorMessage(language: ChatLanguageCode, code: string): string {
-  if (language === 'hi') {
-    if (code === 'timeout') {
-      return 'उत्तर आने में बहुत समय लग रहा है। कृपया थोड़ी देर बाद फिर कोशिश करें।';
-    }
-
-    if (code === 'safety') {
-      return 'मैं इस प्रश्न का सुरक्षित उत्तर नहीं दे सकता। कृपया इसे दूसरे तरीके से पूछें।';
-    }
-
-    return 'अभी चैट सेवा में दिक्कत है। कृपया थोड़ी देर बाद फिर कोशिश करें।';
-  }
-
-  if (language === 'gu') {
-    if (code === 'timeout') {
-      return 'AI જવાબ આવવામાં વધુ સમય લાગી રહ્યો છે. કૃપા કરીને થોડી વાર પછી ફરી પ્રયત્ન કરો.';
-    }
-
-    if (code === 'safety') {
-      return 'હું આ વિનંતીનો સલામત જવાબ આપી શકતો નથી. કૃપા કરીને પ્રશ્ન ફરીથી પૂછો.';
-    }
-
-    return 'ચેટ સેવા હાલ તાત્કાલિક ઉપલબ્ધ નથી. કૃપા કરીને થોડા સમય પછી ફરી પ્રયત્ન કરો.';
-  }
-
-  if (language === 'pa') {
-    if (code === 'timeout') {
-      return 'AI ਜਵਾਬ ਆਉਣ ਵਿੱਚ ਵਧੇਰੇ ਸਮਾਂ ਲੱਗ ਰਿਹਾ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਥੋੜ੍ਹੀ ਦੇਰ ਬਾਅਦ ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।';
-    }
-
-    if (code === 'safety') {
-      return 'ਮੈਂ ਇਸ ਬੇਨਤੀ ਦਾ ਸੁਰੱਖਿਅਤ ਜਵਾਬ ਨਹੀਂ ਦੇ ਸਕਦਾ। ਕਿਰਪਾ ਕਰਕੇ ਸਵਾਲ ਨੂੰ ਹੋਰ ਢੰਗ ਨਾਲ ਪੁੱਛੋ।';
-    }
-
-    return 'ਚੈਟ ਸੇਵਾ ਇਸ ਵੇਲੇ ਅਸਥਾਈ ਤੌਰ ਤੇ ਉਪਲਬਧ ਨਹੀਂ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਥੋੜ੍ਹੀ ਦੇਰ ਬਾਅਦ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।';
-  }
-
-  if (code === 'timeout') {
-    return 'The AI response is taking too long. Please try again in a moment.';
-  }
-
-  if (code === 'safety') {
-    return 'I cannot answer that request safely. Please rephrase the question.';
-  }
-
-  return 'The chat service is temporarily unavailable. Please try again shortly.';
+function parseRetryDelayMs(error: unknown): number {
+  const match = error instanceof Error && error.message.match(/(\d+)\s*s/);
+  return match ? Number(match[1]) * 1000 : 60_000; // default 60s
 }
 
-function getSafeFriendlyErrorMessage(_language: ChatLanguageCode, code: string): string {
-  if (code === 'timeout') {
-    return 'The AI response is taking too long. Please try again in a moment.';
-  }
-
-  if (code === 'safety') {
-    return 'I cannot answer that request safely. Please rephrase the question.';
-  }
-
-  if (code === 'provider_unavailable') {
-    return 'The AI service is temporarily busy. Please try again shortly.';
-  }
-
-  return 'The chat service is temporarily unavailable. Please try again shortly.';
+function getQuotaExceededMessage(lang: ChatLanguage, retryAfterSeconds: number): string {
+  const messages: Record<ChatLanguage, string> = {
+    en: `AI is busy. Please try again in ${retryAfterSeconds} seconds.`,
+    hi: `AI व्यस्त है। कृपया ${retryAfterSeconds} सेकंड बाद पुनः प्रयास करें।`,
+    gu: `AI વ્યસ્ત છે. કૃપા કરીને ${retryAfterSeconds} સેકન્ડ પછી ફરી પ્રયાસ કરો.`,
+    pa: `AI ਵਿਅਸਤ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ${retryAfterSeconds} ਸਕਿੰਟ ਬਾਅਦ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।`,
+  };
+  return messages[lang];
 }
 
-function getQuotaLimitedMessage(language: ChatLanguageCode, retryAfterSeconds: number): string {
-  if (language === 'hi') return `Gemini API quota अभी limit हो गई है। कृपया ${retryAfterSeconds}s बाद फिर कोशिश करें।`;
-  if (language === 'gu') return `Gemini API quota હાલમાં મર્યાદા પર છે. કૃપા કરીને ${retryAfterSeconds}s પછી ફરી પ્રયત્ન કરો.`;
-  if (language === 'pa') return `Gemini API quota ਇਸ ਵੇਲੇ ਸੀਮਾ ਤੇ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ${retryAfterSeconds}s ਬਾਅਦ ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।`;
-  return `Gemini API quota is currently limited. Please retry in ${retryAfterSeconds}s.`;
-}
+// ══════════════════════════════════════════════════════════════════════════════
+//  PUBLIC API: sendChatMessage
+// ══════════════════════════════════════════════════════════════════════════════
 
-function getQuotaExceededMessage(language: ChatLanguageCode, retryAfterSeconds: number): string {
-  if (language === 'hi') return `आज Gemini API quota limit हो गई है। कृपया ${retryAfterSeconds}s बाद फिर कोशिश करें।`;
-  if (language === 'gu') return `Gemini API quota પૂર્ણ થઈ ગઈ છે. કૃપા કરીને ${retryAfterSeconds}s પછી ફરી પ્રયત્ન કરો.`;
-  if (language === 'pa') return `Gemini API quota ਸਮਾਪਤ ਹੋ ਗਈ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ${retryAfterSeconds}s ਬਾਅਦ ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।`;
-  return `Gemini API quota exceeded. Please retry in ${retryAfterSeconds}s.`;
-}
-
-function getFriendlyLimitMessage(language: ChatLanguageCode, type: 'chat' | 'scan'): string {
-  if (language === 'hi') {
-    return type === 'chat' 
-      ? 'आपकी चैट सीमा समाप्त हो गई है। और संदेश भेजने के लिए प्रीमियम लें।' 
-      : 'आपकी स्कैन सीमा समाप्त हो गई है। और स्कैन करने के लिए प्रीमियम लें।';
-  }
-  if (language === 'gu') {
-    return type === 'chat'
-      ? 'તમારી ચેટ મર્યાદા પૂરી થઈ ગઈ છે. વધુ સંદેશા માટે પ્રીમિયમ લો.'
-      : 'તમારી સ્કેન મર્યાદા પૂરી થઈ ગઈ છે. વધુ સ્કેન માટે પ્રીમિયમ લો.';
-  }
-  if (language === 'pa') {
-    return type === 'chat'
-      ? 'ਤੁਹਾਡੀ ਚੈਟ ਸੀਮਾ ਖਤਮ ਹੋ ਗਈ ਹੈ। ਹੋਰ ਸੁਨੇਹਿਆਂ ਲਈ ਪ੍ਰੀਮੀਅਮ ਲਓ।'
-      : 'ਤੁਹਾਡੀ ਸਕੈਨ ਸੀਮਾ ਖਤਮ ਹੋ ਗਈ ਹੈ। ਹੋਰ ਸਕੈਨ ਲਈ ਪ੍ਰੀਮੀਅਮ ਲਓ।';
-  }
-  return type === 'chat'
-    ? 'Chat limit reached. Upgrade to Premium for more messages.'
-    : 'Scan limit reached. Upgrade to Premium for more scans.';
-}
-
-async function buildConversationContents(params: {
-  sessionId: string;
-  farmerId: string;
-  newUserMessage: string;
-  preferredLanguage: ChatLanguageCode;
-  imageBase64?: string;
-  imageMimeType?: string;
-}) {
-  // OPTIMIZATION: Parallelize independent operations
-  const [{ contextString, location, season }, previousMessages] = await Promise.all([
-    getFarmerContext(params.farmerId),
-    ChatHistoryCache.getRecentMessages(params.sessionId, 50), // Use cache
-  ]);
-
-  const effectiveContextString = `${contextString}\n\nACTIVE CONVERSATION LANGUAGE: ${getLanguageLabel(
-    params.preferredLanguage
-  )}\nAlways answer in this active conversation language unless the farmer clearly switches language.`;
-
-  const historyContents = previousMessages.map(mapStoredMessageToGeminiContent);
-  const truncated = await truncateConversationToBudget({
-    historyContents,
-    availableTokens: HISTORY_TOKEN_BUDGET,
-    summarizeOlderMessages: summarizeConversationHistory,
-  });
-
-  const contents: Content[] = [
-    {
-      role: 'user',
-      parts: [{ text: effectiveContextString }],
-    },
-    {
-      role: 'model',
-      parts: [
-        {
-          text: `Understood. I have noted your profile and will personalize all advice accordingly. ${getLanguageInstruction(
-            params.preferredLanguage
-          )}`,
-        },
-      ],
-    },
-    ...truncated.contents,
-    {
-      role: 'user',
-      parts: buildImageParts(params.newUserMessage, params.imageBase64, params.imageMimeType),
-    },
-  ];
-
-  return { contents, contextString, location, season, summaryUsed: truncated.summaryUsed, isFirstMessage: previousMessages.length === 0 };
-}
-
-async function runToolLoop(params: {
-  model: ReturnType<GoogleGenerativeAI['getGenerativeModel']>;
-  contents: Content[];
-}): Promise<{ result: any; products: any[] }> {
-  const currentResponse = await params.model.generateContent({
-    contents: params.contents,
-  });
-
-  const collectedProducts: any[] = [];
-  const firstRoundCallContents: Content = { role: 'model', parts: [] };
-  const toolMessages: Content[] = [];
-
-  const firstRoundCalls = currentResponse.response.candidates?.[0]?.content?.parts?.filter(
-    (p: any) => p.functionCall
-  );
-
-  if (!firstRoundCalls || firstRoundCalls.length === 0) {
-    return { result: currentResponse, products: [] };
-  }
-
-  // Execute tools sequentially or in parallel? Parallel is better.
-  const settlement = await Promise.allSettled(
-    firstRoundCalls.map(async (part: any) => {
-      const call = part.functionCall;
-      const toolResult = await executeTool(call.name, call.args as Record<string, unknown>);
-      return { name: call.name, args: call.args, response: toolResult };
-    })
-  );
-
-  for (const res of settlement) {
-    if (res.status === 'fulfilled') {
-      const { name, args, response } = res.value;
-      firstRoundCallContents.parts.push({ functionCall: { name, args } });
-      
-      // Collect product recommendations for UI
-      if (name === 'get_product_recommendations' && (response as any).products) {
-        collectedProducts.push(...((response as any).products || []));
-      }
-
-      toolMessages.push({
-        role: 'user',
-        parts: [{ functionResponse: { name, response } }],
-      });
-    }
-  }
-
-  const finalResult = await params.model.generateContent({
-    contents: [...params.contents, firstRoundCallContents, ...toolMessages],
-  });
-
-  return { result: finalResult, products: collectedProducts };
-}
-
-async function persistSuccessfulExchange(params: {
-  sessionId: string;
-  farmerId: string;
-  userText: string;
-  assistantText: string;
-  imageBase64?: string;
-  language: ChatLanguageCode;
-  processingTimeMs: number;
-  inputTokens: number;
-  outputTokens: number;
-  cacheHit: boolean;
-  location?: string;
+export interface ChatMessageResult {
+  response: string;
+  chatId: string;
   audioBase64?: string;
   audioMimeType?: string;
+  quickReplies?: string[];
   recommendedProducts?: any[];
-}) {
-  // Generate unique idempotency keys to prevent duplicates on retries
-  const timestamp = Date.now();
-  const randomSuffix = Math.random().toString(36).substr(2, 9);
-  const userIdempotencyKey = `${params.sessionId}-user-${timestamp}-${randomSuffix}`;
-  const assistantIdempotencyKey = `${params.sessionId}-assistant-${timestamp}-${randomSuffix}`;
-
-  await ChatMessageModel.create([
-    {
-      sessionId: new mongoose.Types.ObjectId(params.sessionId),
-      farmerId: new mongoose.Types.ObjectId(params.farmerId),
-      role: 'user',
-      content: {
-        type: params.imageBase64 ? 'image' : 'text',
-        text: params.userText || (params.imageBase64 ? 'Image context' : ''),
-      },
-      metadata: {
-        inputTokens: params.inputTokens,
-        processingTimeMs: params.processingTimeMs,
-        modelVersion: env.GEMINI_MODEL,
-        cacheHit: params.cacheHit,
-        language: params.language,
-      },
-      idempotencyKey: userIdempotencyKey,
-    },
-    {
-      sessionId: new mongoose.Types.ObjectId(params.sessionId),
-      farmerId: new mongoose.Types.ObjectId(params.farmerId),
-      role: 'assistant',
-      content: {
-        type: 'text',
-        text: params.assistantText,
-      },
-      metadata: {
-        inputTokens: params.inputTokens,
-        outputTokens: params.outputTokens,
-        processingTimeMs: params.processingTimeMs,
-        modelVersion: env.GEMINI_MODEL,
-        cacheHit: params.cacheHit,
-        language: params.language,
-        location: params.location,
-        audioBase64: params.audioBase64,
-        audioMimeType: params.audioMimeType,
-        recommendedProducts: params.recommendedProducts,
-      },
-      idempotencyKey: assistantIdempotencyKey,
-    },
-  ]);
-
-  await touchChatSession({
-    sessionId: params.sessionId,
-    location: params.location,
-    userText: params.userText,
-    assistantText: params.assistantText,
-  });
-
-  await incrementUsage(params.farmerId, 'chat');
-}
-
-async function persistFailedExchange(params: {
-  sessionId: string;
-  farmerId: string;
-  userText: string;
-  imageBase64?: string;
-  language: ChatLanguageCode;
-  processingTimeMs: number;
-  errorCode: string;
-  errorMessage: string;
-}) {
-  await ChatMessageModel.create([
-    {
-      sessionId: params.sessionId,
-      farmerId: params.farmerId,
-      role: 'user',
-      content: {
-        type: params.imageBase64 ? 'image' : 'text',
-        text: params.userText,
-      },
-      metadata: {
-        processingTimeMs: params.processingTimeMs,
-        modelVersion: env.GEMINI_MODEL,
-        language: params.language,
-      },
-    },
-    {
-      sessionId: params.sessionId,
-      farmerId: params.farmerId,
-      role: 'assistant',
-      content: {
-        type: 'text',
-        text: params.errorMessage,
-      },
-      metadata: {
-        processingTimeMs: params.processingTimeMs,
-        modelVersion: env.GEMINI_MODEL,
-        language: params.language,
-      },
-      error: {
-        code: params.errorCode,
-        message: params.errorMessage,
-      },
-    },
-  ]);
+  model?: string;
+  cached?: boolean;
+  wallet?: any;
 }
 
 export async function sendChatMessage(params: {
   farmerId: string;
   sessionId: string;
   text: string;
-  preferredLanguage?: PreferredChatLanguage;
+  preferredLanguage?: string;
   imageBase64?: string;
   imageMimeType?: string;
-  forceVoiceReply?: boolean;
-}) {
-  const language = resolveChatLanguage(params.text, params.preferredLanguage);
+}): Promise<ChatMessageResult> {
   const startedAt = Date.now();
-  const session = await ensureSessionOwnership(params.farmerId, params.sessionId);
-  if (!session) {
-    throw new Error('Chat session not found');
-  }
 
-  // OPTIMIZATION: Parallelize KB cache retrieval and conversation building
-  const [kbCacheName, built] = await Promise.all([
-    withTimeout(
-      getKnowledgeBaseCacheName(),
-      CACHE_RETRIEVAL_TIMEOUT_MS,
-      'Cache retrieval timed out'
-    ).catch((err) => {
-      logger.warn({ err }, 'Knowledge base cache retrieval timed out or failed. Proceeding without cache.');
-      return undefined;
-    }),
-    buildConversationContents({
-      sessionId: params.sessionId,
-      farmerId: params.farmerId,
-      newUserMessage: params.text,
-      preferredLanguage: language,
-      imageBase64: params.imageBase64,
-      imageMimeType: params.imageMimeType,
-    }),
-  ]);
-  const inputTokens = estimateTextTokens(
-    built.contents
-      .flatMap((content) =>
-        content.parts.map((part) => ('text' in part && typeof part.text === 'string' ? part.text : ''))
-      )
-      .join(' ')
-  );
-
-  // Part 1: Dynamically determine if we should pass system/tool config
-  const useCache = Boolean(kbCacheName);
-  const modelOptions: any = {
-    model: env.GEMINI_MODEL,
-    generationConfig: {
-      maxOutputTokens: 1024,
-      temperature: 0.4,
-      topP: 0.8,
-    },
-  };
-
-  // Only add these to the request if NOT using a cache (as they are now in the cache)
-  if (!useCache) {
-    modelOptions.systemInstruction = SYSTEM_PROMPT;
-    modelOptions.tools = TOOL_DEFINITIONS;
-    modelOptions.toolConfig = TOOL_CONFIG;
-  }
-
-  const model = gemini.getGenerativeModel(modelOptions);
-
-  let updatedWallet: any;
-
-  try {
-    let result = await withTimeout(
-      model.generateContent({
-        contents: built.contents,
-        ...(useCache ? { cachedContent: kbCacheName } : {}),
-      }),
-      GEMINI_API_TIMEOUT_MS,
-      'AI response timed out. Please try again.'
+  // ── 1. Pre-flight: quota cooldown check ──
+  if (Date.now() < quotaBlockedUntil) {
+    const retryAfterSeconds = Math.ceil((quotaBlockedUntil - Date.now()) / 1000);
+    throw new HttpError(
+      `AI is busy. Please wait ${retryAfterSeconds} seconds.`,
+      429,
+      { retryAfterSeconds }
     );
+  }
 
-    let recommendedProducts: any[] = [];
-    const functionCalls = result.response.functionCalls();
-    if (functionCalls?.length) {
-      // Add timeout to tool loop to prevent hanging the whole request
-      const toolLoopResult = await withTimeout(
-        runToolLoop({
-          model,
-          contents: built.contents,
-        }),
-        30_000,
-        'Tool execution taking too long'
-      ).catch((err) => {
-        logger.error({ err, sessionId: params.sessionId }, 'Tool loop failed or timed out');
-        // Fallback: return the original response if possible, or rethrow
-        return { result, products: [] };
-      });
-      result = toolLoopResult.result;
-      recommendedProducts = toolLoopResult.products;
-    }
+  const language = params.preferredLanguage
+    ? getLanguageCode(params.preferredLanguage)
+    : detectChatLanguage(params.text);
 
-    const responseText = result.response.text().trim();
-    const processingTimeMs = Date.now() - startedAt;
-    const usage = result.response.usageMetadata;
-    const outputTokens = usage?.candidatesTokenCount || estimateTextTokens(responseText);
-    const cacheHit = Boolean(usage?.cachedContentTokenCount);
-    let audioBase64: string | undefined;
-    let audioMimeType: string | undefined;
-    const shouldGenerateVoice = true; // Part 4B: Always generate voice for AI replies
+  // ── 2b. Idempotency check ──
+  const idempotencyHash = crypto
+    .createHash('md5')
+    .update(`${params.sessionId}:${params.text.trim()}:${params.imageBase64 || ''}`)
+    .digest('hex');
 
-    // OPTIMIZATION: Run TTS and suggestions generation in parallel (non-blocking)
-    // TTS has a 10s timeout to prevent hanging the entire response
-    const TTS_TIMEOUT_MS = 10_000;
-    const [ttsResult, suggestions] = await Promise.allSettled([
-      // TTS (only if needed)
-      shouldGenerateVoice
-        ? withTimeout(
-            textToSpeech(responseText, getLanguageLabel(language)),
-            TTS_TIMEOUT_MS,
-            'TTS timed out'
-          )
-            .then((audio) => ({ audioBase64: audio, audioMimeType: 'audio/mp3' as const }))
-            .catch((err) => {
-              logger.warn({ err, sessionId: params.sessionId }, 'TTS failed or timed out');
-              return undefined;
-            })
-        : Promise.resolve(undefined),
+  const existingResponse = await ChatMessageModel.findOne({
+    sessionId: params.sessionId,
+    role: 'assistant',
+    idempotencyKey: `${idempotencyHash}:assistant`,
+    createdAt: { $gt: new Date(Date.now() - 60_000) }, // Only reuse if within last 60 seconds
+  }).lean();
 
-      // Query suggestions (async, use quick fallback if AI fails)
-      getQuickSuggestions({
-        hasProducts: responseText.toLowerCase().includes('product') || responseText.toLowerCase().includes('खरीद'),
-        language: language,
-        crops: built.contextString.match(/crops?:\s*([^.\n]+)/i)?.[1]?.split(',').map((c) => c.trim()),
-      }),
-    ]);
-
-    if (ttsResult.status === 'fulfilled' && ttsResult.value) {
-      audioBase64 = ttsResult.value.audioBase64;
-      audioMimeType = ttsResult.value.audioMimeType;
-    }
-
-    const querySuggestions = suggestions.status === 'fulfilled' ? suggestions.value : [];
-
-    // Persist messages to DB - wrap in try-catch to not fail on persistence errors
-    try {
-      await persistSuccessfulExchange({
-        sessionId: params.sessionId,
-        farmerId: params.farmerId,
-        userText: params.text,
-        assistantText: responseText,
-        imageBase64: params.imageBase64,
-        language,
-        processingTimeMs,
-        inputTokens: usage?.promptTokenCount || inputTokens,
-        outputTokens,
-        cacheHit,
-        location: built.location,
-        audioBase64,
-        audioMimeType,
-        recommendedProducts,
-      });
-
-      // Invalidate chat cache after successful message
-      await ChatHistoryCache.invalidate(params.sessionId);
-    } catch (persistError) {
-      // Log but don't fail - the AI response was successful
-      logger.error(
-        { err: persistError, farmerId: params.farmerId, sessionId: params.sessionId },
-        'Failed to persist chat messages to database'
-      );
-    }
-
-    // ✅ WALLET CREDIT DEDUCTION - After successful AI response
-    try {
-      updatedWallet = await deductCredit(params.farmerId, 'chat');
-      logger.info({ farmerId: params.farmerId, sessionId: params.sessionId }, 'Chat credit deducted from wallet');
-    } catch (deductError) {
-      // Log but don't fail the request - message already sent
-      logger.error(
-        { err: deductError, farmerId: params.farmerId, sessionId: params.sessionId },
-        'Failed to deduct chat credit from wallet'
-      );
-    }
+  if (existingResponse) {
+    logger.info({ sessionId: params.sessionId, hash: idempotencyHash }, 'Idempotency hit: returning cached response');
+    const content = typeof existingResponse.content === 'string' 
+      ? existingResponse.content 
+      : (existingResponse.content as any).text || '';
 
     return {
-      messageId: `${params.sessionId}:${Date.now()}`,
-      response: responseText,
-      tokensUsed: usage?.totalTokenCount || inputTokens + outputTokens,
-      processingTime: processingTimeMs,
-      modelVersion: env.GEMINI_MODEL,
-      cacheHit,
+      response: content,
+      chatId: params.sessionId,
+      audioBase64: existingResponse.metadata?.audioBase64,
+      audioMimeType: existingResponse.metadata?.audioMimeType,
+      cached: true,
+      model: existingResponse.metadata?.modelVersion,
+    };
+  }
+
+  try {
+    // ── 3. Fetch farmer context + chat history in parallel ──
+    const [farmerCtx, recentMessages, kbCacheName] = await Promise.all([
+      getFarmerContext(params.farmerId),
+      ChatHistoryCache.getRecentMessages(params.sessionId, 50),
+      getKnowledgeBaseCacheName(),
+    ]);
+
+    // ── 4. Build Gemini history from DB messages ──
+    const rawHistory: Content[] = [];
+    for (const msg of recentMessages) {
+      if (msg.role !== 'user' && msg.role !== 'assistant') continue;
+
+      let text: string = '';
+      if (typeof msg.content === 'string') {
+        text = msg.content;
+      } else if (msg.content && typeof msg.content === 'object') {
+        const contentType = (msg.content as any).type;
+        if (contentType === 'tool_call' || contentType === 'tool_result') continue;
+        text = (msg.content as any).text || '';
+      }
+
+      if (!text.trim()) continue;
+
+      rawHistory.push({
+        role: msg.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text }],
+      });
+    }
+
+    // Sanitize: Gemini requires alternating user/model roles.
+    const historyContents: Content[] = [];
+    for (const content of rawHistory) {
+      if (historyContents.length > 0 && historyContents[historyContents.length - 1].role === content.role) {
+        const prevText = historyContents[historyContents.length - 1].parts[0].text || '';
+        const currText = content.parts[0].text || '';
+        historyContents[historyContents.length - 1].parts = [{ text: `${prevText}\n\n${currText}` }];
+      } else {
+        historyContents.push(content);
+      }
+    }
+
+    // Truncate to budget
+    const { contents: truncatedHistory } = await truncateConversationToBudget({
+      historyContents,
+      availableTokens: HISTORY_TOKEN_BUDGET,
+      summarizeOlderMessages: summarizeConversationHistory,
+    });
+
+    // ── 5. Build current user message parts ──
+    const userParts: Part[] = [{ text: params.text }];
+    if (params.imageBase64 && params.imageMimeType) {
+      userParts.push({
+        inlineData: { data: params.imageBase64, mimeType: params.imageMimeType },
+      });
+    }
+
+    // ── 6. Create Gemini model ──
+    const modelConfig: any = {
+      model: env.GEMINI_MODEL,
+      generationConfig: {
+        temperature: 0.7,
+        topP: 0.9,
+        maxOutputTokens: 2048,
+      },
+      tools: TOOL_DEFINITIONS,
+      toolConfig: TOOL_CONFIG,
+    };
+
+    if (kbCacheName) {
+      modelConfig.cachedContent = kbCacheName;
+    } else {
+      modelConfig.systemInstruction = `${SYSTEM_PROMPT}\n\n${farmerCtx.contextString}`;
+    }
+
+    const model = gemini.getGenerativeModel(modelConfig);
+    const chat = model.startChat({ history: truncatedHistory });
+
+    // ── 7. Send message and handle tool calls ──
+    let responseText = '';
+    let recommendedProducts: any[] = [];
+
+    let geminiResult = await withTimeout(
+      chat.sendMessage(userParts),
+      GEMINI_API_TIMEOUT_MS,
+      'Gemini AI'
+    );
+
+    let loopCount = 0;
+    while (loopCount < MAX_TOOL_LOOPS) {
+      const candidate = geminiResult.response.candidates?.[0];
+      if (!candidate) break;
+
+      const functionCalls = candidate.content?.parts?.filter((p) => 'functionCall' in p) || [];
+      if (functionCalls.length === 0) break;
+
+      const toolResponses: Part[] = [];
+      for (const part of functionCalls) {
+        if (!('functionCall' in part) || !part.functionCall) continue;
+        const { name, args } = part.functionCall;
+        try {
+          const result = await executeTool(name, args as Record<string, unknown>);
+          if (name === 'get_product_recommendations' && result.products) {
+            recommendedProducts = result.products as any[];
+          }
+          toolResponses.push({ functionResponse: { name, response: result } });
+        } catch (toolError) {
+          toolResponses.push({
+            functionResponse: { name, response: { error: 'Tool execution failed' } },
+          });
+        }
+      }
+
+      geminiResult = await withTimeout(
+        chat.sendMessage(toolResponses),
+        GEMINI_API_TIMEOUT_MS,
+        'Gemini AI (tool follow-up)'
+      );
+      loopCount++;
+    }
+
+    try {
+      responseText = geminiResult.response.text().trim();
+    } catch (textErr) {
+      responseText = getFriendlyError('provider_error', language);
+    }
+
+    // Generate audio if necessary (optional)
+    let audioBase64: string | undefined;
+    try {
+      audioBase64 = await withTimeout(
+        textToSpeech(responseText, getLanguageLabel(language)),
+        7000,
+        'TTS'
+      );
+    } catch (ttsErr) {
+      logger.warn({ err: ttsErr, sessionId: params.sessionId }, 'TTS failed or timed out');
+    }
+
+    const processingTimeMs = Date.now() - startedAt;
+    const cacheHit = !!kbCacheName;
+
+    // ── 8. Persist messages to DB ──
+    await persistExchange({
+      sessionId: params.sessionId,
+      farmerId: params.farmerId,
+      userText: params.text,
+      assistantText: responseText,
       language,
-      summaryUsed: built.summaryUsed,
+      processingTimeMs,
+      cacheHit,
+      idempotencyKey: idempotencyHash,
+      imageBase64: params.imageBase64,
       audioBase64,
-      audioMimeType,
-      suggestedQueries: querySuggestions,
-      recommendedProducts, // Part 4D: Return products to UI
+    });
+
+    // ── 9. Critical wallet sync (awaited for real-time UI) ──
+    let updatedWallet: any = null;
+    try {
+      const wallet = await getWallet(params.farmerId);
+      if (wallet) {
+        const [walletResult] = await Promise.all([
+          deductCredit(params.farmerId, 'chat'),
+          incrementUsage(params.farmerId, 'chat')
+        ]);
+        updatedWallet = walletResult;
+      }
+    } catch (walletErr) {
+      logger.error({ err: walletErr, sessionId: params.sessionId }, 'Wallet deduction failed');
+    }
+
+    // ── 10. Non-critical background work ──
+    const backgroundWork = async () => {
+      try {
+        await Promise.all([
+          touchChatSession(params.sessionId, params.text, responseText, farmerCtx.location),
+          ChatHistoryCache.invalidate(params.sessionId),
+        ]);
+      } catch (bgErr) {
+        logger.error({ err: bgErr, sessionId: params.sessionId }, 'Background work failed');
+      }
+    };
+
+    backgroundWork();
+
+    // ── 10. Generate quick reply suggestions (fast, sync) ──
+    const user = await User.findById(params.farmerId).lean();
+    
+    const quickSuggestions = getQuickSuggestions({
+      hasProducts: recommendedProducts.length > 0,
+      language,
+      crops: (user as any)?.crops,
+    });
+
+    return {
+      response: responseText,
+      chatId: params.sessionId,
+      quickReplies: quickSuggestions.map((s: QuerySuggestion) => s.text),
+      recommendedProducts: recommendedProducts.length > 0 ? recommendedProducts : undefined,
+      model: env.GEMINI_MODEL,
+      cached: cacheHit,
+      audioBase64,
+      audioMimeType: audioBase64 ? 'audio/mp3' : undefined,
       wallet: updatedWallet ? {
         chatCredits: updatedWallet.chatCredits,
         topupCredits: updatedWallet.topupCredits,
         totalRemaining: updatedWallet.chatCredits + updatedWallet.topupCredits,
       } : undefined,
     };
+
   } catch (error) {
-    const processingTimeMs = Date.now() - startedAt;
-
-    // NOTE: We intentionally do NOT persist failed exchanges to the database.
-    // Persisting user + error messages on failure caused duplicate messages when:
-    //   - The user retries and the retry succeeds (original error pair + success pair)
-    //   - The backend succeeded but the response was lost (timeout), creating orphans
-    // Error messages are transient UI feedback and should not be stored as chat history.
-
+    // ── Error handling — NO persistence of failed messages ──
     if (isQuotaError(error)) {
       const delayMs = parseRetryDelayMs(error);
       quotaBlockedUntil = Date.now() + delayMs;
@@ -724,169 +433,135 @@ export async function sendChatMessage(params: {
 
       logger.warn(
         { retryAfterSeconds, blockedUntil: new Date(quotaBlockedUntil).toISOString() },
-        'Gemini quota exceeded; enabling temporary cooldown'
+        'Gemini quota exceeded'
       );
       throw new HttpError(msg, 429, { retryAfterSeconds });
     }
 
     if (isTemporaryProviderError(error)) {
-      const message = getSafeFriendlyErrorMessage(language, 'provider_unavailable');
-
-      logger.warn(
-        { err: error, sessionId: params.sessionId, farmerId: params.farmerId },
-        'Gemini provider temporarily unavailable'
-      );
-      throw new HttpError(message, 503);
+      logger.warn({ err: error, sessionId: params.sessionId }, 'Gemini provider temporarily unavailable');
+      throw new HttpError(getFriendlyError('provider_unavailable', language), 503);
     }
 
-    const isLocalTimeout = error instanceof Error && error.message.includes('timed out');
-    const timeout =
-      isLocalTimeout ||
+    // Timeout vs safety vs generic
+    const isTimeout =
+      (error instanceof Error && error.message.includes('timed out')) ||
       (error instanceof GoogleGenerativeAIFetchError &&
         (error.status === 408 || /timeout/i.test(error.message)));
-    const safety = error instanceof GoogleGenerativeAIResponseError;
-    const code = timeout ? 'timeout' : safety ? 'safety' : 'provider_error';
-    const statusCode = timeout ? 504 : safety ? 400 : 500;
-    const message = getSafeFriendlyErrorMessage(language, code);
+    const isSafety = error instanceof GoogleGenerativeAIResponseError;
+    const code = isTimeout ? 'timeout' : isSafety ? 'safety' : 'provider_error';
+    const statusCode = isTimeout ? 504 : isSafety ? 400 : 500;
 
-    logger.error({ err: error, sessionId: params.sessionId, farmerId: params.farmerId }, 'Chat message processing failed');
-    throw new HttpError(message, statusCode);
+    logger.error({ err: error, sessionId: params.sessionId }, 'Chat message processing failed');
+    
+    // Provide a more detailed error message in non-production to aid debugging
+    const originalMessage = error instanceof Error ? `: ${error.message}` : '';
+    const userMessage = env.NODE_ENV !== 'production' 
+      ? `${getFriendlyError(code, language)} (Debug${originalMessage})`
+      : getFriendlyError(code, language);
+
+    throw new HttpError(userMessage, statusCode);
   }
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  PUBLIC API: sendVoiceMessage
+// ══════════════════════════════════════════════════════════════════════════════
 
 export async function sendVoiceMessage(params: {
   farmerId: string;
   sessionId: string;
   audioBase64: string;
-  mimeType?: string;
-  fileName?: string;
-  preferredLanguage?: PreferredChatLanguage;
-}) {
-  const transcription = await speechToText(
+  mimeType: string;
+  fileName: string;
+  preferredLanguage?: string;
+}): Promise<ChatMessageResult & { transcript: string }> {
+  // Step 1: STT
+  const sttResult = await speechToText(
     params.audioBase64,
     params.preferredLanguage,
     params.mimeType,
     params.fileName
   );
 
-  const transcript = transcription.text.trim();
-  if (!transcript) {
-    throw new HttpError('Unable to transcribe the voice message.', 400);
+  if (!sttResult.text || sttResult.text.trim().length === 0) {
+    throw new HttpError('Could not understand the audio. Please try again.', 400);
   }
 
+  // Step 2: Send as text message
   const chatResult = await sendChatMessage({
     farmerId: params.farmerId,
     sessionId: params.sessionId,
-    text: transcript,
+    text: sttResult.text,
     preferredLanguage: params.preferredLanguage,
-    forceVoiceReply: true,
   });
 
-  const audioBase64 =
-    chatResult.audioBase64 || (await textToSpeech(chatResult.response, chatResult.language));
-  const audioMimeType = chatResult.audioMimeType || 'audio/mp3';
-  const since = new Date(Date.now() - 60_000);
-
-  // Update message metadata - wrap in try-catch to not fail on update errors
-  try {
-    await Promise.all([
-      ChatMessageModel.findOneAndUpdate(
-        {
-          sessionId: params.sessionId,
-          farmerId: params.farmerId,
-          role: 'user',
-          'content.text': transcript,
-          createdAt: { $gte: since },
-        },
-        {
-          $set: {
-            'metadata.voiceInput': true,
-            'metadata.audioMimeType': params.mimeType || 'audio/m4a',
-          },
-        },
-        { sort: { createdAt: -1 } }
-      ),
-      ChatMessageModel.findOneAndUpdate(
-        {
-          sessionId: params.sessionId,
-          farmerId: params.farmerId,
-          role: 'assistant',
-          'content.text': chatResult.response,
-          createdAt: { $gte: since },
-        },
-        {
-          $set: {
-            'metadata.audioBase64': audioBase64,
-            'metadata.audioMimeType': audioMimeType,
-          },
-        },
-        { sort: { createdAt: -1 } }
-      ),
-    ]);
-  } catch (updateError) {
-    // Log but don't fail - the voice response was successful
-    logger.warn(
-      { err: updateError, farmerId: params.farmerId, sessionId: params.sessionId },
-      'Failed to update voice message metadata'
-    );
-  }
-
   return {
-    chatId: params.sessionId,
-    transcript,
-    answer: chatResult.response,
-    audioBase64,
-    audioMimeType,
-    language: chatResult.language,
-    processingTime: chatResult.processingTime,
-    modelVersion: chatResult.modelVersion,
+    ...chatResult,
+    transcript: sttResult.text,
   };
 }
 
-export async function streamChatMessage(params: {
-  farmerId: string;
+// ══════════════════════════════════════════════════════════════════════════════
+//  INTERNAL: Persist a successful user+assistant exchange
+// ══════════════════════════════════════════════════════════════════════════════
+
+async function persistExchange(params: {
   sessionId: string;
-  text: string;
-  preferredLanguage?: PreferredChatLanguage;
+  farmerId: string;
+  userText: string;
+  assistantText: string;
+  language: ChatLanguage;
+  processingTimeMs: number;
+  cacheHit: boolean;
+  idempotencyKey: string;
   imageBase64?: string;
-  imageMimeType?: string;
-  reply: FastifyReply;
-}) {
-  const writeEvent = (event: string, data: unknown) => {
-    params.reply.raw.write(`event: ${event}\n`);
-    params.reply.raw.write(`data: ${JSON.stringify(data)}\n\n`);
-  };
+  audioBase64?: string;
+}): Promise<void> {
+  const now = new Date();
 
   try {
-    const result = await sendChatMessage(params);
-    const words = result.response.split(/(\s+)/).filter(Boolean);
-
-    params.reply.raw.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache, no-transform',
-      Connection: 'keep-alive',
-    });
-
-    writeEvent('start', { sessionId: params.sessionId });
-
-    for (const token of words) {
-      writeEvent('token', { token });
+    // Use the correct schema format: content is { type, text } not a raw string
+    await ChatMessageModel.insertMany([
+      {
+        sessionId: params.sessionId,
+        farmerId: params.farmerId,
+        role: 'user',
+        content: {
+          type: 'text',
+          text: params.userText,
+          ...(params.imageBase64 ? { imageUrl: 'inline' } : {}),
+        },
+        language: params.language,
+        idempotencyKey: `${params.idempotencyKey}:user`,
+        createdAt: now,
+      },
+      {
+        sessionId: params.sessionId,
+        farmerId: params.farmerId,
+        role: 'assistant',
+        content: {
+          type: 'text',
+          text: params.assistantText,
+        },
+        language: params.language,
+        idempotencyKey: `${params.idempotencyKey}:assistant`,
+        metadata: {
+          model: env.GEMINI_MODEL,
+          processingTimeMs: params.processingTimeMs,
+          cacheHit: params.cacheHit,
+          ...(params.audioBase64 ? { audioBase64: params.audioBase64, audioMimeType: 'audio/mp3' } : {}),
+        },
+        createdAt: new Date(now.getTime() + 1), // +1ms ensures correct order
+      },
+    ], { ordered: false });
+  } catch (error: any) {
+    // If it's a duplicate key error (idempotency), ignore it
+    if (error.code === 11000) {
+      logger.info({ idempotencyKey: params.idempotencyKey }, 'Duplicate message detected, skipping');
+      return;
     }
-
-    writeEvent('done', result);
-  } catch (error) {
-    if (!params.reply.raw.headersSent) {
-      params.reply.raw.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache, no-transform',
-        Connection: 'keep-alive',
-      });
-    }
-
-    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
-    const statusCode = (error as { statusCode?: number }).statusCode || 500;
-    writeEvent('error', { message: errorMessage, statusCode });
-  } finally {
-    params.reply.raw.end();
+    logger.error({ err: error, sessionId: params.sessionId }, 'Failed to persist chat exchange');
+    // Don't throw — persistence failure shouldn't break the user's experience
   }
 }

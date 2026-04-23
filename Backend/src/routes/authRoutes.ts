@@ -11,10 +11,10 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     }
   };
 
-  app.post('/api/auth/send-otp', otpRateLimit, sendOtp);
-  app.post('/api/auth/verify-otp', otpRateLimit, verifyOtp);
+  app.post('/auth/send-otp', otpRateLimit, sendOtp);
+  app.post('/auth/verify-otp', otpRateLimit, verifyOtp);
 
-  // 2Factor.in SMS OTP Integration Routes
-  app.post('/send-otp', otpRateLimit, send2FactorOtp);
-  app.post('/verify-otp', otpRateLimit, verify2FactorOtp);
+  // 2Factor.in SMS OTP Integration Routes (moved inside auth namespace)
+  app.post('/auth/2factor/send', otpRateLimit, send2FactorOtp);
+  app.post('/auth/2factor/verify', otpRateLimit, verify2FactorOtp);
 }

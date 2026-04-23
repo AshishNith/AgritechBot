@@ -32,8 +32,8 @@ export function registerErrorHandler(app: FastifyInstance): void {
 
     const isAppError = error instanceof AppError;
     const isHttpError = error instanceof HttpError;
-    const translationKey = isAppError 
-      ? (error as AppError).translationKey 
+    const translationKey = isAppError
+      ? (error as AppError).translationKey
       : (statusCode === 429 ? 'errLimitReached' : (statusCode >= 500 ? 'errServerBusy' : 'errUnknown'));
 
     // Pass through the message for:

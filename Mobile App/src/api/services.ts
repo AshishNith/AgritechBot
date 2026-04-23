@@ -250,6 +250,8 @@ export const apiService = {
       mode: 'session-v1',
       audioBase64: data.audioBase64,
       audioMimeType: data.audioMimeType,
+      idempotencyKey: (data as any).idempotencyKey,
+      wallet: (data as any).wallet,
       quickReplies: [],
       recommendedProducts: [],
     } satisfies AskChatResponse;
@@ -500,7 +502,7 @@ export const apiService = {
    * Process a dummy payment for subscription upgrade
    */
   async processDummyPayment(tier: 'basic' | 'premium') {
-    const { data } = await api.post<{ success: boolean; subscriptionTier: string; expiresAt: string }>('/api/user/subscription/dummy-payment', { tier });
+    const { data } = await api.post<{ success: boolean; subscriptionTier: string; expiresAt: string; wallet?: Wallet }>('/api/user/subscription/dummy-payment', { tier });
     return data;
   },
 
@@ -530,6 +532,7 @@ export const apiService = {
       id: string;
       diagnosis: string;
       createdAt: string;
+      wallet?: Wallet;
     }>('/api/v1/image-analysis/analyze', {
       imageBase64,
       imageMimeType,

@@ -99,6 +99,6 @@ chatMessageSchema.index({ sessionId: 1, createdAt: 1 });
 chatMessageSchema.index({ farmerId: 1, createdAt: -1 });
 // Sparse index for idempotency - allows efficient lookup but doesn't enforce uniqueness
 // (uniqueness is handled by checking before insert if needed)
-chatMessageSchema.index({ sessionId: 1, idempotencyKey: 1 }, { sparse: true });
+chatMessageSchema.index({ sessionId: 1, idempotencyKey: 1 }, { unique: true, sparse: true });
 
 export const ChatMessageModel = mongoose.model<IChatMessage>('ChatMessage', chatMessageSchema);

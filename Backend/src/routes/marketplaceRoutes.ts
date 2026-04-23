@@ -9,10 +9,10 @@ import { authMiddleware } from '../middlewares/authMiddleware';
 
 export async function marketplaceRoutes(app: FastifyInstance): Promise<void> {
   // Public routes
-  app.get('/api/products', getProducts);
-  app.get('/api/products/:id', getProductById);
+  app.get('/products', getProducts);
+  app.get('/products/:id', getProductById);
 
   // Protected routes
-  app.post('/api/orders', { preHandler: authMiddleware }, createOrder);
-  app.get('/api/orders', { preHandler: authMiddleware }, getOrders);
+  app.post('/orders', { preHandler: authMiddleware }, createOrder);
+  app.get('/orders', { preHandler: authMiddleware }, getOrders);
 }

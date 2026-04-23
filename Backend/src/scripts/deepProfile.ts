@@ -26,8 +26,8 @@ async function deepProfile() {
 
   // 2. Test query WITH $or (Original)
   console.log('\n--- Test 2: Query WITH $or ---');
-  const query = { 
-    farmerId: farmerObjectId, 
+  const query = {
+    farmerId: farmerObjectId,
     status: 'active',
     $or: [
       { 'metadata.type': 'chat' },

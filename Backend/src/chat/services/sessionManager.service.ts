@@ -1,21 +1,32 @@
+/**
+ * sessionManager.service.ts — Clean rewrite.
+ *
+ * This manages chat sessions (CRUD) and message retrieval.
+ * Key fix: getSessionMessages normalizes `content` correctly —
+ * old code did `message.content?.text` which breaks when content
+ * is stored as a plain string (not { text, type }).
+ */
+
 import mongoose from 'mongoose';
 import knowledgeBase from '../data/knowledgeBase.json';
 import { ChatMessageModel } from '../models/ChatMessage.model';
 import { ChatSessionModel } from '../models/ChatSession.model';
 import { detectCurrentSeason } from './contextBuilder.service';
 
+// ── Knowledge sets for metadata extraction ──
+
 const KNOWN_CROPS = new Set(
   [
     ...knowledgeBase.cropDiseases.map((entry) => entry.crop),
     ...Object.values(knowledgeBase.seasons).flatMap((season) => season.crops),
-  ].map((value) => value.toLowerCase())
+  ].map((v) => v.toLowerCase())
 );
 
 const KNOWN_PROBLEMS = new Set(
   [
     ...knowledgeBase.cropDiseases.map((entry) => entry.disease),
     ...knowledgeBase.pests.map((entry) => entry.name),
-  ].map((value) => value.toLowerCase())
+  ].map((v) => v.toLowerCase())
 );
 
 function unique(values: string[]): string[] {
@@ -29,21 +40,16 @@ function extractMatches(text: string, dictionary: Set<string>): string[] {
 
 function autoGenerateTitle(text?: string): string {
   const trimmed = (text || '').trim().replace(/\s+/g, ' ');
-  if (!trimmed) {
-    return 'New chat';
-  }
-
+  if (!trimmed) return 'New chat';
   return trimmed.length > 70 ? `${trimmed.slice(0, 67)}...` : trimmed;
 }
+
+// ── Session CRUD ──
 
 export async function createChatSession(params: {
   farmerId: string;
   location?: string;
-}): Promise<{
-  sessionId: string;
-  title: string;
-  createdAt: Date;
-}> {
+}): Promise<{ sessionId: string; title: string; createdAt: Date }> {
   const session = await ChatSessionModel.create({
     farmerId: params.farmerId,
     title: 'New chat',
@@ -87,155 +93,31 @@ export async function listChatSessions(params: {
   const { farmerId, page, limit } = params;
   const skip = (page - 1) * limit;
   const farmerObjectId = new mongoose.Types.ObjectId(farmerId);
-  const query = { 
-    farmerId: farmerObjectId, 
-    status: 'active', 
-    $or: [
-      { 'metadata.type': 'chat' },
-      { 'metadata.type': { $exists: false } }
-    ]
+
+  const query = {
+    farmerId: farmerObjectId,
+    status: 'active',
+    $or: [{ 'metadata.type': 'chat' }, { 'metadata.type': { $exists: false } }],
   };
 
   const [sessions, total] = await Promise.all([
-    ChatSessionModel.find(query)
-      .sort({ lastMessageAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean(),
+    ChatSessionModel.find(query).sort({ lastMessageAt: -1 }).skip(skip).limit(limit).lean(),
     ChatSessionModel.countDocuments(query),
   ]);
 
-  const normalizedSessions = sessions.map((session) => ({
-    sessionId: String(session._id),
-    title: session.title,
-    status: session.status,
-    messageCount: session.messageCount,
-    updatedAt: session.updatedAt,
-    lastMessageAt: session.lastMessageAt,
-    preview: session.metadata?.lastMessagePreview || '',
-    metadata: session.metadata,
-  }));
-
   return {
-    sessions: normalizedSessions,
-    pagination: { page, limit, total },
-  };
-}
-
-export async function getChatSessionWithMessages(params: {
-  farmerId: string;
-  sessionId: string;
-  page: number;
-  limit: number;
-}): Promise<
-  | {
-      session: {
-        sessionId: string;
-        _id: string;
-        farmerId: unknown;
-        title: string;
-        status: 'active' | 'archived';
-        messageCount: number;
-        lastMessageAt: Date;
-        metadata: {
-          cropsDiscussed: string[];
-          problemsSolved: string[];
-          location?: string;
-          season?: string;
-        };
-        createdAt: Date;
-        updatedAt: Date;
-      };
-      messages: Array<Record<string, unknown>>;
-      totalMessages: number;
-    }
-  | null
-> {
-  const { farmerId, sessionId, page, limit } = params;
-  const session = await ChatSessionModel.findOne({ _id: sessionId, farmerId }).lean();
-  if (!session) {
-    return null;
-  }
-
-  const skip = (page - 1) * limit;
-  const [messages, totalMessages] = await Promise.all([
-    ChatMessageModel.find({ sessionId })
-      .sort({ createdAt: 1 })
-      .skip(skip)
-      .limit(limit)
-      .lean(),
-    ChatMessageModel.countDocuments({ sessionId }),
-  ]);
-
-  const normalizedMessages: Array<Record<string, unknown>> = messages.map((message: any) => ({
-    ...message,
-    _id: String(message._id),
-    sessionId: String(message.sessionId),
-    farmerId: String(message.farmerId),
-    content: message.content?.text || '',
-    type: message.content?.type || 'text',
-  }));
-
-  return {
-    session: {
+    sessions: sessions.map((session) => ({
       sessionId: String(session._id),
       title: session.title,
       status: session.status,
       messageCount: session.messageCount,
-      lastMessageAt: session.lastMessageAt,
-      metadata: session.metadata,
-      _id: String(session._id),
-      farmerId: session.farmerId,
-      createdAt: session.createdAt,
       updatedAt: session.updatedAt,
-    },
-    messages: normalizedMessages,
-    totalMessages,
+      lastMessageAt: session.lastMessageAt,
+      preview: session.metadata?.lastMessagePreview || '',
+      metadata: session.metadata,
+    })),
+    pagination: { page, limit, total },
   };
-}
-
-export async function getSessionMessages(params: {
-  farmerId: string;
-  sessionId: string;
-  limit: number;
-  before?: string;
-}): Promise<Array<Record<string, unknown>> | null> {
-  const session = await ChatSessionModel.findOne({
-    _id: params.sessionId,
-    farmerId: params.farmerId,
-  }).lean();
-
-  if (!session) {
-    return null;
-  }
-
-  let cursorDate: Date | undefined;
-  if (params.before) {
-    const cursorMessage = await ChatMessageModel.findOne({
-      _id: params.before,
-      sessionId: params.sessionId,
-    }).lean();
-    cursorDate = cursorMessage?.createdAt;
-  }
-
-  const query: Record<string, unknown> = { sessionId: params.sessionId };
-  if (cursorDate) {
-    query.createdAt = { $lt: cursorDate };
-  }
-
-  const messages = await ChatMessageModel.find(query)
-    .sort({ createdAt: -1 })
-    .limit(params.limit)
-    .lean();
-
-  return messages.reverse().map((message: any) => ({
-    ...message,
-    _id: String(message._id),
-    sessionId: String(message.sessionId),
-    farmerId: String(message.farmerId),
-    content: message.content?.text || '',
-    type: message.content?.type || 'text',
-  }));
 }
 
 export async function renameChatSession(params: {
@@ -259,10 +141,11 @@ export async function archiveChatSession(params: { farmerId: string; sessionId: 
 }
 
 export async function clearChatHistory(params: { farmerId: string; sessionId: string }) {
-  const session = await ChatSessionModel.findOne({ _id: params.sessionId, farmerId: params.farmerId });
-  if (!session) {
-    return null;
-  }
+  const session = await ChatSessionModel.findOne({
+    _id: params.sessionId,
+    farmerId: params.farmerId,
+  });
+  if (!session) return null;
 
   await ChatMessageModel.deleteMany({ sessionId: params.sessionId });
   session.messageCount = 0;
@@ -273,43 +156,130 @@ export async function clearChatHistory(params: { farmerId: string; sessionId: st
   return session.toObject();
 }
 
-export async function ensureSessionOwnership(farmerId: string, sessionId: string) {
-  return ChatSessionModel.findOne({ _id: sessionId, farmerId, status: 'active' });
+// ── Message retrieval ──
+
+/**
+ * Get messages for a session, paginated.
+ *
+ * CRITICAL FIX: The `content` field in MongoDB can be stored as either:
+ *   - A plain string (from the new persistExchange in geminiChat.service)
+ *   - An object like { text: "...", type: "text" } (legacy format)
+ *
+ * The normalization handles BOTH cases, preventing empty content on reload.
+ */
+export async function getSessionMessages(params: {
+  farmerId: string;
+  sessionId: string;
+  limit: number;
+  before?: string;
+}): Promise<Array<Record<string, unknown>> | null> {
+  const session = await ChatSessionModel.findOne({
+    _id: params.sessionId,
+    farmerId: params.farmerId,
+  }).lean();
+
+  if (!session) return null;
+
+  let cursorDate: Date | undefined;
+  if (params.before) {
+    const cursorMessage = await ChatMessageModel.findOne({
+      _id: params.before,
+      sessionId: params.sessionId,
+    }).lean();
+    cursorDate = cursorMessage?.createdAt;
+  }
+
+  const query: Record<string, unknown> = {
+    sessionId: params.sessionId,
+    // Only return user + assistant messages (no system/tool messages)
+    role: { $in: ['user', 'assistant'] },
+    // Exclude tool_call and tool_result content types
+    'content.type': { $nin: ['tool_call', 'tool_result'] },
+  };
+  if (cursorDate) {
+    query.createdAt = { $lt: cursorDate };
+  }
+
+  const messages = await ChatMessageModel.find(query)
+    .sort({ createdAt: -1 })
+    .limit(params.limit)
+    .lean();
+
+  return messages
+    .reverse()
+    .map((message: any) => {
+      // Normalize content: handle both string and {text, type} formats
+      let content: string;
+      if (typeof message.content === 'string') {
+        content = message.content;
+      } else if (message.content && typeof message.content === 'object') {
+        content = message.content.text || '';
+      } else {
+        content = '';
+      }
+
+      return {
+        _id: String(message._id),
+        sessionId: String(message.sessionId),
+        farmerId: String(message.farmerId),
+        role: message.role,
+        content,
+        type: message.content?.type || 'text',
+        language: message.language,
+        metadata: message.metadata,
+        createdAt: message.createdAt,
+      };
+    })
+    // Filter out any message with empty content after normalization
+    .filter((msg) => msg.content.trim().length > 0);
 }
 
-export async function touchChatSession(params: {
-  sessionId: string;
-  location?: string;
-  userText: string;
-  assistantText: string;
-}) {
+/**
+ * Touch a chat session after a successful exchange.
+ * Updates title (on first message), message count, crops, problems, preview.
+ */
+export async function touchChatSession(
+  sessionId: string,
+  userText: string,
+  assistantText: string,
+  location?: string
+): Promise<void> {
+  const session = await ChatSessionModel.findById(sessionId);
+  if (!session) return;
+
+  // Auto-title from first user message
+  if (session.messageCount === 0 && userText.trim()) {
+    session.title = autoGenerateTitle(userText);
+  }
+
+  // Extract metadata
   const cropsDiscussed = unique([
-    ...extractMatches(params.userText, KNOWN_CROPS),
-    ...extractMatches(params.assistantText, KNOWN_CROPS),
+    ...extractMatches(userText, KNOWN_CROPS),
+    ...extractMatches(assistantText, KNOWN_CROPS),
   ]);
   const problemsSolved = unique([
-    ...extractMatches(params.userText, KNOWN_PROBLEMS),
-    ...extractMatches(params.assistantText, KNOWN_PROBLEMS),
+    ...extractMatches(userText, KNOWN_PROBLEMS),
+    ...extractMatches(assistantText, KNOWN_PROBLEMS),
   ]);
-
-  const session = await ChatSessionModel.findById(params.sessionId);
-  if (!session) {
-    return;
-  }
-
-  if (session.messageCount === 0 && params.userText.trim()) {
-    session.title = autoGenerateTitle(params.userText);
-  }
 
   session.messageCount += 2;
   session.lastMessageAt = new Date();
-  session.metadata.location = params.location || session.metadata.location;
+  session.metadata.location = location || session.metadata.location;
   session.metadata.season = detectCurrentSeason();
-  session.metadata.cropsDiscussed = unique([...session.metadata.cropsDiscussed, ...cropsDiscussed]);
-  session.metadata.problemsSolved = unique([...session.metadata.problemsSolved, ...problemsSolved]);
-  
-  // OPTIMIZATION: Persist preview text for fast listing
-  session.metadata.lastMessagePreview = params.assistantText.trim() || params.userText.trim();
+  session.metadata.cropsDiscussed = unique([
+    ...session.metadata.cropsDiscussed,
+    ...cropsDiscussed,
+  ]);
+  session.metadata.problemsSolved = unique([
+    ...session.metadata.problemsSolved,
+    ...problemsSolved,
+  ]);
+  session.metadata.lastMessagePreview =
+    assistantText.trim().substring(0, 200) || userText.trim().substring(0, 200);
 
   await session.save();
+}
+
+export async function ensureSessionOwnership(farmerId: string, sessionId: string) {
+  return ChatSessionModel.findOne({ _id: sessionId, farmerId, status: 'active' });
 }

@@ -22,22 +22,22 @@ export interface ISubscription extends Document {
 
 const TIER_FEATURES = {
   free: { 
-    chatLimit: 20, 
-    scanLimit: 2, 
+    chatLimit: 10, 
+    scanLimit: 1, 
     voiceEnabled: false, 
     prioritySupport: false, 
     marketplaceAccess: true 
   },
   basic: { 
-    chatLimit: 100, 
-    scanLimit: 10, 
+    chatLimit: 50, 
+    scanLimit: 3, 
     voiceEnabled: true, 
     prioritySupport: false, 
     marketplaceAccess: true 
   },
   pro: { 
-    chatLimit: 300, 
-    scanLimit: 30, 
+    chatLimit: 100, 
+    scanLimit: 10, 
     voiceEnabled: true, 
     prioritySupport: true, 
     marketplaceAccess: true 

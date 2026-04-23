@@ -12,8 +12,8 @@ export async function chatRoutes(app: FastifyInstance): Promise<void> {
   const chatLimitCheck = createUsageEnforcementMiddleware('chat');
   app.addHook('preHandler', authMiddleware);
 
-  app.post('/api/chat/ask', { preHandler: [chatLimitCheck] }, askQuestion);
-  app.post('/api/chat/stream', { preHandler: [chatLimitCheck] }, streamChat);
-  app.get('/api/chat/history', getChatHistory);
-  app.get('/api/chat/:chatId/messages', getChatMessages);
+  app.post('/chat/ask', { preHandler: [chatLimitCheck] }, askQuestion);
+  app.post('/chat/stream', { preHandler: [chatLimitCheck] }, streamChat);
+  app.get('/chat/history', getChatHistory);
+  app.get('/chat/:chatId/messages', getChatMessages);
 }

@@ -11,7 +11,7 @@ export async function contactRoutes(app: FastifyInstance): Promise<void> {
     }
   };
 
-  app.post('/api/contact', contactRateLimit, submitContactForm);
+  app.post('/contact', contactRateLimit, submitContactForm);
   
   // Potential future admin route
   // app.get('/api/admin/contact-messages', getContactMessages);
