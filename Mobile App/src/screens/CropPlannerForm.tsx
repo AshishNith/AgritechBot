@@ -3,6 +3,7 @@ import { StyleSheet, View, ScrollView, TouchableOpacity, Alert, ActivityIndicato
 import { useNavigation } from '@react-navigation/native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Screen, AppText, GlassCard, GradientButton, Pill } from '../components/ui';
+import { IconMap } from '../components/IconMap';
 import { useTheme } from '../providers/ThemeContext';
 import { useAppStore } from '../store/useAppStore';
 import { apiService } from '../api/services';

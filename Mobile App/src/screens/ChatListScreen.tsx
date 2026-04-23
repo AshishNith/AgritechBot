@@ -23,6 +23,7 @@ import { IconMap } from '../components/IconMap';
 import { Alert } from 'react-native';
 
 export function ChatListScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { isDark, colors } = useTheme();
   const { t } = useI18n();
   const route = useRoute<RouteProp<any>>();

@@ -3,6 +3,7 @@ import { StyleSheet, View, FlatList, TouchableOpacity, Image, ActivityIndicator 
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Screen, AppText, GlassCard, GradientButton } from '../components/ui';
+import { IconMap } from '../components/IconMap';
 import { useTheme } from '../providers/ThemeContext';
 import { apiService } from '../api/services';
 

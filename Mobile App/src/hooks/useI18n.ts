@@ -122,7 +122,10 @@ type ExtraTranslationKey =
   | 'loadingNotifications'
   | 'failedToLoadNotifications'
   | 'stayUpdated'
-  | 'stayUpdatedSubtitle';
+  | 'stayUpdatedSubtitle'
+  | 'farmer'
+  | 'manageData'
+  | 'updatePersonalDetails';
 
 export type AppTranslationKey = TranslationKey | ExtraTranslationKey;
 
@@ -248,6 +251,9 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     failedToLoadNotifications: 'Failed to load notifications.',
     stayUpdated: 'Stay Updated',
     stayUpdatedSubtitle: 'New alerts appear automatically based on your crops and location. Pull down to refresh.',
+    farmer: 'Farmer',
+    manageData: 'Manage your data and privacy',
+    updatePersonalDetails: 'Update your personal details',
   },
   Hindi: {
     homeTab: 'होम',
@@ -370,6 +376,9 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     failedToLoadNotifications: 'नोटिफिकेशन लोड करने में विफल।',
     stayUpdated: 'अपडेट रहें',
     stayUpdatedSubtitle: 'आपकी फसलों और स्थान के आधार पर नए अलर्ट अपने आप दिखाई देते हैं। रिफ्रेश करने के लिए नीचे खींचें।',
+    farmer: 'किसान',
+    manageData: 'अपने डेटा और गोपनीयता को प्रबंधित करें',
+    updatePersonalDetails: 'अपने व्यक्तिगत विवरण अपडेट करें',
   },
   Gujarati: {
     homeTab: 'હોમ',
@@ -492,6 +501,9 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     failedToLoadNotifications: 'નોટિફિકેશન લોડ કરવામાં નિષ્ફળ.',
     stayUpdated: 'અપડેટ રહો',
     stayUpdatedSubtitle: 'તમારા પાક અને સ્થાનના આધારે નવા એલર્ટ આપમેળે દેખાય છે. રિફ્રેશ કરવા માટે નીચે ખેંચો.',
+    farmer: 'ખેડૂત',
+    manageData: 'તમારા ડેટા અને ગોપનીયતાનું સંચાલન કરો',
+    updatePersonalDetails: 'તમારી વ્યક્તિગત વિગતો અપડેટ કરો',
   },
   Punjabi: {
     homeTab: 'ਹੋਮ',
@@ -614,6 +626,9 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     failedToLoadNotifications: 'ਨੋਟਿਫਿਕੇਸ਼ਨ ਲੋਡ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
     stayUpdated: 'ਅਪਡੇਟ ਰਹੋ',
     stayUpdatedSubtitle: 'ਤੁਹਾਡੀਆਂ ਫਸਲਾਂ ਅਤੇ ਲੋਕੇਸ਼ਨ ਦੇ ਅਧਾਰ ਤੇ ਨਵੇਂ ਅਲਰਟ ਆਪਣੇ ਆਪ ਦਿਖਾਈ ਦਿੰਦੇ ਹਨ। ਤਾਜ਼ਾ ਕਰਨ ਲਈ ਹੇਠਾਂ ਖਿੱਚੋ।',
+    farmer: 'ਕਿਸਾਨ',
+    manageData: 'ਆਪਣੇ ਡੇਟਾ ਅਤੇ ਗੋਪਨੀਯਤਾ ਦਾ ਪ੍ਰਬੰਧਨ ਕਰੋ',
+    updatePersonalDetails: 'ਆਪਣੇ ਨਿੱਜੀ ਵੇਰਵੇ ਅਪਡੇਟ ਕਰੋ',
   },
 };
 
