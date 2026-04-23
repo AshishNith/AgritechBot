@@ -24,6 +24,11 @@ export interface CropAssistantSnapshot {
   weather: WeatherData | null;
   risks: WeatherRisk[];
   recommendations: string[];
+  analysis?: {
+    status: string;
+    summary: string;
+    roadmap: string;
+  };
 }
 
 function startOfDay(date = new Date()) {

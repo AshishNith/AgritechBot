@@ -22,14 +22,14 @@ export class CropPlanningService {
       
       User Inputs:
       - Crop: ${input.crop}
-      - Location: ${input.district}, ${input.state}
+      - Location: ${input.location.district}, ${input.location.state}
       - Land Size: ${input.landSize}
       - Soil Type: ${input.soilType || 'Not specified'}
       - Water Availability: ${input.waterAvailability}
       - Budget: ${input.budget || 'Standard'}
       - Farming Type: ${input.farmingType}
 
-      Consider the regional climate of ${input.district}, ${input.state} for the current season.
+      Consider the regional climate of ${input.location.district}, ${input.location.state} for the current season.
       
       Return the response in STRICT JSON format:
       {
@@ -65,7 +65,7 @@ export class CropPlanningService {
         }
       }
 
-      CRITICAL: Ensure the plan is localized to ${input.state} and specific to ${input.farmingType} farming.
+      CRITICAL: Ensure the plan is localized to ${input.location.state} and specific to ${input.farmingType} farming.
       Only return the JSON object. No markdown, no text.
     `;
 
