@@ -19,7 +19,7 @@ export function QuickActionGrid() {
 
   const actions: QuickAction[] = [
     { icon: MessageSquare, label: 'AI Chat', route: 'Chat', color: colors.primary },
-    { icon: Calendar, label: 'My Tasks', route: 'Planner', color: '#3b82f6' }, // blue
+    { icon: Calendar, label: 'Smart Planner', route: 'CropPlannerForm', color: '#8b5cf6' }, // purple
     { icon: Mic, label: 'Voice', route: 'Voice', color: colors.warning },
     { icon: Camera, label: 'Scan Crop', route: 'ImageScan', color: '#10b981' }, // green/crop
   ];

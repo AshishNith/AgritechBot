@@ -15,23 +15,27 @@ export const TopBar: React.FC<TopBarProps> = ({ themeMode }) => {
   const navigation = useNavigation();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.bg, borderBottomColor: theme.border }]}>
+    <View style={[styles.container, { backgroundColor: theme.bg }]}>
       <View style={styles.left}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Feather name="chevron-left" size={24} color={theme.text} />
+        <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.backBtn, { backgroundColor: theme.surface2 }]}>
+          <Feather name="arrow-left" size={20} color={theme.text} />
         </TouchableOpacity>
-        <Feather name="layers" size={20} color={theme.accent} />
-        <AppText style={[styles.appName, { color: theme.accent }]}>
-          Anaaj AI
-        </AppText>
+        <View>
+          <AppText variant="title" style={[styles.appName, { color: theme.text }]}>
+            Farm Planner
+          </AppText>
+          <AppText variant="caption" style={{ color: theme.accent, fontWeight: '700' }}>
+            ANAAJ AI ASSISTANT
+          </AppText>
+        </View>
       </View>
 
       <View style={styles.right}>
         <TouchableOpacity style={[styles.iconButton, { backgroundColor: theme.surface2 }]}>
-          <Feather name="search" size={18} color={theme.text2} />
+          <Feather name="bell" size={18} color={theme.text2} />
         </TouchableOpacity>
         <TouchableOpacity style={[styles.iconButton, { backgroundColor: theme.surface2 }]}>
-          <Feather name="more-vertical" size={18} color={theme.text2} />
+          <Feather name="settings" size={18} color={theme.text2} />
         </TouchableOpacity>
       </View>
     </View>
@@ -43,31 +47,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingVertical: 12,
-    borderBottomWidth: 1,
   },
   left: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 16,
   },
   backBtn: {
-    marginRight: 4,
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   appName: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '800',
     letterSpacing: -0.5,
   },
   right: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 12,
   },
   iconButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },

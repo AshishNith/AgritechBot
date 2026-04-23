@@ -104,13 +104,12 @@ export function RootNavigator() {
             <Stack.Screen name="WeatherDashboard" getComponent={() => require('../screens/WeatherDashboardScreen').WeatherDashboardScreen} />
             <Stack.Screen name="FullMap" getComponent={() => require('../screens/FullMapScreen').FullMapScreen} />
             <Stack.Screen name="SmartAssistant" getComponent={() => require('../screens/SmartAssistantDashboard').SmartAssistantDashboard} />
-            <Stack.Screen name="AddCrop" getComponent={() => require('../screens/AddCropScreen').AddCropScreen} />
-            <Stack.Screen name="TaskTimeline" getComponent={() => require('../screens/TaskTimelineScreen').TaskTimelineScreen} />
-            <Stack.Screen name="Planner" getComponent={() => require('../screens/PlannerScreen').PlannerScreen} />
+            <Stack.Screen name="Planner" getComponent={() => require('../screens/CropPlanListScreen').CropPlanListScreen} />
+            <Stack.Screen name="CropPlannerForm" getComponent={() => require('../screens/CropPlannerForm').CropPlannerForm} />
+            <Stack.Screen name="CropPlanResult" getComponent={() => require('../screens/CropPlanResult').CropPlanResult} />
           </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
-

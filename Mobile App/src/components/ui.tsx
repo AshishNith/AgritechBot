@@ -54,9 +54,9 @@ export function Screen({
   refreshControl?: React.ReactElement;
   withTabBar?: boolean;
   headerProps?: {
-     title: string;
-     showBack?: boolean;
-     right?: ReactNode;
+    title: string;
+    showBack?: boolean;
+    right?: ReactNode;
   };
 }>) {
   const navigation = useNavigation();
@@ -75,15 +75,15 @@ export function Screen({
     >
       {headerProps && (
         <View style={[styles.screenHeader, { borderBottomColor: colors.border }]}>
-           {headerProps.showBack && (
-             <Pressable onPress={() => navigation.goBack()}>
-                {(() => { const Icon = IconMap['ChevronLeft']; return Icon ? <Icon size={24} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
-             </Pressable>
-           )}
-           <AppText variant="label" style={{ fontSize: 18, marginLeft: headerProps.showBack ? 16 : 0, flex: 1 }}>
-             {headerProps.title}
-           </AppText>
-           {headerProps.right}
+          {headerProps.showBack && (
+            <Pressable onPress={() => navigation.goBack()}>
+              {(() => { const Icon = IconMap['ChevronLeft']; return Icon ? <Icon size={24} color={isDark ? colors.textOnDark : colors.text} /> : null; })()}
+            </Pressable>
+          )}
+          <AppText variant="label" style={{ fontSize: 18, marginLeft: headerProps.showBack ? 16 : 0, flex: 1 }}>
+            {headerProps.title}
+          </AppText>
+          {headerProps.right}
         </View>
       )}
       {children}
@@ -92,14 +92,14 @@ export function Screen({
 
   if (scrollable) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: effectiveDark ? colors.background : colors.background }} edges={[ 'top', 'left', 'right' ]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: effectiveDark ? colors.background : colors.background }} edges={['top', 'left', 'right']}>
         <ScrollView showsVerticalScrollIndicator={false} refreshControl={refreshControl}>{content}</ScrollView>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: effectiveDark ? colors.background : colors.background }} edges={[ 'top', 'left', 'right' ]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: effectiveDark ? colors.background : colors.background }} edges={['top', 'left', 'right']}>
       {content}
     </SafeAreaView>
   );
@@ -179,9 +179,9 @@ export function GlassCard({ children, style, padded = true }: PropsWithChildren<
 
 export function Pill({ label, active, onPress, icon, style, color }: { label: string; active?: boolean; onPress?: () => void; icon?: ReactNode; style?: StyleProp<ViewStyle>; color?: string }) {
   const { isDark, colors } = useTheme();
-  
-  const backgroundColor = active || color 
-    ? (color ?? colors.primary) 
+
+  const backgroundColor = active || color
+    ? (color ?? colors.primary)
     : (isDark ? 'rgba(255,255,255,0.06)' : colors.surface);
 
   return (
@@ -237,22 +237,22 @@ export function SearchInput({ value, onChangeText, placeholder }: { value: strin
     </View>
   );
 }
- 
-export function InputField({ 
-  value, 
-  onChangeText, 
-  placeholder, 
-  icon, 
-  style 
-}: { 
-  value: string; 
-  onChangeText: (text: string) => void; 
-  placeholder: string; 
+
+export function InputField({
+  value,
+  onChangeText,
+  placeholder,
+  icon,
+  style
+}: {
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder: string;
   icon?: string;
   style?: StyleProp<ViewStyle>;
 }) {
   const { isDark, colors } = useTheme();
- 
+
   return (
     <View
       style={[
@@ -526,16 +526,16 @@ export function ScreenCard({ children, style }: PropsWithChildren<{ style?: Styl
   );
 }
 
-export function ProgressBar({ 
-  progress, 
-  label, 
-  color, 
-  height = 8 
-}: { 
-  progress: number; 
-  label?: string; 
-  color?: string; 
-  height?: number 
+export function ProgressBar({
+  progress,
+  label,
+  color,
+  height = 8
+}: {
+  progress: number;
+  label?: string;
+  color?: string;
+  height?: number
 }) {
   const { colors, isDark } = useTheme();
   const barWidth = useSharedValue(0);
@@ -563,18 +563,18 @@ export function ProgressBar({
   );
 }
 
-export function StatCard({ 
-  label, 
-  value, 
-  icon, 
-  color, 
-  style 
-}: { 
-  label: string; 
-  value: string; 
-  icon: string; 
-  color?: string; 
-  style?: StyleProp<ViewStyle> 
+export function StatCard({
+  label,
+  value,
+  icon,
+  color,
+  style
+}: {
+  label: string;
+  value: string;
+  icon: string;
+  color?: string;
+  style?: StyleProp<ViewStyle>
 }) {
   const { colors, isDark } = useTheme();
   const themeColor = color ?? colors.primary;

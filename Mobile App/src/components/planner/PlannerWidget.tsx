@@ -4,17 +4,16 @@ import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { AppText, GlassCard } from '../ui';
 import { useTheme } from '../../providers/ThemeContext';
 import { useAppStore } from '../../store/useAppStore';
-import { useI18n } from '../../hooks/useI18n';
 import { getPlannerTheme } from '../../constants/plannerTheme';
 import { translations } from '../../constants/plannerTranslations';
 import { Language } from '../../types/planner';
 
 interface PlannerWidgetProps {
   onPress: () => void;
-  tasksCount?: number;
+  plans?: any[];
 }
 
-export const PlannerWidget: React.FC<PlannerWidgetProps> = ({ onPress, tasksCount = 12 }) => {
+export const PlannerWidget: React.FC<PlannerWidgetProps> = ({ onPress, plans = [] }) => {
   const { isDark } = useTheme();
   const { language: appLang } = useAppStore();
   const langMap: Record<string, Language> = {
@@ -27,6 +26,14 @@ export const PlannerWidget: React.FC<PlannerWidgetProps> = ({ onPress, tasksCoun
   const theme = getPlannerTheme(isDark ? 'dark' : 'light');
   const t = (key: string) => translations[lang][key] || key;
 
+  const totalPlans = plans.length;
+  const latestPlan = plans[0];
+  const currentCrop = latestPlan?.crop || 'No Crops';
+
+  // Logic for progress if stages are available
+  const stages = latestPlan?.generatedPlan?.stages || [];
+  const progressPercent = totalPlans > 0 ? 100 : 0; // Simplified for widget
+
   return (
     <TouchableOpacity activeOpacity={0.9} onPress={onPress}>
       <GlassCard style={styles.container}>
@@ -38,42 +45,42 @@ export const PlannerWidget: React.FC<PlannerWidgetProps> = ({ onPress, tasksCoun
             <AppText variant="label" style={{ fontSize: 16 }}>{t('plannerTitle')}</AppText>
           </View>
           <View style={[styles.badge, { backgroundColor: theme.purpleLight }]}>
-            <AppText style={{ color: theme.purple, fontSize: 10, fontWeight: '700' }}>AI Powered</AppText>
+            <AppText style={{ color: theme.purple, fontSize: 10, fontWeight: '700' }}>AI ROADMAPS</AppText>
           </View>
         </View>
 
         <View style={[styles.statsRow, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}>
           <View style={styles.stat}>
-            <AppText weight="bold" style={{ fontSize: 24, color: theme.accent }}>{tasksCount}</AppText>
-            <AppText variant="caption" color={theme.text2}>{t('totalTasks')}</AppText>
+            <AppText weight="bold" style={{ fontSize: 24, color: theme.accent }}>{totalPlans}</AppText>
+            <AppText variant="caption" color={theme.text2}>ACTIVE PLANS</AppText>
           </View>
           <View style={[styles.divider, { backgroundColor: theme.border }]} />
           <View style={styles.stat}>
-            <AppText weight="bold" style={{ fontSize: 24, color: theme.amber }}>3</AppText>
-            <AppText variant="caption" color={theme.text2}>{t('pending')}</AppText>
+            <AppText weight="bold" style={{ fontSize: 24, color: theme.amber }}>{stages.length}</AppText>
+            <AppText variant="caption" color={theme.text2}>STAGES</AppText>
           </View>
           <View style={[styles.divider, { backgroundColor: theme.border }]} />
           <View style={styles.stat}>
             <View style={styles.aiGlow}>
               <MaterialCommunityIcons name="robot" size={24} color={theme.purple} />
             </View>
-            <AppText variant="caption" color={theme.text2}>{t('aiInsights')}</AppText>
+            <AppText variant="caption" color={theme.text2}>AI ADVISOR</AppText>
           </View>
         </View>
 
         <View style={styles.timelinePreview}>
           <View style={[styles.timelineBar, { backgroundColor: theme.surface2 }]}>
-            <View style={[styles.progress, { width: '65%', backgroundColor: theme.accent }]} />
+            <View style={[styles.progress, { width: `${progressPercent}%`, backgroundColor: theme.accent }]} />
           </View>
           <View style={styles.timelineLabels}>
-            <AppText variant="caption" style={{ fontSize: 10, color: theme.text }}>Wheat Sowing</AppText>
-            <AppText variant="caption" style={{ fontSize: 10, color: theme.text2 }}>65% Complete</AppText>
+            <AppText variant="caption" style={{ fontSize: 10, color: theme.text }}>{currentCrop} Roadmap</AppText>
+            <AppText variant="caption" style={{ fontSize: 10, color: theme.text2 }}>Active Status</AppText>
           </View>
         </View>
 
         <View style={styles.footer}>
           <AppText variant="caption" color={theme.accent} style={{ fontWeight: '700' }}>
-            {t('viewAllTasks')} →
+            VIEW ALL PLANS →
           </AppText>
         </View>
       </GlassCard>

@@ -616,4 +616,28 @@ export const apiService = {
     });
     return data.weather;
   },
+
+  // ── AI Crop Planner (New System) ──
+  async generateCropPlan(input: any) {
+    const { data } = await api.post('/api/v1/crop-planner/generate-plan', input);
+    return data;
+  },
+  async getCropPlans() {
+    const { data } = await api.get('/api/v1/crop-planner/plans');
+    return data;
+  },
+  async getCropPlanById(id: string) {
+    const { data } = await api.get(`/api/v1/crop-planner/plans/${id}`);
+    return data;
+  },
+  
+  // Generic helper for ad-hoc calls
+  async get(url: string, config?: any) {
+    const { data } = await api.get(url, config);
+    return data;
+  },
+  async post(url: string, body?: any, config?: any) {
+    const { data } = await api.post(url, body, config);
+    return data;
+  }
 };

@@ -33,18 +33,27 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
           }
         ]}
       >
+        <View style={styles.bgIcon}>
+          <MaterialCommunityIcons name="robot" size={80} color={theme.purple + '08'} />
+        </View>
+
         <View style={styles.header}>
           <View style={styles.titleRow}>
-            <MaterialCommunityIcons name="robot" size={20} color={theme.purple} />
-            <AppText weight="bold" style={{ color: theme.purple, fontSize: 14 }}>
-              {t('todaySuggestion')}
-            </AppText>
+            <View style={[styles.aiIconWrap, { backgroundColor: theme.purple + '15' }]}>
+              <MaterialCommunityIcons name="robot" size={18} color={theme.purple} />
+            </View>
+            <View>
+              <AppText weight="bold" style={{ color: theme.purple, fontSize: 13, textTransform: 'uppercase', letterSpacing: 1 }}>
+                {t('todaySuggestion')}
+              </AppText>
+              <AppText variant="caption" color={theme.text2}>AI Farming Assistant</AppText>
+            </View>
           </View>
-          <TouchableOpacity onPress={onRefresh} disabled={loading}>
+          <TouchableOpacity onPress={onRefresh} disabled={loading} style={styles.refreshBtn}>
             <Feather 
               name="refresh-cw" 
               size={16} 
-              color={loading ? theme.text3 : theme.text2} 
+              color={loading ? theme.text3 : theme.purple} 
             />
           </TouchableOpacity>
         </View>
@@ -55,30 +64,26 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
             <View style={[styles.skeletonLine, { backgroundColor: theme.surface2, width: '70%' }]} />
           </View>
         ) : (
-          <>
+          <View style={styles.content}>
             <AppText style={[styles.message, { color: theme.text }]}>
-              {insight?.message}
+              "{insight?.message}"
             </AppText>
             
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              style={styles.chipsScroll}
-              contentContainerStyle={styles.chipsContainer}
-            >
+            <View style={styles.chipsRow}>
               {insight?.chips.map((chip, idx) => (
                 <TouchableOpacity 
                   key={idx} 
                   onPress={() => onChipPress(chip)}
-                  style={[styles.chip, { backgroundColor: theme.purpleLight, borderColor: theme.purple }]}
+                  style={[styles.chip, { backgroundColor: theme.purpleLight, borderColor: theme.purple + '20' }]}
                 >
                   <AppText style={[styles.chipText, { color: theme.purple }]}>
                     {chip}
                   </AppText>
+                  <Feather name="arrow-up-right" size={10} color={theme.purple} style={{ marginLeft: 4 }} />
                 </TouchableOpacity>
               ))}
-            </ScrollView>
-          </>
+            </View>
+          </View>
         )}
       </GlassCard>
     </View>
@@ -88,42 +93,75 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 20,
   },
   card: {
-    padding: 16,
+    padding: 18,
     borderRadius: 24,
-    gap: 12,
+    overflow: 'hidden',
+    shadowColor: '#8b5cf6',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.05,
+    shadowRadius: 20,
+    elevation: 5,
+  },
+  bgIcon: {
+    position: 'absolute',
+    right: -10,
+    bottom: -10,
+    zIndex: 0,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+    zIndex: 1,
   },
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
+  },
+  aiIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  refreshBtn: {
+    padding: 8,
+    borderRadius: 10,
+    backgroundColor: 'rgba(139, 92, 246, 0.05)',
+  },
+  content: {
+    zIndex: 1,
   },
   message: {
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 16,
+    lineHeight: 24,
+    fontStyle: 'italic',
+    color: '#374151',
   },
-  chipsScroll: {
-    marginTop: 4,
-  },
-  chipsContainer: {
+  chipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
+    marginTop: 16,
   },
   chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 100,
-    borderWidth: 0.5,
+    borderRadius: 12,
+    borderWidth: 1,
   },
   chipText: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
   },
   skeleton: {
     gap: 8,

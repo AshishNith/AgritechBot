@@ -36,4 +36,6 @@ export type RootStackParamList = {
   AddCrop: undefined;
   TaskTimeline: { cropId: string };
   Planner: undefined;
+  CropPlannerForm: undefined;
+  CropPlanResult: { planId: string };
 };

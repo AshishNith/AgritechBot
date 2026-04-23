@@ -18,6 +18,7 @@ import { paymentRoutes } from './routes/paymentRoutes';
 import { imageAnalysisRoutes } from './routes/imageAnalysisRoutes';
 import { farmingAssistantRoutes } from './routes/farmingAssistantRoutes';
 import { contactRoutes } from './routes/contactRoutes';
+import { cropPlannerRoutes } from './routes/cropPlannerRoutes';
 import { chatV1Routes } from './chat/routes/chat.routes';
 import { logger } from './utils/logger';
 import { env } from './config/env';
@@ -222,6 +223,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     await v1.register(imageAnalysisRoutes);
     await v1.register(farmingAssistantRoutes);
     await v1.register(contactRoutes);
+    await v1.register(cropPlannerRoutes);
   }, { prefix: '/api/v1' });
 
   // ── Legacy /api support (for transition period) ──
@@ -238,6 +240,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     await legacy.register(subscriptionRoutes);
     await legacy.register(adminRoutes);
     await legacy.register(contactRoutes);
+    await legacy.register(cropPlannerRoutes);
   }, { prefix: '/api' });
 
   logger.info(`All routes registered (Primary: /api/v1) [env=${env.NODE_ENV}]`);

@@ -15,11 +15,11 @@ export interface GeneratedTask {
 
 export class AISchedulingService {
   /**
-   * Generates a 14-day farming schedule for a specific crop and stage
+   * Generates a 60-day farming schedule for a specific crop and stage
    */
   static async generateSchedule(crop: IUserCrop): Promise<GeneratedTask[]> {
     const prompt = `
-      You are an expert Agronomist. Generate a 14-day farming schedule for the following crop:
+      You are an expert Agronomist. Generate a comprehensive 60-day farming schedule for the following crop:
       - Crop: ${crop.cropType}
       - Variety: ${crop.variety || 'Standard'}
       - Soil Type: ${crop.soilType || 'Loamy'}
@@ -27,27 +27,17 @@ export class AISchedulingService {
       - Planting Date: ${crop.plantingDate.toISOString()}
       - Location: ${crop.location.address || 'India'}
 
-      Return a JSON array of tasks. Each task must have:
+      Return a JSON array of tasks covering the next 2 months. Each task must have:
       - taskType: One of ['watering', 'fertilizing', 'pesticide', 'weeding', 'harvesting', 'maintenance']
       - title: Short descriptive title
-      - description: Detailed instructions
-      - daysAfterPlanting: Number of days from today to schedule this (0 to 14)
+      - description: Detailed agronomic instructions and "Why" this is needed (Analysis)
+      - daysAfterPlanting: Number of days from today to schedule this (0 to 60)
       - priority: One of ['low', 'medium', 'high']
       - reminderMinutesBefore: Number between 15 and 180
       - repeat: One of ['none', 'daily', 'weekly']
 
-      Example:
-      [
-        {
-          "taskType": "watering",
-          "title": "Evening Irrigation",
-          "description": "Apply 20mm of water. Soil moisture is low.",
-          "daysAfterPlanting": 1,
-          "priority": "high",
-          "reminderMinutesBefore": 30,
-          "repeat": "none"
-        }
-      ]
+      Important: Generate at least 15-20 tasks to provide a full monthly roadmap. 
+      Include critical growth stages like tillering, flowering, or grain filling depending on the crop.
 
       Only return the JSON array. No other text.
     `;

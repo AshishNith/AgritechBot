@@ -75,8 +75,15 @@ export function HomeScreen() {
     refetchInterval: 1000 * 60,
   });
 
+  const { data: plansData, refetch: refetchPlans } = useQuery({
+    queryKey: ['crop-plans'],
+    queryFn: () => apiService.get('/crop-planner/plans'),
+  });
+  const plans = plansData?.data || [];
+
   useFocusEffect(
     useCallback(() => {
+      void refetchPlans();
       void refetchWallet();
     }, [refetchWallet])
   );
@@ -317,8 +324,13 @@ export function HomeScreen() {
         </TouchableOpacity>
       </ScreenCard>
 
+      {/* Planner & Tasks Overview */}
+      <PlannerWidget 
+        onPress={() => navigation.navigate('Planner')}
+        plans={plans}
+      />
+
       {/* AI Assistant */}
-     
 
       {/* Recommendations */}
       <View style={{ marginTop: 24, marginBottom: 8 }}>

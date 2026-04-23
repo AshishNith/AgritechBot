@@ -21,6 +21,27 @@ export const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, lang, themeMode }
   const end = endOfWeek(today, { weekStartsOn: 1 });
   const days = eachDayOfInterval({ start, end });
 
+  const getCategoryIcon = (cat: string) => {
+    switch(cat) {
+      case 'sowing': return 'grid';
+      case 'irrigation': return 'droplet';
+      case 'fertilizer': return 'package';
+      case 'pesticide': return 'shield';
+      case 'harvest': return 'scissors';
+      default: return 'check-circle';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch(status) {
+      case 'completed': return theme.accent;
+      case 'pending': return theme.amber;
+      case 'overdue': return theme.red;
+      case 'ai-suggested': return theme.purple;
+      default: return theme.text2;
+    }
+  };
+
   const getTasksForDay = (day: Date) => {
     return tasks.filter(task => 
       isWithinInterval(day, { start: new Date(task.startDate), end: new Date(task.endDate) })
@@ -46,12 +67,15 @@ export const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, lang, themeMode }
               {dayTasks.length > 0 ? (
                 dayTasks.map((task) => (
                   <GlassCard key={task.id} style={[styles.taskCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                    <View style={styles.categoryIcon}>
+                      <Feather name={getCategoryIcon(task.category) as any} size={14} color={getStatusColor(task.status)} />
+                    </View>
                     <View style={styles.taskInfo}>
                       <AppText weight="bold" style={{ fontSize: 14 }}>{task.titleTranslations[lang] || task.title}</AppText>
                       <AppText style={{ fontSize: 12, color: theme.text2 }}>{task.cropName} • {task.fieldName}</AppText>
                     </View>
-                    <View style={[styles.statusTag, { backgroundColor: theme.accentLight }]}>
-                      <AppText style={{ fontSize: 10, color: theme.accent }}>{task.progress}%</AppText>
+                    <View style={[styles.statusTag, { backgroundColor: getStatusColor(task.status) + '22' }]}>
+                      <AppText style={{ fontSize: 10, color: getStatusColor(task.status), fontWeight: '700' }}>{task.progress}%</AppText>
                     </View>
                   </GlassCard>
                 ))
@@ -91,6 +115,15 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 6,
     borderWidth: 1,
+    gap: 12,
+  },
+  categoryIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.03)',
   },
   taskInfo: {
     flex: 1,

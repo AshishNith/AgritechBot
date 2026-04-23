@@ -19,35 +19,39 @@ export const ViewTabs: React.FC<ViewTabsProps> = ({
   const t = (key: string) => translations[lang][key] || key;
 
   const tabs: { key: ViewMode; label: string }[] = [
-    { key: 'gantt', label: t('ganttTab') },
+    { key: 'list', label: t('listTab') },
     { key: 'weekly', label: t('weeklyTab') },
     { key: 'monthly', label: t('monthlyTab') },
-    { key: 'list', label: t('listTab') },
+    { key: 'gantt', label: t('ganttTab') },
   ];
 
   return (
     <View style={styles.container}>
-      <View style={[styles.tabContent, { backgroundColor: theme.surface2 }]}>
-        {tabs.map((tab) => (
-          <TouchableOpacity
-            key={tab.key}
-            onPress={() => setActiveView(tab.key)}
-            style={[
-              styles.tab,
-              activeView === tab.key && { backgroundColor: theme.surface }
-            ]}
-          >
-            <AppText 
-              weight={activeView === tab.key ? 'bold' : 'regular'}
+      <View style={[styles.tabContent, { backgroundColor: theme.surface2, borderColor: theme.border }]}>
+        {tabs.map((tab) => {
+          const isActive = activeView === tab.key;
+          return (
+            <TouchableOpacity
+              key={tab.key}
+              activeOpacity={0.9}
+              onPress={() => setActiveView(tab.key)}
               style={[
-                styles.tabText, 
-                { color: activeView === tab.key ? theme.accent : theme.text2 }
+                styles.tab,
+                isActive && [styles.activeTab, { backgroundColor: theme.surface }]
               ]}
             >
-              {tab.label}
-            </AppText>
-          </TouchableOpacity>
-        ))}
+              <AppText 
+                weight={isActive ? 'bold' : 'medium'}
+                style={[
+                  styles.tabText, 
+                  { color: isActive ? theme.accent : theme.text2 }
+                ]}
+              >
+                {tab.label}
+              </AppText>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   );
@@ -56,19 +60,26 @@ export const ViewTabs: React.FC<ViewTabsProps> = ({
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 20,
   },
   tabContent: {
     flexDirection: 'row',
-    padding: 4,
-    borderRadius: 16,
-    gap: 4,
+    padding: 6,
+    borderRadius: 18,
+    borderWidth: 1,
   },
   tab: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 10,
     alignItems: 'center',
-    borderRadius: 12,
+    borderRadius: 14,
+  },
+  activeTab: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   tabText: {
     fontSize: 13,

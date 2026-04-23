@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, View, ScrollView, Animated, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useMemo } from 'react';
+import { StyleSheet, View, Animated, Alert, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TopBar } from '../components/planner/TopBar';
 import { StatsRow } from '../components/planner/StatsRow';
@@ -15,19 +14,19 @@ import {
   CropTask, Language, ThemeMode, ViewMode, TaskStatus, AIInsight 
 } from '../types/planner';
 import { getPlannerTheme } from '../constants/plannerTheme';
-import { sampleTasks } from '../constants/cropTasks';
-import { getAIDailyInsight } from '../services/geminiPlanner';
-import { Screen, AppText, GradientButton } from '../components/ui';
-
+import { Screen, AppText, GradientButton, GlassCard } from '../components/ui';
 import { useTheme } from '../providers/ThemeContext';
 import { useAppStore } from '../store/useAppStore';
-
-const STORAGE_KEY = '@anaaj_planner_tasks';
+import { useNavigation } from '@react-navigation/native';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { apiService } from '../api/services';
+import { mapBackendTaskToCropTask } from '../utils/plannerUtils';
 
 export const PlannerScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const { isDark } = useTheme();
   const { language: appLang } = useAppStore();
+  const navigation = useNavigation<any>();
   
   const langMap: Record<string, Language> = {
     'English': 'en',
@@ -38,85 +37,78 @@ export const PlannerScreen: React.FC = () => {
   const lang = (langMap[appLang] || 'en') as Language;
   const themeMode: ThemeMode = isDark ? 'dark' : 'light';
 
-  // State
-  const [tasks, setTasks] = useState<CropTask[]>(sampleTasks);
+  // Queries
+  const { data: crops = [] } = useQuery({
+    queryKey: ['crops'],
+    queryFn: () => apiService.getCrops(),
+  });
+
+  const { data: backendTasks = [] } = useQuery({
+    queryKey: ['tasks'],
+    queryFn: () => apiService.getTasks(),
+  });
+
+  const { data: advisorData } = useQuery({
+    queryKey: ['advisor-sync'],
+    queryFn: () => apiService.getDashboard(),
+  });
+
+  // Mapped Tasks
+  const tasks = useMemo(() => {
+    return backendTasks.map(bt => {
+      const crop = crops.find(c => c._id === bt.userCropId);
+      return mapBackendTaskToCropTask({ ...bt, cropType: crop?.cropType });
+    });
+  }, [backendTasks, crops]);
+
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [filter, setFilter] = useState<TaskStatus | 'all'>('all');
-  const [insight, setInsight] = useState<AIInsight | null>(null);
-  const [loadingInsight, setLoadingInsight] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const theme = getPlannerTheme(themeMode);
 
-  // Persistence
-  useEffect(() => {
-    loadData();
-    fetchAIInsight();
-  }, [lang]);
+  const insight: AIInsight | null = useMemo(() => {
+    if (!advisorData) return null;
+    return {
+      message: advisorData.suggestions[0] || "Your crops are looking healthy. Keep up the good work!",
+      chips: advisorData.summary?.highPriorityAlerts > 0 ? ["Weather Alert", "Check Soil"] : ["Stable", "View Roadmap"],
+      generatedAt: advisorData.generatedAt
+    };
+  }, [advisorData]);
 
-  const loadData = async () => {
-    try {
-      const savedTasks = await AsyncStorage.getItem(STORAGE_KEY);
-      if (savedTasks) setTasks(JSON.parse(savedTasks));
-    } catch (e) {
-      console.error('Failed to load data', e);
-    }
-  };
-
-  const saveData = async (newTasks: CropTask[]) => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newTasks));
-    } catch (e) {
-      console.error('Failed to save data', e);
-    }
-  };
-
-  const fetchAIInsight = async () => {
-    setLoadingInsight(true);
-    try {
-      const crops = [...new Set(tasks.map(t => t.cropName))];
-      const data = await getAIDailyInsight({
-        crops: crops.length > 0 ? crops : ['Wheat'],
-        language: lang,
-        season: 'Rabi' // Detect dynamically in real app
-      });
-      setInsight(data);
-    } catch (e) {
-      console.error('AI Insight error', e);
-    } finally {
-      setLoadingInsight(false);
-    }
-  };
-
-  const handleAddTask = (taskData: Partial<CropTask>) => {
-    const newTask: CropTask = {
-      ...taskData,
-      id: Date.now().toString(),
-      titleTranslations: {
-        en: taskData.title || '',
-        hi: taskData.title || '',
-        pa: taskData.title || '',
-        gu: taskData.title || '',
-      }
-    } as CropTask;
-    
-    const updated = [...tasks, newTask];
-    setTasks(updated);
-    saveData(updated);
+  const handleAddTask = async (taskData: any) => {
+    setIsModalVisible(false);
   };
 
   const handleDeleteTask = (taskId: string) => {
-    Alert.alert("Delete Task", "Are you sure?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: () => {
-        const updated = tasks.filter(t => t.id !== taskId);
-        setTasks(updated);
-        saveData(updated);
-      }}
-    ]);
+    Alert.alert("Action Restricted", "AI-generated schedules cannot be manually deleted.");
   };
 
   const filteredTasks = tasks.filter(t => filter === 'all' || t.status === filter);
+
+  if (crops.length === 0) {
+    return (
+      <View style={[styles.container, { backgroundColor: theme.bg, paddingTop: insets.top }]}>
+        <TopBar themeMode={themeMode} />
+        <View style={styles.emptyState}>
+          <Image 
+            source={{ uri: 'https://res.cloudinary.com/dvwpxb2oa/image/upload/v1713865000/empty-farm_zxcvbn.png' }}
+            style={styles.emptyImage}
+            defaultSource={{ uri: 'https://via.placeholder.com/200' }}
+          />
+          <AppText variant="title" style={{ textAlign: 'center', marginTop: 24 }}>No Crops Registered</AppText>
+          <AppText color={theme.text2} style={{ textAlign: 'center', marginTop: 8, paddingHorizontal: 40 }}>
+            Register your first crop to get a personalized AI farming plan and daily tasks.
+          </AppText>
+          <GradientButton 
+            label="+ Add Your First Crop"
+            onPress={() => navigation.navigate('AddCrop')}
+            style={{ marginTop: 32, width: 260 }}
+          />
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bg, paddingTop: insets.top }]}>
@@ -126,7 +118,7 @@ export const PlannerScreen: React.FC = () => {
 
       <Animated.ScrollView 
         showsVerticalScrollIndicator={false}
-        stickyHeaderIndices={[3]} // Stick the ViewTabs
+        stickyHeaderIndices={[3]}
       >
         <StatsRow 
           tasks={tasks} 
@@ -138,11 +130,11 @@ export const PlannerScreen: React.FC = () => {
 
         <AIInsightCard 
           insight={insight} 
-          loading={loadingInsight} 
+          loading={false} 
           lang={lang} 
           themeMode={themeMode} 
-          onRefresh={fetchAIInsight}
-          onChipPress={(chip) => Alert.alert("AI Chip", chip)}
+          onRefresh={() => {}}
+          onChipPress={(chip) => Alert.alert("Analysis", chip)}
         />
 
         <View style={{ height: 16 }} />
@@ -163,7 +155,7 @@ export const PlannerScreen: React.FC = () => {
               tasks={filteredTasks} 
               lang={lang} 
               themeMode={themeMode} 
-              onEdit={(t) => Alert.alert("Edit", t.title)}
+              onEdit={(t) => Alert.alert("Details", t.notes || "No details available.")}
               onDelete={handleDeleteTask}
             />
           )}
@@ -174,7 +166,7 @@ export const PlannerScreen: React.FC = () => {
 
       <View style={[styles.fab, { bottom: insets.bottom + 20 }]}>
         <GradientButton 
-          label={lang === 'hi' ? '+ नया कार्य' : lang === 'pa' ? '+ ਨਵਾਂ ਕੰਮ' : lang === 'gu' ? '+ નવું કાર્ય' : '+ Add Task'}
+          label={lang === 'hi' ? '+ नया कार्य' : lang === 'pa' ? '+ ਨਵਾਂ ਕੰਮ' : lang === 'gu' ? '+ નવું કાર્ય' : '+ Add Manual Task'}
           onPress={() => setIsModalVisible(true)}
           style={{ width: 220 }}
         />
@@ -209,4 +201,16 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 100,
+  },
+  emptyImage: {
+    width: 220,
+    height: 220,
+    resizeMode: 'contain',
+    opacity: 0.8,
+  }
 });

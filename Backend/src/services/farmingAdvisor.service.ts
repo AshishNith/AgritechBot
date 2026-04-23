@@ -245,6 +245,11 @@ async function buildSnapshot(crop: IUserCrop): Promise<CropAssistantSnapshot> {
     weather,
     risks,
     recommendations: [...new Set([...risks.map((risk) => risk.recommendation), ...recommendations])].slice(0, 4),
+    analysis: {
+      status: risks.length > 0 ? 'Action Required' : 'Healthy',
+      summary: `Currently in ${crop.currentStage} stage. ${risks.length > 0 ? 'Weather risks detected.' : 'Conditions are ideal.'}`,
+      roadmap: `Focus for next 30 days: Maintain soil moisture and monitor for pests during ${crop.currentStage} transition.`,
+    }
   };
 }
 

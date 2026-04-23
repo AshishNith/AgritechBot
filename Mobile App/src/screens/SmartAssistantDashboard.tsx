@@ -112,7 +112,7 @@ export function SmartAssistantDashboard({ navigation }: Props) {
         )}
         renderItem={({ item }) => (
           <Pressable
-            onPress={() => navigation.navigate('TaskTimeline', { cropId: item._id })}
+            onPress={() => navigation.navigate('CropPlanResult', { planId: item._id })}
             style={styles.cropItem}
           >
             <View style={styles.cropIcon}>
@@ -131,7 +131,7 @@ export function SmartAssistantDashboard({ navigation }: Props) {
           <View style={{ marginTop: 24, paddingBottom: 40 }}>
             <GradientButton
               label={t('registerNewCrop')}
-              onPress={() => navigation.navigate('AddCrop')}
+              onPress={() => navigation.navigate('CropPlannerForm')}
               leftIcon={<Ionicons name="add" size={20} color="#fff" />}
             />
           </View>
