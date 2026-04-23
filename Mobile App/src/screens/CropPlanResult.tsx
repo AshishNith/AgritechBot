@@ -124,7 +124,7 @@ export const CropPlanResult: React.FC = () => {
                             <View style={styles.taskFooter}>
                               <View style={styles.tagWrap}>
                                 {task.tools_required.map((tool: string, i: number) => (
-                                  <Pill key={i} label={tool} style={{ backgroundColor: colors.surface2 }} />
+                                  <Pill key={i} label={tool} style={{ backgroundColor: colors.surface }} />
                                 ))}
                               </View>
                               <AppText variant="caption" color={colors.primary} weight="bold">{task.estimated_cost}</AppText>

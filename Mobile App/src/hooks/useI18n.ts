@@ -114,7 +114,15 @@ type ExtraTranslationKey =
   | 'suggestHighHumidityMonitorFungus'
   | 'suggestStableWeather'
   | 'suggestCoolHours'
-  | 'suggestMonitor12Hours';
+  | 'suggestMonitor12Hours'
+  | 'markAllRead'
+  | 'all'
+  | 'weather'
+  | 'order'
+  | 'loadingNotifications'
+  | 'failedToLoadNotifications'
+  | 'stayUpdated'
+  | 'stayUpdatedSubtitle';
 
 export type AppTranslationKey = TranslationKey | ExtraTranslationKey;
 
@@ -232,6 +240,14 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     suggestStableWeather: 'Weather looks stable - continue normal field maintenance.',
     suggestCoolHours: 'Use the cooler hours for irrigation and nutrient application.',
     suggestMonitor12Hours: 'Monitor the next 12 hours before changing your care plan.',
+    markAllRead: 'Mark All Read',
+    all: 'All',
+    weather: 'Weather',
+    order: 'Order',
+    loadingNotifications: 'Loading notifications...',
+    failedToLoadNotifications: 'Failed to load notifications.',
+    stayUpdated: 'Stay Updated',
+    stayUpdatedSubtitle: 'New alerts appear automatically based on your crops and location. Pull down to refresh.',
   },
   Hindi: {
     homeTab: 'होम',
@@ -346,6 +362,14 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     suggestStableWeather: 'मौसम स्थिर दिख रहा है - सामान्य खेत रखरखाव जारी रखें।',
     suggestCoolHours: 'सिंचाई और पोषण देने के लिए ठंडे घंटों का उपयोग करें।',
     suggestMonitor12Hours: 'देखभाल योजना बदलने से पहले अगले 12 घंटे पर नजर रखें।',
+    markAllRead: 'सभी को पढ़ा हुआ मार्क करें',
+    all: 'सभी',
+    weather: 'मौसम',
+    order: 'ऑर्डर',
+    loadingNotifications: 'नोटिफिकेशन लोड हो रहे हैं...',
+    failedToLoadNotifications: 'नोटिफिकेशन लोड करने में विफल।',
+    stayUpdated: 'अपडेट रहें',
+    stayUpdatedSubtitle: 'आपकी फसलों और स्थान के आधार पर नए अलर्ट अपने आप दिखाई देते हैं। रिफ्रेश करने के लिए नीचे खींचें।',
   },
   Gujarati: {
     homeTab: 'હોમ',
@@ -460,6 +484,14 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     suggestStableWeather: 'હવામાન સ્થિર લાગે છે - સામાન્ય ખેતીકામ ચાલુ રાખો.',
     suggestCoolHours: 'સિંચાઈ અને પોષક આપવાના કામ માટે ઠંડા કલાકો પસંદ કરો.',
     suggestMonitor12Hours: 'સંભાળ યોજના બદલતા પહેલાં આવતા 12 કલાક પર નજર રાખો.',
+    markAllRead: 'બધા વંચાયેલા તરીકે માર્ક કરો',
+    all: 'બધા',
+    weather: 'હવામાન',
+    order: 'ઓર્ડર',
+    loadingNotifications: 'નોટિફિકેશન લોડ થઈ રહ્યા છે...',
+    failedToLoadNotifications: 'નોટિફિકેશન લોડ કરવામાં નિષ્ફળ.',
+    stayUpdated: 'અપડેટ રહો',
+    stayUpdatedSubtitle: 'તમારા પાક અને સ્થાનના આધારે નવા એલર્ટ આપમેળે દેખાય છે. રિફ્રેશ કરવા માટે નીચે ખેંચો.',
   },
   Punjabi: {
     homeTab: 'ਹੋਮ',
@@ -574,6 +606,14 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     suggestStableWeather: 'ਮੌਸਮ ਸਥਿਰ ਲੱਗਦਾ ਹੈ - ਆਮ ਖੇਤ ਸੰਭਾਲ ਜਾਰੀ ਰੱਖੋ।',
     suggestCoolHours: 'ਸਿੰਚਾਈ ਅਤੇ ਪੋਸ਼ਣ ਲਈ ਠੰਢੇ ਘੰਟਿਆਂ ਦੀ ਵਰਤੋਂ ਕਰੋ।',
     suggestMonitor12Hours: 'ਦੇਖਭਾਲ ਯੋਜਨਾ ਬਦਲਣ ਤੋਂ ਪਹਿਲਾਂ ਅਗਲੇ 12 ਘੰਟੇ ਵੇਖੋ।',
+    markAllRead: 'ਸਾਰੇ ਪੜ੍ਹੇ ਹੋਏ ਮਾਰਕ ਕਰੋ',
+    all: 'ਸਾਰੇ',
+    weather: 'ਮੌਸਮ',
+    order: 'ਆਰਡਰ',
+    loadingNotifications: 'ਨੋਟਿਫਿਕੇਸ਼ਨ ਲੋਡ ਹੋ ਰਹੇ ਹਨ...',
+    failedToLoadNotifications: 'ਨੋਟਿਫਿਕੇਸ਼ਨ ਲੋਡ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
+    stayUpdated: 'ਅਪਡੇਟ ਰਹੋ',
+    stayUpdatedSubtitle: 'ਤੁਹਾਡੀਆਂ ਫਸਲਾਂ ਅਤੇ ਲੋਕੇਸ਼ਨ ਦੇ ਅਧਾਰ ਤੇ ਨਵੇਂ ਅਲਰਟ ਆਪਣੇ ਆਪ ਦਿਖਾਈ ਦਿੰਦੇ ਹਨ। ਤਾਜ਼ਾ ਕਰਨ ਲਈ ਹੇਠਾਂ ਖਿੱਚੋ।',
   },
 };
 

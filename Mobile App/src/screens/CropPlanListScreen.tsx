@@ -104,7 +104,7 @@ export const CropPlanListScreen: React.FC = () => {
             label="Generate New Plan" 
             onPress={() => navigation.navigate('CropPlannerForm')}
             style={styles.emptyBtn}
-            icon="sparkles"
+            leftIcon={(() => { const Icon = IconMap['Sparkles']; return Icon ? <Icon size={18} color="#fff" /> : null; })()}
           />
         </View>
       ) : (

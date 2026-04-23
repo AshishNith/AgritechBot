@@ -124,12 +124,18 @@ api.interceptors.response.use(
     throw error;
   }
 );
-
 api.interceptors.request.use((config) => {
   config.baseURL = activeBaseUrl;
-  const token = useAppStore.getState().token;
+  const state = useAppStore.getState();
+  const token = state.token;
+  const language = state.language || 'English';
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  // Inject user's language preference for localized AI responses
+  config.headers['Accept-Language'] = language;
+
   return config;
 });

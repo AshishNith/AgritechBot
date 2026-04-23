@@ -100,7 +100,7 @@ export function MarketplaceScreen() {
           <AppText variant="label" color={colors.textOnDark}>{t(language, 'cart')} {cartCount}</AppText>
         </Pressable>
       </View>
-      <View style={{ marginTop: 18 }}>
+      <View style={{ marginTop: 18, paddingHorizontal: 20 }}>
         <SearchInput value={search} onChangeText={setSearch} placeholder={t(language, 'searchPlaceholder')} />
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
@@ -123,28 +123,30 @@ export function MarketplaceScreen() {
       ) : (
         <>
           {aiPick ? (
-            <ScreenCard style={[styles.recommendationCard, { backgroundColor: colors.primaryDark }]}>
-              <AppText variant="caption" color="rgba(255,255,255,0.85)">
-                {t(language, 'aiPick')}
-              </AppText>
-              <AppText variant="title" color={colors.textOnDark} style={{ marginTop: 8 }}>
-                {getLocalizedProductContent(aiPick, language).name}
-              </AppText>
-              <AppText color="rgba(255,255,255,0.85)" style={{ marginTop: 8 }}>
-                {getLocalizedProductContent(aiPick, language).whyUse ?? t(language, 'marketSubtitle')}
-              </AppText>
-              <Pressable
-                onPress={() => {
-                  setFeaturedProduct(aiPick);
-                  navigation.navigate('ProductDetail', { productId: aiPick.id });
-                }}
-                style={styles.aiCardAction}
-              >
-                <AppText variant="label" color={colors.primaryDark}>
-                  {t(language, 'viewNow')}
+            <View style={{ paddingHorizontal: 20 }}>
+              <ScreenCard style={[styles.recommendationCard, { backgroundColor: colors.primaryDark }]}>
+                <AppText variant="caption" color="rgba(255,255,255,0.85)">
+                  {t(language, 'aiPick')}
                 </AppText>
-              </Pressable>
-            </ScreenCard>
+                <AppText variant="title" color={colors.textOnDark} style={{ marginTop: 8 }}>
+                  {getLocalizedProductContent(aiPick, language).name}
+                </AppText>
+                <AppText color="rgba(255,255,255,0.85)" style={{ marginTop: 8 }}>
+                  {getLocalizedProductContent(aiPick, language).whyUse ?? t(language, 'marketSubtitle')}
+                </AppText>
+                <Pressable
+                  onPress={() => {
+                    setFeaturedProduct(aiPick);
+                    navigation.navigate('ProductDetail', { productId: aiPick.id });
+                  }}
+                  style={styles.aiCardAction}
+                >
+                  <AppText variant="label" color={colors.primaryDark}>
+                    {t(language, 'viewNow')}
+                  </AppText>
+                </Pressable>
+              </ScreenCard>
+            </View>
           ) : null}
 
           {grouped.fertilizers.length > 0 && (
@@ -192,7 +194,7 @@ export function MarketplaceScreen() {
           {grouped.tools.length > 0 && (
             <>
               <SectionHeader title={t(language, 'modernTools')} />
-              <View style={{ gap: 12 }}>
+              <View style={{ gap: 12, paddingHorizontal: 20 }}>
                 {grouped.tools.map((product) => {
                   const localized = getLocalizedProductContent(product, language);
                   return (
@@ -302,6 +304,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: 20,
   },
   cartIndicator: {
     borderRadius: 20,
@@ -311,6 +314,7 @@ const styles = StyleSheet.create({
   chipsRow: {
     gap: 8,
     paddingVertical: 16,
+    paddingHorizontal: 20,
   },
   loadingWrap: {
     paddingVertical: 40,
@@ -331,6 +335,7 @@ const styles = StyleSheet.create({
   sectionScroller: {
     gap: 12,
     paddingBottom: 24,
+    paddingHorizontal: 20,
   },
   emptyWrap: {
     marginBottom: 24,

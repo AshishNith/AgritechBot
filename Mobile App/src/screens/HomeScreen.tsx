@@ -257,7 +257,7 @@ export function HomeScreen() {
           />
           {isDark && (
             <AppText weight="bold" style={{ fontSize: 26, color: colors.textOnDark, marginLeft: 4, lineHeight: 32, flexShrink: 0 }}>
-              Anaaj.ai
+              {tx('homeTab')}
             </AppText>
           )}
         </View>
@@ -274,7 +274,7 @@ export function HomeScreen() {
       </View>
 
       <View style={styles.header}>
-        <AppText variant="display">{greeting}, {user?.name ?? 'Ram'}</AppText>
+        <AppText variant="display">{greeting}, {user?.name || tx('name')}</AppText>
       </View>
 
       {/* New Hero Weather Card */}
@@ -297,7 +297,8 @@ export function HomeScreen() {
       />
 
       {/* Farm Map Directly Below Weather */}
-      <ScreenCard style={styles.mapCard}>
+      <View style={{ paddingHorizontal: 20 }}>
+        <ScreenCard style={styles.mapCard}>
         <View style={styles.mapHeader}>
           <AppText variant="label">{t(language, 'farmMap')}</AppText>
           <AppText color={colors.textMuted}>{liveLocationName}</AppText>
@@ -323,22 +324,24 @@ export function HomeScreen() {
           />
         </TouchableOpacity>
       </ScreenCard>
+    </View>
 
-      {/* Planner & Tasks Overview */}
+    <View style={{ paddingHorizontal: 20, marginTop: 20 }}>
       <PlannerWidget 
         onPress={() => navigation.navigate('Planner')}
         plans={plans}
       />
+    </View>
 
       {/* AI Assistant */}
 
       {/* Recommendations */}
       <View style={{ marginTop: 24, marginBottom: 8 }}>
-        <AppText variant="label" style={{ marginLeft: 4 }}>{t(language, 'recommendedForYou')}</AppText>
+        <AppText variant="label" style={{ marginLeft: 20 }}>{tx('recommendedForYou')}</AppText>
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false} 
-          contentContainerStyle={{ paddingVertical: 12, gap: 14 }}
+          contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 20, gap: 14 }}
         >
           {recommendedProducts.map((product) => (
             <TouchableOpacity 
@@ -372,8 +375,8 @@ export function HomeScreen() {
       </View>
 
       {/* Quick Action Grid - Moved to last above mic */}
-      <View style={{ marginBottom: 12, marginTop: 24 }}>
-        <AppText variant="label" style={{ marginLeft: 4, marginBottom: 8 }}>{t(language, 'quickServices')}</AppText>
+      <View style={{ marginBottom: 12, marginTop: 24, paddingHorizontal: 20 }}>
+        <AppText variant="label" style={{ marginBottom: 8 }}>{tx('quickServices')}</AppText>
         <QuickActionGrid />
       </View>
 
@@ -393,7 +396,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 16,
-    paddingHorizontal: 4,
+    paddingHorizontal: 20,
   },
   brandWrap: {
     flexDirection: 'row',
@@ -411,6 +414,7 @@ const styles = StyleSheet.create({
   header: {
     marginTop: 16,
     marginBottom: 20,
+    paddingHorizontal: 20,
   },
   weatherInsightPanel: {
     marginTop: 20,
@@ -426,7 +430,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   mapCard: {
-    marginTop: 20,
     padding: 0,
     overflow: 'hidden',
     height: 240,

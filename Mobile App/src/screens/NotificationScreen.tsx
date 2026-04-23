@@ -2,6 +2,7 @@ import { IconMap } from '../components/IconMap';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { useState, useCallback, useEffect } from 'react';
+import { useI18n } from '../hooks/useI18n';
 
 import { apiService } from '../api/services';
 import { AppText, GradientButton, Screen, ScreenCard } from '../components/ui';
@@ -11,11 +12,11 @@ import { useTheme } from '../providers/ThemeContext';
 import { NotificationCard } from '../components/NotificationCard';
 import { EmptyState } from '../components/ui/EmptyState';
 
-const TABS: { label: string; type?: NotificationType }[] = [
-  { label: 'All' },
-  { label: 'Crop Alerts', type: 'crop_alert' },
-  { label: 'Weather', type: 'weather' },
-  { label: 'AI Suggestions', type: 'ai_suggestion' },
+const TABS: { labelKey: string; type?: NotificationType }[] = [
+  { labelKey: 'all' },
+  { labelKey: 'cropsGrown', type: 'crop_alert' },
+  { labelKey: 'weather', type: 'weather' },
+  { labelKey: 'aiCropAssistant', type: 'ai_suggestion' },
 ];
 
 const TYPE_ICONS: Record<NotificationType, any> = {
@@ -43,8 +44,7 @@ export function NotificationScreen() {
   const { isDark, colors } = useTheme();
   const [activeTab, setActiveTab] = useState(0);
   const queryClient = useQueryClient();
-  const setUnreadCount = useAppStore((s) => s.setUnreadNotificationCount);
-
+  const { t: tx } = useI18n();
   const activeType = TABS[activeTab].type;
 
   const { data, isLoading, isError, refetch } = useQuery({
@@ -100,11 +100,11 @@ export function NotificationScreen() {
       <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
     }>
       <View style={styles.header}>
-        <AppText variant="heading">Notifications</AppText>
+        <AppText variant="heading">{tx('notifications')}</AppText>
         {unreadCount > 0 && (
           <Pressable onPress={() => markAllReadMutation.mutate()}>
             <AppText color={colors.primary} variant="label">
-              {markAllReadMutation.isPending ? 'Clearing...' : 'Mark All Read'}
+              {markAllReadMutation.isPending ? tx('saving') : tx('markAllRead')}
             </AppText>
           </Pressable>
         )}
@@ -113,7 +113,7 @@ export function NotificationScreen() {
       <View style={styles.tabsRow}>
         {TABS.map((tab, index) => (
           <Pressable
-            key={tab.label}
+            key={tab.labelKey}
             onPress={() => setActiveTab(index)}
             style={[styles.tab, { backgroundColor: isDark ? colors.surface : colors.backgroundAlt }, index === activeTab && [styles.tabActive, { backgroundColor: colors.primary }]]}
           >
@@ -121,7 +121,7 @@ export function NotificationScreen() {
               variant="label"
               color={index === activeTab ? colors.textOnDark : colors.textMuted}
             >
-              {tab.label}
+              {tx(tab.labelKey as any)}
             </AppText>
           </Pressable>
         ))}
@@ -131,7 +131,7 @@ export function NotificationScreen() {
         <View style={styles.centered}>
           <ActivityIndicator size="large" color={colors.primary} />
           <AppText color={colors.textMuted} style={{ marginTop: 12 }}>
-            Loading notifications...
+            {tx('loadingNotifications')}
           </AppText>
         </View>
       )}
@@ -140,9 +140,9 @@ export function NotificationScreen() {
         <View style={styles.centered}>
           {(() => { const IconComp = IconMap['AlertCircle']; return IconComp ? <IconComp size={48} color={colors.danger} /> : null; })()}
           <AppText color={colors.textMuted} style={{ marginTop: 12 }}>
-            Failed to load notifications.
+            {tx('failedToLoadNotifications')}
           </AppText>
-          <GradientButton label="Retry" onPress={() => refetch()} secondary style={{ marginTop: 16 }} />
+          <GradientButton label={tx('retry')} onPress={() => refetch()} secondary style={{ marginTop: 16 }} />
         </View>
       )}
 
@@ -167,10 +167,10 @@ export function NotificationScreen() {
       {!isLoading && !isError && notifications.length > 0 && (
         <ScreenCard style={[styles.suggestionCard, { backgroundColor: colors.primaryDark }]}>
           <AppText variant="label" color={colors.textOnDark}>
-            Stay Updated
+            {tx('stayUpdated')}
           </AppText>
           <AppText color="#ddf4e8" style={{ marginTop: 8 }}>
-            New alerts appear automatically based on your crops and location. Pull down to refresh.
+            {tx('stayUpdatedSubtitle')}
           </AppText>
         </ScreenCard>
       )}
@@ -184,11 +184,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 8,
+    paddingHorizontal: 20,
   },
   tabsRow: {
     flexDirection: 'row',
     gap: 8,
     marginVertical: 18,
+    paddingHorizontal: 20,
   },
   tab: {
     flex: 1,

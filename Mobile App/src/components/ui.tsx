@@ -4,6 +4,8 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+export { PremiumModal } from './ui/PremiumModal';
+export { SkeletonLoader } from './ui/SkeletonLoader';
 
 import {
   ActivityIndicator,

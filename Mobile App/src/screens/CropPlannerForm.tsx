@@ -207,7 +207,7 @@ export const CropPlannerForm: React.FC = () => {
               onPress={handleSubmit}
               disabled={loading}
               loading={loading}
-              icon="sparkles"
+              leftIcon={(() => { const Icon = IconMap['Sparkles']; return Icon ? <Icon size={18} color="#fff" /> : null; })()}
             />
           </View>
         </GlassCard>

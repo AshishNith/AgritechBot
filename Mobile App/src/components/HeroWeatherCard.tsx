@@ -131,7 +131,7 @@ export function HeroWeatherCard({
 const styles = StyleSheet.create({
   container: {
     marginBottom: 20,
-    marginHorizontal: 4,
+    marginHorizontal: 20,
   },
   card: {
     padding: 18,
