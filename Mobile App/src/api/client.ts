@@ -71,11 +71,17 @@ api.interceptors.response.use(
         store.signOut();
       }
 
-      // Check for translation code from backend
+      // Priority 1: Use backend's translation code if provided
       if (data?.code && typeof data.code === 'string') {
         error.message = t(language, data.code as TranslationKey);
-      } else {
-        // Fallback standard status mapping
+      }
+      // Priority 2: Use backend's message directly (Gemini errors have
+      // their own localized messages like "AI is busy", "timed out", etc.)
+      else if (data?.message && typeof data.message === 'string' && data.message !== 'Internal Server Error') {
+        error.message = data.message;
+      }
+      // Priority 3: Fallback to status-code-based generic translation
+      else {
         const statusMap: Record<number, TranslationKey> = {
           401: 'errAuth',
           402: 'errNoCredits',

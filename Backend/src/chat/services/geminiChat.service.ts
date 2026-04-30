@@ -131,7 +131,8 @@ function isTemporaryProviderError(error: unknown): boolean {
 
 function parseRetryDelayMs(error: unknown): number {
   const match = error instanceof Error && error.message.match(/(\d+)\s*s/);
-  return match ? Number(match[1]) * 1000 : 60_000; // default 60s
+  const parsed = match ? Number(match[1]) * 1000 : 10_000; // default 10s (was 60s — way too long)
+  return Math.min(parsed, 15_000); // cap at 15s — never block longer than this
 }
 
 function getQuotaExceededMessage(lang: ChatLanguage, retryAfterSeconds: number): string {
@@ -171,13 +172,19 @@ export async function sendChatMessage(params: {
   const startedAt = Date.now();
 
   // ── 1. Pre-flight: quota cooldown check ──
+  // Only block if we're within a very recent cooldown (max 15s).
+  // This prevents a single Gemini 429 from locking out all users for a full minute.
   if (Date.now() < quotaBlockedUntil) {
-    const retryAfterSeconds = Math.ceil((quotaBlockedUntil - Date.now()) / 1000);
-    throw new HttpError(
-      `AI is busy. Please wait ${retryAfterSeconds} seconds.`,
-      429,
-      { retryAfterSeconds }
-    );
+    const retryAfterSeconds = Math.max(1, Math.ceil((quotaBlockedUntil - Date.now()) / 1000));
+    if (retryAfterSeconds > 1) {
+      // Only block if there's meaningful time left; otherwise just try the request
+      logger.info({ retryAfterSeconds }, 'Quota cooldown active, rejecting early');
+      throw new HttpError(
+        `AI is busy. Please try again in ${retryAfterSeconds} seconds.`,
+        429,
+        { retryAfterSeconds }
+      );
+    }
   }
 
   const language = params.preferredLanguage
