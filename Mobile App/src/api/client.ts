@@ -53,7 +53,7 @@ let activeBaseUrl = baseUrls[0] || (__DEV__ ? 'http://localhost:4000' : 'https:/
 
 export const api = axios.create({
   baseURL: activeBaseUrl,
-  timeout: 60000,
+  timeout: 90000, // 90s — enough for Gemini AI + tool calls + TTS
 });
 
 api.interceptors.response.use(

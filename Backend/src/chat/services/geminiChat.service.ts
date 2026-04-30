@@ -46,9 +46,9 @@ import { detectChatLanguage, toUserLanguage, type ChatLanguage } from '../utils/
 
 // ── Configuration ──
 
-const GEMINI_API_TIMEOUT_MS = 30_000;     // 30s for main AI call (was 20s — too tight)
-const TTS_TIMEOUT_MS = 10_000;            // 10s cap for TTS
-const MAX_TOOL_LOOPS = 5;                 // prevents infinite tool call loops
+const GEMINI_API_TIMEOUT_MS = 25_000;     // 25s per AI call (budget: 25s × 4 calls max = 100s)
+const TTS_TIMEOUT_MS = 5_000;             // 5s cap for TTS (non-critical, can fail gracefully)
+const MAX_TOOL_LOOPS = 3;                 // max 3 tool iterations to keep total time under 105s
 const HISTORY_TOKEN_BUDGET = 12_000;      // token budget for context window
 
 const gemini = new GoogleGenerativeAI(env.GEMINI_API_KEY);

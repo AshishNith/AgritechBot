@@ -352,6 +352,7 @@ export function ChatScreen() {
     },
     onError: (error: any, variables) => {
       const statusCode = error?.response?.status;
+      const isNetworkOrTimeout = !error?.response; // No HTTP response = timeout or network error
       
       // Refresh wallet first to get accurate credit state
       void refetchWallet();
@@ -371,16 +372,47 @@ export function ChatScreen() {
         imageMimeType: variables.imageMimeType,
       });
 
-      setMessages((current) => [
-        ...current,
-        {
-          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-assistant-error`,
-          chatId: chatId ?? 'local',
-          role: 'assistant',
-          content: error?.message || t(language, 'errUnknown'),
-          error: { message: error?.message },
-        },
-      ]);
+      if (isNetworkOrTimeout && chatId) {
+        // On timeout/network errors, the backend may have still processed the
+        // message successfully. Wait a moment, then refetch messages from DB.
+        // This avoids showing a misleading error bubble when the response is
+        // actually there.
+        setTimeout(async () => {
+          try {
+            const data = await apiService.getChatMessages(chatId);
+            if (data.messages.length > 0) {
+              const sortedMessages = [...data.messages].sort((a, b) =>
+                new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
+              );
+              const seen = new Set<string>();
+              const dedupedMessages = sortedMessages.filter((msg) => {
+                if (seen.has(msg.id)) return false;
+                seen.add(msg.id);
+                if (!msg.content || msg.content.trim() === '') return false;
+                return true;
+              });
+              if (dedupedMessages.length > 0) {
+                setMessages(dedupedMessages);
+                setLastFailedDraft(null); // Clear retry since it actually worked
+              }
+            }
+          } catch {
+            // Refetch failed too — keep the retry draft
+          }
+        }, 3000);
+      } else {
+        // Only add error bubble for real backend errors (not timeout/network)
+        setMessages((current) => [
+          ...current,
+          {
+            id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-assistant-error`,
+            chatId: chatId ?? 'local',
+            role: 'assistant',
+            content: error?.message || t(language, 'errUnknown'),
+            error: { message: error?.message },
+          },
+        ]);
+      }
     },
   });
 

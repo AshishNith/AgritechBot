@@ -56,7 +56,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     logger: false, // We use our own pino logger
     trustProxy: true,
     bodyLimit: 10 * 1024 * 1024, // 10MB for voice uploads
-    requestTimeout: 60_000,
+    requestTimeout: 120_000,
     // ── Performance for 10k concurrent connections ──
     connectionTimeout: 10_000,
     keepAliveTimeout: 72_000,
