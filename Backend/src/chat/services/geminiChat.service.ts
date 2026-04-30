@@ -34,9 +34,9 @@ import { incrementUsage } from '../../services/subscriptionService';
 // Chat tools
 import { TOOL_DEFINITIONS, TOOL_CONFIG, executeTool } from '../tools';
 
+
 // Models
 import { ChatMessageModel } from '../models/ChatMessage.model';
-import { User } from '../../models/User';
 
 // Data
 import { SYSTEM_PROMPT } from '../data/systemPrompt';
@@ -355,39 +355,38 @@ export async function sendChatMessage(params: {
     const processingTimeMs = Date.now() - startedAt;
     const cacheHit = !!kbCacheName;
 
-    // ── 8. Persist messages to DB ──
-    await persistExchange({
-      sessionId: params.sessionId,
-      farmerId: params.farmerId,
-      userText: params.text,
-      assistantText: responseText,
-      language,
-      processingTimeMs,
-      cacheHit,
-      idempotencyKey: idempotencyHash,
-      imageBase64: params.imageBase64,
-      audioBase64,
-    });
-
-    // ── 9. Critical wallet sync (awaited for real-time UI) ──
-    let updatedWallet: any = null;
-    try {
-      const wallet = await getWallet(params.farmerId);
-      if (wallet) {
-        const [walletResult] = await Promise.all([
-          deductCredit(params.farmerId, 'chat'),
-          incrementUsage(params.farmerId, 'chat')
-        ]);
-        updatedWallet = walletResult;
-      }
-    } catch (walletErr) {
-      logger.error({ err: walletErr, sessionId: params.sessionId }, 'Wallet deduction failed');
-    }
-
-    // ── 10. Non-critical background work ──
-    const backgroundWork = async () => {
+    // ── 8. RESPOND FIRST — fire off all DB/wallet work in background ──
+    // This is critical: the HTTP response must be sent ASAP so the client
+    // doesn't time out. Persistence, wallet deduction, and session touch
+    // are all non-blocking background work.
+    const doBackgroundWork = async () => {
       try {
         await Promise.all([
+          persistExchange({
+            sessionId: params.sessionId,
+            farmerId: params.farmerId,
+            userText: params.text,
+            assistantText: responseText,
+            language,
+            processingTimeMs,
+            cacheHit,
+            idempotencyKey: idempotencyHash,
+            imageBase64: params.imageBase64,
+            audioBase64,
+          }),
+          (async () => {
+            try {
+              const wallet = await getWallet(params.farmerId);
+              if (wallet) {
+                await Promise.all([
+                  deductCredit(params.farmerId, 'chat'),
+                  incrementUsage(params.farmerId, 'chat'),
+                ]);
+              }
+            } catch (walletErr) {
+              logger.error({ err: walletErr, sessionId: params.sessionId }, 'Wallet deduction failed');
+            }
+          })(),
           touchChatSession(params.sessionId, params.text, responseText, farmerCtx.location),
           ChatHistoryCache.invalidate(params.sessionId),
         ]);
@@ -396,15 +395,14 @@ export async function sendChatMessage(params: {
       }
     };
 
-    backgroundWork();
+    // Fire-and-forget: don't await
+    doBackgroundWork();
 
-    // ── 10. Generate quick reply suggestions (fast, sync) ──
-    const user = await User.findById(params.farmerId).lean();
-    
+    // ── 9. Generate quick reply suggestions (CPU-only, instant) ──
     const quickSuggestions = getQuickSuggestions({
       hasProducts: recommendedProducts.length > 0,
       language,
-      crops: (user as any)?.crops,
+      crops: (farmerCtx as any)?.crops,
     });
 
     return {
@@ -416,11 +414,6 @@ export async function sendChatMessage(params: {
       cached: cacheHit,
       audioBase64,
       audioMimeType: audioBase64 ? 'audio/mp3' : undefined,
-      wallet: updatedWallet ? {
-        chatCredits: updatedWallet.chatCredits,
-        topupCredits: updatedWallet.topupCredits,
-        totalRemaining: updatedWallet.chatCredits + updatedWallet.topupCredits,
-      } : undefined,
     };
 
   } catch (error) {
