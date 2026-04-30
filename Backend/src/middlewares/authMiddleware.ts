@@ -49,6 +49,11 @@ export async function authMiddleware(
     if (!user) {
       return reply.status(401).send({ error: 'User not found' });
     }
+    if (user.status === 'blocked') {
+      return reply.status(403).send({ error: 'User account is blocked' });
+    }
+
+    void User.updateOne({ _id: user._id }, { $set: { lastActiveAt: new Date() } }).catch(() => undefined);
 
     request.user = user;
   } catch (err) {

@@ -13,6 +13,7 @@ import { userRoutes } from './routes/userRoutes';
 import { marketplaceRoutes } from './routes/marketplaceRoutes';
 import { subscriptionRoutes } from './routes/subscriptionRoutes';
 import { adminRoutes } from './routes/adminRoutes';
+import { adminAuthRoutes } from './routes/adminAuthRoutes';
 import { notificationRoutes } from './routes/notificationRoutes';
 import { paymentRoutes } from './routes/paymentRoutes';
 import { imageAnalysisRoutes } from './routes/imageAnalysisRoutes';
@@ -218,6 +219,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     await v1.register(userRoutes);
     await v1.register(marketplaceRoutes);
     await v1.register(subscriptionRoutes);
+    await v1.register(adminAuthRoutes);
     await v1.register(adminRoutes);
     await v1.register(notificationRoutes);
     await v1.register(paymentRoutes);
@@ -239,6 +241,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     await legacy.register(imageAnalysisRoutes);
     await legacy.register(farmingAssistantRoutes);
     await legacy.register(subscriptionRoutes);
+    await legacy.register(adminAuthRoutes);
     await legacy.register(adminRoutes);
     await legacy.register(contactRoutes);
     await legacy.register(cropPlannerRoutes);

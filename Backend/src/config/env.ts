@@ -33,6 +33,9 @@ const envSchema = z.object({
   // Auth
   JWT_SECRET: z.string().min(16),
   JWT_EXPIRES_IN: z.string().default('7d'),
+  ADMIN_SEED_ENABLED: booleanFromEnv.default(true),
+  ADMIN_EMAIL: z.string().email().default('admin@anaaj.ai'),
+  ADMIN_PASSWORD: z.string().min(8).default('Admin@123'),
 
   // AI Providers
   GEMINI_API_KEY: z.string().min(1),

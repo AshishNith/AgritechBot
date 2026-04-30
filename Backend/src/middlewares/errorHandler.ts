@@ -3,6 +3,7 @@ import { logger } from '../utils/logger';
 import { env } from '../config/env';
 import { AppError } from '../utils/AppError';
 import { HttpError } from '../chat/utils/httpError';
+import { createAdminLog } from '../services/adminLogService';
 
 export function registerErrorHandler(app: FastifyInstance): void {
   app.setErrorHandler((error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
@@ -28,6 +29,15 @@ export function registerErrorHandler(app: FastifyInstance): void {
         url: request.url,
         reqId: request.id,
       }, 'Client error');
+    }
+
+    if (request.url.includes('/admin')) {
+      void createAdminLog(statusCode >= 500 ? 'error' : 'system', error.message, {
+        reqId: request.id,
+        url: request.url,
+        method: request.method,
+        statusCode
+      });
     }
 
     const isAppError = error instanceof AppError;

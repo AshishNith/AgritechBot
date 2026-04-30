@@ -5,6 +5,7 @@ import { buildApp } from './app';
 import { startWorkers } from './services/queue/worker';
 import { addRepeatableWeatherJob } from './services/queue/queue';
 import { runMonthlyReset } from './services/walletService';
+import { seedDefaultAdmin } from './services/adminSeedService';
 import { logger } from './utils/logger';
 import { initializeKnowledgeBaseCache } from './chat/services/knowledgeBase.service';
 
@@ -13,6 +14,7 @@ const WALLET_RESET_INTERVAL_MS = 24 * 60 * 60 * 1000;
 async function main(): Promise<void> {
   // Connect to databases
   await connectDB();
+  await seedDefaultAdmin();
   let redisConnected = false;
 
   // Attempt Redis connection (optional in development)

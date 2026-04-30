@@ -5,10 +5,14 @@ export interface IUser extends Document {
   phone: string;
   name?: string;
   role: 'user' | 'admin';
+  status: 'active' | 'blocked';
   language: string;
   location?: {
     state?: string;
     district?: string;
+    latitude?: number;
+    longitude?: number;
+    address?: string;
   };
   crops?: string[];
   landSize?: number;
@@ -22,6 +26,7 @@ export interface IUser extends Document {
     scanCount: number;
     lastReset: Date;
   };
+  lastActiveAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   compareOtp(candidateOtp: string): Promise<boolean>;
@@ -41,6 +46,12 @@ const userSchema = new Schema<IUser>(
       type: String,
       enum: ['user', 'admin'],
       default: 'user',
+    },
+    status: {
+      type: String,
+      enum: ['active', 'blocked'],
+      default: 'active',
+      index: true,
     },
     language: {
       type: String,
@@ -69,6 +80,7 @@ const userSchema = new Schema<IUser>(
       scanCount: { type: Number, default: 0 },
       lastReset: { type: Date, default: Date.now },
     },
+    lastActiveAt: { type: Date, default: Date.now },
   },
   {
     timestamps: true,

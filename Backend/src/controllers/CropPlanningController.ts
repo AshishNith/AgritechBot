@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { CropPlanningService } from '../services/CropPlanningService';
 import { CropPlan } from '../models/CropPlan';
 import { logger } from '../utils/logger';
+import { createAdminLog } from '../services/adminLogService';
 
 const GeneratePlanSchema = z.object({
   crop: z.string(),
@@ -25,7 +26,19 @@ export class CropPlanningController {
 
       logger.info({ userId, crop: body.crop }, 'Generating crop plan');
 
+      const prompt = [
+        `Crop: ${body.crop}`,
+        `Location: ${body.location.district}, ${body.location.state}`,
+        `Land Size: ${body.landSize}`,
+        `Soil Type: ${body.soilType || 'Not specified'}`,
+        `Water Availability: ${body.waterAvailability}`,
+        `Budget: ${body.budget || 'Standard'}`,
+        `Farming Type: ${body.farmingType}`
+      ].join(' | ');
+
       const generatedPlan = await CropPlanningService.generatePlan(body);
+      const responseText = JSON.stringify(generatedPlan);
+      const tokenUsage = Math.ceil((prompt.length + responseText.length) / 4);
 
       const cropPlan = await CropPlan.create({
         userId,
@@ -39,6 +52,10 @@ export class CropPlanningController {
           farmingType: body.farmingType,
         },
         generatedPlan,
+        prompt,
+        responseText,
+        feedback: 'unrated',
+        tokenUsage
       });
 
       return reply.send({
@@ -50,6 +67,10 @@ export class CropPlanningController {
         return reply.status(400).send({ success: false, error: error.errors });
       }
       logger.error({ error: error.message }, 'CropPlan Controller error');
+      await createAdminLog('ai_failure', 'Crop plan generation failed', {
+        userId: request.user ? String(request.user._id) : null,
+        error: error.message
+      });
       return reply.status(500).send({ success: false, error: error.message });
     }
   }

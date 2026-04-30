@@ -37,25 +37,38 @@ export interface ICropPlan extends Document {
       high_budget: string;
     };
   };
+  prompt?: string;
+  responseText?: string;
+  feedback?: 'good' | 'bad' | 'unrated';
+  tokenUsage?: number;
   createdAt: Date;
+  updatedAt: Date;
 }
 
-const CropPlanSchema: Schema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  crop: { type: String, required: true },
-  location: {
-    state: { type: String, required: true },
-    district: { type: String, required: true }
+const CropPlanSchema: Schema = new Schema(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    crop: { type: String, required: true },
+    location: {
+      state: { type: String, required: true },
+      district: { type: String, required: true }
+    },
+    inputData: {
+      landSize: { type: String, required: true },
+      soilType: { type: String },
+      waterAvailability: { type: String, enum: ['low', 'medium', 'high'], required: true },
+      budget: { type: String },
+      farmingType: { type: String, enum: ['organic', 'traditional', 'hybrid'], required: true }
+    },
+    generatedPlan: { type: Object, required: true },
+    prompt: { type: String },
+    responseText: { type: String },
+    feedback: { type: String, enum: ['good', 'bad', 'unrated'], default: 'unrated' },
+    tokenUsage: { type: Number, default: 0 }
   },
-  inputData: {
-    landSize: { type: String, required: true },
-    soilType: { type: String },
-    waterAvailability: { type: String, enum: ['low', 'medium', 'high'], required: true },
-    budget: { type: String },
-    farmingType: { type: String, enum: ['organic', 'traditional', 'hybrid'], required: true }
-  },
-  generatedPlan: { type: Object, required: true },
-  createdAt: { type: Date, default: Date.now }
-});
+  {
+    timestamps: true
+  }
+);
 
 export const CropPlan = mongoose.model<ICropPlan>('CropPlan', CropPlanSchema);
