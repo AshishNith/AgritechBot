@@ -58,7 +58,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     bodyLimit: 10 * 1024 * 1024, // 10MB for voice uploads
     requestTimeout: 120_000,
     // ── Performance for 10k concurrent connections ──
-    connectionTimeout: 10_000,
+    connectionTimeout: 30_000,  // 30s for initial connection (was 10s — too aggressive for mobile uploads)
     keepAliveTimeout: 72_000,
   });
 
