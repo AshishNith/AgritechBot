@@ -138,7 +138,7 @@ export function ImageScanScreen({ route }: { route: any }) {
     setAnalyzing(true);
     setResult(null);
     try {
-      const response = await apiService.analyzeCrop(base64, mimeType, currentLanguage);
+      const response = await apiService.analyzeCrop(base64, mimeType, currentLanguage ?? undefined);
       setResult(response.diagnosis);
 
       // ✅ Real-time wallet update from response
@@ -162,6 +162,38 @@ export function ImageScanScreen({ route }: { route: any }) {
         // Force show paywall immediately
         setTimeout(() => requireScan(true), 100);
         return;
+      }
+
+      // Network/timeout errors: the backend may have processed successfully
+      const isNetworkError = !statusCode || statusCode >= 502 || statusCode === 408 ||
+        /network|timeout|ECONNABORTED|socket/i.test(errorMessage);
+
+      if (isNetworkError) {
+        console.log('[ImageScan] Network/timeout error — polling for result in 5s...');
+        // Don't show error immediately — wait and check if backend saved the result
+        setTimeout(async () => {
+          try {
+            const history = await apiService.getScanHistory();
+            if (history && history.length > 0) {
+              const latestScan = history[0];
+              // Check if this scan was within the last 2 minutes (likely our request)
+              const scanTime = new Date(latestScan.createdAt).getTime();
+              const twoMinutesAgo = Date.now() - 120_000;
+              if (scanTime > twoMinutesAgo && latestScan.diagnosis) {
+                console.log('[ImageScan] Found result from backend — displaying');
+                setResult(latestScan.diagnosis);
+                setAnalyzing(false);
+                return;
+              }
+            }
+          } catch (pollErr) {
+            console.warn('[ImageScan] Poll failed:', pollErr);
+          }
+          // If we get here, no result found — show the original error
+          setAnalyzing(false);
+          Alert.alert(t('alerts'), t('errServerBusy'));
+        }, 5000);
+        return; // Don't set analyzing to false yet — we're still polling
       } else {
         // Show localized error alert (already translated by api client interceptor)
         Alert.alert(t('alerts'), errorMessage);

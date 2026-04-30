@@ -50,8 +50,13 @@ export function createUsageEnforcementMiddleware(type: 'chat' | 'scan') {
         throw AppError.forbidden(key);
       }
     } catch (error) {
-      logger.error({ error, type }, 'Error in usage enforcement middleware');
-      // Fail open for better UX, though this shouldn't happen
+      // Re-throw intentional app errors (402 PaymentRequired, 403 Forbidden)
+      // These are business logic errors that MUST reach the client.
+      if (error instanceof AppError) {
+        throw error;
+      }
+      logger.error({ error, type }, 'Unexpected error in usage enforcement middleware');
+      // Fail open for truly unexpected errors (DB connection issues, etc.)
       return;
     }
   };

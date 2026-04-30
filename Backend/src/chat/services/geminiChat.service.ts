@@ -46,9 +46,9 @@ import { detectChatLanguage, toUserLanguage, type ChatLanguage } from '../utils/
 
 // ── Configuration ──
 
-const GEMINI_API_TIMEOUT_MS = 25_000;     // 25s per AI call (budget: 25s × 4 calls max = 100s)
+const GEMINI_API_TIMEOUT_MS = 20_000;     // 20s per AI call (budget: 20s × 3 calls max = 60s)
 const TTS_TIMEOUT_MS = 5_000;             // 5s cap for TTS (non-critical, can fail gracefully)
-const MAX_TOOL_LOOPS = 3;                 // max 3 tool iterations to keep total time under 105s
+const MAX_TOOL_LOOPS = 2;                 // max 2 tool iterations to keep total time under 65s
 const HISTORY_TOKEN_BUDGET = 12_000;      // token budget for context window
 
 const gemini = new GoogleGenerativeAI(env.GEMINI_API_KEY);
@@ -352,7 +352,7 @@ export async function sendChatMessage(params: {
     try {
       audioBase64 = await withTimeout(
         textToSpeech(responseText, getLanguageLabel(language)),
-        7000,
+        TTS_TIMEOUT_MS,
         'TTS'
       );
     } catch (ttsErr) {
@@ -362,10 +362,29 @@ export async function sendChatMessage(params: {
     const processingTimeMs = Date.now() - startedAt;
     const cacheHit = !!kbCacheName;
 
-    // ── 8. RESPOND FIRST — fire off all DB/wallet work in background ──
-    // This is critical: the HTTP response must be sent ASAP so the client
-    // doesn't time out. Persistence, wallet deduction, and session touch
-    // are all non-blocking background work.
+    // ── 8. Deduct wallet BEFORE responding (so we can return accurate credits) ──
+    let walletData: any = undefined;
+    try {
+      const wallet = await getWallet(params.farmerId);
+      if (wallet) {
+        const [updatedWallet] = await Promise.all([
+          deductCredit(params.farmerId, 'chat'),
+          incrementUsage(params.farmerId, 'chat'),
+        ]);
+        walletData = updatedWallet ? {
+          chatCredits: updatedWallet.chatCredits,
+          imageCredits: updatedWallet.imageCredits,
+          topupCredits: updatedWallet.topupCredits,
+          topupImageCredits: updatedWallet.topupImageCredits,
+          plan: updatedWallet.plan,
+        } : undefined;
+      }
+    } catch (walletErr) {
+      logger.error({ err: walletErr, sessionId: params.sessionId }, 'Wallet deduction failed');
+    }
+
+    // ── 9. Fire-and-forget non-critical background work ──
+    // DB persistence, session touch, and cache invalidation are not blocking.
     const doBackgroundWork = async () => {
       try {
         await Promise.all([
@@ -381,19 +400,6 @@ export async function sendChatMessage(params: {
             imageBase64: params.imageBase64,
             audioBase64,
           }),
-          (async () => {
-            try {
-              const wallet = await getWallet(params.farmerId);
-              if (wallet) {
-                await Promise.all([
-                  deductCredit(params.farmerId, 'chat'),
-                  incrementUsage(params.farmerId, 'chat'),
-                ]);
-              }
-            } catch (walletErr) {
-              logger.error({ err: walletErr, sessionId: params.sessionId }, 'Wallet deduction failed');
-            }
-          })(),
           touchChatSession(params.sessionId, params.text, responseText, farmerCtx.location),
           ChatHistoryCache.invalidate(params.sessionId),
         ]);
@@ -402,10 +408,9 @@ export async function sendChatMessage(params: {
       }
     };
 
-    // Fire-and-forget: don't await
     doBackgroundWork();
 
-    // ── 9. Generate quick reply suggestions (CPU-only, instant) ──
+    // ── 10. Generate quick reply suggestions (CPU-only, instant) ──
     const quickSuggestions = getQuickSuggestions({
       hasProducts: recommendedProducts.length > 0,
       language,
@@ -421,6 +426,7 @@ export async function sendChatMessage(params: {
       cached: cacheHit,
       audioBase64,
       audioMimeType: audioBase64 ? 'audio/mp3' : undefined,
+      wallet: walletData,
     };
 
   } catch (error) {
