@@ -2,7 +2,7 @@ const { Client } = require('ssh2');
 
 const conn = new Client();
 conn.on('ready', () => {
-  conn.exec('cat /etc/nginx/sites-available/default', (err, stream) => {
+  conn.exec('docker logs --tail 200 backend-app-1', (err, stream) => {
     if (err) throw err;
     stream.on('close', (code, signal) => {
       conn.end();

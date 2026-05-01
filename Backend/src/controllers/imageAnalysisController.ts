@@ -257,10 +257,17 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
     } else if (errorStr.includes('DEADLINE_EXCEEDED') || errorStr.includes('timeout')) {
       statusCode = 504;
       errorMessage = 'Image analysis timed out. Please try with a smaller image.';
+    } else if (errorStr.includes('503') || errorStr.includes('Service Unavailable') || errorStr.includes('high demand')) {
+      statusCode = 503;
+      errorMessage = 'AI Server is currently experiencing high demand. Please try again in 2 minutes.';
     }
 
     logger.error({ err: error, statusCode }, 'Crop analysis failed');
-    return reply.status(statusCode).send({ error: errorMessage });
+    return reply.status(statusCode).send({ 
+      success: false, 
+      code: statusCode === 503 || statusCode === 429 ? 'errServerBusy' : 'errUnknown', 
+      message: errorMessage 
+    });
   }
 };
 
