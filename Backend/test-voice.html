@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AgritechBot Voice Test</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+    button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin: 5px; }
+    #status { margin-top: 20px; font-weight: bold; }
+    #result { margin-top: 20px; white-space: pre-wrap; background: #f0f0f0; padding: 15px; border-radius: 5px; display: none; }
+    .error { color: red; }
+    .success { color: green; }
+    input[type="text"] { width: 100%; padding: 10px; font-size: 16px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Voice Transcription Backend Test</h1>
+  
+  <p>Backend API URL:</p>
+  <input type="text" id="apiUrl" value="http://localhost:4000/api/v1/chat/sessions/test-session/voice">
+  <p><small>Change to <code>https://backend.goran.in/api/v1/chat/sessions/test-session/voice</code> to test production.</small></p>
+
+  <div>
+    <button id="recordBtn">Start Recording 🎙️</button>
+    <button id="stopBtn" disabled>Stop & Send 🚀</button>
+  </div>
+
+  <div id="status">Ready.</div>
+  
+  <div id="result">
+    <h3>Response:</h3>
+    <p><strong>Transcript:</strong> <span id="transcriptText"></span></p>
+    <p><strong>Answer:</strong> <span id="answerText"></span></p>
+    <audio id="responseAudio" controls style="display:none; margin-top:10px;"></audio>
+  </div>
+
+  <script>
+    let mediaRecorder;
+    let audioChunks = [];
+    const recordBtn = document.getElementById('recordBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const statusDiv = document.getElementById('status');
+    const resultDiv = document.getElementById('result');
+    const transcriptText = document.getElementById('transcriptText');
+    const answerText = document.getElementById('answerText');
+    const responseAudio = document.getElementById('responseAudio');
+    const apiUrlInput = document.getElementById('apiUrl');
+
+    recordBtn.addEventListener('click', async () => {
+      audioChunks = [];
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Request recording in mp4/m4a/webm format
+        mediaRecorder = new MediaRecorder(stream);
+        
+        mediaRecorder.ondataavailable = e => {
+          if (e.data.size > 0) audioChunks.push(e.data);
+        };
+        
+        mediaRecorder.onstop = sendAudio;
+        
+        mediaRecorder.start();
+        recordBtn.disabled = true;
+        stopBtn.disabled = false;
+        statusDiv.innerText = '🔴 Recording...';
+        statusDiv.className = '';
+        resultDiv.style.display = 'none';
+      } catch (err) {
+        statusDiv.innerText = 'Error accessing microphone: ' + err.message;
+        statusDiv.className = 'error';
+      }
+    });
+
+    stopBtn.addEventListener('click', () => {
+      mediaRecorder.stop();
+      mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      recordBtn.disabled = false;
+      stopBtn.disabled = true;
+      statusDiv.innerText = '⏳ Processing and sending to backend...';
+    });
+
+    async function sendAudio() {
+      // Create audio blob
+      const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+      
+      // Try to give it a sensible extension based on mime type
+      let extension = 'webm';
+      if (audioBlob.type.includes('mp4')) extension = 'm4a';
+      else if (audioBlob.type.includes('mp3')) extension = 'mp3';
+      else if (audioBlob.type.includes('wav')) extension = 'wav';
+      
+      const fileName = `voice-test.${extension}`;
+
+      // Build form data exactly like the mobile app
+      const formData = new FormData();
+      formData.append('language', 'Hindi');
+      formData.append('file', audioBlob, fileName);
+
+      try {
+        const apiUrl = apiUrlInput.value.trim();
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errText}`);
+        }
+
+        const data = await response.json();
+        
+        statusDiv.innerText = '✅ Success!';
+        statusDiv.className = 'success';
+        
+        transcriptText.innerText = data.transcript || 'N/A';
+        answerText.innerText = data.answer || 'N/A';
+        
+        if (data.audioBase64) {
+          responseAudio.src = `data:${data.audioMimeType || 'audio/mp3'};base64,${data.audioBase64}`;
+          responseAudio.style.display = 'block';
+        } else {
+          responseAudio.style.display = 'none';
+        }
+        
+        resultDiv.style.display = 'block';
+
+      } catch (err) {
+        console.error(err);
+        statusDiv.innerText = '❌ Failed: ' + err.message;
+        statusDiv.className = 'error';
+      }
+    }
+  </script>
+</body>
+</html>

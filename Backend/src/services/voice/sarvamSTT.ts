@@ -2,6 +2,8 @@ import { env } from '../../config/env';
 import { logger } from '../../utils/logger';
 import { getLanguageCode } from '../../utils/languageDetector';
 import { HttpError } from '../../chat/utils/httpError';
+import axios from 'axios';
+import FormData from 'form-data';
 
 interface STTResponse {
   text: string;
@@ -53,30 +55,33 @@ export async function speechToText(
         ? fileName
         : `audio.${fileExtensionForMimeType(normalizedMimeType)}`;
 
+    // We must pass a filename to form-data so it knows it's a file
     const form = new FormData();
-    form.append('file', audioBlob, uploadFileName);
+    form.append('file', audioBuffer, {
+      filename: uploadFileName,
+      contentType: normalizedMimeType,
+    });
     form.append('language_code', langCode);
     form.append('model', env.SARVAM_STT_MODEL);
     form.append('with_timestamps', 'false');
 
     logger.debug({ url: env.SARVAM_STT_URL, model: env.SARVAM_STT_MODEL, langCode }, 'Calling Sarvam STT API');
 
-    const response = await fetch(env.SARVAM_STT_URL, {
-      method: 'POST',
+    const response = await axios.post(env.SARVAM_STT_URL, form, {
       headers: {
         'api-subscription-key': env.SARVAM_API_KEY,
-        // Do NOT set Content-Type — fetch sets it automatically with the multipart boundary
+        ...form.getHeaders(),
       },
-      body: form,
+      validateStatus: () => true, // Don't throw on 4xx/5xx, we handle it
     });
 
-    if (!response.ok) {
-      const errBody = await response.text();
+    if (response.status !== 200) {
+      const errBody = typeof response.data === 'object' ? JSON.stringify(response.data) : String(response.data);
       logger.error({ status: response.status, errBody }, 'Sarvam STT Provider Error');
       let providerMessage = `Sarvam STT error (${response.status})`;
 
       try {
-        const parsed = JSON.parse(errBody) as SarvamErrorBody;
+        const parsed = typeof response.data === 'object' ? response.data : JSON.parse(errBody) as SarvamErrorBody;
         if (parsed.error?.message) {
           providerMessage = parsed.error.message;
         }
@@ -97,7 +102,7 @@ export async function speechToText(
       throw new HttpError('Speech transcription provider is temporarily unavailable. Please try again.', 502);
     }
 
-    const data = (await response.json()) as { transcript?: string; text?: string };
+    const data = response.data as { transcript?: string; text?: string };
 
     logger.info({
       transcriptLength: (data.transcript || data.text || '').length,
