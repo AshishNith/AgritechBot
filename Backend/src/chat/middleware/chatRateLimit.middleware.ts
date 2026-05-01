@@ -3,9 +3,9 @@ import { cache } from '../../services/cache/redisCache';
 import { logger } from '../../utils/logger';
 
 // Rate limit configuration
-const SHORT_WINDOW_SECONDS = 3;
+const SHORT_WINDOW_SECONDS = 5;
 const HOUR_WINDOW_SECONDS = 60 * 60;
-const SHORT_WINDOW_LIMIT = 1; // 1 message per 3 seconds
+const SHORT_WINDOW_LIMIT = 3; // 3 messages per 5 seconds
 const HOUR_WINDOW_LIMIT = 60; // 60 messages per hour
 
 export async function chatRateLimitMiddleware(
@@ -22,7 +22,9 @@ export async function chatRateLimitMiddleware(
     const shortCount = await cache.increment(shortWindowKey, SHORT_WINDOW_SECONDS);
     if (shortCount > SHORT_WINDOW_LIMIT) {
       return reply.status(429).send({
-        error: 'Please wait a few seconds before sending another message.',
+        success: false,
+        code: 'errLimitReached',
+        message: 'Please wait a few seconds before sending another message.',
         retryAfterSeconds: SHORT_WINDOW_SECONDS,
       });
     }
@@ -31,7 +33,9 @@ export async function chatRateLimitMiddleware(
     const hourCount = await cache.increment(hourWindowKey, HOUR_WINDOW_SECONDS);
     if (hourCount > HOUR_WINDOW_LIMIT) {
       return reply.status(429).send({
-        error: 'Hourly chat message limit reached. Please try again later.',
+        success: false,
+        code: 'errLimitReached',
+        message: 'Hourly chat message limit reached. Please try again later.',
         retryAfterSeconds: HOUR_WINDOW_SECONDS,
       });
     }

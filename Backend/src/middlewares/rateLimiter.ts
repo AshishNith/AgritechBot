@@ -8,8 +8,9 @@ export async function registerRateLimiter(app: FastifyInstance): Promise<void> {
     timeWindow: env.RATE_LIMIT_WINDOW_MS,
     keyGenerator: (request) => request.ip,
     errorResponseBuilder: (_request, context) => ({
+      success: false,
       statusCode: 429,
-      error: 'Too Many Requests',
+      code: 'errLimitReached',
       message: `Rate limit exceeded. Retry after ${Math.ceil(context.ttl / 1000)} seconds.`,
       retryAfter: Math.ceil(context.ttl / 1000),
     }),
