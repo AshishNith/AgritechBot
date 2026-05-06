@@ -1,6 +1,6 @@
 {
   "common": {
-    "anaaj": "Anaaj AI",
+    "anaaj": "ANAAJ AI",
     "farming": "Farming",
     "assistant": "Assistant",
     "loading": "Loading...",
@@ -20,7 +20,7 @@
     "founders": "Founders"
   },
   "hero": {
-    "tagline": "The Future of Farming",
+    "tagline": "ANAAJ AI: The Future of Farming",
     "title1": "Your AI",
     "title2": "Farming",
     "title3": "Assistant.",
@@ -89,24 +89,32 @@
     "step4Desc": "Watch your yield increase safely. By avoiding broad-spectrum spraying and applying targeted fertilizer only when necessary, your costs decrease while plant health soars.",
     "costReduction": "Cost Reduction"
   },
-  "weather": {
-    "location": "Ludhiana, PB",
-    "day": "Monday, 14 Oct",
-    "humidity": "Humidity",
-    "rain": "Rain",
-    "wind": "Wind",
-    "aiAlert": "AI ALERT",
-    "alertTitle": "Heavy rain expected in 4 hours. Avoid spraying fertilizer today.",
-    "alertDesc": "We’ve detected a high-probability storm cell. Save your inputs and wait for Wednesday morning for the best absorption window.",
-    "setAlert": "Set Alert",
-    "viewDetail": "View Detail"
+  "solutions": {
+    "title": "Built for every farmer's need.",
+    "subtitle": "Comprehensive tools to manage your farm from seed to sale.",
+    "cropDoctor": {
+      "title": "AI Crop Doctor",
+      "desc": "Identify 500+ pests and diseases instantly with a single photo."
+    },
+    "cropPlanner": {
+      "title": "AI Crop Planner",
+      "desc": "Get a personalized roadmap for your entire sowing season."
+    },
+    "mandiPrices": {
+      "title": "Smart Mandi Prices",
+      "desc": "Real-time rates from 500+ markets to get the best price for your produce."
+    },
+    "voiceAssistant": {
+      "title": "Voice Assistant",
+      "desc": "Natural voice interaction in Hindi, Punjabi, Gujarati & English."
+    }
   },
   "pricing": {
     "title": "Simple Pricing.",
     "desc": "Choose a plan that fits your farm's scale. No hidden fees.",
     "popular": "Popular",
     "planName": "Pro Farmer",
-    "price": "₹149",
+    "price": "₹99",
     "perMonth": "/month",
     "feature1": "Unlimited Voice Queries",
     "feature2": "Advanced Pest Diagnosis",
@@ -120,7 +128,7 @@
     "q2": "Is my data safe?",
     "a2": "Absolutely. We never sell farmer data to third parties. Your soil history is encrypted and used only to provide better advice to you.",
     "q3": "Which languages are supported?",
-    "a3": "We currently support Hindi, Gujarati, Punjabi, Marathi, Telugu, Tamil, and English. We are adding new languages every month."
+    "a3": "We currently support Hindi, Gujarati, Punjabi, and English."
   },
   "marketplace": {
     "label": "Marketplace",
@@ -132,42 +140,49 @@
     "subtitle": "Voice-first design.",
     "desc": "We know you have your hands dirty. That's why every feature of Anaaj.ai is accessible via voice commands. Just double-tap anywhere to talk.",
     "offlineSupport": "Offline Support",
-    "dataPrivacy": "Data Privacy"
+    "dataPrivacy": "Data Privacy",
+    "reliableIntel": "Reliable intelligence even without an internet connection. Perfect for remote fields.",
+    "enterpriseSecurity": "Enterprise-grade security. Your farm's data is private, encrypted, and stays yours.",
+    "joinFarmers": "Join 10k+ Farmers",
+    "modernizingAg": "Modernizing agriculture today",
+    "biometricSecure": "Biometric Secure"
   },
   "founders": {
     "label": "The Visionaries",
-    "title": "Meet the Founders",
+    "title": "Meet our team",
     "desc": "Driven by a singular goal: to make expert agricultural knowledge accessible to every farmer in India.",
-    "prashant": {
-      "role": "Co-Founder & CEO",
-      "desc": "A strategic visionary with deep expertise in scaling digital ecosystems. Prashant leads the mission to bridge the gap between advanced AI and grassroots agriculture in India."
+    "prashant-jain": {
+      "name": "Prashant Jain",
+      "role": "Growth & Partnerships",
+      "desc": "Building strategic relationships and unlocking sustainable growth.",
+      "bio": "Prashant Jain focuses on partnerships and growth opportunities, connecting product vision with real-world collaboration to expand impact and value."
     },
-    "prakash": {
-      "role": "Chairman",
-      "desc": "With decades of experience in the agricultural sector, Mr. Prakash Chand Jain provides the foundational wisdom and strategic direction that roots Anaaj.ai in real-world farming needs."
+    "prakash-chand-jain": {
+      "name": "Prakash Chand Jain",
+      "role": "Strategic Advisor",
+      "desc": "Guiding long-term vision with deep business and community insight.",
+      "bio": "Prakash Chand Jain brings decades of leadership perspective to the team, helping shape strategy, execution priorities, and long-term growth in a practical, people-first way."
     },
-    "prateek": {
-      "role": "Director of Innovation",
-      "desc": "Prateek focuses on the intersection of hardware and software, ensuring that our AI solutions are perfectly optimized for the diverse technical landscape of rural India."
-    },
-    "prashant_v": {
-      "role": "Head of Operations",
-      "desc": "Specializing in ground-level deployment, Prashant ensures that our technology reaches every corner of the field, managing complex logistics and farmer support networks."
+    "prateek-jain": {
+      "name": "Prateek Jain",
+      "role": "Operations Lead",
+      "desc": "Driving operational excellence and reliable delivery across initiatives.",
+      "bio": "Prateek Jain leads operations with a strong focus on process clarity, coordination, and measurable outcomes to keep projects moving smoothly from planning to delivery."
     }
   },
   "map": {
     "presence": "Our Presence",
-    "title": "Rooted in Punjab,",
+    "title": "Rooted in Rajasthan,",
     "titleItalic": "Growing Globally.",
-    "description": "Our headquarters at the Agro-Tech Hub is the nerve center of Anaaj.ai, coordinating with thousands of local data nodes across the agricultural heartlands of India.",
+    "description": "Our headquarters in Kota is the nerve center of ANAAJ AI, coordinating with thousands of local data nodes across the agricultural heartlands of India.",
     "innovationHQ": "Innovation HQ",
-    "innovationHQDesc": "Sector 82, Mohali, Punjab",
+    "innovationHQDesc": "Indraprastha Industrial Area, Kota",
     "trainingCenter": "Training Center",
-    "trainingCenterDesc": "Agricultural University Road, Ludhiana",
+    "trainingCenterDesc": "Indraprastha Industrial Area, Kota",
     "dataNodes": "Data Nodes",
     "dataNodesDesc": "Active in 40+ districts across 4 states",
     "statusActive": "Status: Active",
-    "address": "Agro-Tech Hub, Level 4, Sector 82, Mohali, Punjab 140308"
+    "address": "H 1226, Number 5, Kota, Indraprastha Industrial Area, Kota, Rajasthan 324005"
   },
   "finalCTA": {
     "title1": "Your harvest,",
@@ -188,7 +203,7 @@
   "pages": {
     "home": {
       "title": "Anaaj.ai | India's #1 Multilingual AI Farming Assistant",
-      "metaDesc": "Anaaj.ai is India's first multilingual AI farming assistant. Get real-time crop advice, pest diagnosis, weather alerts, and market prices in Hindi, Punjabi, Gujarati & 12+ Indian languages."
+      "metaDesc": "Anaaj.ai is India's first multilingual AI farming assistant. Get real-time crop advice, pest diagnosis, weather alerts, and market prices in Hindi, Punjabi, Gujarati & English."
     },
     "about": {
       "title": "About Us | Anaaj.ai - Rooted in Intelligence",
@@ -229,7 +244,7 @@
       "description": "The principles that guide every model we train and every village we enter.",
       "multilingual": {
         "title": "Mother Tongue First",
-        "desc": "Support for 12+ Indian languages and hundreds of local dialects, making tech invisible."
+        "desc": "Support for Hindi, Punjabi, Gujarati and English, making tech invisible."
       },
       "scientific": {
         "title": "Scientific Rigor",
@@ -263,7 +278,7 @@
       "hindi": "Hindi",
       "gujarati": "Gujarati",
       "punjabi": "Punjabi",
-      "more": "+ 12 more"
+      "english": "English"
     },
     "chat": {
       "user": {
@@ -312,9 +327,9 @@
       },
       "address": {
         "label": "Headquarters",
-        "line1": "Agro-Tech Hub, Level 4",
-        "line2": "Sector 82, Mohali, Punjab",
-        "line3": "India 140308"
+        "line1": "H 1226, Number 5, Kota,",
+        "line2": "Indraprastha Industrial Area, Kota,",
+        "line3": "Rajasthan 324005"
       },
       "follow": "Follow Us"
     }

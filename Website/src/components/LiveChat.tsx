@@ -22,7 +22,7 @@ export default function LiveChat() {
             <span className="px-4 py-2 rounded-full border border-outline-variant text-sm font-semibold">{t('liveChat.languages.hindi')}</span>
             <span className="px-4 py-2 rounded-full border border-outline-variant text-sm font-semibold">{t('liveChat.languages.gujarati')}</span>
             <span className="px-4 py-2 rounded-full border border-outline-variant text-sm font-semibold">{t('liveChat.languages.punjabi')}</span>
-            <span className="px-4 py-2 rounded-full border border-outline-variant text-sm font-semibold">{t('liveChat.languages.more')}</span>
+            <span className="px-4 py-2 rounded-full border border-outline-variant text-sm font-semibold">{t('liveChat.languages.english')}</span>
           </div>
         </div>
         

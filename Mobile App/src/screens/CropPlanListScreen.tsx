@@ -47,21 +47,23 @@ export const CropPlanListScreen: React.FC = () => {
         <View style={styles.planInfo}>
           <View style={styles.row}>
             <AppText weight="bold" style={styles.cropTitle}>{item.crop}</AppText>
-            <View style={styles.badge}>
-              <AppText variant="caption" color={colors.primary} weight="bold">
-                {item.generatedPlan.total_duration}
-              </AppText>
-            </View>
+            {item.generatedPlan?.total_duration && (
+              <View style={styles.badge}>
+                <AppText variant="caption" color={colors.primary} weight="bold">
+                  {item.generatedPlan.total_duration}
+                </AppText>
+              </View>
+            )}
           </View>
           
           <AppText variant="caption" color={colors.textMuted}>
-            {item.location.district}, {item.location.state} • {item.inputData.farmingType}
+            {item.location?.district || ''}, {item.location?.state || ''} • {item.inputData?.farmingType || ''}
           </AppText>
           
           <View style={styles.cardFooter}>
             <View style={styles.footerItem}>
               <Feather name="trending-up" size={12} color="#059669" />
-              <AppText style={styles.footerText}>{item.generatedPlan.profit_estimation}</AppText>
+              <AppText style={styles.footerText}>{item.generatedPlan?.profit_estimation || 'N/A'}</AppText>
             </View>
             <AppText variant="caption" color={colors.textMuted}>
               {new Date(item.createdAt).toLocaleDateString()}

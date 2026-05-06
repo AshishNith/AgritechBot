@@ -6,7 +6,7 @@ import Story from '../components/Story';
 import LiveChat from '../components/LiveChat';
 import Features from '../components/Features';
 import Timeline from '../components/Timeline';
-import WeatherWidget from '../components/WeatherWidget';
+import Solutions from '../components/Solutions';
 import Marketplace from '../components/Marketplace';
 import AppShowcase from '../components/AppShowcase';
 import PricingFAQ from '../components/PricingFAQ';
@@ -31,7 +31,7 @@ export default function Home() {
       <LiveChat />
       <Features />
       <Timeline />
-      <WeatherWidget />
+      <Solutions />
       <Marketplace />
       <AppShowcase />
       <YouTubeSection />

@@ -39,7 +39,19 @@ export const CropPlanResult: React.FC = () => {
     return (
       <Screen style={styles.center}>
         <ActivityIndicator size="large" color={colors.primary} />
-        <AppText style={{ marginTop: 16 }}>{tx('loadingPlan')}</AppText>
+        <AppText style={{ marginTop: 16 }}>{tx('loadingPlan') || 'Loading plan...'}</AppText>
+      </Screen>
+    );
+  }
+
+  if (!planData || !planData.generatedPlan) {
+    return (
+      <Screen style={styles.center}>
+        <Feather name="alert-circle" size={48} color="#ef4444" />
+        <AppText style={{ marginTop: 16 }}>Failed to load plan.</AppText>
+        <TouchableOpacity style={{ marginTop: 24, padding: 12 }} onPress={() => navigation.goBack()}>
+          <AppText color={colors.primary} weight="bold">Go Back</AppText>
+        </TouchableOpacity>
       </Screen>
     );
   }
@@ -53,7 +65,7 @@ export const CropPlanResult: React.FC = () => {
           <Feather name="arrow-left" size={24} color={colors.text} />
         </TouchableOpacity>
         <View>
-          <AppText variant="title">{plan.crop} {tx('cropRoadmap')}</AppText>
+          <AppText variant="title">{plan.crop} {tx('cropRoadmap') || 'Roadmap'}</AppText>
           <AppText variant="caption" color={colors.textMuted}>{plan.total_duration}</AppText>
         </View>
       </View>
@@ -62,15 +74,15 @@ export const CropPlanResult: React.FC = () => {
         {/* Summary Row */}
         <View style={styles.summaryRow}>
           <GlassCard style={styles.summaryCard}>
-            <AppText variant="caption" color={colors.textMuted}>{tx('totalCost')}</AppText>
+            <AppText variant="caption" color={colors.textMuted}>{tx('totalCost') || 'Total Cost'}</AppText>
             <AppText weight="bold" style={{ color: colors.primary }}>{plan.total_estimated_cost}</AppText>
           </GlassCard>
           <GlassCard style={styles.summaryCard}>
-            <AppText variant="caption" color={colors.textMuted}>{tx('expYield')}</AppText>
+            <AppText variant="caption" color={colors.textMuted}>{tx('expYield') || 'Expected Yield'}</AppText>
             <AppText weight="bold" style={{ color: '#2563eb' }}>{plan.expected_yield}</AppText>
           </GlassCard>
           <GlassCard style={styles.summaryCard}>
-            <AppText variant="caption" color={colors.textMuted}>{tx('profitEst')}</AppText>
+            <AppText variant="caption" color={colors.textMuted}>{tx('profitEst') || 'Profit Estimate'}</AppText>
             <AppText weight="bold" style={{ color: '#059669' }}>{plan.profit_estimation}</AppText>
           </GlassCard>
         </View>
@@ -80,7 +92,7 @@ export const CropPlanResult: React.FC = () => {
           <GlassCard style={[styles.riskCard, { backgroundColor: '#fef2f2', borderColor: '#fee2e2' }]}>
             <View style={styles.riskHeader}>
               <Feather name="alert-triangle" size={18} color="#ef4444" />
-              <AppText weight="bold" style={{ color: '#991b1b', marginLeft: 8 }}>{tx('criticalRiskAlerts')}</AppText>
+              <AppText weight="bold" style={{ color: '#991b1b', marginLeft: 8 }}>{tx('criticalRiskAlerts') || 'Risk Alerts'}</AppText>
             </View>
             {plan.risk_alerts.map((risk: string, i: number) => (
               <AppText key={i} variant="caption" style={{ color: '#b91c1c', marginTop: 4 }}>• {risk}</AppText>
@@ -90,13 +102,13 @@ export const CropPlanResult: React.FC = () => {
 
         {/* Timeline */}
         <View style={styles.timeline}>
-          {plan.stages.map((stage: any, index: number) => {
+          {plan.stages?.map((stage: any, index: number) => {
             const isExpanded = expandedStage === stage.stage_name;
             return (
               <View key={index} style={styles.stageContainer}>
                 <View style={styles.timelineLine}>
                   <View style={[styles.dot, { backgroundColor: colors.primary }]} />
-                  {index !== plan.stages.length - 1 && <View style={[styles.line, { backgroundColor: colors.border }]} />}
+                  {index !== (plan.stages?.length || 1) - 1 && <View style={[styles.line, { backgroundColor: colors.border }]} />}
                 </View>
 
                 <TouchableOpacity
@@ -115,7 +127,7 @@ export const CropPlanResult: React.FC = () => {
 
                     {isExpanded && (
                       <View style={styles.stageDetails}>
-                        {stage.tasks.map((task: any, tIdx: number) => (
+                        {stage.tasks?.map((task: any, tIdx: number) => (
                           <View key={tIdx} style={styles.taskItem}>
                             <View style={styles.taskHeader}>
                               <Feather name="check-circle" size={16} color={colors.primary} />
@@ -125,17 +137,19 @@ export const CropPlanResult: React.FC = () => {
 
                             <View style={styles.taskFooter}>
                               <View style={styles.tagWrap}>
-                                {task.tools_required.map((tool: string, i: number) => (
+                                {task.tools_required?.map((tool: string, i: number) => (
                                   <Pill key={i} label={tool} style={{ backgroundColor: colors.surface }} />
                                 ))}
                               </View>
                               <AppText variant="caption" color={colors.primary} weight="bold">{task.estimated_cost}</AppText>
                             </View>
 
-                            <View style={styles.tipBox}>
-                              <AppText variant="caption" weight="bold" style={{ color: colors.primary }}>Expert Tip:</AppText>
-                              <AppText variant="caption" color={colors.textMuted}>{task.tips}</AppText>
-                            </View>
+                            {task.tips && (
+                              <View style={styles.tipBox}>
+                                <AppText variant="caption" weight="bold" style={{ color: colors.primary }}>Expert Tip:</AppText>
+                                <AppText variant="caption" color={colors.textMuted}>{task.tips}</AppText>
+                              </View>
+                            )}
                           </View>
                         ))}
                       </View>

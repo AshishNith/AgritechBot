@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 export default function PricingFAQ() {
   const { t } = useTranslation();
@@ -41,7 +42,7 @@ export default function PricingFAQ() {
       whileInView={{ opacity: 1, y: 0 }} 
       viewport={{ once: true, margin: "-100px" }} 
       transition={{ duration: 0.6 }} 
-      className="py-32 bg-surface"
+      className="py-24 bg-surface"
     >
       <Helmet>
         <script type="application/ld+json">
@@ -52,13 +53,13 @@ export default function PricingFAQ() {
         
         {/* Pricing */}
         <div className="col-span-12 lg:col-span-4 mb-12">
-          <h2 className="text-3xl md:text-4xl font-headline font-bold mb-6 text-primary">{t('pricing.title')}</h2>
+          <h2 className="text-2xl md:text-3xl font-headline font-bold mb-6 text-primary">{t('pricing.title')}</h2>
           <p className="text-on-surface-variant mb-8">{t('pricing.desc')}</p>
           
           <div className="p-8 bg-primary text-on-primary rounded-3xl shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold uppercase tracking-tighter">{t('pricing.popular')}</div>
             <h3 className="text-xl font-bold mb-2">{t('pricing.planName')}</h3>
-            <div className="text-3xl md:text-4xl font-headline font-bold mb-6">{t('pricing.price')}<span className="text-sm opacity-60 font-body">{t('pricing.perMonth')}</span></div>
+            <div className="text-2xl md:text-3xl font-headline font-bold mb-6">{t('pricing.price')}<span className="text-sm opacity-60 font-body">{t('pricing.perMonth')}</span></div>
             <ul className="space-y-4 mb-8">
               <li className="flex items-center gap-2 text-sm">
                 <span className="material-symbols-outlined text-tertiary-fixed text-sm">check</span>
@@ -73,7 +74,7 @@ export default function PricingFAQ() {
                 {t('pricing.feature3')}
               </li>
             </ul>
-            <button className="w-full bg-tertiary-fixed text-on-tertiary-fixed py-3 rounded-xl font-bold hover:scale-105 transition-transform">{t('pricing.cta')}</button>
+            <Link to="/download" className="w-full bg-tertiary-fixed text-on-tertiary-fixed py-3 rounded-xl font-bold hover:scale-105 transition-transform block text-center">{t('pricing.cta')}</Link>
           </div>
         </div>
         

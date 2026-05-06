@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ContainerScroll } from './ui/container-scroll-animation';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 export default function Features() {
   const { t } = useTranslation();
@@ -131,10 +132,13 @@ export default function Features() {
               <p className="text-lg text-on-surface-variant leading-relaxed">
                 {t('features.dataDrivenDesc')}
               </p>
-              <button className="bg-surface-container-high px-8 py-4 rounded-xl font-bold flex items-center gap-2 text-primary hover:bg-surface-container-highest transition-all hover:gap-4 shadow-sm border border-outline-variant/20">
+              <Link 
+                to="/privacy"
+                className="bg-surface-container-high px-8 py-4 rounded-xl font-bold flex items-center gap-2 text-primary hover:bg-surface-container-highest transition-all hover:gap-4 shadow-sm border border-outline-variant/20 w-fit"
+              >
                 {t('features.learnData')}
                 <span className="material-symbols-outlined">arrow_forward</span>
-              </button>
+              </Link>
             </div>
           </div>
         </div>

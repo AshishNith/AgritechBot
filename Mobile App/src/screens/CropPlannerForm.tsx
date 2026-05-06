@@ -141,6 +141,20 @@ export const CropPlannerForm: React.FC = () => {
               </View>
 
               <View style={styles.inputWrap}>
+                <AppText variant="caption" style={styles.label}>{tx('state')} *</AppText>
+                <GlassCard style={styles.inputField}>
+                  <MaterialCommunityIcons name="map-marker-radius" size={16} color={colors.textMuted} />
+                  <TextInput
+                    style={[styles.textInput, { color: colors.text }]}
+                    placeholder="e.g., Punjab"
+                    placeholderTextColor={colors.textMuted}
+                    value={formData.state}
+                    onChangeText={(val) => setFormData({ ...formData, state: val })}
+                  />
+                </GlassCard>
+              </View>
+
+              <View style={styles.inputWrap}>
                 <AppText variant="caption" style={styles.label}>{tx('soilTypeOptional')}</AppText>
                 <GlassCard style={styles.inputField}>
                   <MaterialCommunityIcons name="texture-box" size={16} color={colors.textMuted} />

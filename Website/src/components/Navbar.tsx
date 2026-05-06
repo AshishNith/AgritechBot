@@ -46,10 +46,10 @@ export default function Navbar() {
           <img 
             src="https://res.cloudinary.com/dvwpxb2oa/image/upload/v1774369551/Printable_Logo_nim1ca.svg" 
             alt="Anaaj.ai - India's #1 AI Farming Assistant" 
-            className={`transition-all duration-500 ease-[cubic-bezier(0.2,1,0.2,1)] ${isScrolled ? 'h-7 md:h-8' : 'h-8 md:h-10'}`} 
+            className={`transition-all duration-500 ease-[cubic-bezier(0.2,1,0.2,1)] ${isScrolled ? 'h-6 md:h-7' : 'h-7 md:h-9'}`} 
           />
 
-          <h1 className="text-white text-2xl font-bold">Anaaj AI</h1>
+          <h1 className="text-white text-xl font-bold">ANAAJ AI</h1>
         </Link>
         
         {/* Desktop Menu */}

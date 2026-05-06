@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useScroll, useTransform, motion, useMotionValueEvent } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -122,16 +123,15 @@ export default function Hero() {
           className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-4 md:px-8 text-center"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-tertiary-container text-tertiary-fixed w-fit mb-8 shadow-2xl">
-            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>colors_spark</span>
             <span className="text-xs font-bold uppercase tracking-widest font-label">{t('hero.tagline')}</span>
           </div>
           
-          <h1 className="text-5xl sm:text-6xl md:text-8xl font-headline font-bold text-white tracking-tight leading-[1] drop-shadow-2xl">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-headline font-bold text-white tracking-tight leading-[1] drop-shadow-2xl">
             {t('hero.title1')} <br />
             <span className="text-tertiary-fixed italic">{t('hero.title2')}</span> <br />
             {t('hero.title3')}
           </h1>
-          <p className="mt-8 text-xl text-stone-200 font-body max-w-2xl drop-shadow-lg font-medium">
+          <p className="mt-8 text-lg text-stone-200 font-body max-w-2xl drop-shadow-lg font-medium">
             {t('hero.description')}
           </p>
         </motion.div>
@@ -141,10 +141,10 @@ export default function Hero() {
           style={{ opacity: opacity2, y: y2 }}
           className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-4 md:px-8 text-center"
         >
-          <h2 className="text-4xl sm:text-5xl md:text-8xl font-headline font-bold text-tertiary-fixed tracking-tight drop-shadow-2xl">
+          <h2 className="text-4xl sm:text-5xl md:text-7xl font-headline font-bold text-tertiary-fixed tracking-tight drop-shadow-2xl">
             {t('hero.dataTitle')}
           </h2>
-          <p className="mt-6 text-2xl text-white font-body max-w-2xl drop-shadow-lg font-medium">
+          <p className="mt-6 text-lg text-white font-body max-w-2xl drop-shadow-lg font-medium">
             {t('hero.dataDesc')}
           </p>
         </motion.div>
@@ -154,17 +154,17 @@ export default function Hero() {
           style={{ opacity: opacity3, y: y3 }}
           className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-4 md:px-8 text-center"
         >
-          <h2 className="text-4xl sm:text-5xl md:text-8xl font-headline font-bold text-white tracking-tight drop-shadow-2xl">
+          <h2 className="text-4xl sm:text-5xl md:text-7xl font-headline font-bold text-white tracking-tight drop-shadow-2xl">
             {t('hero.harvestTitle')}
           </h2>
-          <p className="mt-6 text-2xl text-white font-body max-w-2xl drop-shadow-lg font-medium">
+          <p className="mt-6 text-lg text-white font-body max-w-2xl drop-shadow-lg font-medium">
             {t('hero.harvestDesc')}
           </p>
           <div className="mt-8 md:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto">
-            <button className="bg-tertiary-fixed text-on-tertiary-fixed px-6 py-4 md:px-10 md:py-5 rounded-2xl font-bold text-base md:text-xl shadow-xl hover:scale-105 transition-all w-full sm:w-auto">
+            <Link to="/download" className="bg-tertiary-fixed text-on-tertiary-fixed px-6 py-4 md:px-8 md:py-4 rounded-2xl font-bold text-base md:text-lg shadow-xl hover:scale-105 transition-all w-full sm:w-auto text-center">
               {t('common.startTrial')}
-            </button>
-            <button className="flex items-center justify-center gap-2 font-bold px-6 py-4 md:px-8 md:py-5 rounded-2xl border border-white/30 text-white backdrop-blur-md hover:bg-white/10 transition-colors w-full sm:w-auto text-base md:text-lg">
+            </Link>
+            <button className="flex items-center justify-center gap-2 font-bold px-6 py-4 md:px-8 md:py-4 rounded-2xl border border-white/30 text-white backdrop-blur-md hover:bg-white/10 transition-colors w-full sm:w-auto text-base md:text-lg">
               <span className="material-symbols-outlined">play_circle</span>
               {t('common.watchDemo')}
             </button>
