@@ -35,7 +35,7 @@ export function NotificationCard({ notification, index, onPress, onMarkRead }: N
       case 'urgent': return { color: colors.danger, bg: colors.danger + '15' };
       case 'high': return { color: colors.warning, bg: colors.warning + '15' };
       case 'medium': return { color: colors.info, bg: colors.info + '15' };
-      default: return { color: isDark ? colors.textMuted : colors.textSecondary, bg: isDark ? 'rgba(255,255,255,0.06)' : colors.surfaceMuted };
+      default: return { color: isDark ? colors.textMuted : colors.textMuted, bg: isDark ? 'rgba(255,255,255,0.06)' : colors.surfaceMuted };
     }
   };
 

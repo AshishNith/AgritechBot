@@ -114,12 +114,8 @@ const mapProduct = (raw: any): Product => ({
 });
 
 export const apiService = {
-  async sendOtp(phone: string) {
-    const { data } = await api.post<SendOtpResponse>('/api/auth/send-otp', { phone });
-    return data;
-  },
-  async verifyOtp(phone: string, otp: string) {
-    const { data } = await api.post<AuthResponse>('/api/auth/verify-otp', { phone, otp });
+  async verifyFirebaseToken(phone: string, firebaseToken: string) {
+    const { data } = await api.post<AuthResponse>('/api/auth/firebase/verify', { phone, firebaseToken });
     return data;
   },
   async getProfile() {

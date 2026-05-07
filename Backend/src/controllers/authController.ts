@@ -7,7 +7,8 @@ import { logger } from '../utils/logger';
 import { AppError } from '../utils/AppError';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
-
+import axios from 'axios';
+import { firebaseAuth } from '../config/firebase';
 /**
  * We use our own JWT for internal API sessions 
  * to maintain our payload structure.
@@ -250,5 +251,227 @@ export async function verify2FactorOtp(request: FastifyRequest, reply: FastifyRe
     if (error instanceof AppError) throw error;
     logger.error({ error }, 'Verify 2Factor OTP failed');
     throw AppError.internal();
+  }
+}
+
+// --- Fast2SMS OTP Integration ---
+const FAST2SMS_API_KEY = process.env.FAST2SMS_API_KEY || process.env.FAST2SMS_KEY || 'YOUR_FAST2SMS_API_KEY';
+const fast2SmsStore = new Map<string, { otp: string, expires: number }>();
+
+export async function sendFast2SmsOtp(request: FastifyRequest, reply: FastifyReply) {
+  const parsed = sendOtpSchema.safeParse(request.body);
+  if (!parsed.success) {
+    throw AppError.badRequest('errInvalidInput');
+  }
+
+  const { phone } = parsed.data;
+  // Convert +919999999999 to 9999999999 for Fast2SMS
+  const numericPhone = phone.replace(/^\+?\d{2}/, ''); 
+  
+  if (!/^\d{10}$/.test(numericPhone)) {
+      throw AppError.badRequest('errInvalidInput', 'Phone number must be exactly 10 digits for Fast2SMS');
+  }
+
+  const otp = generateOtp(); // Generates 6-digit OTP matching the verification schema
+
+  try {
+    // Only call Fast2SMS API if we have a real key and are not bypassing it
+    if (env.NODE_ENV === 'production' || FAST2SMS_API_KEY !== 'YOUR_FAST2SMS_API_KEY') {
+      try {
+        const response = await axios({
+          method: 'post',
+          url: 'https://www.fast2sms.com/dev/bulkV2',
+          headers: {
+            "authorization": FAST2SMS_API_KEY,
+            "Content-Type": "application/json"
+          },
+          data: {
+            "message": `Your Anaaj AI verification code is ${otp}. It will expire in 5 minutes.`,
+            "language": "english",
+            "route": "q",
+            "numbers": numericPhone,
+          }
+        });
+
+        if (!response.data.return) {
+          throw new Error(response.data.message);
+        }
+      } catch (smsError: any) {
+        logger.error({ error: smsError.response?.data || smsError.message }, 'Fast2SMS API Error');
+        // In production, we MUST fail if SMS fails. In dev, we can continue to allow OTP preview
+        if (env.NODE_ENV === 'production') {
+          throw AppError.badRequest('errSmsProvider', 'Failed to send SMS');
+        } else {
+          logger.warn('Continuing in development mode despite SMS failure.');
+        }
+      }
+    }
+
+    fast2SmsStore.set(phone, {
+      otp,
+      expires: Date.now() + 5 * 60 * 1000
+    });
+
+    if (env.NODE_ENV !== 'production') {
+      logger.info({ phone, otp }, 'DEVELOPMENT: OTP is');
+    }
+
+    const responsePayload: Record<string, unknown> = { 
+      success: true, 
+      message: "OTP sent successfully" 
+    };
+
+    if (env.OTP_PREVIEW_ENABLED) {
+      responsePayload.otp = otp;
+    }
+
+    return reply.send(responsePayload);
+  } catch (error: any) {
+    logger.error({ error: error.message }, 'Send Fast2SMS OTP failed');
+    throw AppError.internal('Failed to send OTP');
+  }
+}
+
+export async function verifyFast2SmsOtp(request: FastifyRequest, reply: FastifyReply) {
+  const parsed = verifyOtpSchema.safeParse(request.body);
+  if (!parsed.success) {
+    throw AppError.badRequest('errInvalidInput');
+  }
+
+  const { phone, otp } = parsed.data;
+  const record = fast2SmsStore.get(phone);
+
+  if (!record) {
+    throw AppError.unauthorized('errInvalidOtpSession', 'OTP not found or expired');
+  }
+  
+  if (Date.now() > record.expires) {
+    fast2SmsStore.delete(phone);
+    throw AppError.unauthorized('errOtpExpired', 'OTP expired');
+  }
+
+  if (record.otp === otp) {
+    fast2SmsStore.delete(phone); // Clean up session
+
+    let isNewUser = false;
+    let user = await User.findOne({ phone });
+    if (!user) {
+      isNewUser = true;
+      user = new User({ phone, isVerified: true, subscriptionTier: 'free' });
+      await user.save();
+    } else if (!user.isVerified) {
+      isNewUser = true;
+      user.isVerified = true;
+      await user.save();
+    }
+
+    const existingSub = await Subscription.findOne({ userId: user._id });
+    if (!existingSub) {
+      await Subscription.create({
+        userId: user._id,
+        tier: 'free',
+        endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        features: TIER_FEATURES.free,
+      });
+    }
+
+    if (isNewUser) {
+      try {
+        await Wallet.ensureForUser(user._id.toString());
+      } catch (error) {
+        logger.warn({ userId: user._id, error }, 'Failed to create initial wallet');
+      }
+    }
+
+    const internalToken = generateInternalToken(String(user._id), user.role);
+
+    return reply.send({
+      success: true,
+      message: 'Login successful',
+      token: internalToken,
+      user: buildUserPayload(user),
+    });
+  } else {
+    throw AppError.unauthorized('errInvalidOtp', 'Invalid OTP');
+  }
+}
+
+// --- Firebase Phone Auth Verification ---
+const firebaseVerifySchema = z.object({
+  phone: z.string().regex(/^\+?[1-9]\d{9,14}$/, 'Invalid phone number'),
+  firebaseToken: z.string().min(1, 'Firebase token is required'),
+});
+
+/**
+ * POST /api/auth/firebase/verify
+ * Verifies a Firebase ID token and returns a local session token.
+ * The mobile app calls this after Firebase Phone Auth succeeds.
+ */
+export async function verifyFirebaseOtp(request: FastifyRequest, reply: FastifyReply) {
+  const parsed = firebaseVerifySchema.safeParse(request.body);
+  if (!parsed.success) {
+    throw AppError.badRequest('errInvalidInput', JSON.stringify(parsed.error.flatten().fieldErrors));
+  }
+
+  const { phone, firebaseToken } = parsed.data;
+
+  try {
+    // Verify the Firebase ID token
+    const decodedToken = await firebaseAuth.verifyIdToken(firebaseToken);
+    const firebasePhone = decodedToken.phone_number;
+
+    // Security check: ensure the phone from the token matches the claimed phone
+    if (firebasePhone !== phone) {
+      logger.warn({ claimedPhone: phone, tokenPhone: firebasePhone }, 'Phone number mismatch in Firebase token');
+      throw AppError.unauthorized('errPhoneMismatch', 'Phone number does not match token');
+    }
+
+    // Find or create the user
+    let isNewUser = false;
+    let user = await User.findOne({ phone });
+    if (!user) {
+      isNewUser = true;
+      user = new User({ phone, isVerified: true, subscriptionTier: 'free' });
+      await user.save();
+    } else if (!user.isVerified) {
+      isNewUser = true;
+      user.isVerified = true;
+      await user.save();
+    }
+
+    // Ensure subscription exists
+    const existingSub = await Subscription.findOne({ userId: user._id });
+    if (!existingSub) {
+      await Subscription.create({
+        userId: user._id,
+        tier: 'free',
+        endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        features: TIER_FEATURES.free,
+      });
+    }
+
+    // Create wallet for new users
+    if (isNewUser) {
+      try {
+        await Wallet.ensureForUser(user._id.toString());
+      } catch (error) {
+        logger.warn({ userId: user._id, error }, 'Failed to create initial wallet');
+      }
+    }
+
+    const internalToken = generateInternalToken(String(user._id), user.role);
+
+    logger.info({ phone, isNewUser, firebaseUid: decodedToken.uid }, 'Firebase phone auth verified');
+
+    return reply.send({
+      success: true,
+      message: 'Login successful',
+      token: internalToken,
+      user: buildUserPayload(user),
+    });
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    logger.error({ error }, 'Firebase token verification failed');
+    throw AppError.unauthorized('errInvalidToken', 'Invalid or expired Firebase token');
   }
 }

@@ -173,6 +173,7 @@ export interface AskChatResponse {
   model?: string;
   mode?: string;
   idempotencyKey?: string;
+  wallet?: Wallet;
 }
 
 export interface ChatSummary {

@@ -18,7 +18,7 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
   const { product, quantity } = item;
   const itemTotal = product.price * quantity;
 
-  const localized = getLocalizedProductContent(product, language);
+  const localized = getLocalizedProductContent(product, language || 'English');
 
   const MinusIcon = IconMap['Minus'];
   const PlusIcon = IconMap['Plus'];

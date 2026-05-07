@@ -66,7 +66,7 @@ export const PremiumModal: React.FC<PremiumModalProps> = ({
     }
   }, [visible]);
 
-  if (!visible && opacityAnim._value === 0) return null;
+  if (!visible && (opacityAnim as any)._value === 0) return null;
 
   return (
     <Modal transparent visible={visible} animationType="none" onRequestClose={onClose}>

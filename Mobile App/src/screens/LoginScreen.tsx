@@ -15,13 +15,25 @@ import { useTheme } from '../providers/ThemeContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
+import { FirebaseRecaptchaVerifierModal, FirebaseAuthApplicationVerifier } from 'expo-firebase-recaptcha';
+import { PhoneAuthProvider } from 'firebase/auth';
+import { auth, firebaseConfig } from '../config/firebase';
+import { useRef } from 'react';
+
 function normalizePhone(input: string): string | null {
   const digits = input.replace(/\D/g, '');
 
+  // If user typed 10 digits, assume India (+91)
   if (digits.length === 10) {
     return `+91${digits}`;
   }
 
+  // If user typed 12 digits starting with 91, assume it's already +91...
+  if (digits.length === 12 && digits.startsWith('91')) {
+    return `+${digits}`;
+  }
+
+  // Otherwise handle other international lengths
   if (digits.length >= 10 && digits.length <= 15) {
     return `+${digits}`;
   }
@@ -33,18 +45,29 @@ export function LoginScreen({ navigation }: Props) {
   const phoneDraft = useAppStore((state) => state.phoneDraft);
   const setPhoneDraft = useAppStore((state) => state.setPhoneDraft);
   const language = useAppStore((state) => state.language);
-  const { colors } = useTheme();
-  const [phone, setPhone] = useState(phoneDraft);
+  const { colors, isDark } = useTheme();
+  
+  // Strip +91 if it exists in the stored draft so the user only sees the 10 digits
+  const initialPhone = phoneDraft?.startsWith('+91') ? phoneDraft.slice(3) : phoneDraft;
+  const [phone, setPhone] = useState(initialPhone || '');
   const [error, setError] = useState<string | null>(null);
+  
+  const recaptchaVerifier = useRef<FirebaseRecaptchaVerifierModal>(null);
 
   const sendOtpMutation = useMutation({
     mutationFn: async (normalizedPhone: string) => {
-      return apiService.sendOtp(normalizedPhone);
+      const phoneProvider = new PhoneAuthProvider(auth);
+      const verificationId = await phoneProvider.verifyPhoneNumber(
+        normalizedPhone,
+        recaptchaVerifier.current!
+      );
+      return verificationId;
     },
-    onSuccess: (data, normalizedPhone) => {
+    onSuccess: (verificationId, normalizedPhone) => {
       setError(null);
-      setPhoneDraft(normalizedPhone);
-      navigation.navigate('Otp', { phone: normalizedPhone, otpPreview: data.otp ?? null });
+      // Store the raw phone (what user sees) instead of normalized
+      setPhoneDraft(phone); 
+      navigation.navigate('Otp', { phone: normalizedPhone, verificationId });
     },
     onError: (err: any) => {
       console.error('Send OTP error', err);
@@ -66,6 +89,11 @@ export function LoginScreen({ navigation }: Props) {
 
   return (
     <Screen>
+      <FirebaseRecaptchaVerifierModal
+        ref={recaptchaVerifier}
+        firebaseConfig={firebaseConfig}
+        attemptInvisibleVerification={true}
+      />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <View style={styles.hero}>
           <View style={styles.blurCircleOne} />
@@ -77,9 +105,9 @@ export function LoginScreen({ navigation }: Props) {
         </View>
         <ScreenCard style={styles.formCard}>
           <AppText variant="label">{t(language, 'mobileNumber')}</AppText>
-          <View style={styles.inputWrap}>
-            <View style={styles.countryCode}>
-              <AppText variant="label">+91</AppText>
+          <View style={[styles.inputWrap, { borderColor: colors.border }]}>
+            <View style={[styles.countryCode, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : theme.colors.surfaceMuted }]}>
+              <AppText variant="label" style={{ color: colors.text }}>+91</AppText>
             </View>
             <TextInput
               value={phone}

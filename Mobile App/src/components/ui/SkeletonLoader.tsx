@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, View, Animated, Easing, StyleProp, ViewStyle } from 'react-native';
+import { StyleSheet, View, Animated, Easing, StyleProp, ViewStyle, DimensionValue } from 'react-native';
 import { useTheme } from '../../providers/ThemeContext';
 
 interface SkeletonLoaderProps {
-  width?: number | string;
+  width?: DimensionValue;
   height?: number;
   borderRadius?: number;
   style?: StyleProp<ViewStyle>;

@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, isWithinInterval } from 'date-fns';
 import { AppText, GlassCard } from '../ui';
+import { Feather } from '@expo/vector-icons';
 import { CropTask, Language, ThemeMode } from '../../types/planner';
 import { getPlannerTheme } from '../../constants/plannerTheme';
 import { translations } from '../../constants/plannerTranslations';

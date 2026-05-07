@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { Contact } from '../models/Contact';
 import { logger } from '../utils/logger';
+import { sendContactNotification } from '../services/emailService';
 
 export const submitContactForm = async (
   request: FastifyRequest<{
@@ -43,6 +44,9 @@ export const submitContactForm = async (
     await newContact.save();
 
     logger.info({ contactId: newContact._id }, 'New contact form submission received');
+
+    // Send email notification (non-blocking — don't await to keep response fast)
+    sendContactNotification({ name, email, subject, message });
 
     return reply.status(201).send({
       success: true,

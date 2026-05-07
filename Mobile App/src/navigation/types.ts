@@ -14,7 +14,7 @@ export type RootStackParamList = {
   VoiceIntro: undefined;
   CropIntro: undefined;
   Login: undefined;
-  Otp: { phone: string; otpPreview?: string | null };
+  Otp: { phone: string; verificationId: string };
   ProfileSetup: undefined;
   ProfileCompletion: undefined;
   ProfileComplete: undefined;

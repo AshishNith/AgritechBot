@@ -10,16 +10,17 @@ import { theme } from '../constants/theme';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
 import { isProfileComplete } from '../utils/profile';
+import { PhoneAuthProvider, signInWithCredential } from 'firebase/auth';
+import { auth } from '../config/firebase';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Otp'>;
 
 export function OtpScreen({ navigation, route }: Props) {
-  const { phone, otpPreview: initialOtpPreview } = route.params;
+  const { phone, verificationId } = route.params;
   const hiddenInputRef = useRef<TextInput>(null);
   const [otp, setOtp] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(30);
-  const [otpPreview, setOtpPreview] = useState<string | null>(initialOtpPreview ?? null);
 
   const language = useAppStore((state) => state.language);
   const setToken = useAppStore((state) => state.setToken);
@@ -36,7 +37,16 @@ export function OtpScreen({ navigation, route }: Props) {
   }, [resendCooldown]);
 
   const verifyMutation = useMutation({
-    mutationFn: async () => apiService.verifyOtp(phone, otp),
+    mutationFn: async () => {
+      // 1. Create Firebase credential from the verificationId + user-entered OTP
+      const credential = PhoneAuthProvider.credential(verificationId, otp);
+      // 2. Sign in with Firebase to validate the OTP
+      const userCredential = await signInWithCredential(auth, credential);
+      // 3. Get the Firebase ID token
+      const firebaseToken = await userCredential.user.getIdToken();
+      // 4. Send the Firebase token to our backend for session creation
+      return apiService.verifyFirebaseToken(phone, firebaseToken);
+    },
     onSuccess: (data) => {
       setError(null);
       setToken(data.token);
@@ -56,20 +66,6 @@ export function OtpScreen({ navigation, route }: Props) {
     },
   });
 
-  const resendMutation = useMutation({
-    mutationFn: async () => apiService.sendOtp(phone),
-    onSuccess: (data) => {
-      setOtp('');
-      setError(null);
-      setResendCooldown(30);
-      setOtpPreview(data.otp ?? null);
-    },
-    onError: (mutationError: any) => {
-      const message = mutationError?.message || t(language, 'failedToResendOtp');
-      setError(message);
-    },
-  });
-
   const handleVerify = () => {
     if (otp.length !== 6) {
       setError(t(language, 'enterAllSixDigits'));
@@ -81,11 +77,11 @@ export function OtpScreen({ navigation, route }: Props) {
   };
 
   const handleResend = () => {
-    if (resendCooldown > 0 || resendMutation.isPending) {
+    if (resendCooldown > 0) {
       return;
     }
-
-    resendMutation.mutate();
+    // For Firebase, resend requires going back to LoginScreen to re-trigger PhoneAuthProvider
+    navigation.goBack();
   };
 
   return (
@@ -98,13 +94,6 @@ export function OtpScreen({ navigation, route }: Props) {
         <AppText color={theme.colors.textMuted} style={{ marginTop: 8 }}>
           {t(language, 'sentCodeTo')} {phone}
         </AppText>
-
-        <ScreenCard style={styles.previewCard}>
-          <AppText variant="label">OTP preview</AppText>
-          <AppText color={theme.colors.textMuted} style={{ marginTop: 6 }}>
-            {otpPreview ? `Your OTP: ${otpPreview}` : 'OTP preview is disabled for this environment.'}
-          </AppText>
-        </ScreenCard>
 
         <ScreenCard style={styles.card}>
           <Pressable
@@ -158,7 +147,7 @@ export function OtpScreen({ navigation, route }: Props) {
 
         <Pressable
           onPress={handleResend}
-          disabled={resendCooldown > 0 || resendMutation.isPending}
+          disabled={resendCooldown > 0}
           style={{ marginTop: 18 }}
         >
           <AppText
@@ -167,9 +156,7 @@ export function OtpScreen({ navigation, route }: Props) {
           >
             {resendCooldown > 0
               ? `${t(language, 'resendOtpIn')} ${resendCooldown}s`
-              : resendMutation.isPending
-                ? t(language, 'sendingResend')
-                : t(language, 'didntReceiveCode')}
+              : t(language, 'didntReceiveCode')}
           </AppText>
         </Pressable>
 
@@ -189,13 +176,6 @@ const styles = StyleSheet.create({
   card: {
     marginTop: 14,
     gap: 18,
-  },
-  previewCard: {
-    marginTop: 20,
-    gap: 6,
-    backgroundColor: 'rgba(82,183,129,0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(82,183,129,0.18)',
   },
   otpRow: {
     flexDirection: 'row',
