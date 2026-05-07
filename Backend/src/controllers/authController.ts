@@ -9,9 +9,8 @@ import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 
 /**
- * We still use our own JWT for internal API sessions 
- * to avoid hitting Firebase Admin for every single request
- * and to maintain our payload structure.
+ * We use our own JWT for internal API sessions 
+ * to maintain our payload structure.
  */
 function generateInternalToken(userId: string, role: string): string {
   return jwt.sign({ userId, role }, env.JWT_SECRET, {

@@ -24,10 +24,12 @@ export default function Marketplace() {
             {t('marketplace.title')}
           </h2>
         </div>
-        <button className="flex items-center gap-2 border-2 border-primary text-primary px-6 py-3 md:px-8 md:py-4 rounded-2xl font-bold hover:bg-primary hover:text-on-primary transition-colors whitespace-nowrap">
-          {t('marketplace.viewAll')}
-          <span className="material-symbols-outlined">arrow_forward</span>
-        </button>
+        <Link to="/download">
+          <button className="flex items-center gap-2 border-2 border-primary text-primary px-6 py-3 md:px-8 md:py-4 rounded-2xl font-bold hover:bg-primary hover:text-on-primary transition-colors whitespace-nowrap">
+            {t('marketplace.viewAll')}
+            <span className="material-symbols-outlined">arrow_forward</span>
+          </button>
+        </Link>
       </div>
       
       {/* Horizontal snap-scrolling viewport */}

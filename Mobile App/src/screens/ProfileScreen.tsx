@@ -1,4 +1,4 @@
-import { Switch, Image, Pressable, StyleSheet, View, Modal, TextInput, ActivityIndicator, ScrollView, Platform } from 'react-native';
+import { Switch, Image, Pressable, StyleSheet, View, Modal, TextInput, ActivityIndicator, ScrollView, Platform, Alert, Linking } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useState, useMemo, useCallback, useEffect } from 'react';
@@ -135,6 +135,32 @@ export function ProfileScreen() {
     updateProfileMutation.mutate();
   };
 
+  const deleteAccountMutation = useMutation({
+    mutationFn: () => apiService.deleteAccount(),
+    onSuccess: () => {
+      Alert.alert(tx('deletionSuccess'));
+      signOut();
+    },
+    onError: () => {
+      Alert.alert(tx('deletionFailed'));
+    }
+  });
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      tx('confirmDeletion'),
+      tx('deletionWarning'),
+      [
+        { text: tx('cancel'), style: 'cancel' },
+        { 
+          text: tx('deleteAccount'), 
+          style: 'destructive',
+          onPress: () => deleteAccountMutation.mutate()
+        }
+      ]
+    );
+  };
+
   return (
     <Screen scrollable withTabBar>
       <View style={styles.header}>
@@ -254,7 +280,7 @@ export function ProfileScreen() {
       </AppText>
       <ScreenCard>
         <Pressable onPress={() => setShowLanguagePicker(true)}>
-          <IconRow icon="Languages" title={tx('appLanguage')} subtitle={language} />
+          <IconRow icon="Languages" title={tx('appLanguage')} subtitle={language || 'English'} />
         </Pressable>
         <IconRow 
           icon="MoonStar" 
@@ -287,12 +313,24 @@ export function ProfileScreen() {
         {tx('securityAndData').toUpperCase()}
       </AppText>
       <ScreenCard style={{ marginBottom: 40 }}>
-        <IconRow icon="ShieldCheck" title={tx('privacySettings')} subtitle={tx('manageData')} />
-        <Pressable onPress={() => signOut()} style={styles.signOutBtn}>
+        <Pressable onPress={() => Linking.openURL('https://www.anaaj.ai/privacy')}>
+          <IconRow icon="ShieldCheck" title={tx('privacySettings')} subtitle={tx('manageData')} />
+        </Pressable>
+        
+        <Pressable onPress={handleDeleteAccount} style={styles.signOutBtn}>
           <View style={[styles.signOutIcon, { backgroundColor: theme.colors.danger + '10' }]}>
-            {(() => { const LogOut = IconMap['X']; return LogOut ? <LogOut size={18} color={theme.colors.danger} /> : null; })()}
+            {(() => { const Trash = IconMap['Trash2'] || IconMap['X']; return Trash ? <Trash size={18} color={theme.colors.danger} /> : null; })()}
           </View>
           <AppText variant="label" weight="bold" color={theme.colors.danger}>
+            {tx('deleteAccount')}
+          </AppText>
+        </Pressable>
+
+        <Pressable onPress={() => signOut()} style={styles.signOutBtn}>
+          <View style={[styles.signOutIcon, { backgroundColor: colors.textMuted + '15' }]}>
+            {(() => { const LogOut = IconMap['LogOut'] || IconMap['X']; return LogOut ? <LogOut size={18} color={colors.textMuted} /> : null; })()}
+          </View>
+          <AppText variant="label" weight="bold" color={colors.textMuted}>
             {t(language, 'signOut')}
           </AppText>
         </Pressable>

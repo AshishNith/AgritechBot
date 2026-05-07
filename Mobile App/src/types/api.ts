@@ -414,6 +414,8 @@ export interface FarmingTask {
   _id: string;
   userCropId: string;
   userId: string;
+  cropType?: string;
+  location?: { address?: string };
   taskType: 'watering' | 'fertilizing' | 'pesticide' | 'weeding' | 'harvesting' | 'maintenance';
   title: string;
   description: string;

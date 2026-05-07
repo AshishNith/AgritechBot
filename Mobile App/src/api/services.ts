@@ -160,6 +160,10 @@ export const apiService = {
     const { data } = await api.put<{ message: string; user: UserProfile }>('/api/user/profile', profileData);
     return data;
   },
+  async deleteAccount() {
+    const { data } = await api.delete<{ message: string }>('/api/user/account');
+    return data;
+  },
   async getWallet() {
     const { data } = await api.get<{ wallet: Wallet }>('/api/user/wallet');
     return data.wallet;
@@ -488,23 +492,6 @@ export const apiService = {
     return data;
   },
 
-  /**
-   * Dummy upgrade for testing (no payments)
-   */
-  async testUpgradeSubscription(tier: 'basic' | 'premium') {
-    const { data } = await api.post<{ message: string; subscription: any }>('/api/subscription/test-upgrade', {
-      tier,
-    });
-    return data;
-  },
-
-  /**
-   * Process a dummy payment for subscription upgrade
-   */
-  async processDummyPayment(tier: 'basic' | 'premium') {
-    const { data } = await api.post<{ success: boolean; subscriptionTier: string; expiresAt: string; wallet?: Wallet }>('/api/user/subscription/dummy-payment', { tier });
-    return data;
-  },
 
   // ── Notifications ──
   async getNotifications(type?: string) {

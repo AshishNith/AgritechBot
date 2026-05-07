@@ -45,7 +45,7 @@ export function ProductDetailScreen({ route }: Props) {
   const ratingAverage = product.ratings?.average ?? 4.8;
   const ratingCount = product.ratings?.count ?? 0;
   
-  const localized = getLocalizedProductContent(product, language);
+  const localized = getLocalizedProductContent(product, language || 'English');
   const localizedName = localized.name;
   const localizedDescription = localized.description;
 
@@ -220,7 +220,7 @@ export function ProductDetailScreen({ route }: Props) {
             <AppText color={colors.textMuted}>/ {localized.unit}</AppText>
           </View>
           <View style={styles.languageRow}>
-            <Pill label={language} active />
+            <Pill label={language || 'English'} active />
           </View>
           <View style={styles.statsGrid}>
             <ScreenCard style={styles.statCard}>

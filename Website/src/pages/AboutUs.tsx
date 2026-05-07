@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import Founders from '../components/Founders';
 
@@ -266,14 +267,16 @@ export default function AboutUs() {
                     <p className="text-base md:text-lg text-on-surface-variant font-body leading-[1.6] mb-10 max-w-md">
                       {t('aboutUs.impact.description')}
                     </p>
-                    <motion.button 
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="px-10 py-5 rounded-full bg-primary text-white font-bold text-lg shadow-xl flex items-center gap-3 group relative overflow-hidden w-fit"
-                    >
-                      <span className="relative z-10">{t('aboutUs.impact.cta')}</span>
-                      <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform relative z-10">arrow_forward</span>
-                    </motion.button>
+                    <Link to="/download">
+                      <motion.button 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="px-10 py-5 rounded-full bg-primary text-white font-bold text-lg shadow-xl flex items-center gap-3 group relative overflow-hidden w-fit"
+                      >
+                        <span className="relative z-10">{t('aboutUs.impact.cta')}</span>
+                        <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform relative z-10">arrow_forward</span>
+                      </motion.button>
+                    </Link>
                   </div>
 
                   <div className="relative flex justify-center">

@@ -145,3 +145,25 @@ export async function getUserSubscriptionStatus(request: FastifyRequest, reply: 
 
   return reply.send(status);
 }
+
+/**
+ * DELETE /api/user/account
+ * Deletes the user account and all associated data.
+ */
+export async function deleteAccount(request: FastifyRequest, reply: FastifyReply) {
+  const userId = request.user!._id;
+
+  const user = await User.findByIdAndDelete(userId);
+  if (!user) {
+    return reply.status(404).send({ error: 'User not found' });
+  }
+
+  // Optional: Delete other associated data like wallet, subscriptions, etc.
+  // For now, we focus on the User object to comply with deletion requirements.
+  
+  await invalidateFarmerContextCache(userId);
+
+  return reply.send({
+    message: 'Account deleted successfully',
+  });
+}

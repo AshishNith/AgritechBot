@@ -72,7 +72,7 @@ export function ChatScreen() {
     refetchWallet 
   } = useWallet();
 
-  const [messages, setMessages] = useState<ChatMessage[]>([buildStarterMessage(language)]);
+  const [messages, setMessages] = useState<ChatMessage[]>([buildStarterMessage(language || 'English')]);
   const [input, setInput] = useState('');
   const [chatId, setChatId] = useState<string | undefined>(route?.params?.chatId);
   const [pickedImageUri, setPickedImageUri] = useState<string | null>(null);
@@ -153,7 +153,7 @@ export function ChatScreen() {
         return current;
       }
 
-      return [buildStarterMessage(language)];
+      return [buildStarterMessage(language || 'English')];
     });
   }, [language]);
 
@@ -172,7 +172,7 @@ export function ChatScreen() {
 
   useEffect(() => {
     if (!chatId) {
-      setMessages([buildStarterMessage(language)]);
+      setMessages([buildStarterMessage(language || 'English')]);
       return;
     }
 
@@ -191,7 +191,7 @@ export function ChatScreen() {
         }
 
         if (!data.messages.length) {
-          setMessages([buildStarterMessage(language)]);
+          setMessages([buildStarterMessage(language || 'English')]);
           return;
         }
 
@@ -210,7 +210,7 @@ export function ChatScreen() {
           return true;
         });
 
-        setMessages((current) => dedupedMessages.length ? dedupedMessages : [buildStarterMessage(language)]);
+        setMessages((current) => dedupedMessages.length ? dedupedMessages : [buildStarterMessage(language || 'English')]);
       })
       .catch(() => {
         if (cancelled) {
@@ -218,7 +218,7 @@ export function ChatScreen() {
         }
 
         setMessages([
-          buildStarterMessage(language),
+          buildStarterMessage(language || 'English'),
           {
             id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-load-error`,
             chatId,
@@ -293,7 +293,7 @@ export function ChatScreen() {
     mutationFn: (payload: { message: string; imageBase64?: string; imageMimeType?: string }) =>
       apiService.askChat({
         message: payload.message,
-        language,
+        language: language || 'English',
         chatId,
         imageBase64: payload.imageBase64,
         imageMimeType: payload.imageMimeType,
@@ -430,7 +430,7 @@ export function ChatScreen() {
     onSuccess: async (_, sessionId) => {
       if (chatId === sessionId) {
         setChatId(undefined);
-        setMessages([buildStarterMessage(language)]);
+        setMessages([buildStarterMessage(language || 'English')]);
       }
 
       await queryClient.invalidateQueries({ queryKey: ['chat-history'] });
@@ -440,7 +440,7 @@ export function ChatScreen() {
   const clearMutation = useMutation({
     mutationFn: (sessionId: string) => apiService.clearChatHistory(sessionId),
     onSuccess: () => {
-      setMessages([buildStarterMessage(language)]);
+      setMessages([buildStarterMessage(language || 'English')]);
     },
   });
 
@@ -603,7 +603,7 @@ export function ChatScreen() {
 
   // Full voice pipeline: STT → AI → TTS
   const voiceMutation = useMutation({
-    mutationFn: (audioClip: RecordedAudioClip) => apiService.sendVoiceMessage(audioClip, language, chatId),
+    mutationFn: (audioClip: RecordedAudioClip) => apiService.sendVoiceMessage(audioClip, language || 'English', chatId),
     onMutate: () => setVoiceStatus('processing'),
     onSettled: () => setVoiceStatus('idle'),
     onSuccess: async (data) => {
@@ -682,7 +682,7 @@ export function ChatScreen() {
 
   // STT-only: transcribe → auto-fill input box
   const transcribeMutation = useMutation({
-    mutationFn: (audioClip: RecordedAudioClip) => apiService.transcribeVoice(audioClip, language),
+    mutationFn: (audioClip: RecordedAudioClip) => apiService.transcribeVoice(audioClip, language || 'English'),
     onMutate: () => setVoiceStatus('transcribing'),
     onSettled: () => setVoiceStatus('idle'),
     onSuccess: (data) => {
@@ -785,7 +785,7 @@ export function ChatScreen() {
 
   const newChat = () => {
     setChatId(undefined);
-    setMessages([buildStarterMessage(language)]);
+    setMessages([buildStarterMessage(language || 'English')]);
     setInput('');
     removePickedImage();
     setSessionDrawerOpen(false);
@@ -795,11 +795,11 @@ export function ChatScreen() {
     await Share.share({ message: message.content });
   };
 
-  const displayedMessages = messages.length ? messages : [buildStarterMessage(language)];
+  const displayedMessages = messages.length ? messages : [buildStarterMessage(language || 'English')];
 
   // Calculate usage from wallet
   const currentPlan = PLAN_CONFIGS.find(p => p.tier === wallet?.plan);
-  const totalLimit = (currentPlan?.chatCredits || 10) + (wallet?.initialTopupCredits || 0);
+  const totalLimit = (currentPlan?.chatCredits || 10) + (wallet?.topupCredits || 0);
   const availableCredits = (wallet?.chatCredits || 0) + (wallet?.topupCredits || 0);
   const usedChats = Math.max(0, totalLimit - availableCredits);
   const usagePercentage = totalLimit > 0 ? Math.min(100, (usedChats / totalLimit) * 100) : 0;
@@ -900,7 +900,7 @@ export function ChatScreen() {
         <View style={[styles.usageBarContainer, { backgroundColor: isDark ? colors.backgroundAlt : colors.surface, paddingBottom: 10 }]}>
            <View style={styles.usageTextRow}>
               <AppText variant="caption" color={colors.textMuted} style={{ fontSize: 10, fontWeight: '700' }}>
-                {availableCredits} {tx('tokensRemaining') || 'Tokens Left'}
+                {availableCredits} {'Tokens Left'}
               </AppText>
               {usedChats >= totalLimit * 0.8 && (
                 <Pressable onPress={() => navigation.navigate('Subscription', { tab: 'plans' })}>
@@ -934,7 +934,7 @@ export function ChatScreen() {
             <ChatMessageItem
               key={message.id}
               message={message}
-              language={language}
+              language={language || 'English'}
               onPress={() => setActiveTimestampId(current => current === message.id ? null : message.id)}
               onLongPress={() => onMessageLongPress(message)}
               activeTimestampId={activeTimestampId}

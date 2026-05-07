@@ -145,11 +145,11 @@ export function MarketplaceScreen() {
                 </View>
 
                 <AppText variant="title" color={isDark ? colors.textOnDark : colors.text} style={{ fontSize: 20 }}>
-                  {getLocalizedProductContent(aiPick, language).name}
+                  {getLocalizedProductContent(aiPick, language || 'English').name}
                 </AppText>
                 
                 <AppText color={isDark ? colors.textOnDark : colors.textMuted} style={{ marginTop: 8, fontSize: 13, lineHeight: 18, opacity: 0.8 }}>
-                  {getLocalizedProductContent(aiPick, language).whyUse ?? t(language, 'marketSubtitle')}
+                  {getLocalizedProductContent(aiPick, language || 'English').whyUse ?? t(language || 'English', 'marketSubtitle')}
                 </AppText>
 
                 <Pressable
@@ -167,7 +167,7 @@ export function MarketplaceScreen() {
                   ]}
                 >
                   <AppText variant="label" color="#fff" style={{ fontSize: 13 }}>
-                    {t(language, 'viewNow')}
+                    {t(language || 'English', 'viewNow')}
                   </AppText>
                 </Pressable>
               </View>
@@ -177,11 +177,11 @@ export function MarketplaceScreen() {
           {grouped.fertilizers.length > 0 && (
             <>
               <View style={{ paddingHorizontal: 20 }}>
-                <SectionHeader title={t(language, 'topFertilizers')} />
+                <SectionHeader title={t(language || 'English', 'topFertilizers')} />
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sectionScroller}>
                 {grouped.fertilizers.map((product) => {
-                  const localized = getLocalizedProductContent(product, language);
+                  const localized = getLocalizedProductContent(product, language || 'English');
                   return (
                     <ProductFlowCard
                       key={product.id}
@@ -200,11 +200,11 @@ export function MarketplaceScreen() {
           {grouped.seeds.length > 0 && (
             <>
               <View style={{ paddingHorizontal: 20 }}>
-                <SectionHeader title={t(language, 'essentialSeeds')} />
+                <SectionHeader title={t(language || 'English', 'essentialSeeds')} />
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sectionScroller}>
                 {grouped.seeds.map((product) => {
-                  const localized = getLocalizedProductContent(product, language);
+                  const localized = getLocalizedProductContent(product, language || 'English');
                   return (
                     <ProductFlowCard
                       key={product.id}
@@ -223,11 +223,11 @@ export function MarketplaceScreen() {
           {grouped.tools.length > 0 && (
             <>
               <View style={{ paddingHorizontal: 20 }}>
-                <SectionHeader title={t(language, 'modernTools')} />
+                <SectionHeader title={t(language || 'English', 'modernTools')} />
               </View>
               <View style={{ gap: 12, paddingHorizontal: 20 }}>
                 {grouped.tools.map((product) => {
-                  const localized = getLocalizedProductContent(product, language);
+                  const localized = getLocalizedProductContent(product, language || 'English');
                   return (
                     <Pressable
                       key={product.id}
@@ -258,11 +258,11 @@ export function MarketplaceScreen() {
           {grouped.cropCare.length > 0 && (
             <>
               <View style={{ paddingHorizontal: 20 }}>
-                <SectionHeader title={t(language, 'cropCare')} />
+                <SectionHeader title={t(language || 'English', 'cropCare')} />
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sectionScroller}>
                 {grouped.cropCare.map((product) => {
-                  const localized = getLocalizedProductContent(product, language);
+                  const localized = getLocalizedProductContent(product, language || 'English');
                   return (
                     <ProductFlowCard
                       key={product.id}
@@ -281,9 +281,9 @@ export function MarketplaceScreen() {
           {filteredProducts.length === 0 && (
             <View style={{ paddingHorizontal: 20 }}>
               <ScreenCard style={styles.emptyWrap}>
-                <AppText variant="label">{t(language, 'noProductsFound')}</AppText>
+                <AppText variant="label">{t(language || 'English', 'noProductsFound')}</AppText>
                 <AppText color={colors.textMuted} style={{ marginTop: 6 }}>
-                  {t(language, 'tryDifferentFilters')}
+                  {t(language || 'English', 'tryDifferentFilters')}
                 </AppText>
               </ScreenCard>
             </View>

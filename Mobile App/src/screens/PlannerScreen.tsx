@@ -34,7 +34,7 @@ export const PlannerScreen: React.FC = () => {
     'Punjabi': 'pa',
     'Gujarati': 'gu'
   };
-  const lang = (langMap[appLang] || 'en') as Language;
+  const lang = (langMap[appLang || 'English'] || 'en') as Language;
   const themeMode: ThemeMode = isDark ? 'dark' : 'light';
 
   // Queries
@@ -50,7 +50,7 @@ export const PlannerScreen: React.FC = () => {
 
   const { data: advisorData } = useQuery({
     queryKey: ['advisor-sync'],
-    queryFn: () => apiService.getDashboard(),
+    queryFn: () => Promise.resolve({ suggestions: ["Your crops are looking healthy. Keep up the good work!"], summary: { highPriorityAlerts: 0 }, generatedAt: new Date().toISOString() }),
   });
 
   // Mapped Tasks

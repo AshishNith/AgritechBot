@@ -61,6 +61,11 @@ export default function PrivacyPolicy() {
             <p>{t('privacyPolicy.section5.text')}</p>
           </section>
 
+          <section>
+            <h2 className="text-2xl font-bold mb-4">{t('privacyPolicy.section6.title')}</h2>
+            <p>{t('privacyPolicy.section6.text')}</p>
+          </section>
+
           <div className="p-8 bg-surface-container-low rounded-3xl border border-outline-variant/10 mt-12">
             <h3 className="font-bold text-primary mb-2">{t('privacyPolicy.questions.title')}</h3>
             <p className="text-sm text-on-surface-variant">

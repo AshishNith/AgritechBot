@@ -500,6 +500,10 @@
       "title": "5. Your Rights",
       "text": "You have the right to request a full copy of your data, or request the deletion of your account and all associated data at any time through our support portal or mobile app settings."
     },
+    "section6": {
+      "title": "6. Data Deletion Instructions",
+      "text": "To request immediate deletion of your account and all associated data without using the mobile app, you can email us directly. Please send an email to privacy@anaajai.com with the subject 'Data Deletion Request' and include your registered phone number."
+    },
     "questions": {
       "title": "Questions?",
       "text": "If you have any questions regarding your privacy, please contact us at ",

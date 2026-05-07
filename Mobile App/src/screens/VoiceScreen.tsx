@@ -33,7 +33,7 @@ export function VoiceScreen() {
   }, []);
 
   const voiceMutation = useMutation({
-    mutationFn: (audioClip: RecordedAudioClip) => apiService.sendVoiceMessage(audioClip, language),
+    mutationFn: (audioClip: RecordedAudioClip) => apiService.sendVoiceMessage(audioClip, language || 'English'),
     onSuccess: async (data) => {
       setLatestTranscript(data.transcript ?? null);
       setLatestAnswer(data.answer);

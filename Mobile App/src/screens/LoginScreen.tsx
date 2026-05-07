@@ -2,7 +2,7 @@ import { IconMap } from '../components/IconMap';
 import { useMutation } from '@tanstack/react-query';
 
 import { useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet, TextInput, View, Linking } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { apiService } from '../api/services';
@@ -112,25 +112,16 @@ export function LoginScreen({ navigation }: Props) {
             }
           />
 
-          <View style={styles.divider}>
-            <View style={styles.line} />
-            <AppText color={theme.colors.textMuted}>or continue with</AppText>
-            <View style={styles.line} />
-          </View>
-          <View style={styles.socialRow}>
-            <GradientButton label="Google" secondary 
-              leftIcon={(() => { const IconComp = IconMap['Globe']; return IconComp ? <IconComp size={18} color={theme.colors.primaryDark} /> : null; })()} 
-              style={styles.socialButton} 
-            />
-            <GradientButton label="Email" secondary 
-              leftIcon={(() => { const IconComp = IconMap['Mail']; return IconComp ? <IconComp size={18} color={theme.colors.primaryDark} /> : null; })()} 
-              style={styles.socialButton} 
-            />
-          </View>
         </ScreenCard>
-        <AppText color={theme.colors.textMuted} style={styles.terms}>
-          Terms of Service & Privacy Policy
-        </AppText>
+          <AppText color={theme.colors.textMuted} style={styles.terms}>
+            By continuing, you agree to our{' '}
+            <AppText 
+              color={theme.colors.primary} 
+              onPress={() => Linking.openURL('https://www.anaaj.ai/privacy')}
+            >
+              Privacy Policy
+            </AppText>
+          </AppText>
       </KeyboardAvoidingView>
     </Screen>
   );

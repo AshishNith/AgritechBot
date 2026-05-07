@@ -426,6 +426,14 @@ export type TranslationKey =
   | 'backToStates'
   | 'locationUsagePrivacy'
   | 'locationErrorTitle'
+  | 'deleteAccount'
+  | 'confirmDeletion'
+  | 'deletionWarning'
+  | 'deletionSuccess'
+  | 'deletionFailed'
+  | 'aiDisclaimer'
+  | 'privacySettings'
+  | 'manageData'
   | 'confirm';
 
 
@@ -731,6 +739,12 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     continueToSecurePayment: 'Continue to secure payment',
     orContinueWith: 'or continue with',
     google: 'Google',
+    deleteAccount: 'Delete Account',
+    confirmDeletion: 'Confirm Deletion',
+    deletionWarning: 'Deletion Warning',
+    deletionSuccess: 'Deletion Success',
+    deletionFailed: 'Deletion Failed',
+    aiDisclaimer: 'AI Disclaimer',
     termsAndPrivacy: 'Terms of Service & Privacy Policy',
     otpPreview: 'OTP preview',
     yourOtp: 'Your OTP:',
@@ -859,6 +873,14 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     backToStates: 'Back to States',
     locationUsagePrivacy: 'We only use your location to provide accurate weather and crop data.',
     locationErrorTitle: 'Location Error',
+    deleteAccount: 'Delete Account',
+    confirmDeletion: 'Confirm Deletion',
+    deletionWarning: 'This action is permanent. All your data, chat history, and orders will be permanently deleted.',
+    deletionSuccess: 'Account deleted successfully.',
+    deletionFailed: 'Failed to delete account. Please try again later.',
+    aiDisclaimer: 'AI-generated insights are for informational purposes and should not be considered professional financial or agricultural advice.',
+    privacySettings: 'Privacy Settings',
+    manageData: 'Manage your data and security',
     confirm: 'Confirm',
   },
   Hindi: {
@@ -1290,6 +1312,14 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     backToStates: 'राज्यों पर वापस जाएं',
     locationUsagePrivacy: 'हम आपके स्थान का उपयोग केवल सटीक मौसम और फसल डेटा प्रदान करने के लिए करते हैं।',
     locationErrorTitle: 'स्थान त्रुटि',
+    deleteAccount: 'खाता हटाएं',
+    confirmDeletion: 'हटाने की पुष्टि करें',
+    deletionWarning: 'यह कार्रवाई स्थायी है। आपका सारा डेटा हमेशा के लिए हटा दिया जाएगा।',
+    deletionSuccess: 'खाता सफलतापूर्वक हटा दिया गया।',
+    deletionFailed: 'खाता हटाने में विफल। कृपया बाद में फिर प्रयास करें।',
+    aiDisclaimer: 'एआई अस्वीकरण',
+    privacySettings: 'गोपनीयता सेटिंग्स',
+    manageData: 'डेटा प्रबंधित करें',
     confirm: 'पुष्टि करें',
   },
   Gujarati: {
@@ -1721,6 +1751,14 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     backToStates: 'રાજ્યો પર પાછા જાઓ',
     locationUsagePrivacy: 'અમે તમારા સ્થાનનો ઉપયોગ ફક્ત સચોટ હવામાન અને પાકનો ડેટા પ્રદાન કરવા માટે કરીએ છીએ.',
     locationErrorTitle: 'સ્થાન ભૂલ',
+    deleteAccount: 'એકાઉન્ટ કાઢી નાખો',
+    confirmDeletion: 'કાઢી નાખવાની પુષ્ટિ કરો',
+    deletionWarning: 'આ ક્રિયા કાયમી છે. તમારો બધો ડેટા કાયમ માટે કાઢી નાખવામાં આવશે.',
+    deletionSuccess: 'એકાઉન્ટ સફળતાપૂર્વક કાઢી નાખવામાં આવ્યું.',
+    deletionFailed: 'એકાઉન્ટ કાઢી નાખવામાં નિષ્ફળ. કૃપા કરીને પછી ફરી પ્રયાસ કરો.',
+    aiDisclaimer: 'એઆઈ અસ્વીકરણ',
+    privacySettings: 'ગોપનીયતા સેટિંગ્સ',
+    manageData: 'ડેટા મેનેજ કરો',
     confirm: 'પુષ્ટિ કરો',
   },
   Punjabi: {
@@ -2152,6 +2190,14 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     backToStates: 'ਰਾਜਾਂ \'ਤੇ ਵਾਪਸ ਜਾਓ',
     locationUsagePrivacy: 'ਅਸੀਂ ਤੁਹਾਡੇ ਟਿਕਾਣੇ ਦੀ ਵਰਤੋਂ ਸਿਰਫ਼ ਸਹੀ ਮੌਸਮ ਅਤੇ ਫਸਲ ਦਾ ਡੇਟਾ ਪ੍ਰਦਾਨ ਕਰਨ ਲਈ ਕਰਦੇ ਹਾਂ।',
     locationErrorTitle: 'ਟਿਕਾਣਾ ਗਲਤੀ',
+    deleteAccount: 'ਖਾਤਾ ਮਿਟਾਓ',
+    confirmDeletion: 'ਮਿਟਾਉਣ ਦੀ ਪੁਸ਼ਟੀ ਕਰੋ',
+    deletionWarning: 'ਇਹ ਕਾਰਵਾਈ ਸਥਾਈ ਹੈ। ਤੁਹਾਡਾ ਸਾਰਾ ਡਾਟਾ ਹਮੇਸ਼ਾਂ ਲਈ ਮਿਟਾ ਦਿੱਤਾ ਜਾਵੇਗਾ।',
+    deletionSuccess: 'ਖਾਤਾ ਸਫਲਤਾਪੂਰਵਕ ਮਿਟਾ ਦਿੱਤਾ ਗਿਆ।',
+    deletionFailed: 'ਖਾਤਾ ਮਿਟਾਉਣ ਵਿੱਚ ਅਸਫਲ। ਕਿਰਪਾ ਕਰਕੇ ਬਾਅਦ ਵਿੱਚ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
+    aiDisclaimer: 'ਏਆਈ ਬੇਦਾਅਵਾ',
+    privacySettings: 'ਪ੍ਰਾਈਵੇਸੀ ਸੈਟਿੰਗਾਂ',
+    manageData: 'ਡੇਟਾ ਪ੍ਰਬੰਧਿਤ ਕਰੋ',
     confirm: 'ਪੁਸ਼ਟੀ ਕਰੋ',
   },
 };

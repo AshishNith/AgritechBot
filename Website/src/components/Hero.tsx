@@ -164,10 +164,17 @@ export default function Hero() {
             <Link to="/download" className="bg-tertiary-fixed text-on-tertiary-fixed px-6 py-4 md:px-8 md:py-4 rounded-2xl font-bold text-base md:text-lg shadow-xl hover:scale-105 transition-all w-full sm:w-auto text-center">
               {t('common.startTrial')}
             </Link>
-            <button className="flex items-center justify-center gap-2 font-bold px-6 py-4 md:px-8 md:py-4 rounded-2xl border border-white/30 text-white backdrop-blur-md hover:bg-white/10 transition-colors w-full sm:w-auto text-base md:text-lg">
+            <a 
+              href="#video-section" 
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('video-section')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="flex items-center justify-center gap-2 font-bold px-6 py-4 md:px-8 md:py-4 rounded-2xl border border-white/30 text-white backdrop-blur-md hover:bg-white/10 transition-colors w-full sm:w-auto text-base md:text-lg"
+            >
               <span className="material-symbols-outlined">play_circle</span>
               {t('common.watchDemo')}
-            </button>
+            </a>
           </div>
         </motion.div>
         

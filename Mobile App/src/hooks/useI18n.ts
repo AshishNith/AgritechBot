@@ -818,10 +818,10 @@ export function useI18n() {
   return {
     language,
     setLanguage,
-    locale: localeForLanguage(language),
+    locale: localeForLanguage(language || 'English'),
     t: (key: AppTranslationKey) =>
       key in extraTranslations.English
-        ? translateExtra(language, key as ExtraTranslationKey)
-        : t(language, key as TranslationKey),
+        ? translateExtra(language || 'English', key as ExtraTranslationKey)
+        : t(language || 'English', key as TranslationKey),
   };
 }

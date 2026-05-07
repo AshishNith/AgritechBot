@@ -57,7 +57,7 @@ export default function MapSection() {
               scrolling="no" 
               marginHeight={0} 
               marginWidth={0} 
-              src="https://maps.google.com/maps?width=100%25&height=600&hl=en&q=Sector%2082,%20Mohali,%20Punjab,%20India+(Anaaj.ai%20HQ)&t=&z=14&ie=UTF8&iwloc=B&output=embed"
+              src="https://maps.google.com/maps?width=100%25&height=600&hl=en&q=Indraprastha%20Industrial%20Area,%20Kota,%20Rajasthan,%20India+(Anaaj.ai%20HQ)&t=&z=14&ie=UTF8&iwloc=B&output=embed"
               style={{ filter: 'grayscale(0.8) contrast(1.2) opacity(0.8) hue-rotate(100deg)' }}
               className="group-hover:grayscale-0 transition-all duration-700"
             >
