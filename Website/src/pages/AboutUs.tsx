@@ -104,13 +104,13 @@ export default function AboutUs() {
               transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
               className="order-1 lg:order-2 relative"
             >
-              <div className="relative aspect-square md:aspect-video lg:aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl group bg-primary-container/10">
+              <div className="relative overflow-hidden group">
                 <img 
                   src="/assets/Team.png" 
-                  className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  className="w-full object-top transition-transform duration-700 group-hover:scale-105"
                   alt="Anaaj AI Team"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-30"></div>
+
                 
                 <motion.div 
                   animate={{ y: [0, -8, 0] }}
@@ -121,7 +121,7 @@ export default function AboutUs() {
                 </motion.div>
               </div>
               
-              <div className="absolute -z-10 -top-10 -right-10 w-48 h-48 bg-primary/5 rounded-full blur-3xl"></div>
+
             </motion.div>
           </div>
         </section>

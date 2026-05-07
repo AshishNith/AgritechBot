@@ -54,59 +54,48 @@ export async function sendContactNotification(data: ContactEmailData): Promise<v
   }
 
   const mailOptions = {
-    from: `"Anaaj.ai Contact Form" <${process.env.SMTP_EMAIL}>`,
+    from: `"Anaaj.ai Notifications" <${process.env.SMTP_EMAIL}>`,
     to: process.env.CONTACT_NOTIFICATION_EMAIL || process.env.SMTP_EMAIL,
-    replyTo: email, // so you can directly reply to the sender
-    subject: `📩 New Contact Form: ${subject}`,
+    replyTo: email,
+    subject: `📩 [Contact] ${subject} - ${name}`,
     html: `
-      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f8faf8; border-radius: 12px; overflow: hidden;">
-        <div style="background: linear-gradient(135deg, #166534 0%, #15803d 100%); padding: 24px 32px;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 20px;">🌾 New Contact Form Submission</h1>
-          <p style="color: #bbf7d0; margin: 8px 0 0 0; font-size: 14px;">Anaaj.ai Website</p>
+      <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; overflow: hidden;">
+        <!-- Header with Logo -->
+        <div style="background-color: #f0fdf4; padding: 32px 40px; text-align: center; border-bottom: 1px solid #dcfce7;">
+          <img src="https://res.cloudinary.com/dvwpxb2oa/image/upload/v1773932879/Full_Logo_dt1pqi.png" alt="Anaaj.ai Logo" style="height: 48px; width: auto; margin-bottom: 16px;">
+          <h1 style="color: #166534; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.025em;">New Inquiry Received</h1>
+          <p style="color: #15803d; margin: 8px 0 0 0; font-size: 14px; font-weight: 500;">Submission from Anaaj.ai Website</p>
         </div>
         
-        <div style="padding: 32px;">
-          <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-              <td style="padding: 12px 16px; background: #ffffff; border-radius: 8px; margin-bottom: 8px; display: block; border-left: 4px solid #16a34a;">
-                <strong style="color: #374151; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Name</strong>
-                <p style="margin: 4px 0 0 0; color: #111827; font-size: 16px;">${name}</p>
-              </td>
-            </tr>
-            <tr><td style="height: 8px;"></td></tr>
-            <tr>
-              <td style="padding: 12px 16px; background: #ffffff; border-radius: 8px; display: block; border-left: 4px solid #16a34a;">
-                <strong style="color: #374151; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Email</strong>
-                <p style="margin: 4px 0 0 0; color: #111827; font-size: 16px;"><a href="mailto:${email}" style="color: #16a34a;">${email}</a></p>
-              </td>
-            </tr>
-            <tr><td style="height: 8px;"></td></tr>
-            <tr>
-              <td style="padding: 12px 16px; background: #ffffff; border-radius: 8px; display: block; border-left: 4px solid #16a34a;">
-                <strong style="color: #374151; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Subject</strong>
-                <p style="margin: 4px 0 0 0; color: #111827; font-size: 16px;">${subject}</p>
-              </td>
-            </tr>
-            <tr><td style="height: 8px;"></td></tr>
-            <tr>
-              <td style="padding: 12px 16px; background: #ffffff; border-radius: 8px; display: block; border-left: 4px solid #16a34a;">
-                <strong style="color: #374151; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Message</strong>
-                <p style="margin: 4px 0 0 0; color: #111827; font-size: 16px; white-space: pre-wrap;">${message}</p>
-              </td>
-            </tr>
-          </table>
-          
-          <div style="margin-top: 24px; padding: 16px; background: #f0fdf4; border-radius: 8px; text-align: center;">
-            <p style="margin: 0; color: #166534; font-size: 13px;">
-              💡 You can reply directly to this email to respond to <strong>${name}</strong>
-            </p>
+        <div style="padding: 40px;">
+          <!-- User Details -->
+          <div style="margin-bottom: 32px; background-color: #f9fafb; border-radius: 12px; padding: 24px;">
+            <div style="margin-bottom: 16px;">
+              <span style="color: #6b7280; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">From</span>
+              <span style="color: #111827; font-size: 16px; font-weight: 600;">${name} &lt;${email}&gt;</span>
+            </div>
+            <div>
+              <span style="color: #6b7280; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">Subject</span>
+              <span style="color: #111827; font-size: 16px; font-weight: 600;">${subject}</span>
+            </div>
+          </div>
+
+          <!-- Message Body -->
+          <div style="margin-bottom: 32px;">
+            <span style="color: #6b7280; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 12px;">Message</span>
+            <div style="color: #374151; font-size: 16px; line-height: 1.6; background-color: #ffffff; border: 1px solid #f3f4f6; padding: 20px; border-radius: 12px; white-space: pre-wrap;">${message}</div>
+          </div>
+
+          <!-- Action Button -->
+          <div style="text-align: center;">
+            <a href="mailto:${email}" style="display: inline-block; background-color: #16a34a; color: #ffffff; padding: 14px 28px; border-radius: 12px; font-size: 15px; font-weight: 700; text-decoration: none;">Reply Directly to ${name.split(' ')[0]}</a>
           </div>
         </div>
-        
-        <div style="background: #f3f4f6; padding: 16px 32px; text-align: center;">
-          <p style="margin: 0; color: #9ca3af; font-size: 12px;">
-            Sent from Anaaj.ai Contact Form • ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
-          </p>
+
+        <!-- Footer -->
+        <div style="background-color: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #f3f4f6;">
+          <p style="color: #9ca3af; margin: 0; font-size: 12px;">&copy; ${new Date().getFullYear()} Anaaj.ai System Notification. All rights reserved.</p>
+          <p style="color: #9ca3af; margin: 4px 0 0 0; font-size: 11px;">This is an automated message sent from your website contact form.</p>
         </div>
       </div>
     `,
