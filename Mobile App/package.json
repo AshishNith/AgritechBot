@@ -8,7 +8,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@expo/vector-icons": "~14.0.4",
@@ -28,13 +29,13 @@
     "expo-blur": "~14.0.1",
     "expo-constants": "~17.0.8",
     "expo-file-system": "~18.0.12",
-    "expo-firebase-recaptcha": "^2.3.1",
     "expo-font": "~13.0.4",
     "expo-image-picker": "~16.0.3",
     "expo-linear-gradient": "~14.0.1",
     "expo-location": "~18.0.10",
     "expo-splash-screen": "~0.29.24",
     "expo-status-bar": "~2.0.1",
+    "expo-system-ui": "~4.0.9",
     "firebase": "^12.12.1",
     "lucide-react-native": "^1.6.0",
     "react": "18.3.1",
@@ -59,6 +60,8 @@
     "metro": "^0.81.5",
     "metro-cache": "^0.81.5",
     "metro-config": "^0.81.5",
+    "patch-package": "^8.0.1",
+    "postinstall-prepare": "^2.0.0",
     "typescript": "~5.3.3"
   }
 }

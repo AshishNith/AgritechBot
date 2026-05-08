@@ -15,7 +15,7 @@ import { useTheme } from '../providers/ThemeContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
-import { FirebaseRecaptchaVerifierModal, FirebaseAuthApplicationVerifier } from 'expo-firebase-recaptcha';
+import { WebViewRecaptcha, WebViewRecaptchaHandle } from '../components/WebViewRecaptcha';
 import { PhoneAuthProvider } from 'firebase/auth';
 import { auth, firebaseConfig } from '../config/firebase';
 import { useRef } from 'react';
@@ -52,14 +52,20 @@ export function LoginScreen({ navigation }: Props) {
   const [phone, setPhone] = useState(initialPhone || '');
   const [error, setError] = useState<string | null>(null);
   
-  const recaptchaVerifier = useRef<FirebaseRecaptchaVerifierModal>(null);
+  const recaptchaVerifier = useRef<WebViewRecaptchaHandle>(null);
 
   const sendOtpMutation = useMutation({
     mutationFn: async (normalizedPhone: string) => {
+      // Get reCAPTCHA token from WebView verifier, then pass as ApplicationVerifier stub
+      const token = await recaptchaVerifier.current!.verify();
+      const verifier = {
+        type: 'recaptcha' as const,
+        verify: async () => token,
+      };
       const phoneProvider = new PhoneAuthProvider(auth);
       const verificationId = await phoneProvider.verifyPhoneNumber(
         normalizedPhone,
-        recaptchaVerifier.current!
+        verifier
       );
       return verificationId;
     },
@@ -89,7 +95,7 @@ export function LoginScreen({ navigation }: Props) {
 
   return (
     <Screen>
-      <FirebaseRecaptchaVerifierModal
+      <WebViewRecaptcha
         ref={recaptchaVerifier}
         firebaseConfig={firebaseConfig}
         attemptInvisibleVerification={true}

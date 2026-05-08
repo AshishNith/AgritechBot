@@ -102,13 +102,13 @@ export const FounderCard: React.FC<FounderCardProps> = ({
           </div>
 
           {/* Premium Tag */}
-          <div 
+          {/* <div 
             className="absolute top-6 right-6 px-5 py-2 rounded-2xl backdrop-blur-xl border border-white/20 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-2xl z-10 flex items-center gap-2"
             style={{ backgroundColor: `${color}99` }}
           >
             <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
             {role}
-          </div>
+          </div> */}
         </div>
 
         {/* Content Section */}
