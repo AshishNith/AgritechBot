@@ -13,7 +13,7 @@ DEPLOYED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ") docker compose -f docker-compose.pr
 sudo lsof -i :4000
 kill -9 <PID>
 
-# Bring down the old containers and free up the network ports
+## Bring down the old containers and free up the network ports
 docker compose -f docker-compose.prod.yml down
 
 ssh root@187.127.140.81

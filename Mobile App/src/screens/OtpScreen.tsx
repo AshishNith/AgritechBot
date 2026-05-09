@@ -28,6 +28,14 @@ export function OtpScreen({ navigation, route }: Props) {
   const setHasCompletedOnboarding = useAppStore((state) => state.setHasCompletedOnboarding);
 
   useEffect(() => {
+    // Small delay to ensure screen transition finishes before focusing
+    const focusTimer = setTimeout(() => {
+      hiddenInputRef.current?.focus();
+    }, 100);
+    return () => clearTimeout(focusTimer);
+  }, []);
+
+  useEffect(() => {
     if (resendCooldown <= 0) {
       return;
     }
@@ -198,6 +206,8 @@ const styles = StyleSheet.create({
   },
   hiddenInput: {
     position: 'absolute',
+    width: 1,
+    height: 1,
     opacity: 0,
   },
   errorBox: {

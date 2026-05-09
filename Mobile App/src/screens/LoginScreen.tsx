@@ -109,6 +109,7 @@ export function LoginScreen({ navigation }: Props) {
               placeholderTextColor={theme.colors.textMuted}
               style={[styles.input, { color: colors.text }]}
               editable={!sendOtpMutation.isPending}
+              autoFocus
             />
           </View>
 
