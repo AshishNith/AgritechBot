@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase/app';
+import { getApps, initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
 export const firebaseConfig = {
@@ -11,5 +11,8 @@ export const firebaseConfig = {
   measurementId: "G-9C7EB07DGK"
 };
 
-export const app = initializeApp(firebaseConfig);
+// Guard against hot-reload double-initialization (fixes auth/already-initialized)
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+
+export { app };
 export const auth = getAuth(app);

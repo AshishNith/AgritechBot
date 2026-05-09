@@ -270,7 +270,16 @@ export async function sendChatMessage(params: {
     });
 
     // ── 5. Build current user message parts ──
-    const userParts: Part[] = [{ text: params.text }];
+    const userParts: Part[] = [];
+
+    // If using cached content, we can't dynamically override the systemInstruction,
+    // so we inject the farmer context directly into the user's prompt.
+    if (kbCacheName) {
+      userParts.push({ text: `[System Context: ${farmerCtx.contextString}]\n\nUser Message: ` });
+    }
+
+    userParts.push({ text: params.text });
+
     if (params.imageBase64 && params.imageMimeType) {
       userParts.push({
         inlineData: { data: params.imageBase64, mimeType: params.imageMimeType },

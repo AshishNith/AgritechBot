@@ -16,8 +16,6 @@ import { useTheme } from '../providers/ThemeContext';
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 import { WebViewRecaptcha, WebViewRecaptchaHandle } from '../components/WebViewRecaptcha';
-import { PhoneAuthProvider } from 'firebase/auth';
-import { auth, firebaseConfig } from '../config/firebase';
 import { useRef } from 'react';
 
 function normalizePhone(input: string): string | null {
@@ -56,17 +54,9 @@ export function LoginScreen({ navigation }: Props) {
 
   const sendOtpMutation = useMutation({
     mutationFn: async (normalizedPhone: string) => {
-      // Get reCAPTCHA token from WebView verifier, then pass as ApplicationVerifier stub
-      const token = await recaptchaVerifier.current!.verify();
-      const verifier = {
-        type: 'recaptcha' as const,
-        verify: async () => token,
-      };
-      const phoneProvider = new PhoneAuthProvider(auth);
-      const verificationId = await phoneProvider.verifyPhoneNumber(
-        normalizedPhone,
-        verifier
-      );
+      // Full phone auth runs in WebView (reCAPTCHA + SMS send via Firebase compat SDK).
+      // We receive back only the verificationId, which is SDK-agnostic.
+      const verificationId = await recaptchaVerifier.current!.sendOtp(normalizedPhone);
       return verificationId;
     },
     onSuccess: (verificationId, normalizedPhone) => {
@@ -95,11 +85,7 @@ export function LoginScreen({ navigation }: Props) {
 
   return (
     <Screen>
-      <WebViewRecaptcha
-        ref={recaptchaVerifier}
-        firebaseConfig={firebaseConfig}
-        attemptInvisibleVerification={true}
-      />
+      <WebViewRecaptcha ref={recaptchaVerifier} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <View style={styles.hero}>
           <View style={styles.blurCircleOne} />
