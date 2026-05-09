@@ -269,16 +269,24 @@ export async function sendChatMessage(params: {
       summarizeOlderMessages: summarizeConversationHistory,
     });
 
-    // ── 5. Build current user message parts ──
-    const userParts: Part[] = [];
-
     // If using cached content, we can't dynamically override the systemInstruction,
-    // so we inject the farmer context directly into the user's prompt.
+    // so we inject the farmer context and language preference as a mock history exchange
+    // to ensure the AI follows the instructions without echoing them back.
     if (kbCacheName) {
-      userParts.push({ text: `[System Context: ${farmerCtx.contextString}]\n\nUser Message: ` });
+      truncatedHistory.push(
+        {
+          role: 'user',
+          parts: [{ text: `System Directive: Here is the user's profile:\n${farmerCtx.contextString}\n\nCRITICAL INSTRUCTION: You MUST respond entirely in the ${getLanguageLabel(language)} language. Do not use English.` }]
+        },
+        {
+          role: 'model',
+          parts: [{ text: `I understand. I will keep this profile in mind, I will not echo it back, and I will respond exclusively in ${getLanguageLabel(language)}.` }]
+        }
+      );
     }
 
-    userParts.push({ text: params.text });
+    // ── 5. Build current user message parts ──
+    const userParts: Part[] = [{ text: params.text }];
 
     if (params.imageBase64 && params.imageMimeType) {
       userParts.push({
@@ -301,7 +309,7 @@ export async function sendChatMessage(params: {
     if (kbCacheName) {
       modelConfig.cachedContent = kbCacheName;
     } else {
-      modelConfig.systemInstruction = `${SYSTEM_PROMPT}\n\n${farmerCtx.contextString}`;
+      modelConfig.systemInstruction = `${SYSTEM_PROMPT}\n\n${farmerCtx.contextString}\n\nCRITICAL INSTRUCTION: You MUST respond entirely in the ${getLanguageLabel(language)} language. Do not use English.`;
     }
 
     const model = gemini.getGenerativeModel(modelConfig);
