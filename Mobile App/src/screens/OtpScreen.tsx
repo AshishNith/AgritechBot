@@ -1,7 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, TextInput, View, Keyboard, InteractionManager } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { apiService } from '../api/services';
 import { AppText, GradientButton, Screen, ScreenCard } from '../components/ui';
@@ -27,13 +28,14 @@ export function OtpScreen({ navigation, route }: Props) {
   const setUser = useAppStore((state) => state.setUser);
   const setHasCompletedOnboarding = useAppStore((state) => state.setHasCompletedOnboarding);
 
-  useEffect(() => {
-    // Small delay to ensure screen transition finishes before focusing
-    const focusTimer = setTimeout(() => {
-      hiddenInputRef.current?.focus();
-    }, 100);
-    return () => clearTimeout(focusTimer);
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const task = InteractionManager.runAfterInteractions(() => {
+        hiddenInputRef.current?.focus();
+      });
+      return () => task.cancel();
+    }, [])
+  );
 
   useEffect(() => {
     if (resendCooldown <= 0) {
@@ -105,7 +107,10 @@ export function OtpScreen({ navigation, route }: Props) {
 
         <ScreenCard style={styles.card}>
           <Pressable
-            onPress={() => hiddenInputRef.current?.focus()}
+            onPress={() => {
+              hiddenInputRef.current?.blur();
+              setTimeout(() => hiddenInputRef.current?.focus(), 50);
+            }}
             style={styles.otpRow}
             disabled={verifyMutation.isPending}
           >
@@ -129,9 +134,12 @@ export function OtpScreen({ navigation, route }: Props) {
                 setError(null);
               }
             }}
-            keyboardType="number-pad"
+            keyboardType="numeric"
             style={styles.hiddenInput}
-            autoFocus
+            maxLength={6}
+            textContentType="oneTimeCode"
+            importantForAutofill="no"
+            blurOnSubmit={false}
             editable={!verifyMutation.isPending}
           />
 
@@ -208,7 +216,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 1,
     height: 1,
-    opacity: 0,
+    opacity: 0.01,
   },
   errorBox: {
     backgroundColor: 'rgba(239,68,68,0.1)',
