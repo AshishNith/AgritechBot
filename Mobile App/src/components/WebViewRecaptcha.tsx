@@ -98,7 +98,7 @@ const WebViewRecaptchaComponent = forwardRef<WebViewRecaptchaHandle, {}>(
           timeoutRef.current = setTimeout(() => {
             setVisible(false);
             reject(new Error('OTP request timed out. Please try again.'));
-          }, 30_000);
+          }, 60_000);
         });
       },
     }));
@@ -183,9 +183,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   webView: {
-    width: 1,
-    height: 1,
-    opacity: 0,
-    position: 'absolute',
+    width: '100%',
+    height: 300,
+    marginTop: 10,
   },
 });
