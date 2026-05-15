@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image, Pressable, ScrollView, StyleSheet, View, Alert, Share, Linking, TouchableOpacity, Dimensions } from 'react-native';
 import { LeafletMap } from '../components/LeafletMap';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 
 import { apiService } from '../api/services';
 import { AppText, GradientButton, Pill, Screen, ScreenCard } from '../components/ui';
@@ -32,6 +32,7 @@ export function ProductDetailScreen({ route }: Props) {
   const fallback = featuredProduct ?? marketplaceFallback[0];
   const productId = route.params.productId ?? fallback.id;
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const galleryRef = useRef<ScrollView>(null);
 
   const { data } = useQuery({
     queryKey: ['product-detail', productId],
@@ -144,6 +145,7 @@ export function ProductDetailScreen({ route }: Props) {
         </View>
         <View style={styles.galleryWrap}>
           <ScrollView
+            ref={galleryRef}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
@@ -187,7 +189,10 @@ export function ProductDetailScreen({ route }: Props) {
             {galleryImages.slice(0, 8).map((image, index) => (
               <Pressable
                 key={`${image}-${index}`}
-                onPress={() => setActiveImageIndex(index)}
+                onPress={() => {
+                  setActiveImageIndex(index);
+                  galleryRef.current?.scrollTo({ x: index * GALLERY_WIDTH, animated: true });
+                }}
                 style={[
                   styles.thumbnailWrap,
                   { borderColor: colors.border },
