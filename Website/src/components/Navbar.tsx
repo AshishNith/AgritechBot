@@ -49,7 +49,7 @@ export default function Navbar() {
             className={`transition-all duration-500 ease-[cubic-bezier(0.2,1,0.2,1)] ${isScrolled ? 'h-6 md:h-7' : 'h-7 md:h-9'}`} 
           />
 
-          <h1 className="text-white text-xl font-bold">ANAAJ AI</h1>
+          <span className="text-white text-xl font-bold">ANAAJ AI</span>
         </Link>
         
         {/* Desktop Menu */}

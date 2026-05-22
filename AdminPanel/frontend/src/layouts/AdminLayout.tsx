@@ -7,22 +7,27 @@ export const AdminLayout = () => {
   const { admin, logout } = useAuth();
 
   return (
-    <div className="flex min-h-screen">
-      <aside className="hidden w-64 flex-col border-r border-slate-200 bg-white p-4 md:flex">
-        <div className="mb-6">
-          <h1 className="text-xl font-bold text-brand-700">Anaaj.ai</h1>
-          <p className="text-xs text-slate-500">Admin Dashboard</p>
+    <div className="flex h-screen overflow-hidden bg-slate-50">
+      {/* Sidebar */}
+      <aside className="hidden w-64 flex-shrink-0 flex-col border-r border-slate-200 bg-white md:flex">
+        {/* Sidebar Header / Branding */}
+        <div className="flex h-[69px] flex-col justify-center border-b border-slate-200 px-6">
+          <img className="h-8 w-auto object-contain object-left" src="/assets/Footer Logo.png" alt="Anaaj.ai Logo" />
+          <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-slate-400">Admin Dashboard</p>
         </div>
 
-        <nav className="flex flex-1 flex-col gap-1">
+        {/* Sidebar Navigation */}
+        <nav className="flex flex-1 flex-col gap-1.5 p-4">
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
               end={item.path === "/"}
               className={({ isActive }) =>
-                `rounded-lg px-3 py-2 text-sm font-medium transition ${
-                  isActive ? "bg-brand-50 text-brand-700" : "text-slate-700 hover:bg-slate-100"
+                `rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+                  isActive
+                    ? "bg-brand-50 text-brand-700 shadow-sm shadow-brand-100/50"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 }`
               }
             >
@@ -31,17 +36,27 @@ export const AdminLayout = () => {
           ))}
         </nav>
 
-        <Button variant="secondary" onClick={logout}>
-          Logout
-        </Button>
+        {/* Sidebar Footer */}
+        <div className="border-t border-slate-100 p-4">
+          <Button variant="secondary" onClick={logout} className="w-full justify-center">
+            Logout
+          </Button>
+        </div>
       </aside>
 
-      <div className="flex min-h-screen flex-1 flex-col">
-        <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:px-6">
-          <div className="flex items-center justify-between gap-2">
-            <div>
-              <p className="text-sm text-slate-500">Welcome back</p>
-              <h2 className="text-base font-semibold text-slate-900">{admin?.name ?? "Admin"}</h2>
+      {/* Main Content Layout */}
+      <div className="flex h-full flex-1 flex-col overflow-hidden">
+        {/* Header */}
+        <header className="border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:px-6 flex-shrink-0">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              {/* Mobile Logo */}
+              <img className="h-8 w-auto object-contain md:hidden" src="/assets/Footer Logo.png" alt="Anaaj.ai Logo" />
+              <div className="hidden h-6 w-px bg-slate-200 md:block" />
+              <div>
+                <p className="text-xs text-slate-400">Welcome back,</p>
+                <h2 className="text-sm font-semibold text-slate-900 md:text-base">{admin?.name ?? "Super Admin"}</h2>
+              </div>
             </div>
             <div className="md:hidden">
               <Button variant="secondary" onClick={logout}>
@@ -49,15 +64,19 @@ export const AdminLayout = () => {
               </Button>
             </div>
           </div>
-          <div className="mt-3 flex gap-2 overflow-x-auto md:hidden">
+
+          {/* Mobile Navigation Carousel */}
+          <div className="mt-3 flex gap-2 overflow-x-auto pb-1 md:hidden app-scrollbar">
             {NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}
                 end={item.path === "/"}
                 className={({ isActive }) =>
-                  `whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium ${
-                    isActive ? "bg-brand-50 text-brand-700" : "bg-slate-100 text-slate-700"
+                  `whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+                    isActive
+                      ? "bg-brand-50 text-brand-700 shadow-sm"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                   }`
                 }
               >
@@ -66,7 +85,9 @@ export const AdminLayout = () => {
             ))}
           </div>
         </header>
-        <main className="flex-1 p-4 md:p-6">
+
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-50/50">
           <Outlet />
         </main>
       </div>
