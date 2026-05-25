@@ -316,5 +316,355 @@
       "method": "Furrow",
       "guidance": "Suitable for row crops when drainage and bed layout are maintained properly."
     }
+  ],
+  "mayJuneProductGuide": [
+    {
+      "product_name": "Pretilachlor 50 EC",
+      "type": "Herbicide (Pre-emergent)",
+      "target_crops": ["Paddy", "Rice"],
+      "purpose": "Controls grassy weeds & broadleaf weeds",
+      "dose": "400–500 ml/acre (dilute in 200 L water)",
+      "application_method": "Foliar Spray / soil drench (Standing water 2–3 cm)",
+      "application_time": "Within 3–5 days after transplanting",
+      "safety_interval_phi": "60 days",
+      "precautions": "Do not spray in dry soil; use PPE; avoid drift to adjoining crops",
+      "available_months": "May–June",
+      "reference_document": "https://docs.google.com/document/d/1tuEwos_J5ddWACcec_lVijYlz1jXDkq1SaPZIkpyatQ/edit?tab=t.0"
+    },
+    {
+      "product_name": "Pendimethalin 30 EC",
+      "type": "Herbicide (Pre-emergent)",
+      "target_crops": ["Paddy", "Maize", "Soybean", "Cotton", "Vegetables"],
+      "purpose": "Controls annual grasses & broadleaf weeds",
+      "dose": "1.0–1.3 L/acre (in 200 L water)",
+      "application_method": "Soil spray before weed emergence",
+      "application_time": "Within 2 days of sowing (pre-emergence)",
+      "safety_interval_phi": "90 days",
+      "precautions": "Wear gloves & mask; avoid contact with eyes; do not apply on waterlogged soil",
+      "available_months": "May–June",
+      "reference_document": "https://docs.google.com/document/d/1tuEwos_J5ddWACcec_lVijYlz1jXDkq1SaPZIkpyatQ/edit?tab=t.ksymk014kjkq"
+    },
+    {
+      "product_name": "Cartap Hydrochloride 4% GR (4G)",
+      "type": "Insecticide (Granule)",
+      "target_crops": ["Paddy", "Rice"],
+      "purpose": "Stem borer, Leaf folder, Gall midge",
+      "dose": "8–10 kg/acre (broadcast granules)",
+      "application_method": "Broadcast in standing water (2–3 cm)",
+      "application_time": "At crop tillering stage (20–25 DAT)",
+      "safety_interval_phi": "21 days",
+      "precautions": "Toxic to fish & aquatic life; avoid application near water bodies; use rubber gloves",
+      "available_months": "May–June",
+      "reference_document": "https://docs.google.com/document/d/1tuEwos_J5ddWACcec_lVijYlz1jXDkq1SaPZIkpyatQ/edit?tab=t.69sw9umh1rx7"
+    },
+    {
+      "product_name": "Fipronil 0.3 GR",
+      "type": "Insecticide (Granule)",
+      "target_crops": ["Paddy", "Sugarcane", "Maize"],
+      "purpose": "White grub, Root aphid, Termite, Stem borer",
+      "dose": "8–10 kg/acre (soil application)",
+      "application_method": "Broadcast or band application in soil",
+      "application_time": "At sowing/transplanting or at first sign of pest",
+      "safety_interval_phi": "60 days",
+      "precautions": "Highly toxic to bees; do not apply near flowering; keep children away from field",
+      "available_months": "May–June",
+      "reference_document": "https://docs.google.com/document/d/1tuEwos_J5ddWACcec_lVijYlz1jXDkq1SaPZIkpyatQ/edit?tab=t.f1xv78020xo"
+    },
+    {
+      "product_name": "Biozyme Power Plus GR",
+      "type": "Bio-Stimulant / Growth Promoter",
+      "target_crops": ["All crops", "Paddy", "Cotton", "Vegetables", "Pulses"],
+      "purpose": "Improves root development, nutrient uptake & overall crop vigour",
+      "dose": "4–5 kg/acre (mix with sand/soil)",
+      "application_method": "Broadcast in field or drip application",
+      "application_time": "Basal application or at transplanting stage",
+      "safety_interval_phi": "No PHI (Bio-product)",
+      "precautions": "Store in cool dry place; use within validity; no chemical mixing required",
+      "available_months": "May–June",
+      "reference_document": "https://docs.google.com/document/d/1tuEwos_J5ddWACcec_lVijYlz1jXDkq1SaPZIkpyatQ/edit?tab=t.rvpbdscv65dh"
+    },
+    {
+      "product_name": "Sulfino Gold",
+      "type": "Fungicide + Sulfur-based",
+      "target_crops": ["Paddy", "Wheat", "Vegetables", "Fruits"],
+      "purpose": "Powdery mildew, Rust, Leaf spot, Scab",
+      "dose": "500 g–1 kg/acre (in 200 L water)",
+      "application_method": "Foliar spray",
+      "application_time": "At first sign of disease or preventively (every 15 days)",
+      "safety_interval_phi": "7 days",
+      "precautions": "Avoid spray in hot sun (above 35°C); do not mix with alkaline chemicals",
+      "available_months": "May–June",
+      "reference_document": "https://docs.google.com/document/d/1tuEwos_J5ddWACcec_lVijYlz1jXDkq1SaPZIkpyatQ/edit?tab=t.txaf9cymns4l"
+    },
+    {
+      "product_name": "Amaze XL GR",
+      "type": "Insecticide (Granule)",
+      "target_crops": ["Paddy", "Sugarcane", "Maize", "Vegetables"],
+      "purpose": "White grub, Root maggot, Cutworm, Termite",
+      "dose": "8–10 kg/acre (soil broadcast)",
+      "application_method": "Broadcast in moist soil before planting",
+      "application_time": "At land preparation or transplanting",
+      "safety_interval_phi": "30–45 days",
+      "precautions": "Keep away from water sources; use hand gloves; do not inhale dust",
+      "available_months": "May–June",
+      "reference_document": "https://docs.google.com/document/d/1tuEwos_J5ddWACcec_lVijYlz1jXDkq1SaPZIkpyatQ/edit?tab=t.9hayr4z18cmi"
+    },
+    {
+      "product_name": "German King GR",
+      "type": "Insecticide / Nematicide (Granule)",
+      "target_crops": ["Paddy", "Vegetables", "Pulses", "Cotton"],
+      "purpose": "Soil-borne insects, Nematodes, White grub",
+      "dose": "8–10 kg/acre",
+      "application_method": "Soil incorporation or broadcasting",
+      "application_time": "Before sowing or at transplanting time",
+      "safety_interval_phi": "30 days",
+      "precautions": "Wear mask while broadcasting; wash hands after use; store away from food",
+      "available_months": "May–June",
+      "reference_document": "https://docs.google.com/document/d/1tuEwos_J5ddWACcec_lVijYlz1jXDkq1SaPZIkpyatQ/edit?tab=t.3xndqjrkftj8"
+    },
+    {
+      "product_name": "Vasudha",
+      "type": "Soil Conditioner / Bio-fertilizer",
+      "target_crops": ["All field crops", "Vegetables", "Fruits"],
+      "purpose": "Improves soil health, enhances microbial activity & nutrient availability",
+      "dose": "4–5 kg/acre (soil application)",
+      "application_method": "Mix with farm yard manure or compost & broadcast",
+      "application_time": "At field preparation or basal dressing",
+      "safety_interval_phi": "No PHI (Bio-product)",
+      "precautions": "Do not mix with chemical fertilizers; use fresh stock",
+      "available_months": "May–June",
+      "reference_document": "https://docs.google.com/document/d/1tuEwos_J5ddWACcec_lVijYlz1jXDkq1SaPZIkpyatQ/edit?tab=t.evxrye5w6vyc"
+    },
+    {
+      "product_name": "Dhaman",
+      "type": "Herbicide",
+      "target_crops": ["Paddy", "Wheat", "Sugarcane"],
+      "purpose": "Broad-spectrum weed control: grassy & broad-leaf weeds",
+      "dose": "300–400 ml/acre (in 150–200 L water)",
+      "application_method": "Foliar spray",
+      "application_time": "At 2–4 leaf stage of weeds (early post-em)",
+      "safety_interval_phi": "30 days",
+      "precautions": "Selective crop; avoid spray on non-target crops; use flat fan nozzle",
+      "available_months": "May–June",
+      "reference_document": "https://docs.google.com/document/d/1tuEwos_J5ddWACcec_lVijYlz1jXDkq1SaPZIkpyatQ/edit?tab=t.ec9dok1mlrzb"
+    }
+  ],
+  "mayJuneApplicationCalendar": {
+    "Pretilachlor 50 EC": {
+      "type": "Herbicide",
+      "schedule": {
+        "may_week_2": "Apply",
+        "june_week_1_2": "Apply"
+      }
+    },
+    "Pendimethalin 30 EC": {
+      "type": "Herbicide",
+      "schedule": {
+        "may_week_1": "Apply",
+        "june_week_1_2": "Apply"
+      }
+    },
+    "Cartap Hydrochloride 4G": {
+      "type": "Insecticide GR",
+      "schedule": {
+        "may_week_3": "Apply",
+        "may_week_4": "Apply",
+        "june_week_1_2": "Apply",
+        "june_week_3_4": "Apply"
+      }
+    },
+    "Fipronil 0.3 GR": {
+      "type": "Insecticide GR",
+      "schedule": {
+        "may_week_1": "Apply",
+        "may_week_2": "Apply",
+        "june_week_1_2": "Apply",
+        "june_week_3_4": "Apply"
+      }
+    },
+    "Biozyme Power Plus GR": {
+      "type": "Bio-Stimulant",
+      "schedule": {
+        "may_week_1": "Apply",
+        "may_week_2": "Apply",
+        "may_week_3": "Apply",
+        "may_week_4": "Apply",
+        "june_week_1_2": "Apply",
+        "june_week_3_4": "Apply"
+      }
+    },
+    "Sulfino Gold": {
+      "type": "Fungicide",
+      "schedule": {
+        "may_week_3": "As needed",
+        "may_week_4": "As needed",
+        "june_week_1_2": "As needed",
+        "june_week_3_4": "As needed"
+      }
+    },
+    "Amaze XL GR": {
+      "type": "Insecticide GR",
+      "schedule": {
+        "may_week_1": "Apply",
+        "may_week_2": "Apply",
+        "june_week_1_2": "Apply"
+      }
+    },
+    "German King GR": {
+      "type": "Insecto-Nematicide",
+      "schedule": {
+        "may_week_1": "Apply",
+        "may_week_2": "Apply",
+        "june_week_1_2": "Apply"
+      }
+    },
+    "Vasudha": {
+      "type": "Soil Conditioner",
+      "schedule": {
+        "may_week_1": "Apply",
+        "june_week_1_2": "Apply"
+      }
+    },
+    "Dhaman": {
+      "type": "Herbicide",
+      "schedule": {
+        "may_week_2": "Apply",
+        "may_week_3": "Apply",
+        "june_week_1_2": "Apply",
+        "june_week_3_4": "Apply"
+      }
+    }
+  },
+  "mayJuneDosAndDonts": [
+    {
+      "product": "Pretilachlor 50 EC",
+      "dos": [
+        "Apply within 3–5 days of transplanting",
+        "Maintain 2–3 cm standing water",
+        "Use correct dose per acre"
+      ],
+      "donts": [
+        "Do not apply in dry soil",
+        "Do not spray after weed emergence",
+        "Avoid contact with skin/eyes"
+      ]
+    },
+    {
+      "product": "Pendimethalin 30 EC",
+      "dos": [
+        "Apply within 2 days of sowing",
+        "Use uniform spray coverage",
+        "Wear PPE during application"
+      ],
+      "donts": [
+        "Do not apply on waterlogged soil",
+        "Do not disturb soil after spraying",
+        "Avoid spray drift to other crops"
+      ]
+    },
+    {
+      "product": "Cartap Hydrochloride 4G",
+      "dos": [
+        "Broadcast uniformly in standing water",
+        "Apply at tillering stage",
+        "Use at recommended dose 8–10 kg/acre"
+      ],
+      "donts": [
+        "Do not apply near fish ponds",
+        "Do not allow children in field",
+        "Do not mix with water and spray"
+      ]
+    },
+    {
+      "product": "Fipronil 0.3 GR",
+      "dos": [
+        "Apply at sowing/transplanting",
+        "Incorporate properly in soil",
+        "Use gloves and mask"
+      ],
+      "donts": [
+        "Do not apply near beehives",
+        "Do not apply when crop is flowering",
+        "Avoid contamination of water sources"
+      ]
+    },
+    {
+      "product": "Biozyme Power Plus GR",
+      "dos": [
+        "Use fresh stock",
+        "Broadcast evenly in moist soil",
+        "Can be used at any crop stage"
+      ],
+      "donts": [
+        "Do not mix with chemical fertilizers",
+        "Do not store in sunlight",
+        "Do not exceed recommended dose"
+      ]
+    },
+    {
+      "product": "Sulfino Gold",
+      "dos": [
+        "Spray preventively every 15 days",
+        "Apply in early morning or evening",
+        "Use clean water for mixing"
+      ],
+      "donts": [
+        "Do not spray in hot afternoon sun",
+        "Do not mix with alkaline chemicals",
+        "Do not spray on wet foliage"
+      ]
+    },
+    {
+      "product": "Amaze XL GR",
+      "dos": [
+        "Broadcast in moist soil before planting",
+        "Incorporate lightly into soil",
+        "Use gloves and mask during broadcast"
+      ],
+      "donts": [
+        "Do not apply near ponds/rivers",
+        "Do not allow poultry/livestock in field",
+        "Do not inhale granule dust"
+      ]
+    },
+    {
+      "product": "German King GR",
+      "dos": [
+        "Apply before sowing or transplanting",
+        "Mix with sand for uniform broadcast",
+        "Store in cool dry place"
+      ],
+      "donts": [
+        "Do not apply in waterlogged field",
+        "Do not allow children near during application",
+        "Do not store near food/fodder"
+      ]
+    },
+    {
+      "product": "Vasudha",
+      "dos": [
+        "Mix with FYM/compost before use",
+        "Apply at field preparation stage",
+        "Use fresh stock for best results"
+      ],
+      "donts": [
+        "Do not mix with chemical pesticides",
+        "Do not apply in standing water",
+        "Do not use expired material"
+      ]
+    },
+    {
+      "product": "Dhaman",
+      "dos": [
+        "Spray at 2–4 leaf weed stage",
+        "Use flat fan nozzle for uniform coverage",
+        "Apply in calm weather"
+      ],
+      "donts": [
+        "Do not spray on target crop leaves",
+        "Do not apply near sensitive crops",
+        "Do not apply in windy conditions"
+      ]
+    }
   ]
 }
