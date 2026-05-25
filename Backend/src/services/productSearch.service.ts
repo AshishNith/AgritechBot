@@ -51,8 +51,8 @@ export class ProductSearchService {
       query.subCategory = new RegExp(filters.subCategory, 'i');
     }
 
-    // Crop-based filtering
-    if (filters.crops && filters.crops.length > 0) {
+    // Crop-based filtering (only enforce if not a specific product name query search)
+    if (filters.crops && filters.crops.length > 0 && !filters.query) {
       query['farmerFriendlyInfo.bestForCrops'] = {
         $in: filters.crops.map((crop) => new RegExp(crop, 'i')),
       };
@@ -142,8 +142,10 @@ export class ProductSearchService {
         const kbPath = path.join(__dirname, '..', 'chat', 'data', 'knowledgeBase.json');
         const fileContent = fs.readFileSync(kbPath, 'utf8');
         const kb = JSON.parse(fileContent);
+        const queryLower = params.query.toLowerCase();
+
+        // Check in mayJuneProductGuide
         if (kb && Array.isArray(kb.mayJuneProductGuide)) {
-          const queryLower = params.query.toLowerCase();
           const match = kb.mayJuneProductGuide.find((p: any) => 
             p.product_name.toLowerCase().includes(queryLower) ||
             queryLower.includes(p.product_name.toLowerCase())
@@ -165,6 +167,40 @@ export class ProductSearchService {
                 bestForCrops: match.target_crops,
               },
               seller: { name: 'Anaaj.ai Partner', location: 'Punjab' },
+            });
+          }
+        }
+
+        // Check in biostadtProducts if no match yet
+        if (staticProducts.length === 0 && kb && Array.isArray(kb.biostadtProducts)) {
+          const match = kb.biostadtProducts.find((p: any) => 
+            p.product_name.toLowerCase().includes(queryLower) ||
+            queryLower.includes(p.product_name.toLowerCase())
+          );
+          if (match) {
+            const cropsInfo = Array.isArray(match.crops_pests)
+              ? match.crops_pests.map((cp: any) => `${cp.crop} (${cp.pest || 'all'}: ${cp.dose_gm_ha || cp.dose_ml_ha || ''} gm/ml per ha)`).join(', ')
+              : '';
+            const targetCropsList = Array.isArray(match.crops_pests)
+              ? Array.from(new Set(match.crops_pests.map((cp: any) => cp.crop)))
+              : (match.crops ? [match.crops] : []);
+
+            staticProducts.push({
+              _id: `mock-kb-${match.product_name.replace(/\s+/g, '-').toLowerCase()}`,
+              name: match.product_name,
+              brand: 'Biostadt',
+              category: match.category,
+              description: `${match.key_feature || ''}. Active: ${match.active_ingredient || ''}. Targets: ${cropsInfo}. Benefits: ${(match.benefits || []).join(', ')}.`,
+              price: 0,
+              unit: match.form || 'Pack',
+              inStock: true,
+              ratings: { average: 5, count: 1 },
+              farmerFriendlyInfo: {
+                whyUse: match.key_feature || '',
+                howToUse: `Active: ${match.active_ingredient || ''}. Targets & Dosing: ${cropsInfo}. Dosing: ${match.dose || ''}. Method: ${match.application_method || 'foliar spray'}.`,
+                bestForCrops: targetCropsList,
+              },
+              seller: { name: 'Biostadt Partner', location: 'Punjab' },
             });
           }
         }

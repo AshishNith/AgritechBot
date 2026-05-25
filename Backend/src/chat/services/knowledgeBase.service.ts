@@ -58,19 +58,16 @@ async function createKnowledgeBaseCache(): Promise<string> {
 
   const cacheManager = new GoogleAICacheManager(env.GEMINI_API_KEY);
 
+  const combinedSystemInstruction = `${SYSTEM_PROMPT}\n\nHere is the verified agricultural database:\n${kbText}`;
+
   const cachedContent = await cacheManager.create({
     model: getModelName(),
     displayName: 'anaaj-ai-agri-knowledge',
     ttlSeconds: KB_REMOTE_TTL_SECONDS,
-    systemInstruction: SYSTEM_PROMPT,
+    systemInstruction: combinedSystemInstruction,
     tools: TOOL_DEFINITIONS,
     toolConfig: TOOL_CONFIG,
-    contents: [
-      {
-        role: 'user',
-        parts: [{ text: kbText }],
-      },
-    ],
+    contents: [],
   });
 
   if (!cachedContent.name) {

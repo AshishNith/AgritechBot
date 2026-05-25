@@ -89,6 +89,25 @@ async function testContext() {
     console.log('--------------------------------------------------');
     console.log(result.response);
     console.log('--------------------------------------------------');
+
+    const query4 = 'Do you have the product Novlect in your inventory? If yes, what category is it?';
+    console.log(`\nUser Query 4: "${query4}"`);
+    console.log('Sending message to AI assistant...');
+    
+    start = Date.now();
+    result = await sendChatMessage({
+      farmerId,
+      sessionId,
+      text: query4,
+      preferredLanguage: 'English',
+    });
+    console.log(`Response 4 received in ${Date.now() - start}ms:`);
+    console.log('--------------------------------------------------');
+    console.log(result.response);
+    console.log('--------------------------------------------------');
+    if (result.recommendedProducts) {
+      console.log('Recommended Products for Query 4:', result.recommendedProducts.map(p => p.name));
+    }
     
     // Cleanup the test session to keep the DB clean
     await ChatSessionModel.deleteOne({ _id: session._id });

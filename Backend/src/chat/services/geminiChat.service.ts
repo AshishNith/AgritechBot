@@ -276,7 +276,7 @@ export async function sendChatMessage(params: {
       truncatedHistory.push(
         {
           role: 'user',
-          parts: [{ text: `System Directive: Here is the user's profile:\n${farmerCtx.contextString}\n\nCRITICAL INSTRUCTION: You MUST respond entirely in the ${getLanguageLabel(language)} language. Do not use English.` }]
+          parts: [{ text: `System Directive: Here is the user's profile:\n${farmerCtx.contextString}\n\nCRITICAL INSTRUCTION: You MUST respond entirely in the ${getLanguageLabel(language)} language.${language !== 'en' ? ' Do not use English.' : ''}` }]
         },
         {
           role: 'model',
@@ -306,14 +306,21 @@ export async function sendChatMessage(params: {
       toolConfig: TOOL_CONFIG,
     };
 
+    let model;
     if (kbCacheName) {
-      modelConfig.cachedContent = kbCacheName;
+      model = gemini.getGenerativeModelFromCachedContent(
+        {
+          name: kbCacheName,
+          model: env.GEMINI_MODEL.startsWith('models/') ? env.GEMINI_MODEL : `models/${env.GEMINI_MODEL}`,
+        } as any,
+        modelConfig,
+        { apiVersion: 'v1beta' }
+      );
     } else {
       const kbText = await getKnowledgeBaseText();
-      modelConfig.systemInstruction = `${SYSTEM_PROMPT}\n\nHere is the verified agricultural database:\n${kbText}\n\n${farmerCtx.contextString}\n\nCRITICAL INSTRUCTION: You MUST respond entirely in the ${getLanguageLabel(language)} language. Do not use English.`;
+      modelConfig.systemInstruction = `${SYSTEM_PROMPT}\n\nHere is the verified agricultural database:\n${kbText}\n\n${farmerCtx.contextString}\n\nCRITICAL INSTRUCTION: You MUST respond entirely in the ${getLanguageLabel(language)} language.${language !== 'en' ? ' Do not use English.' : ''}`;
+      model = gemini.getGenerativeModel(modelConfig, { apiVersion: 'v1beta' });
     }
-
-    const model = gemini.getGenerativeModel(modelConfig);
     const chat = model.startChat({ history: truncatedHistory });
 
     // ── 7. Send message and handle tool calls ──
