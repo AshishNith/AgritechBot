@@ -1,3 +1,5 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { Product, IProduct } from '../models/Product';
 import { logger } from '../utils/logger';
 
@@ -124,11 +126,52 @@ export class ProductSearchService {
     season?: string;
     problem?: string;
     category?: string;
+    query?: string;
     limit?: number;
   }): Promise<IProduct[]> {
     const filters: ProductSearchFilters = {
       inStockOnly: true,
     };
+
+    const limit = params.limit || 5;
+
+    // 1. Check if the query matches a product in the static knowledge base
+    const staticProducts: any[] = [];
+    if (params.query) {
+      try {
+        const kbPath = path.join(__dirname, '..', 'chat', 'data', 'knowledgeBase.json');
+        const fileContent = fs.readFileSync(kbPath, 'utf8');
+        const kb = JSON.parse(fileContent);
+        if (kb && Array.isArray(kb.mayJuneProductGuide)) {
+          const queryLower = params.query.toLowerCase();
+          const match = kb.mayJuneProductGuide.find((p: any) => 
+            p.product_name.toLowerCase().includes(queryLower) ||
+            queryLower.includes(p.product_name.toLowerCase())
+          );
+          if (match) {
+            staticProducts.push({
+              _id: `mock-kb-${match.product_name.replace(/\s+/g, '-').toLowerCase()}`,
+              name: match.product_name,
+              brand: 'Anaaj.ai Verified',
+              category: match.type.split(' ')[0],
+              description: `${match.purpose}. Dosage: ${match.dose}. Method: ${match.application_method}. Timing: ${match.application_time}. PHI: ${match.safety_interval_phi}.`,
+              price: 0,
+              unit: 'Pack',
+              inStock: true,
+              ratings: { average: 5, count: 1 },
+              farmerFriendlyInfo: {
+                whyUse: match.purpose,
+                howToUse: `Dose: ${match.dose}. Method: ${match.application_method}. PHI: ${match.safety_interval_phi}.`,
+                bestForCrops: match.target_crops,
+              },
+              seller: { name: 'Anaaj.ai Partner', location: 'Punjab' },
+            });
+          }
+        }
+      } catch (err) {
+        logger.error({ err, query: params.query }, 'Failed to read/search knowledgeBase.json in recommendations');
+      }
+    }
 
     // Map problem to category/tags
     if (params.problem) {
@@ -163,8 +206,22 @@ export class ProductSearchService {
       filters.season = [params.season];
     }
 
-    const result = await this.searchProducts(filters, params.limit || 5);
-    return result.products;
+    if (params.query) {
+      filters.query = params.query;
+    }
+
+    const result = await this.searchProducts(filters, limit);
+    
+    // Combine static products and DB search results (deduplicating by name)
+    const combined = [...staticProducts];
+    for (const p of result.products) {
+      if (combined.length >= limit) break;
+      if (!combined.some(cp => cp.name.toLowerCase() === p.name.toLowerCase())) {
+        combined.push(p);
+      }
+    }
+
+    return combined as unknown as IProduct[];
   }
 
   /**

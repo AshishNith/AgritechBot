@@ -23,7 +23,7 @@ import { textToSpeech } from '../../services/voice/sarvamTTS';
 import { speechToText } from '../../services/voice/sarvamSTT';
 import { ChatHistoryCache, type LeanChatMessage } from './chatHistoryCache.service';
 import { getFarmerContext } from './contextBuilder.service';
-import { getKnowledgeBaseCacheName } from './knowledgeBase.service';
+import { getKnowledgeBaseCacheName, getKnowledgeBaseText } from './knowledgeBase.service';
 import { touchChatSession } from './sessionManager.service';
 import { getQuickSuggestions, type QuerySuggestion } from './querySuggestions.service';
 import { summarizeConversationHistory } from './historyCompressor.service';
@@ -309,7 +309,8 @@ export async function sendChatMessage(params: {
     if (kbCacheName) {
       modelConfig.cachedContent = kbCacheName;
     } else {
-      modelConfig.systemInstruction = `${SYSTEM_PROMPT}\n\n${farmerCtx.contextString}\n\nCRITICAL INSTRUCTION: You MUST respond entirely in the ${getLanguageLabel(language)} language. Do not use English.`;
+      const kbText = await getKnowledgeBaseText();
+      modelConfig.systemInstruction = `${SYSTEM_PROMPT}\n\nHere is the verified agricultural database:\n${kbText}\n\n${farmerCtx.contextString}\n\nCRITICAL INSTRUCTION: You MUST respond entirely in the ${getLanguageLabel(language)} language. Do not use English.`;
     }
 
     const model = gemini.getGenerativeModel(modelConfig);

@@ -22,25 +22,41 @@ function getModelName(): string {
     : `models/${env.GEMINI_MODEL}`;
 }
 
-async function loadKnowledgeBaseText(): Promise<string> {
+let cachedKbText: string | null = null;
+
+export async function getKnowledgeBaseText(): Promise<string> {
+  if (cachedKbText) {
+    return cachedKbText;
+  }
+
   const filePath = path.join(__dirname, '..', 'data', 'knowledgeBase.json');
   const file = await fs.readFile(filePath, 'utf8');
   const payload = JSON.parse(file) as Record<string, unknown>;
 
-  return [
+  cachedKbText = [
     'Anaaj.ai curated agricultural knowledge base for Indian farming.',
     'Use this information as background knowledge and still adapt to farmer profile, crop stage, and region.',
     JSON.stringify(payload, null, 2),
   ].join('\n\n');
+
+  return cachedKbText;
 }
+
+const MIN_CACHE_TOKEN_SIZE = 32768;
+const CHARS_PER_TOKEN_ESTIMATE = 4;
+const MIN_CACHE_CHAR_SIZE = MIN_CACHE_TOKEN_SIZE * CHARS_PER_TOKEN_ESTIMATE; // 131,072 characters
 
 async function createKnowledgeBaseCache(): Promise<string> {
   if (Date.now() < cacheRetryBlockedUntil) {
     throw new Error('Gemini knowledge cache temporarily disabled due to provider limits');
   }
 
+  const kbText = await getKnowledgeBaseText();
+  if (kbText.length < MIN_CACHE_CHAR_SIZE) {
+    throw new Error(`Knowledge base size (${kbText.length} chars) is below context caching threshold (${MIN_CACHE_CHAR_SIZE} chars)`);
+  }
+
   const cacheManager = new GoogleAICacheManager(env.GEMINI_API_KEY);
-  const kbText = await loadKnowledgeBaseText();
 
   const cachedContent = await cacheManager.create({
     model: getModelName(),
@@ -73,6 +89,12 @@ export async function getKnowledgeBaseCacheName(): Promise<string | undefined> {
     return undefined;
   }
 
+  // Skip cache creation/lookup if database is too small
+  const kbText = await getKnowledgeBaseText();
+  if (kbText.length < MIN_CACHE_CHAR_SIZE) {
+    return undefined;
+  }
+
   const cached = await cache.get<{ name: string }>(KB_CACHE_KEY);
   if (cached?.name) {
     inMemoryCacheName = cached.name;
@@ -89,11 +111,11 @@ export async function getKnowledgeBaseCacheName(): Promise<string | undefined> {
     const status = (error as { status?: number }).status;
     const message = (error as { message?: string }).message || '';
 
-    if (status === 404 || (status === 400 && /too small/i.test(message))) {
+    if (status === 404 || (status === 400 && /too small/i.test(message)) || message.includes('below context caching threshold')) {
       if (!cacheUnavailableLogged) {
-        logger.warn(
+        logger.info(
           { model: getModelName(), status, message },
-          'Gemini knowledge caching is not supported for this model or content size. Chat will continue without cached context.'
+          'Gemini knowledge caching is not supported/active for this model or content size. Chat will continue without cached context.'
         );
         cacheUnavailableLogged = true;
       }

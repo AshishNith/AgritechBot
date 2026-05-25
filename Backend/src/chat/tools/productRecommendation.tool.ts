@@ -47,6 +47,10 @@ export const productRecommendationTool: ChatToolDefinition = {
         type: 'number',
         description: 'Maximum number of products to return (default: 5, max: 10)',
       },
+      query: {
+        type: 'string',
+        description: 'Specific product name, brand, or search term (e.g. "Dhaman", "Roko", "Pretilachlor", etc.)',
+      },
     },
     required: [], // All fields optional for flexible searching
   },
@@ -56,6 +60,7 @@ export const productRecommendationTool: ChatToolDefinition = {
     const crops = input.crops as string[] | undefined;
     const problem = input.problem as string | undefined;
     const season = input.season as string | undefined;
+    const query = input.query as string | undefined;
     const limit = Math.min((input.limit as number) || 5, 10);
 
     try {
@@ -64,6 +69,7 @@ export const productRecommendationTool: ChatToolDefinition = {
         crops,
         problem,
         season,
+        query,
         limit,
       });
 
