@@ -4,6 +4,8 @@ import { Notification } from '../models/Notification';
 import { User } from '../models/User';
 import { AppError } from '../utils/AppError';
 import { createAdminLog } from '../services/adminLogService';
+import { sendExpoPushNotifications } from '../services/expoPushService';
+import { logger } from '../utils/logger';
 
 const notificationSchema = z.object({
   title: z.string().min(1).max(150),
@@ -51,7 +53,7 @@ export async function sendAdminNotification(request: FastifyRequest, reply: Fast
     }
   }
 
-  const users = await User.find(query).select('name location');
+  const users = await User.find(query).select('name location expoPushToken');
   if (users.length) {
     await Notification.insertMany(
       users.map((user) => ({
@@ -71,6 +73,19 @@ export async function sendAdminNotification(request: FastifyRequest, reply: Fast
         }
       }))
     );
+
+    // Extract Expo push tokens and dispatch push notifications asynchronously
+    const pushTokens = users
+      .map((u) => u.expoPushToken)
+      .filter(Boolean) as string[];
+
+    if (pushTokens.length > 0) {
+      sendExpoPushNotifications(pushTokens, title, message, {
+        source: 'admin-dashboard'
+      }).catch((err) => {
+        logger.error({ err }, 'Failed to trigger Expo push notifications');
+      });
+    }
   }
 
   const recipients = users.map((user) => ({

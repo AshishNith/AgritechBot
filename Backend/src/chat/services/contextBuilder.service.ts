@@ -23,7 +23,7 @@ export function detectCurrentSeason(date = new Date()): 'rabi' | 'kharif' | 'zai
 
 function buildContextString(user: {
   name?: string;
-  language?: string;
+  language?: string | null;
   crops?: string[];
   landSize?: number;
   landUnit?: string;

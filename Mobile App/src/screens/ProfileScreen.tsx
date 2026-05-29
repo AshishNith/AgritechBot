@@ -161,6 +161,15 @@ export function ProfileScreen() {
     );
   };
 
+  const handleSignOut = async () => {
+    try {
+      await apiService.unregisterPushToken();
+    } catch (err) {
+      console.warn('Failed to unregister push token on signOut:', err);
+    }
+    signOut();
+  };
+
   return (
     <Screen scrollable withTabBar>
       <View style={styles.header}>
@@ -326,7 +335,7 @@ export function ProfileScreen() {
           </AppText>
         </Pressable>
 
-        <Pressable onPress={() => signOut()} style={styles.signOutBtn}>
+        <Pressable onPress={handleSignOut} style={styles.signOutBtn}>
           <View style={[styles.signOutIcon, { backgroundColor: colors.textMuted + '15' }]}>
             {(() => { const LogOut = IconMap['LogOut'] || IconMap['X']; return LogOut ? <LogOut size={18} color={colors.textMuted} /> : null; })()}
           </View>

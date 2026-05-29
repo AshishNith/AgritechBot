@@ -509,6 +509,14 @@ export const apiService = {
     const { data } = await api.put('/api/notifications/read-all');
     return data;
   },
+  async registerPushToken(token: string) {
+    const { data } = await api.post('/api/notifications/register-token', { token });
+    return data;
+  },
+  async unregisterPushToken() {
+    const { data } = await api.post('/api/notifications/unregister-token');
+    return data;
+  },
 
   // ── Image Analysis ──
   async analyzeCrop(imageBase64: string, imageMimeType: string, language?: string) {

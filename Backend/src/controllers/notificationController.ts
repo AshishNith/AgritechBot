@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { Notification, NotificationType } from '../models/Notification';
+import { User } from '../models/User';
 import { logger } from '../utils/logger';
 import { env } from '../config/env';
 
@@ -172,4 +173,39 @@ async function seedNotificationsForUser(userId: any) {
   } catch (err) {
     logger.error({ userId, err }, 'Failed to seed notifications');
   }
+}
+
+/**
+ * POST /api/notifications/register-token
+ */
+export async function registerPushToken(
+  request: FastifyRequest<{ Body: { token: string } }>,
+  reply: FastifyReply
+) {
+  const userId = request.user!._id;
+  const { token } = request.body;
+
+  if (!token) {
+    return reply.status(400).send({ error: 'Token is required' });
+  }
+
+  await User.findByIdAndUpdate(userId, { expoPushToken: token });
+  logger.info({ userId, token }, 'Successfully registered Expo push token');
+  
+  return reply.send({ success: true, message: 'Push token registered successfully' });
+}
+
+/**
+ * POST /api/notifications/unregister-token
+ */
+export async function unregisterPushToken(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const userId = request.user!._id;
+  
+  await User.findByIdAndUpdate(userId, { $unset: { expoPushToken: 1 } });
+  logger.info({ userId }, 'Successfully unregistered Expo push token');
+  
+  return reply.send({ success: true, message: 'Push token unregistered successfully' });
 }

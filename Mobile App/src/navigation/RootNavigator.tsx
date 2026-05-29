@@ -1,15 +1,71 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
+import { Platform } from 'react-native';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import Constants from 'expo-constants';
+
 import { useTheme } from '../providers/ThemeContext';
 import { useAppStore } from '../store/useAppStore';
 import { isProfileComplete } from '../utils/profile';
+import { apiService } from '../api/services';
 
 import { AnaajTabBar } from '../components/ui';
 import { useI18n } from '../hooks/useI18n';
 import { MainTabParamList, RootStackParamList } from './types';
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
+async function registerForPushNotificationsAsync() {
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+
+  if (!Device.isDevice) {
+    console.log('Must use physical device for Push Notifications');
+    return null;
+  }
+
+  const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  let finalStatus = existingStatus;
+  if (existingStatus !== 'granted') {
+    const { status } = await Notifications.requestPermissionsAsync();
+    finalStatus = status;
+  }
+  if (finalStatus !== 'granted') {
+    console.log('Failed to get push token for push notification!');
+    return null;
+  }
+
+  try {
+    const projectId =
+      Constants.expoConfig?.extra?.eas?.projectId ??
+      Constants.easConfig?.projectId;
+    const token = (
+      await Notifications.getExpoPushTokenAsync({
+        projectId,
+      })
+    ).data;
+    console.log('Expo Push Token retrieved:', token);
+    return token;
+  } catch (error) {
+    console.warn('Error getting push token:', error);
+    return null;
+  }
+}
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -57,6 +113,32 @@ export function RootNavigator() {
   const user = useAppStore((state) => state.user);
   const language = useAppStore((state) => state.language);
   const profileComplete = useMemo(() => isProfileComplete(user), [user]);
+
+  useEffect(() => {
+    if (token && profileComplete) {
+      registerForPushNotificationsAsync()
+        .then((pushToken) => {
+          if (pushToken) {
+            apiService.registerPushToken(pushToken).catch((err) => {
+              console.warn('Failed to register push token with backend:', err);
+            });
+          }
+        })
+        .catch((err) => {
+          console.warn('Failed to retrieve push token:', err);
+        });
+    }
+  }, [token, profileComplete]);
+
+  useEffect(() => {
+    if (!token || !profileComplete) return;
+
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      console.log('User interacted with notification:', response);
+    });
+
+    return () => subscription.remove();
+  }, [token, profileComplete]);
 
   return (
     <NavigationContainer

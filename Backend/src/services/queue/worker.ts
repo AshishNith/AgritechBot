@@ -74,7 +74,7 @@ async function processChatJob(job: Job): Promise<{
     chatHistory,
     userContext: {
       name: user?.name,
-      language: user?.language,
+      language: user?.language || undefined,
       crops: user?.crops,
       location: user?.location,
     },
@@ -135,7 +135,7 @@ async function processVoiceJob(job: Job): Promise<{
       language: detectedLang,
       userContext: {
         name: user?.name,
-        language: user?.language,
+        language: user?.language || undefined,
         crops: user?.crops,
         location: user?.location,
       },

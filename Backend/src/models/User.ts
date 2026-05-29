@@ -27,6 +27,7 @@ export interface IUser extends Document {
     lastReset: Date;
   };
   lastActiveAt?: Date;
+  expoPushToken?: string;
   createdAt: Date;
   updatedAt: Date;
   compareOtp(candidateOtp: string): Promise<boolean>;
@@ -81,6 +82,7 @@ const userSchema = new Schema<IUser>(
       lastReset: { type: Date, default: Date.now },
     },
     lastActiveAt: { type: Date, default: Date.now },
+    expoPushToken: { type: String, trim: true },
   },
   {
     timestamps: true,

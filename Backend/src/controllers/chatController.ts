@@ -235,7 +235,7 @@ export async function askQuestion(request: FastifyRequest, reply: FastifyReply) 
       chatHistory,
       userContext: {
         name: request.user?.name,
-        language: request.user?.language,
+        language: request.user?.language || undefined,
         crops: request.user?.crops,
         location: request.user?.location,
       },
@@ -394,7 +394,7 @@ export async function streamChat(request: FastifyRequest, reply: FastifyReply) {
       chatHistory,
       userContext: {
         name: request.user?.name,
-        language: request.user?.language,
+        language: request.user?.language || undefined,
         crops: request.user?.crops,
         location: request.user?.location,
       },
