@@ -54,11 +54,7 @@ export function HomeScreen() {
   const setFeaturedProduct = useAppStore((state) => state.setFeaturedProduct);
   const [liveCoords, setLiveCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [liveLocationName, setLiveLocationName] = useState(t(language, 'mandi'));
-  const lightLogo = 'https://res.cloudinary.com/dvwpxb2oa/image/upload/v1775306310/image-removebg-preview_ifr7nb.png';
-  const darkLogo = 'https://res.cloudinary.com/dvwpxb2oa/image/upload/v1774369551/Printable_Logo_nim1ca.svg';
-  
-  const logoUrl = isDark ? darkLogo : lightLogo;
-  const logoImageUrl = logoUrl.endsWith('.svg') ? logoUrl.replace(/\.svg$/, '.png') : logoUrl;
+
 
   const { data } = useQuery({
     queryKey: ['products-home'],
@@ -250,46 +246,31 @@ export function HomeScreen() {
       <LinearGradient colors={isDark ? [colors.backgroundAlt, colors.background] : ['#edf7f0', '#f6f7f7']} style={StyleSheet.absoluteFillObject} />
       <View style={styles.topRow}>
         <View style={styles.brandRow}>
-          <View style={styles.brandWrap}>
-            <Image
-              source={{ uri: logoImageUrl }}
-              style={isDark ? styles.logoImageDark : styles.logoImage}
-              resizeMode="contain"
-            />
-            {isDark && (
-              <AppText weight="bold" style={{ fontSize: 24, color: colors.textOnDark, marginLeft: 6, lineHeight: 30 }}>
-                Anaaj.AI
-              </AppText>
-            )}
+          {/* Left Side: Name and Greeting */}
+          <View style={styles.greetingWrap}>
+            <AppText variant="caption" color={colors.textMuted} weight="bold" style={{ letterSpacing: 0.8 }}>
+              {greeting.toUpperCase()}
+            </AppText>
+            <AppText variant="heading" style={{ fontSize: 22, marginTop: 2, fontWeight: '700' }}>
+              {user?.name || tx('farmer')}
+            </AppText>
           </View>
           
-          <TouchableOpacity 
-            onPress={() => navigation.navigate('Notifications')}
-            style={[styles.alertButton, { backgroundColor: unreadCount > 0 ? colors.primary + '20' : colors.surfaceMuted }]}
-          >
-            {(() => { const IconComp = IconMap['Bell']; return IconComp ? <IconComp size={20} color={unreadCount > 0 ? colors.primary : colors.textMuted} /> : null; })()}
-            {unreadCount > 0 && <View style={[styles.alertDot, { backgroundColor: colors.danger }]} />}
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.infoRow}>
-          <AppText variant="caption" color={colors.textMuted} weight="bold" style={{ letterSpacing: 0.5 }}>
-            {tx('subscriptionStatus').toUpperCase()}
-          </AppText>
-          <View style={styles.badgesWrap}>
-            <WalletCreditBadge type="chat" style={styles.headerBadge} />
-            <WalletCreditBadge type="scan" style={styles.headerBadge} />
+          {/* Right Side: Stats & Notifications */}
+          <View style={styles.actionsWrap}>
+            <View style={styles.headerStats}>
+              <WalletCreditBadge type="chat" style={styles.headerBadge} />
+              <WalletCreditBadge type="scan" style={styles.headerBadge} />
+            </View>
+            
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('Notifications')}
+              style={[styles.alertButton, { backgroundColor: unreadCount > 0 ? colors.primary + '20' : colors.surfaceMuted }]}
+            >
+              {(() => { const IconComp = IconMap['Bell']; return IconComp ? <IconComp size={18} color={unreadCount > 0 ? colors.primary : colors.textMuted} /> : null; })()}
+              {unreadCount > 0 && <View style={[styles.alertDot, { backgroundColor: colors.danger }]} />}
+            </TouchableOpacity>
           </View>
-        </View>
-      </View>
-
-      <View style={styles.header}>
-        <View>
-          <AppText variant="caption" color={colors.textMuted} weight="bold" style={{ letterSpacing: 1 }}>{greeting.toUpperCase()}</AppText>
-          <AppText variant="display" style={{ fontSize: 32, marginTop: 4 }}>{user?.name || tx('farmer')}</AppText>
-        </View>
-        <View style={styles.weatherIconPlaceholder}>
-           <AnimatedIcon name="CloudSun" size={42} color={colors.primary} animation="float" />
         </View>
       </View>
 
@@ -425,25 +406,26 @@ const styles = StyleSheet.create({
   topRow: {
     marginTop: 16,
     paddingHorizontal: 20,
-    gap: 16,
+    marginBottom: 16,
   },
   brandRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  brandWrap: {
+  greetingWrap: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  actionsWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 40,
+    gap: 8,
   },
-  logoImage: {
-    width: 110,
-    height: 34,
-  },
-  logoImageDark: {
-    width: 30,
-    height: 30,
+  headerStats: {
+    flexDirection: 'row',
+    gap: 6,
+    alignItems: 'center',
   },
   alertButton: {
     width: 44,
@@ -463,38 +445,9 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#fff',
   },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.02)',
-    padding: 8,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-  },
-  badgesWrap: {
-    flexDirection: 'row',
-    gap: 8,
-  },
   headerBadge: {
     paddingHorizontal: 8,
     paddingVertical: 4,
-  },
-  header: {
-    marginTop: 24,
-    marginBottom: 24,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  weatherIconPlaceholder: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   weatherInsightPanel: {
     marginTop: 20,
