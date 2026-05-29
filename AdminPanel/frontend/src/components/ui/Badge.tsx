@@ -3,6 +3,7 @@ import { cn } from "../../utils/cn";
 interface Props {
   children: string;
   tone?: "green" | "red" | "amber" | "slate" | "blue" | "purple";
+  className?: string;
 }
 
 const styles = {
@@ -14,7 +15,7 @@ const styles = {
   purple: "bg-purple-100 text-purple-700"
 };
 
-export const Badge = ({ children, tone = "slate" }: Props) => (
-  <span className={cn("inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium", styles[tone])}>{children}</span>
+export const Badge = ({ children, tone = "slate", className }: Props) => (
+  <span className={cn("inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium", styles[tone], className)}>{children}</span>
 );
 

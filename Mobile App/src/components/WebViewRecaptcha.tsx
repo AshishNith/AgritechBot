@@ -33,8 +33,36 @@ const generateFirebaseHtml = (phone: string) => `<!DOCTYPE html>
 <body>
   <div id="recaptcha-container"></div>
   <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+      window.ReactNativeWebView.postMessage(JSON.stringify({
+        type: 'console',
+        error: message + " at " + source + ":" + lineno
+      }));
+      return true;
+    };
+    var _log = console.log;
+    var _error = console.error;
+    console.log = function() {
+      var args = Array.prototype.slice.call(arguments);
+      window.ReactNativeWebView.postMessage(JSON.stringify({
+        type: 'console',
+        log: args.join(' ')
+      }));
+      _log.apply(console, args);
+    };
+    console.error = function() {
+      var args = Array.prototype.slice.call(arguments);
+      window.ReactNativeWebView.postMessage(JSON.stringify({
+        type: 'console',
+        error: args.join(' ')
+      }));
+      _error.apply(console, args);
+    };
+  </script>
+  <script>
     (function () {
       try {
+        console.log("Initializing Firebase compat SDK inside WebView...");
         var app = firebase.initializeApp({
           apiKey: "AIzaSyBo-QxqxbeP1CFzVsIh9UL3WlKXoiq7Fxc",
           authDomain: "otp-service-cd1f2.firebaseapp.com",
@@ -43,29 +71,34 @@ const generateFirebaseHtml = (phone: string) => `<!DOCTYPE html>
         });
 
         var auth = firebase.auth(app);
+        console.log("Firebase initialized. Setting up RecaptchaVerifier...");
 
         var verifier = new firebase.auth.RecaptchaVerifier(
           'recaptcha-container',
           {
             size: 'invisible',
-            callback: function () { /* reCAPTCHA solved, SMS will be sent */ }
+            callback: function () { console.log("reCAPTCHA callback triggered."); }
           }
         );
 
+        console.log("Calling signInWithPhoneNumber for: " + "${phone}");
         auth.signInWithPhoneNumber("${phone}", verifier)
           .then(function (result) {
+            console.log("signInWithPhoneNumber success. verificationId: " + result.verificationId);
             window.ReactNativeWebView.postMessage(JSON.stringify({
               type: 'verificationId',
               verificationId: result.verificationId
             }));
           })
           .catch(function (err) {
+            console.error("signInWithPhoneNumber error: " + (err.message || String(err)));
             window.ReactNativeWebView.postMessage(JSON.stringify({
               type: 'error',
               message: err.message || String(err)
             }));
           });
       } catch (e) {
+        console.error("Exception in initialization: " + (e.message || String(e)));
         window.ReactNativeWebView.postMessage(JSON.stringify({
           type: 'error',
           message: e.message || String(e)
@@ -115,6 +148,14 @@ const WebViewRecaptchaComponent = forwardRef<WebViewRecaptchaHandle, {}>(
     const handleMessage = (event: WebViewMessageEvent) => {
       try {
         const data = JSON.parse(event.nativeEvent.data);
+        if (data.type === 'console') {
+          if (data.error) {
+            console.log('[WebView HTML Error]', data.error);
+          } else {
+            console.log('[WebView HTML Log]', data.log);
+          }
+          return;
+        }
         cleanup();
         if (data.type === 'verificationId') {
           resolveRef.current?.(data.verificationId);
