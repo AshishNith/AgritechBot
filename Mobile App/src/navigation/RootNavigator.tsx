@@ -29,22 +29,22 @@ function MainTabs() {
     >
       <Tab.Screen
         name="HomeTab"
-        options={{ title: 'Home' }}
+        options={{ title: t('homeTab') }}
         getComponent={() => require('../screens/HomeScreen').HomeScreen}
       />
       <Tab.Screen
         name="MarketplaceTab"
-        options={{ title: 'Market' }}
+        options={{ title: t('marketplaceTab') }}
         getComponent={() => require('../screens/MarketplaceScreen').MarketplaceScreen}
       />
       <Tab.Screen
         name="ChatTab"
-        options={{ title: 'History' }}
+        options={{ title: t('historyTab') }}
         getComponent={() => require('../screens/ChatListScreen').ChatListScreen}
       />
       <Tab.Screen
         name="ProfileTab"
-        options={{ title: 'Profile' }}
+        options={{ title: t('profileTab') }}
         getComponent={() => require('../screens/ProfileScreen').ProfileScreen}
       />
     </Tab.Navigator>
@@ -55,6 +55,7 @@ export function RootNavigator() {
   const { isDark, colors: themeColors } = useTheme();
   const token = useAppStore((state) => state.token);
   const user = useAppStore((state) => state.user);
+  const language = useAppStore((state) => state.language);
   const profileComplete = useMemo(() => isProfileComplete(user), [user]);
 
   return (
@@ -88,6 +89,8 @@ export function RootNavigator() {
             <Stack.Screen name="Login" getComponent={() => require('../screens/LoginScreen').LoginScreen} />
             <Stack.Screen name="Otp" getComponent={() => require('../screens/OtpScreen').OtpScreen} />
           </>
+        ) : !language ? (
+          <Stack.Screen name="LanguageOnboarding" getComponent={() => require('../screens/LanguageOnboardingScreen').LanguageOnboardingScreen} />
         ) : !profileComplete ? (
           <Stack.Screen name="ProfileSetup" getComponent={() => require('../screens/ProfileSetupScreen').ProfileSetupScreen} />
         ) : (

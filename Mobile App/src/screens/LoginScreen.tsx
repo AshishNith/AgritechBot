@@ -18,12 +18,14 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 import { WebViewRecaptcha, WebViewRecaptchaHandle } from '../components/WebViewRecaptcha';
 import { useRef } from 'react';
 
+const DEFAULT_COUNTRY_CODE = '+91';
+
 function normalizePhone(input: string): string | null {
   const digits = input.replace(/\D/g, '');
 
-  // If user typed 10 digits, assume India (+91)
+  // If user typed 10 digits, assume India default country code
   if (digits.length === 10) {
-    return `+91${digits}`;
+    return `${DEFAULT_COUNTRY_CODE}${digits}`;
   }
 
   // If user typed 12 digits starting with 91, assume it's already +91...
@@ -45,8 +47,8 @@ export function LoginScreen({ navigation }: Props) {
   const language = useAppStore((state) => state.language);
   const { colors, isDark } = useTheme();
   
-  // Strip +91 if it exists in the stored draft so the user only sees the 10 digits
-  const initialPhone = phoneDraft?.startsWith('+91') ? phoneDraft.slice(3) : phoneDraft;
+  // Strip default country code if it exists in the stored draft so the user only sees the 10 digits
+  const initialPhone = phoneDraft?.startsWith(DEFAULT_COUNTRY_CODE) ? phoneDraft.slice(DEFAULT_COUNTRY_CODE.length) : phoneDraft;
   const [phone, setPhone] = useState(initialPhone || '');
   const [error, setError] = useState<string | null>(null);
   
@@ -99,7 +101,7 @@ export function LoginScreen({ navigation }: Props) {
           <AppText variant="label">{t(language, 'mobileNumber')}</AppText>
           <View style={[styles.inputWrap, { borderColor: colors.border }]}>
             <View style={[styles.countryCode, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : theme.colors.surfaceMuted }]}>
-              <AppText variant="label" style={{ color: colors.text }}>+91</AppText>
+              <AppText variant="label" style={{ color: colors.text }}>{DEFAULT_COUNTRY_CODE}</AppText>
             </View>
             <TextInput
               value={phone}

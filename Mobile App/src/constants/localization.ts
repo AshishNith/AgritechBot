@@ -176,6 +176,7 @@ export type TranslationKey =
   | 'selectImage'
   | 'takePhoto'
   | 'chooseFromGallery'
+  | 'upload'
   | 'sendMessage'
   | 'recordVoice'
   | 'sessionExpired'
@@ -434,7 +435,41 @@ export type TranslationKey =
   | 'aiDisclaimer'
   | 'privacySettings'
   | 'manageData'
-  | 'confirm';
+  | 'confirm'
+  // --- ImageScan Screen Keys ---
+  | 'diagnosisReport'
+  | 'talkToExpert'
+  | 'aiConfidence'
+  | 'severityLevel'
+  | 'treatmentPlan'
+  | 'immediateActions'
+  | 'organicSolutions'
+  | 'chemicalControl'
+  | 'checkAvailability'
+  | 'needMoreHelp'
+  | 'talkToDoctor'
+  | 'findNearestVendor'
+  | 'cropDiagnosis'
+  | 'scanYourCrop'
+  | 'scanDescription'
+  | 'aiIsAnalyzing'
+  | 'retakePhoto'
+  | 'recentScans'
+  | 'tipsTitle'
+  | 'tipLighting'
+  | 'tipFocus'
+  | 'tipContext'
+  | 'imagePreviewUnavailable'
+  | 'diagnosisDataAvailable'
+  // --- Permission & Error Keys ---
+  | 'permissionRequired'
+  | 'cameraPermissionMsg'
+  | 'galleryPermissionMsg'
+  | 'recordingTooShort'
+  | 'recordingTooShortMsg'
+  // --- Offline Banner ---
+  | 'noInternetConnection'
+  | 'checkYourNetwork';
 
 
 const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
@@ -611,7 +646,7 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     acre: 'Acre',
     hectare: 'Hectare',
     chatTitle: 'Chat',
-    greeting: 'नमस्ते! मैं आपकी कैसे मदद कर सकता हूँ?',
+    greeting: 'Hello! How can I help you today?',
     enableMicrophone: 'Enable microphone access',
     microphoneNotAvailable: 'Microphone not available',
     selectImage: 'Select Image',
@@ -875,6 +910,41 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     privacySettings: 'Privacy Settings',
     manageData: 'Manage your data and security',
     confirm: 'Confirm',
+    upload: 'Upload',
+    // --- ImageScan Screen ---
+    diagnosisReport: 'Diagnosis Report',
+    talkToExpert: 'Talk to Expert',
+    aiConfidence: 'AI Confidence',
+    severityLevel: 'Severity Level',
+    treatmentPlan: 'Treatment Plan',
+    immediateActions: 'Immediate Actions',
+    organicSolutions: 'Organic Solutions',
+    chemicalControl: 'Chemical Control',
+    checkAvailability: 'Check Availability',
+    needMoreHelp: 'Need more help?',
+    talkToDoctor: 'Talk to Doctor',
+    findNearestVendor: 'Find Nearest Vendor',
+    cropDiagnosis: 'Crop Diagnosis',
+    scanYourCrop: 'Scan Your Crop',
+    scanDescription: 'Identify diseases and pests instantly using our AI-powered plant pathologist.',
+    aiIsAnalyzing: 'AI is analyzing...',
+    retakePhoto: 'Retake Photo',
+    recentScans: 'Recent Scans',
+    tipsTitle: 'Tips for better results:',
+    tipLighting: 'Ensure good lighting (daylight is best)',
+    tipFocus: 'Focus clearly on the affected leaves or fruit',
+    tipContext: 'Capture both healthy and diseased parts for context',
+    imagePreviewUnavailable: 'Image preview unavailable',
+    diagnosisDataAvailable: 'Diagnosis data is still available below.',
+    // --- Permission & Error Keys ---
+    permissionRequired: 'Permission required',
+    cameraPermissionMsg: 'Camera access is required to capture crop images.',
+    galleryPermissionMsg: 'Photo library access is required to select crop images.',
+    recordingTooShort: 'Recording too short',
+    recordingTooShortMsg: 'Please speak for a moment and try again.',
+    // --- Offline Banner ---
+    noInternetConnection: 'No Internet Connection',
+    checkYourNetwork: 'Please check your network and try again.',
   },
   Hindi: {
     marketTitle: 'मार्केट',
@@ -1313,6 +1383,41 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     aiDisclaimer: 'एआई अस्वीकरण',
     manageData: 'डेटा प्रबंधित करें',
     confirm: 'पुष्टि करें',
+    upload: 'अपलोड करें',
+    // --- ImageScan Screen ---
+    diagnosisReport: 'निदान रिपोर्ट',
+    talkToExpert: 'विशेषज्ञ से बात करें',
+    aiConfidence: 'AI विश्वास',
+    severityLevel: 'गंभीरता स्तर',
+    treatmentPlan: 'उपचार योजना',
+    immediateActions: 'तुरंत करें',
+    organicSolutions: 'जैविक उपाय',
+    chemicalControl: 'रासायनिक नियंत्रण',
+    checkAvailability: 'उपलब्धता जांचें',
+    needMoreHelp: 'और मदद चाहिए?',
+    talkToDoctor: 'डॉक्टर से बात करें',
+    findNearestVendor: 'नजदीकी दुकान खोजें',
+    cropDiagnosis: 'फसल निदान',
+    scanYourCrop: 'अपनी फसल स्कैन करें',
+    scanDescription: 'हमारे AI से तुरंत बीमारियाँ और कीट पहचानें।',
+    aiIsAnalyzing: 'AI विश्लेषण कर रहा है...',
+    retakePhoto: 'दोबारा फोटो लें',
+    recentScans: 'हाल के स्कैन',
+    tipsTitle: 'बेहतर नतीजों के लिए सुझाव:',
+    tipLighting: 'अच्छी रोशनी सुनिश्चित करें (दिन की रोशनी सबसे अच्छी)',
+    tipFocus: 'प्रभावित पत्तियों या फलों पर स्पष्ट फोकस करें',
+    tipContext: 'संदर्भ के लिए स्वस्थ और रोगग्रस्त दोनों भागों की तस्वीर लें',
+    imagePreviewUnavailable: 'चित्र पूर्वावलोकन उपलब्ध नहीं',
+    diagnosisDataAvailable: 'निदान डेटा नीचे उपलब्ध है।',
+    // --- Permission & Error Keys ---
+    permissionRequired: 'अनुमति आवश्यक',
+    cameraPermissionMsg: 'फसल की तस्वीर लेने के लिए कैमरा अनुमति जरूरी है।',
+    galleryPermissionMsg: 'फसल की तस्वीर चुनने के लिए फोटो लाइब्रेरी अनुमति जरूरी है।',
+    recordingTooShort: 'रिकॉर्डिंग बहुत छोटी',
+    recordingTooShortMsg: 'कृपया कुछ देर बोलें और फिर से प्रयास करें।',
+    // --- Offline Banner ---
+    noInternetConnection: 'इंटरनेट कनेक्शन नहीं',
+    checkYourNetwork: 'कृपया अपना नेटवर्क जाँचें और फिर से प्रयास करें।',
   },
   Gujarati: {
     marketTitle: 'ખેતી બજાર',
@@ -1751,6 +1856,41 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     aiDisclaimer: 'એઆઈ અસ્વીકરણ',
     manageData: 'ડેટા મેનેજ કરો',
     confirm: 'પુષ્ટિ કરો',
+    upload: 'અપલોડ કરો',
+    // --- ImageScan Screen ---
+    diagnosisReport: 'નિદાન રિપોર્ટ',
+    talkToExpert: 'નિષ્ણાત સાથે વાત કરો',
+    aiConfidence: 'AI વિશ્વાસ',
+    severityLevel: 'ગંભીરતા સ્તર',
+    treatmentPlan: 'સારવાર યોજના',
+    immediateActions: 'તાત્કાલિક પગલાં',
+    organicSolutions: 'જૈવિક ઉકેલો',
+    chemicalControl: 'રાસાયણિક નિયંત્રણ',
+    checkAvailability: 'ઉપલબ્ધતા તપાસો',
+    needMoreHelp: 'વધુ મદદ જોઈએ છે?',
+    talkToDoctor: 'ડોક્ટર સાથે વાત કરો',
+    findNearestVendor: 'નજીકની દુકાન શોધો',
+    cropDiagnosis: 'પાક નિદાન',
+    scanYourCrop: 'તમારો પાક સ્કેન કરો',
+    scanDescription: 'અમારા AI વડે તરત જ રોગો અને જીવાતો ઓળખો.',
+    aiIsAnalyzing: 'AI વિશ્લેષણ કરી રહ્યું છે...',
+    retakePhoto: 'ફરીથી ફોટો લો',
+    recentScans: 'તાજેતરના સ્કેન',
+    tipsTitle: 'વધુ સારા પરિણામો માટે સલાહ:',
+    tipLighting: 'સારી લાઇટિંગ સુનિશ્ચિત કરો (દિવસનો પ્રકાશ શ્રેષ્ઠ)',
+    tipFocus: 'અસરગ્રસ્ત પાંદડા કે ફળો પર સ્પષ્ટ ફોકસ કરો',
+    tipContext: 'સંદર્ભ માટે સ્વસ્થ અને રોગગ્રસ્ત બંને ભાગોની તસવીર લો',
+    imagePreviewUnavailable: 'ચિત્ર પૂર્વાવલોકન ઉપલબ્ધ નથી',
+    diagnosisDataAvailable: 'નિદાન ડેટા નીચે ઉપલબ્ધ છે.',
+    // --- Permission & Error Keys ---
+    permissionRequired: 'પરવાનગી જરૂરી',
+    cameraPermissionMsg: 'પાકની તસવીર લેવા માટે કેમેરા પરવાનગી જરૂરી છે.',
+    galleryPermissionMsg: 'પાકની તસવીર પસંદ કરવા માટે ફોટો લાઇબ્રેરી પરવાનગી જરૂરી છે.',
+    recordingTooShort: 'રેકોર્ડિંગ ઘણી ટૂંકી',
+    recordingTooShortMsg: 'કૃપા કરીને થોડી વાર બોલો અને ફરી પ્રયાસ કરો.',
+    // --- Offline Banner ---
+    noInternetConnection: 'ઇન્ટરનેટ કનેક્શન નથી',
+    checkYourNetwork: 'કૃપા કરીને તમારું નેટવર્ક તપાસો અને ફરી પ્રયાસ કરો.',
   },
   Punjabi: {
     marketTitle: 'ਮਾਰਕੀਟ',
@@ -2189,6 +2329,41 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     aiDisclaimer: 'ਏਆਈ ਬੇਦਾਅਵਾ',
     manageData: 'ਡੇਟਾ ਪ੍ਰਬੰਧਿਤ ਕਰੋ',
     confirm: 'ਪੁਸ਼ਟੀ ਕਰੋ',
+    upload: 'ਅਪਲੋਡ ਕਰੋ',
+    // --- ImageScan Screen ---
+    diagnosisReport: 'ਨਿਦਾਨ ਰਿਪੋਰਟ',
+    talkToExpert: 'ਮਾਹਿਰ ਨਾਲ ਗੱਲ ਕਰੋ',
+    aiConfidence: 'AI ਭਰੋਸਾ',
+    severityLevel: 'ਗੰਭੀਰਤਾ ਪੱਧਰ',
+    treatmentPlan: 'ਇਲਾਜ ਯੋਜਨਾ',
+    immediateActions: 'ਤੁਰੰਤ ਕਾਰਵਾਈ',
+    organicSolutions: 'ਜੈਵਿਕ ਹੱਲ',
+    chemicalControl: 'ਰਸਾਇਣਕ ਨਿਯੰਤਰਣ',
+    checkAvailability: 'ਉਪਲਬਧਤਾ ਚੈੱਕ ਕਰੋ',
+    needMoreHelp: 'ਹੋਰ ਮਦਦ ਚਾਹੀਦੀ ਹੈ?',
+    talkToDoctor: 'ਡਾਕਟਰ ਨਾਲ ਗੱਲ ਕਰੋ',
+    findNearestVendor: 'ਨੇੜੇ ਦੁਕਾਨਦਾਰ ਲੱਭੋ',
+    cropDiagnosis: 'ਫਸਲ ਨਿਦਾਨ',
+    scanYourCrop: 'ਆਪਣੀ ਫਸਲ ਸਕੈਨ ਕਰੋ',
+    scanDescription: 'ਸਾਡੇ AI ਨਾਲ ਤੁਰੰਤ ਬੀਮਾਰੀਆਂ ਅਤੇ ਕੀੜੇ ਪਛਾਣੋ।',
+    aiIsAnalyzing: 'AI ਵਿਸ਼ਲੇਸ਼ਣ ਕਰ ਰਿਹਾ ਹੈ...',
+    retakePhoto: 'ਦੁਬਾਰਾ ਫੋਟੋ ਲਓ',
+    recentScans: 'ਹਾਲ ਦੇ ਸਕੈਨ',
+    tipsTitle: 'ਵਧੀਆ ਨਤੀਜਿਆਂ ਲਈ ਸੁਝਾਅ:',
+    tipLighting: 'ਚੰਗੀ ਰੌਸ਼ਨੀ ਯਕੀਨੀ ਬਣਾਓ (ਦਿਨ ਦੀ ਰੌਸ਼ਨੀ ਸਭ ਤੋਂ ਵਧੀਆ)',
+    tipFocus: 'ਪ੍ਰਭਾਵਿਤ ਪੱਤਿਆਂ ਜਾਂ ਫਲਾਂ ਤੇ ਸਾਫ ਫੋਕਸ ਕਰੋ',
+    tipContext: 'ਸੰਦਰਭ ਲਈ ਸਿਹਤਮੰਦ ਅਤੇ ਰੋਗੀ ਦੋਵੇਂ ਹਿੱਸਿਆਂ ਦੀ ਤਸਵੀਰ ਲਓ',
+    imagePreviewUnavailable: 'ਚਿੱਤਰ ਪੂਰਵਲੋਕਨ ਉਪਲਬਧ ਨਹੀਂ',
+    diagnosisDataAvailable: 'ਨਿਦਾਨ ਡੇਟਾ ਹੇਠਾਂ ਉਪਲਬਧ ਹੈ।',
+    // --- Permission & Error Keys ---
+    permissionRequired: 'ਇਜਾਜ਼ਤ ਲੋੜੀਦੀ',
+    cameraPermissionMsg: 'ਫਸਲ ਦੀ ਤਸਵੀਰ ਲੈਣ ਲਈ ਕੈਮਰਾ ਇਜਾਜ਼ਤ ਲੋੜੀਦੀ ਹੈ।',
+    galleryPermissionMsg: 'ਫਸਲ ਦੀ ਤਸਵੀਰ ਚੁਣਨ ਲਈ ਫੋਟੋ ਲਾਇਬ੍ਰੇਰੀ ਇਜਾਜ਼ਤ ਲੋੜੀਦੀ ਹੈ।',
+    recordingTooShort: 'ਰਿਕਾਰਡਿੰਗ ਬਹੁਤ ਛੋਟੀ',
+    recordingTooShortMsg: 'ਕਿਰਪਾ ਕਰਕੇ ਥੋੜਾ ਚਿਰ ਬੋਲੋ ਅਤੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
+    // --- Offline Banner ---
+    noInternetConnection: 'ਇੰਟਰਨੈੱਟ ਕਨੈਕਸ਼ਨ ਨਹੀਂ',
+    checkYourNetwork: 'ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ ਨੈੱਟਵਰਕ ਚੈੱਕ ਕਰੋ ਅਤੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
   },
 };
 

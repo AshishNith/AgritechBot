@@ -1,52 +1,20 @@
 import { FastifyInstance } from 'fastify';
-import { sendOtp, verifyOtp, send2FactorOtp, verify2FactorOtp, sendFast2SmsOtp, verifyFast2SmsOtp, verifyFirebaseOtp } from '../controllers/authController';
+import { verifyFirebaseOtp } from '../controllers/authController';
 
 export async function authRoutes(app: FastifyInstance): Promise<void> {
-  const otpRateLimit = {
-    config: {
-      rateLimit: {
-        max: 5,
-        timeWindow: 15 * 60 * 1000 // 15 mins
-      }
-    }
-  };
-
-  const fast2SmsRateLimit = {
-    config: {
-      rateLimit: {
-        max: 3, // 3 requests per 15 minutes as requested
-        timeWindow: 15 * 60 * 1000
-      }
-    }
-  };
-
   const firebaseRateLimit = {
     config: {
       rateLimit: {
-        max: 10, // Firebase verify is lightweight; slightly higher limit
+        max: 10,
         timeWindow: 15 * 60 * 1000
       }
     }
   };
 
-  // Legacy endpoints (kept for backward compatibility)
-  app.post('/auth/send-otp', otpRateLimit, sendOtp);
-  app.post('/auth/verify-otp', otpRateLimit, verifyOtp);
-
-  // 2Factor.in SMS OTP Integration Routes
-  app.post('/auth/2factor/send', otpRateLimit, send2FactorOtp);
-  app.post('/auth/2factor/verify', otpRateLimit, verify2FactorOtp);
-
-  // Fast2SMS OTP Integration Routes
-  app.post('/auth/fast2sms/send', fast2SmsRateLimit, sendFast2SmsOtp);
-  app.post('/auth/fast2sms/verify', fast2SmsRateLimit, verifyFast2SmsOtp);
-
-  // Firebase Phone Auth (active endpoint used by mobile app)
+  // Firebase Phone Auth (primary endpoint used by mobile app)
   app.post('/auth/firebase/verify', firebaseRateLimit, verifyFirebaseOtp);
 
   // ── Firebase reCAPTCHA page (served so WebView has a real authorized domain) ──
-  // The mobile app loads this URL in a WebView; the page runs signInWithPhoneNumber
-  // using Firebase compat SDK (domain backend.goran.in must be in Firebase authorized domains).
   app.get('/auth/recaptcha-page', async (request, reply) => {
     const { phone } = request.query as { phone?: string };
 
@@ -74,10 +42,10 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     (function () {
       try {
         var app = firebase.initializeApp({
-          apiKey: "AIzaSyBo-QxqxbeP1CFzVsIh9UL3WlKXoiq7Fxc",
-          authDomain: "otp-service-cd1f2.firebaseapp.com",
-          projectId: "otp-service-cd1f2",
-          appId: "1:390819207417:web:be271d809adeeafc71aa28"
+          apiKey: "${process.env.FIREBASE_WEB_API_KEY || 'AIzaSyBo-QxqxbeP1CFzVsIh9UL3WlKXoiq7Fxc'}",
+          authDomain: "${process.env.FIREBASE_AUTH_DOMAIN || 'otp-service-cd1f2.firebaseapp.com'}",
+          projectId: "${process.env.FIREBASE_PROJECT_ID || 'otp-service-cd1f2'}",
+          appId: "${process.env.FIREBASE_APP_ID || '1:390819207417:web:be271d809adeeafc71aa28'}"
         });
 
         var auth = firebase.auth(app);
@@ -86,7 +54,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
           'recaptcha-container',
           {
             size: 'invisible',
-            callback: function () { /* reCAPTCHA solved, SMS will be sent */ }
+            callback: function () { /* reCAPTCHA solved */ }
           }
         );
 
@@ -116,7 +84,6 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
 
     reply
       .header('Content-Type', 'text/html; charset=utf-8')
-      // Allow this page to be loaded in a WebView from any origin
       .header('X-Frame-Options', 'ALLOWALL')
       .header('Content-Security-Policy', "default-src 'self' 'unsafe-inline' https://www.gstatic.com https://*.googleapis.com https://*.firebaseapp.com https://*.firebase.com;")
       .send(html);

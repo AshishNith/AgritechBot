@@ -53,7 +53,11 @@ export async function authMiddleware(
       return reply.status(403).send({ error: 'User account is blocked' });
     }
 
-    void User.updateOne({ _id: user._id }, { $set: { lastActiveAt: new Date() } }).catch(() => undefined);
+    const now = new Date();
+    const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
+    if (!user.lastActiveAt || user.lastActiveAt < tenMinutesAgo) {
+      void User.updateOne({ _id: user._id }, { $set: { lastActiveAt: now } }).catch(() => undefined);
+    }
 
     request.user = user;
   } catch (err) {

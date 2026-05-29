@@ -6,7 +6,7 @@ export interface IUser extends Document {
   name?: string;
   role: 'user' | 'admin';
   status: 'active' | 'blocked';
-  language: string;
+  language?: string | null;
   location?: {
     state?: string;
     district?: string;
@@ -55,7 +55,7 @@ const userSchema = new Schema<IUser>(
     },
     language: {
       type: String,
-      default: 'Hindi',
+      default: null,
     },
     location: {
       state: String,

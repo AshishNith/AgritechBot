@@ -48,12 +48,20 @@ const QUICK_REPLIES: Record<SupportedLanguage, string[]> = {
   ],
 };
 
-function normalizeLanguage(input: string): SupportedLanguage {
+function normalizeLanguage(input: string, fallback: SupportedLanguage = 'English'): SupportedLanguage {
   const value = (input || '').toLowerCase();
   if (value.includes('hindi') || value === 'hi' || value === 'hi-in') return 'Hindi';
   if (value.includes('gujarati') || value === 'gu' || value === 'gu-in') return 'Gujarati';
   if (value.includes('punjabi') || value === 'pa' || value === 'pa-in') return 'Punjabi';
-  return 'English';
+  return fallback;
+}
+
+function sanitizeMessage(text: string): string {
+  if (!text) return '';
+  return text
+    .replace(/[\u0000-\u0008\u000B-\u000C\u000E-\u001F\u007F-\u009F]/g, '')
+    .replace(/[ \t]+/g, ' ')
+    .trim();
 }
 
 function buildQuickReplies(language: SupportedLanguage, message: string): string[] {
@@ -100,8 +108,17 @@ async function getRecommendedProducts(message: string) {
       inStock: true,
       $or: [
         { name: searchPattern },
+        { nameHi: searchPattern },
+        { nameGu: searchPattern },
+        { namePa: searchPattern },
         { description: searchPattern },
+        { descriptionHi: searchPattern },
+        { descriptionGu: searchPattern },
+        { descriptionPa: searchPattern },
         { category: searchPattern },
+        { categoryHi: searchPattern },
+        { categoryGu: searchPattern },
+        { categoryPa: searchPattern },
       ],
     })
       .sort({ createdAt: -1 })
@@ -139,30 +156,17 @@ export async function askQuestion(request: FastifyRequest, reply: FastifyReply) 
     return reply.status(400).send({ error: parsed.error.flatten().fieldErrors });
   }
 
-  const { message, language: langInput, chatId: existingChatId } = parsed.data;
+  let { message, language: langInput, chatId: existingChatId } = parsed.data;
+  message = sanitizeMessage(message);
   const userId = String(request.user!._id);
 
-  // 1. CREDIT CHECK GATE
-  try {
-    const wallet = await getWallet(userId);
-    const hasCredits = (wallet.chatCredits || 0) + (wallet.topupCredits || 0) > 0;
 
-    if (!hasCredits) {
-      logger.warn({ userId }, 'Chat blocked: Insufficient credits');
-      return reply.status(402).send({ 
-        error: 'INSUFFICIENT_CREDITS', 
-        message: 'You have run out of chat credits. Please top up to continue.',
-        upgradeRequired: true 
-      });
-    }
-  } catch (walletErr) {
-    logger.error({ userId, err: walletErr }, 'Failed to verify credits before chat');
-    return reply.status(500).send({ error: 'Failed to verify account balance' });
-  }
 
   // Detect language if "auto"
+  const userLanguage = (request.user?.language as SupportedLanguage) || 'English';
   const language = normalizeLanguage(
-    langInput === 'auto' ? detectLanguage(message).language : langInput
+    langInput === 'auto' ? detectLanguage(message).language : langInput,
+    userLanguage
   );
   const quickReplies = buildQuickReplies(language, message);
   const recommendedProducts = await getRecommendedProducts(message);
@@ -337,24 +341,7 @@ export async function streamChat(request: FastifyRequest, reply: FastifyReply) {
   const { message, language: langInput, chatId: existingChatId } = parsed.data;
   const userId = String(request.user!._id);
 
-  // 1. CREDIT CHECK GATE
-  try {
-    const wallet = await getWallet(userId);
-    const hasCredits = (wallet.chatCredits || 0) + (wallet.topupCredits || 0) > 0;
 
-    if (!hasCredits) {
-      logger.warn({ userId }, 'Stream chat blocked: Insufficient credits');
-      // For SSE, we might need to send an error event and then close, or just return 402 early
-      return reply.status(402).send({ 
-        error: 'INSUFFICIENT_CREDITS', 
-        message: 'You have run out of chat credits. Please top up to continue.',
-        upgradeRequired: true 
-      });
-    }
-  } catch (walletErr) {
-    logger.error({ userId, err: walletErr }, 'Failed to verify credits before stream chat');
-    return reply.status(500).send({ error: 'Failed to verify account balance' });
-  }
 
   const language = normalizeLanguage(
     langInput === 'auto' ? detectLanguage(message).language : langInput

@@ -26,6 +26,7 @@ export function OtpScreen({ navigation, route }: Props) {
   const language = useAppStore((state) => state.language);
   const setToken = useAppStore((state) => state.setToken);
   const setUser = useAppStore((state) => state.setUser);
+  const setLanguage = useAppStore((state) => state.setLanguage);
   const setHasCompletedOnboarding = useAppStore((state) => state.setHasCompletedOnboarding);
 
   useFocusEffect(
@@ -61,6 +62,10 @@ export function OtpScreen({ navigation, route }: Props) {
       setError(null);
       setToken(data.token);
       setUser(data.user);
+      
+      if (data.user?.language) {
+        setLanguage(data.user.language);
+      }
 
       const hasProfile = isProfileComplete(data.user);
       setHasCompletedOnboarding(hasProfile);

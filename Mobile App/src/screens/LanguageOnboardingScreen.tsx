@@ -9,11 +9,29 @@ import { theme } from '../constants/theme';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../store/useAppStore';
 
+import { isProfileComplete } from '../utils/profile';
+
 type Props = NativeStackScreenProps<RootStackParamList, 'LanguageOnboarding'>;
 
 export function LanguageOnboardingScreen({ navigation }: Props) {
   const language = useAppStore((state) => state.language);
   const setLanguage = useAppStore((state) => state.setLanguage);
+  const token = useAppStore((state) => state.token);
+  const user = useAppStore((state) => state.user);
+
+  const handleContinue = () => {
+    if (!language) return;
+
+    if (token) {
+      if (isProfileComplete(user)) {
+        navigation.navigate('MainTabs', { screen: 'HomeTab' } as any);
+      } else {
+        navigation.navigate('ProfileSetup');
+      }
+    } else {
+      navigation.navigate('VoiceIntro');
+    }
+  };
 
   return (
     <Screen dark>
@@ -58,7 +76,7 @@ export function LanguageOnboardingScreen({ navigation }: Props) {
         <ProgressDots total={3} active={0} />
         <GradientButton 
           label={t(language, 'getStarted')} 
-          onPress={() => navigation.navigate('VoiceIntro')} 
+          onPress={handleContinue} 
           style={{ marginTop: 18, opacity: language ? 1 : 0.5 }} 
           disabled={!language}
         />

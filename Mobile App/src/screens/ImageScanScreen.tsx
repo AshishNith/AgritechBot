@@ -66,10 +66,10 @@ export function ImageScanScreen({ route }: { route: any }) {
     }
 
     Alert.alert(
-      'Permission required',
+      t('permissionRequired'),
       useCamera
-        ? 'Camera access is required to capture crop images.'
-        : 'Photo library access is required to select crop images.'
+        ? t('cameraPermissionMsg')
+        : t('galleryPermissionMsg')
     );
 
     return false;
@@ -236,7 +236,7 @@ export function ImageScanScreen({ route }: { route: any }) {
             <View style={[styles.resultIcon, { backgroundColor: colors.primary + '20' }]}>
               {(() => { const IconComp = IconMap['ShieldCheck']; return IconComp ? <IconComp size={20} color={colors.primary} /> : null; })()}
             </View>
-            <AppText variant="heading" style={{ fontSize: 18 }}>Diagnosis Report</AppText>
+            <AppText variant="heading" style={{ fontSize: 18 }}>{t('diagnosisReport')}</AppText>
           </View>
           <View style={styles.resultBody}>
             <AppText style={{ lineHeight: 24 }}>
@@ -244,7 +244,7 @@ export function ImageScanScreen({ route }: { route: any }) {
             </AppText>
           </View>
           <GradientButton
-            label="Talk to Expert"
+            label={t('talkToExpert')}
             onPress={() => navigation.navigate('Chat', { initialMessage: "I just scanned an image and found: " + result.substring(0, 50) + "..." })}
             style={{ marginTop: 16 }}
           />
@@ -267,24 +267,24 @@ export function ImageScanScreen({ route }: { route: any }) {
             </View>
 
             <View style={styles.statsGrid}>
-              <StatCard label="AI Confidence" value={`${data.confidence}%`} icon="ShieldCheck" color={colors.primary} />
+              <StatCard label={t('aiConfidence')} value={`${data.confidence}%`} icon="ShieldCheck" color={colors.primary} />
               <View style={{ width: 12 }} />
-              <StatCard label="Severity Level" value={`${data.severityScore}%`} icon="AlertTriangle" color={data.severityScore > 60 ? colors.danger : colors.warning} />
+              <StatCard label={t('severityLevel')} value={`${data.severityScore}%`} icon="AlertTriangle" color={data.severityScore > 60 ? colors.danger : colors.warning} />
             </View>
 
             <AppText color={colors.textMuted} style={{ marginTop: 16, lineHeight: 20 }}>{data.summary}</AppText>
           </GlassCard>
         </Animated.View>
 
-        <SectionHeader title="Treatment Plan" />
+        <SectionHeader title={t('treatmentPlan')} />
 
         <View style={styles.treatmentSection}>
-          <TreatCard title="Immediate Actions" icon="Zap" items={data.recommendations?.immediate} color={colors.primary} />
-          <TreatCard title="Organic Solutions" icon="Leaf" items={data.recommendations?.organic} color="#52B781" />
-          <TreatCard title="Chemical Control" icon="FlaskConical" items={data.recommendations?.chemical} color="#F43F5E" />
+          <TreatCard title={t('immediateActions')} icon="Zap" items={data.recommendations?.immediate} color={colors.primary} />
+          <TreatCard title={t('organicSolutions')} icon="Leaf" items={data.recommendations?.organic} color="#52B781" />
+          <TreatCard title={t('chemicalControl')} icon="FlaskConical" items={data.recommendations?.chemical} color="#F43F5E" />
         </View>
 
-        <SectionHeader title="Recommended Products" />
+        <SectionHeader title={t('recommendedProducts')} />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
           {data.products?.map((prod: any, idx: number) => (
             <GlassCard key={idx} style={styles.productCard}>
@@ -294,23 +294,23 @@ export function ImageScanScreen({ route }: { route: any }) {
               <AppText variant="label" style={{ marginTop: 8, fontSize: 15 }}>{prod.name}</AppText>
               <AppText variant="caption" color={colors.textMuted} style={{ marginTop: 4 }}>{prod.purpose}</AppText>
               <Pressable style={[styles.buyBtn, { backgroundColor: colors.primary }]}>
-                <AppText color="#fff" style={{ fontSize: 12, fontWeight: '700' }}>Check Availability</AppText>
+                <AppText color="#fff" style={{ fontSize: 12, fontWeight: '700' }}>{t('checkAvailability')}</AppText>
               </Pressable>
             </GlassCard>
           ))}
         </ScrollView>
 
         <View style={styles.expertSection}>
-          <AppText variant="heading" style={{ fontSize: 18 }}>Need more help?</AppText>
+          <AppText variant="heading" style={{ fontSize: 18 }}>{t('needMoreHelp')}</AppText>
           <AppText color={colors.textMuted} style={{ marginTop: 4, marginBottom: 16 }}>{data.expertHelp}</AppText>
           <View style={styles.expertActions}>
             <GradientButton
-              label="Talk to Doctor"
+              label={t('talkToDoctor')}
               style={{ flex: 1 }}
               onPress={() => navigation.navigate('Chat', { initialMessage: `I need a professional opinion on this diagnosis: ${data.problem} in ${data.crop}.` })}
             />
             <GradientButton
-              label="Find Nearest Vendor"
+              label={t('findNearestVendor')}
               secondary
               style={{ flex: 1 }}
               onPress={() => navigation.navigate('Marketplace')}
@@ -333,7 +333,7 @@ export function ImageScanScreen({ route }: { route: any }) {
             return IconComp ? <IconComp size={22} color={colors.text} /> : null;
           })()}
         </Pressable>
-        <AppText variant="title" style={{ marginLeft: 16 }}>Crop Diagnosis</AppText>
+        <AppText variant="title" style={{ marginLeft: 16 }}>{t('cropDiagnosis')}</AppText>
         <View style={{ flex: 1 }} />
         <WalletCreditBadge type="scan" style={{ marginRight: 12 }} />
         {/* <Pressable
@@ -368,21 +368,21 @@ export function ImageScanScreen({ route }: { route: any }) {
                   return IconComp ? <IconComp size={32} color={colors.primary} /> : null;
                 })()}
               </View>
-              <AppText variant="heading" style={{ marginTop: 20 }}>Scan Your Crop</AppText>
+              <AppText variant="heading" style={{ marginTop: 20 }}>{t('scanYourCrop')}</AppText>
               <AppText color={colors.textMuted} style={{ textAlign: 'center', marginTop: 10 }}>
-                Identify diseases and pests instantly using our AI-powered plant pathologist.
+                {t('scanDescription')}
               </AppText>
 
               <View style={styles.buttonRow}>
                 <GradientButton
-                  label="Take Photo"
+                  label={t('takePhoto')}
                   onPress={() => pickImage(true)}
                   disabled={analyzing}
                   leftIcon={(() => { const IconComp = IconMap['Camera']; return IconComp ? <IconComp size={18} color="#fff" /> : null; })()}
                   style={{ flex: 1, opacity: analyzing ? 0.6 : 1 }}
                 />
                 <GradientButton
-                  label="Upload"
+                  label={t('upload')}
                   secondary
                   onPress={() => pickImage(false)}
                   disabled={analyzing}
@@ -395,9 +395,9 @@ export function ImageScanScreen({ route }: { route: any }) {
             {Array.isArray(scanHistory) && scanHistory.length > 0 && (
               <View style={styles.historySection}>
                 <View style={styles.historyHead}>
-                  <AppText variant="label">Recent Scans</AppText>
+                  <AppText variant="label">{t('recentScans')}</AppText>
                   <Pressable onPress={() => navigation.navigate('MainTabs', { screen: 'ChatTab', params: { mode: 'scans' } as any })}>
-                    <AppText variant="caption" color={colors.primary}>View All</AppText>
+                    <AppText variant="caption" color={colors.primary}>{t('viewAll')}</AppText>
                   </Pressable>
                 </View>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
@@ -409,11 +409,11 @@ export function ImageScanScreen({ route }: { route: any }) {
                     return (
                       <Animated.View key={scan._id} entering={FadeInRight.delay(idx * 100)}>
                         <Pressable
-                          style={styles.historyItem}
-                          onPress={() => {
-                            if (displayUri) setImage(displayUri);
-                            setResult(scan.diagnosis);
-                          }}
+                           style={styles.historyItem}
+                           onPress={() => {
+                             if (displayUri) setImage(displayUri);
+                             setResult(scan.diagnosis);
+                           }}
                         >
                           {displayUri && (
                             <Image
@@ -434,15 +434,15 @@ export function ImageScanScreen({ route }: { route: any }) {
             )}
 
             <ScreenCard style={{ marginTop: 20 }}>
-              <AppText variant="label">Tips for better results:</AppText>
+              <AppText variant="label">{t('tipsTitle')}</AppText>
               <AppText color={colors.textMuted} style={{ fontSize: 13, marginTop: 6 }}>
-                • Ensure good lighting (daylight is best)
+                • {t('tipLighting')}
               </AppText>
               <AppText color={colors.textMuted} style={{ fontSize: 13, marginTop: 4 }}>
-                • Focus clearly on the affected leaves or fruit
+                • {t('tipFocus')}
               </AppText>
               <AppText color={colors.textMuted} style={{ fontSize: 13, marginTop: 4 }}>
-                • Capture both healthy and diseased parts for context
+                • {t('tipContext')}
               </AppText>
             </ScreenCard>
           </View>
@@ -454,15 +454,15 @@ export function ImageScanScreen({ route }: { route: any }) {
                 {analyzing && (
                   <View style={styles.analyzingOverlay}>
                     <ActivityIndicator size="large" color={colors.primary} />
-                    <AppText variant="label" color="#fff" style={{ marginTop: 12 }}>AI is analyzing...</AppText>
+                    <AppText variant="label" color="#fff" style={{ marginTop: 12 }}>{t('aiIsAnalyzing')}</AppText>
                   </View>
                 )}
               </View>
             ) : (
               <GlassCard style={styles.noImageCard}>
-                <AppText variant="label">Image preview unavailable</AppText>
+                <AppText variant="label">{t('imagePreviewUnavailable')}</AppText>
                 <AppText color={colors.textMuted} style={{ marginTop: 6 }}>
-                  Diagnosis data is still available below.
+                  {t('diagnosisDataAvailable')}
                 </AppText>
               </GlassCard>
             )}
@@ -477,7 +477,7 @@ export function ImageScanScreen({ route }: { route: any }) {
                 }}
                 style={styles.retakeBtn}
               >
-                <AppText color={colors.primary}>Retake Photo</AppText>
+                <AppText color={colors.primary}>{t('retakePhoto')}</AppText>
               </Pressable>
             )}
           </View>

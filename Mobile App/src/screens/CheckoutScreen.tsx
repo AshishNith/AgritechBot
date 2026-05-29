@@ -42,7 +42,8 @@ export function CheckoutScreen() {
 
   const validationError = useMemo(() => {
     if (!formData.name.trim()) return t(language, 'nameCannotBeEmpty');
-    if (!/^\+?[0-9\s-]{10,15}$/.test(formData.phone.trim())) return t(language, 'invalidPhone');
+    const cleanedPhone = formData.phone.trim().replace(/[\s-]/g, '');
+    if (!/^\+?(91)?[6-9]\d{9}$/.test(cleanedPhone)) return t(language, 'invalidPhone');
     if (!formData.address.trim() || !formData.city.trim() || !formData.state.trim()) {
       return t(language, 'fillRequiredFields');
     }

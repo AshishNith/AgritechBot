@@ -4,6 +4,7 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useI18n } from '../../hooks/useI18n';
 
 export { PremiumModal } from './PremiumModal';
 export { SkeletonLoader } from './SkeletonLoader';
@@ -470,6 +471,7 @@ export function ProgressDots({ total, active }: { total: number; active: number 
 export function AnaajTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { isDark, colors } = useTheme();
+  const { t } = useI18n();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   useEffect(() => {
@@ -555,7 +557,7 @@ export function AnaajTabBar({ state, descriptors, navigation }: BottomTabBarProp
                     })()}
                   </Pressable>
                   <AppText variant="caption" color={colors.primary} style={{ fontWeight: '800', marginTop: 4 }}>
-                    SCAN
+                    {t('scanLabel').toUpperCase()}
                   </AppText>
                 </View>
               )}

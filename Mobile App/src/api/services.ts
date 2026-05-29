@@ -309,7 +309,7 @@ export const apiService = {
       chats: data.sessions.map((chat) => ({
         id: String(chat.sessionId),
         title: chat.title,
-        language: chat.metadata?.location || chat.metadata?.season || 'Anaaj.ai chat',
+        language: chat.language || 'English',
         messageCount: chat.messageCount,
         updatedAt: chat.updatedAt,
         lastMessageAt: chat.lastMessageAt,

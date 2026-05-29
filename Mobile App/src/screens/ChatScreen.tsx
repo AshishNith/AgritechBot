@@ -168,7 +168,7 @@ export function ChatScreen() {
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [route.params?.initialMessage]);
+  }, [route.params?.initialMessage, sendMessage]);
 
   useEffect(() => {
     if (!chatId) {
@@ -443,8 +443,7 @@ export function ChatScreen() {
       setMessages([buildStarterMessage(language || 'English')]);
     },
   });
-
-  const sendMessage = (overrideText?: string) => {
+  const sendMessage = useCallback((overrideText?: string) => {
     const outgoing = (overrideText ?? input).trim();
     if (!outgoing) {
       return;
@@ -494,7 +493,7 @@ export function ChatScreen() {
       imageBase64: pickedImageBase64 || undefined,
       imageMimeType: pickedImageMimeType || undefined,
     });
-  };
+  }, [input, askMutation, requireChat, chatId, pickedImageBase64, pickedImageMimeType]);
 
   const retryLastFailed = () => {
     if (!lastFailedDraft) {
@@ -732,7 +731,7 @@ export function ChatScreen() {
 
       if (mode === 'transcribe' && clip.durationMs < MIN_TRANSCRIBE_DURATION_MS) {
         setVoiceStatus('idle');
-        Alert.alert('Recording too short', 'Please speak for a moment and try again.');
+        Alert.alert(tx('recordingTooShort'), tx('recordingTooShortMsg'));
         return;
       }
 
