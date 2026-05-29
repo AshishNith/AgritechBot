@@ -18,6 +18,48 @@ import { getLocalizedProductContent } from '../utils/localizationHelper';
 
 const priorityCategories = ['Fertilizers', 'Seeds', 'Tools', 'Pesticides'];
 
+function normalizeCategory(product: Product): string {
+  const cat = (product.category || '').toLowerCase();
+  const name = (product.name || '').toLowerCase();
+  const brand = (product.brand || '').toLowerCase();
+  const subCat = (product.subCategory || '').toLowerCase();
+
+  if (
+    cat.includes('fert') || cat === 'npk' || cat === 'potash' || cat.includes('zinc') || 
+    cat.includes('humic') || cat.includes('humik') || cat.includes('acid') || cat.includes('urea') ||
+    cat.includes('nitrogen') || cat.includes('phosph') || cat.includes('micronutrient') ||
+    name.includes('fert') || name.includes('npk') || name.includes('potash') || name.includes('zinc') || 
+    name.includes('urea') || name.includes('phosphate') || name.includes('manure') || name.includes('compost') ||
+    brand.includes('fert') || brand.includes('zinc') || brand.includes('pgr') || subCat.includes('pgr') || 
+    name.includes('poshan') || name.includes('groshakti') || name.includes('drop') || name.includes('promoter')
+  ) {
+    return 'Fertilizers';
+  }
+
+  if (cat.includes('seed') || name.includes('seed') || brand.includes('seed') || subCat.includes('seed')) {
+    return 'Seeds';
+  }
+
+  if (
+    cat.includes('tool') || cat.includes('machin') || cat.includes('equip') || cat === 'irrigation' ||
+    name.includes('tool') || name.includes('sensor') || name.includes('drip') || name.includes('sprayer') || 
+    name.includes('cutter') || name.includes('pump') || name.includes('meter')
+  ) {
+    return 'Tools';
+  }
+
+  if (
+    cat.includes('pestic') || cat.includes('fungic') || cat.includes('herbic') || cat.includes('neem') || 
+    cat.includes('protect') || cat.includes('weed') || cat.includes('insect') ||
+    name.includes('pestic') || name.includes('fungic') || name.includes('herbic') || name.includes('neem') || 
+    name.includes('poison') || name.includes('weed') || name.includes('insect') || name.includes('bio-')
+  ) {
+    return 'Pesticides';
+  }
+
+  return 'General';
+}
+
 export function MarketplaceScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { isDark, colors } = useTheme();
@@ -26,7 +68,7 @@ export function MarketplaceScreen() {
   const addToCart = useMarketplaceStore((state) => state.addToCart);
   const cartCount = useMarketplaceStore((state) => state.getCartItemsCount());
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState(t(language, 'viewAll'));
+  const [category, setCategory] = useState('all');
 
   const { data, isLoading } = useQuery({
     queryKey: ['products-marketplace', search],
@@ -42,32 +84,33 @@ export function MarketplaceScreen() {
 
   const products = data?.products ?? [];
 
+  const normalizedProducts = useMemo(() => {
+    return products.map((product) => ({
+      ...product,
+      category: normalizeCategory(product),
+    }));
+  }, [products]);
+
   const categories = useMemo(() => {
-    const categoryMap: Record<string, string> = {
-      'Fertilizers': t(language, 'topFertilizers'),
-      'Seeds': t(language, 'essentialSeeds'),
-      'Tools': t(language, 'modernTools'),
-      'Pesticides': t(language, 'cropCare'),
-    };
-    const dynamic = Array.from(new Set(products.map((item) => item.category).filter(Boolean)));
+    const dynamic = Array.from(new Set(normalizedProducts.map((item) => item.category).filter(Boolean)));
     const ordered = [
       ...priorityCategories.filter((item) => dynamic.includes(item)),
       ...dynamic.filter((item) => !priorityCategories.includes(item)),
     ];
-    return [t(language, 'viewAll'), ...ordered];
-  }, [products, language]);
+    return ['all', ...ordered];
+  }, [normalizedProducts]);
 
   const filteredProducts = useMemo(() => {
-    if (category === t(language, 'viewAll')) {
-      return products;
+    if (category === 'all') {
+      return normalizedProducts;
     }
-    return products.filter((item) => item.category.toLowerCase() === category.toLowerCase() || 
-      (category === t(language, 'topFertilizers') && item.category.toLowerCase().includes('fert')) ||
-      (category === t(language, 'essentialSeeds') && item.category.toLowerCase().includes('seed')) ||
-      (category === t(language, 'modernTools') && item.category.toLowerCase().includes('tool')) ||
-      (category === t(language, 'cropCare') && item.category.toLowerCase().includes('pestic'))
+    return normalizedProducts.filter((item) => item.category.toLowerCase() === category.toLowerCase() || 
+      (category === 'Fertilizers' && item.category.toLowerCase().includes('fert')) ||
+      (category === 'Seeds' && item.category.toLowerCase().includes('seed')) ||
+      (category === 'Tools' && item.category.toLowerCase().includes('tool')) ||
+      (category === 'Pesticides' && item.category.toLowerCase().includes('pestic'))
     );
-  }, [products, category, language]);
+  }, [normalizedProducts, category]);
 
   const grouped = useMemo(
     () => ({
@@ -106,7 +149,7 @@ export function MarketplaceScreen() {
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
         {categories.map((item) => {
-          const displayLabel = item === t(language, 'viewAll') ? item : (
+          const displayLabel = item === 'all' ? t(language, 'viewAll') : (
             item === 'Fertilizers' ? t(language, 'topFertilizers') :
             item === 'Seeds' ? t(language, 'essentialSeeds') :
             item === 'Tools' ? t(language, 'modernTools') :

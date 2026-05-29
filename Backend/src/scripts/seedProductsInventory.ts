@@ -26,9 +26,12 @@ async function seedProductsInventory() {
       if (!line.startsWith('|')) continue;
 
       const parts = line.split('|').map(p => p.trim());
-      // parts[0] is empty because of leading '|'
-      // parts[1] is S.No.
-      // parts[2] is Title / Product Name
+
+      // Check if we have transitioned to Table 2
+      if (line.includes('Product Name') || line.includes('Sub-Category')) {
+        isTable2 = true;
+        continue;
+      }
 
       const serialStr = parts[1];
       const productName = parts[2];
@@ -37,12 +40,6 @@ async function seedProductsInventory() {
       if (!serialStr || !productName) continue;
       if (serialStr.includes('S.No.') || serialStr.includes('---')) continue;
       if (productName.includes('Title') || productName.includes('Product Name') || productName.includes('---')) {
-        continue;
-      }
-
-      // Check if we have transitioned to Table 2
-      if (line.includes('Product Name') || line.includes('Sub-Category')) {
-        isTable2 = true;
         continue;
       }
 
@@ -72,15 +69,49 @@ async function seedProductsInventory() {
         }
       }
 
-      // Normalize category (capitalize first letter)
-      category = category.trim();
-      if (category.toLowerCase() === 'insecticide') category = 'Pesticide';
-      if (category.toLowerCase() === 'weedicide') category = 'Herbicide';
-      category = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
+      // Robust Canonical Normalization
+      const catLower = category.toLowerCase();
+      const nameLower = productName.toLowerCase();
+      const brandLower = brand.toLowerCase();
+      const subCatLower = subCategory.toLowerCase();
+
+      let normalizedCategory = 'General';
+
+      if (
+        catLower.includes('fert') || catLower === 'npk' || catLower === 'potash' || catLower.includes('zinc') || 
+        catLower.includes('humic') || catLower.includes('humik') || catLower.includes('acid') || catLower.includes('urea') ||
+        catLower.includes('nitrogen') || catLower.includes('phosph') || catLower.includes('micronutrient') ||
+        nameLower.includes('fert') || nameLower.includes('npk') || nameLower.includes('potash') || nameLower.includes('zinc') || 
+        nameLower.includes('urea') || nameLower.includes('phosphate') || nameLower.includes('manure') || nameLower.includes('compost') ||
+        brandLower.includes('fert') || brandLower.includes('zinc') || brandLower.includes('pgr') || subCatLower.includes('pgr') || 
+        nameLower.includes('poshan') || nameLower.includes('groshakti') || nameLower.includes('drop') || nameLower.includes('promoter')
+      ) {
+        normalizedCategory = 'Fertilizers';
+      } else if (
+        catLower.includes('seed') || nameLower.includes('seed') || brandLower.includes('seed') || subCatLower.includes('seed')
+      ) {
+        normalizedCategory = 'Seeds';
+      } else if (
+        catLower.includes('tool') || catLower.includes('machin') || catLower.includes('equip') || catLower === 'irrigation' ||
+        nameLower.includes('tool') || nameLower.includes('sensor') || nameLower.includes('drip') || nameLower.includes('sprayer') || 
+        nameLower.includes('cutter') || nameLower.includes('pump') || nameLower.includes('meter')
+      ) {
+        normalizedCategory = 'Tools';
+      } else if (
+        catLower.includes('pestic') || catLower.includes('fungic') || catLower.includes('herbic') || catLower.includes('neem') || 
+        catLower.includes('protect') || catLower.includes('weed') || catLower.includes('insect') ||
+        nameLower.includes('pestic') || nameLower.includes('fungic') || nameLower.includes('herbic') || nameLower.includes('neem') || 
+        nameLower.includes('poison') || nameLower.includes('weed') || nameLower.includes('insect') || nameLower.includes('bio-')
+      ) {
+        normalizedCategory = 'Pesticides';
+      }
+
+      category = normalizedCategory;
 
       const slug = productName.toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)+/g, '');
+
 
       // Parse unit and size from product name if possible
       let unit = 'unit';

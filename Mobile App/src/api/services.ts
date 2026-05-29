@@ -382,7 +382,7 @@ export const apiService = {
   },
   async getProducts(search?: string, category?: string) {
     const { data } = await api.get<ProductListResponse>('/api/products', {
-      params: { search, category },
+      params: { search, category, limit: 150 },
     });
 
     return {
