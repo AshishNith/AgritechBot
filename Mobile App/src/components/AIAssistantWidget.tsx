@@ -1,8 +1,9 @@
 import React from 'react';
 import { StyleSheet, View, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AppText, GlassCard } from './ui';
+import { AppText } from './ui';
 import { useTheme } from '../providers/ThemeContext';
+import { theme } from '../constants/theme';
 import { useI18n } from '../hooks/useI18n';
 import { IconMap } from './IconMap';
 
@@ -18,7 +19,15 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ onPress })
 
   return (
     <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={styles.container}>
-      <GlassCard style={styles.card}>
+      <View style={[
+        styles.card, 
+        { 
+          backgroundColor: isDark ? 'rgba(109,207,150,0.08)' : colors.primary + '10', 
+          borderColor: colors.primary + '30', 
+          borderWidth: 1, 
+          ...theme.shadow.sm 
+        }
+      ]}>
         <LinearGradient
           colors={isDark ? [colors.primary + '15', colors.primary + '05'] : ['#f0f9f4', colors.surface]}
           start={{ x: 0, y: 0 }}
@@ -65,10 +74,10 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ onPress })
             })()}
           </View>
         </View>
-      </GlassCard>
-    </TouchableOpacity>
-  );
-};
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
 const styles = StyleSheet.create({
   container: {

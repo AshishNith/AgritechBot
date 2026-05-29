@@ -64,7 +64,7 @@ export function OtpScreen({ navigation, route }: Props) {
       setUser(data.user);
       
       if (data.user?.language) {
-        setLanguage(data.user.language);
+        setLanguage(data.user.language as any);
       }
 
       const hasProfile = isProfileComplete(data.user);

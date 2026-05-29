@@ -125,13 +125,15 @@ export function MarketplaceScreen() {
     [filteredProducts]
   );
 
-  const aiPick = useMemo(() => {
-    return (
-      filteredProducts.find((item) =>
-        item.aiMetadata?.tags?.some((tag) => tag.toLowerCase().includes('organic'))
-      ) ?? filteredProducts[0]
+  const aiRecommendations = useMemo(() => {
+    const organicPicks = filteredProducts.filter((item) =>
+      item.aiMetadata?.tags?.some((tag) => tag.toLowerCase().includes('organic'))
     );
+    const combined = [...organicPicks, ...filteredProducts.filter(item => !organicPicks.includes(item))];
+    return combined.slice(0, 5);
   }, [filteredProducts]);
+
+  const showAiRecommendations = !search || search.trim().length === 0;
 
   return (
     <Screen scrollable withTabBar padded={false}>
@@ -160,62 +162,77 @@ export function MarketplaceScreen() {
           );
         })}
       </ScrollView>
+
       {isLoading ? (
         <View style={styles.loadingWrap}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
         <>
-          {aiPick ? (
-            <View style={{ paddingHorizontal: 20, marginBottom: 24 }}>
-              <View 
-                style={[
-                  styles.recommendationCard, 
-                  { 
-                    backgroundColor: isDark ? 'rgba(109,207,150,0.1)' : colors.primary + '10', 
-                    borderColor: colors.primary + '30',
-                    borderWidth: 1,
-                  }
-                ]}
-              >
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                  <View style={[styles.aiBadge, { backgroundColor: colors.primary }]}>
-                    {(() => { const IconComp = IconMap['Sparkles']; return IconComp ? <IconComp size={14} color="#fff" /> : null; })()}
-                  </View>
-                  <AppText variant="caption" color={colors.primary} weight="bold" style={{ letterSpacing: 1 }}>
-                    {t(language, 'aiPick').toUpperCase()}
-                  </AppText>
-                </View>
-
-                <AppText variant="title" color={isDark ? colors.textOnDark : colors.text} style={{ fontSize: 20 }}>
-                  {getLocalizedProductContent(aiPick, language || 'English').name}
-                </AppText>
-                
-                <AppText color={isDark ? colors.textOnDark : colors.textMuted} style={{ marginTop: 8, fontSize: 13, lineHeight: 18, opacity: 0.8 }}>
-                  {getLocalizedProductContent(aiPick, language || 'English').whyUse ?? t(language || 'English', 'marketSubtitle')}
-                </AppText>
-
-                <Pressable
-                  onPress={() => {
-                    setFeaturedProduct(aiPick);
-                    navigation.navigate('ProductDetail', { productId: aiPick.id });
-                  }}
-                  style={({ pressed }) => [
-                    styles.aiCardAction,
-                    { 
-                      backgroundColor: colors.primary,
-                      opacity: pressed ? 0.9 : 1,
-                      transform: [{ scale: pressed ? 0.98 : 1 }]
-                    }
-                  ]}
-                >
-                  <AppText variant="label" color="#fff" style={{ fontSize: 13 }}>
-                    {t(language || 'English', 'viewNow')}
-                  </AppText>
-                </Pressable>
+          {showAiRecommendations && aiRecommendations.length > 0 ? (
+            <View style={{ marginBottom: 24 }}>
+              <View style={{ paddingHorizontal: 20, marginBottom: 12 }}>
+                <SectionHeader title={t(language || 'English', 'aiPick') || 'AI Recommendations'} />
               </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.aiScroller}>
+                {aiRecommendations.map((product) => {
+                  const localized = getLocalizedProductContent(product, language || 'English');
+                  return (
+                    <Pressable
+                      key={product.id}
+                      onPress={() => {
+                        setFeaturedProduct(product);
+                        navigation.navigate('ProductDetail', { productId: product.id });
+                      }}
+                      style={[
+                        styles.recommendationCard, 
+                        { 
+                          backgroundColor: isDark ? 'rgba(109,207,150,0.1)' : colors.primary + '10', 
+                          borderColor: colors.primary + '30',
+                          borderWidth: 1,
+                          width: 320,
+                          marginRight: 12,
+                          flexDirection: 'row',
+                          gap: 12,
+                          alignItems: 'center',
+                        }
+                      ]}
+                    >
+                      <Image source={{ uri: product.images[0] || 'https://via.placeholder.com/100' }} style={styles.recImage} />
+                      <View style={{ flex: 1 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                          <View style={[styles.aiBadge, { backgroundColor: colors.primary, width: 18, height: 18, borderRadius: 9 }]}>
+                            {(() => { const IconComp = IconMap['Sparkles']; return IconComp ? <IconComp size={9} color="#fff" /> : null; })()}
+                          </View>
+                          <AppText variant="caption" color={colors.primary} weight="bold" style={{ letterSpacing: 0.5, fontSize: 10 }}>
+                            {product.category.toUpperCase()}
+                          </AppText>
+                        </View>
+
+                        <AppText variant="label" color={isDark ? colors.textOnDark : colors.text} style={{ fontSize: 14 }} numberOfLines={1}>
+                          {localized.name}
+                        </AppText>
+                        
+                        <AppText color={isDark ? colors.textOnDark : colors.textMuted} style={{ marginTop: 2, fontSize: 11, lineHeight: 14, opacity: 0.8 }} numberOfLines={2}>
+                          {localized.whyUse ?? localized.description}
+                        </AppText>
+
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+                          <AppText variant="label" color={colors.primaryDark} style={{ fontSize: 13 }}>
+                            ₹{product.price}
+                          </AppText>
+                          <View style={[styles.miniActionBtn, { backgroundColor: colors.primary, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }]}>
+                            <AppText variant="caption" color="#fff" style={{ fontSize: 10 }}>{t(language || 'English', 'viewNow')}</AppText>
+                          </View>
+                        </View>
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
             </View>
           ) : null}
+
 
           {grouped.fertilizers.length > 0 && (
             <>
@@ -415,6 +432,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
+  },
+  aiScroller: {
+    paddingHorizontal: 20,
+    paddingBottom: 4,
+  },
+  miniActionBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  recImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 12,
   },
   sectionScroller: {
     gap: 12,

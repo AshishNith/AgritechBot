@@ -1,6 +1,8 @@
 export const NAV_ITEMS = [
   { label: "Dashboard", path: "/" },
   { label: "Users", path: "/users" },
+  { label: "Products", path: "/products" },
+  { label: "Orders", path: "/orders" },
   { label: "Crops", path: "/crops" },
   { label: "AI Plans", path: "/plans" },
   { label: "Analytics", path: "/analytics" },

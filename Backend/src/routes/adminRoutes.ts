@@ -9,7 +9,8 @@ import {
   deleteAdminUser,
   getAdminUserById,
   listAdminUsers,
-  updateAdminUserStatus
+  updateAdminUserStatus,
+  updateAdminUserWallet
 } from '../controllers/adminUserController';
 import { createAdminCrop, deleteAdminCrop, listAdminCrops, updateAdminCrop } from '../controllers/adminCropController';
 import { listAdminPlans, markPlanFeedback, regeneratePlan } from '../controllers/adminPlanController';
@@ -17,6 +18,18 @@ import { getAdminAnalytics } from '../controllers/adminAnalyticsController';
 import { sendAdminNotification } from '../controllers/adminNotificationController';
 import { listAdminLogs } from '../controllers/adminLogController';
 import { createAdminLog } from '../services/adminLogService';
+import {
+  listAdminProducts,
+  getAdminProductById,
+  createAdminProduct,
+  updateAdminProduct,
+  deleteAdminProduct
+} from '../controllers/adminProductController';
+import {
+  listAdminOrders,
+  getAdminOrderById,
+  updateAdminOrderStatus
+} from '../controllers/adminOrderController';
 
 export async function adminRoutes(app: FastifyInstance): Promise<void> {
   app.addHook('preHandler', adminAuthMiddleware);
@@ -46,6 +59,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
   app.get('/admin/users', listAdminUsers);
   app.get('/admin/users/:userId', getAdminUserById);
   app.patch('/admin/users/:userId/status', updateAdminUserStatus);
+  app.put('/admin/users/:userId/wallet', updateAdminUserWallet);
   app.delete('/admin/users/:userId', deleteAdminUser);
 
   app.get('/admin/crops', listAdminCrops);
@@ -60,4 +74,16 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
   app.get('/admin/analytics', getAdminAnalytics);
   app.post('/admin/notifications/send', sendAdminNotification);
   app.get('/admin/logs', listAdminLogs);
+
+  // Administrative Products CRUD
+  app.get('/admin/products', listAdminProducts);
+  app.get('/admin/products/:productId', getAdminProductById);
+  app.post('/admin/products', createAdminProduct);
+  app.put('/admin/products/:productId', updateAdminProduct);
+  app.delete('/admin/products/:productId', deleteAdminProduct);
+
+  // Administrative Orders & Fulfillment
+  app.get('/admin/orders', listAdminOrders);
+  app.get('/admin/orders/:orderId', getAdminOrderById);
+  app.patch('/admin/orders/:orderId/status', updateAdminOrderStatus);
 }

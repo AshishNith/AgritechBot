@@ -291,6 +291,7 @@ export const apiService = {
         lastMessageAt: string;
         preview?: string;
         status?: 'active' | 'archived';
+        language?: string;
         metadata?: {
           location?: string;
           season?: string;

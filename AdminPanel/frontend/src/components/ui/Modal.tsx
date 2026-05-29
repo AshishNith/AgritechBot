@@ -7,14 +7,22 @@ interface Props {
   children: ReactNode;
   onClose: () => void;
   footer?: ReactNode;
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
-export const Modal = ({ isOpen, title, children, onClose, footer }: Props) => {
+const sizeClasses = {
+  sm: "max-w-md",
+  md: "max-w-xl",
+  lg: "max-w-3xl",
+  xl: "max-w-5xl"
+};
+
+export const Modal = ({ isOpen, title, children, onClose, footer, size = "md" }: Props) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-2xl rounded-xl bg-white shadow-xl">
+      <div className={`w-full rounded-xl bg-white shadow-xl ${sizeClasses[size]}`}>
         <header className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
           <h3 className="text-base font-semibold text-slate-900">{title}</h3>
           <Button variant="ghost" onClick={onClose}>

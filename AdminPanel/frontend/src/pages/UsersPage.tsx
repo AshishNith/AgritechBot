@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { DataTable, type Column } from "../components/ui/DataTable";
 import { Card } from "../components/ui/Card";
 import { InputField } from "../components/ui/InputField";
@@ -6,34 +7,57 @@ import { SelectField } from "../components/ui/SelectField";
 import { Button } from "../components/ui/Button";
 import { Loader } from "../components/ui/Loader";
 import { ErrorState } from "../components/ui/ErrorState";
-import { Pagination } from "../components/ui/Pagination";
-import { Modal } from "../components/ui/Modal";
 import { Badge } from "../components/ui/Badge";
 import type { UserListItem } from "../types/api";
 import { formatDateTime } from "../utils/format";
-import { useUserDetail, useUserMutations, useUsers } from "../hooks/useUsers";
+import { useUserMutations, useUsers } from "../hooks/useUsers";
 
-const PAGE_SIZE = 10;
+const MAX_LIMIT = 100000;
 
 export const UsersPage = () => {
-  const [page, setPage] = useState(1);
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState("");
   const [crop, setCrop] = useState("");
   const [activity, setActivity] = useState<"" | "24h" | "7d" | "inactive" | "blocked">("");
-  const [selectedUserId, setSelectedUserId] = useState<string>("");
 
   const usersQuery = useUsers({
-    page,
-    limit: PAGE_SIZE,
+    page: 1,
+    limit: MAX_LIMIT,
     search: search || undefined,
     location: location || undefined,
     crop: crop || undefined,
     activity: activity || undefined
   });
 
-  const selectedUserQuery = useUserDetail(selectedUserId, Boolean(selectedUserId));
   const { updateStatus, removeUser } = useUserMutations();
+
+  const handleToggleStatus = async (user: UserListItem) => {
+    try {
+      await updateStatus.mutateAsync({
+        userId: user.id,
+        status: user.status === "blocked" ? "active" : "blocked"
+      });
+    } catch {
+      alert("Failed to update status");
+    }
+  };
+
+  const handleDeleteUser = async (user: UserListItem) => {
+    if (
+      window.confirm(
+        `Are you sure you want to permanently delete user "${
+          user.name || "Unnamed User"
+        }"? This will also cascade delete all their plans.`
+      )
+    ) {
+      try {
+        await removeUser.mutateAsync(user.id);
+      } catch {
+        alert("Failed to delete user");
+      }
+    }
+  };
 
   const columns: Array<Column<UserListItem>> = useMemo(
     () => [
@@ -42,8 +66,8 @@ export const UsersPage = () => {
         header: "User",
         cell: (user) => (
           <div>
-            <p className="font-medium text-slate-900">{user.name || "Unnamed User"}</p>
-            <p className="text-xs text-slate-500">{user.phone}</p>
+            <p className="font-semibold text-slate-900">{user.name || "Unnamed User"}</p>
+            <p className="text-xs text-slate-500 font-mono font-medium">{user.phone}</p>
           </div>
         )
       },
@@ -60,7 +84,11 @@ export const UsersPage = () => {
       {
         key: "plansGenerated",
         header: "Plans",
-        cell: (user) => user.plansGenerated
+        cell: (user) => (
+          <span className="font-bold text-slate-800 bg-slate-100 rounded px-2.5 py-0.5">
+            {user.plansGenerated}
+          </span>
+        )
       },
       {
         key: "status",
@@ -79,35 +107,45 @@ export const UsersPage = () => {
         header: "Actions",
         cell: (user) => (
           <div className="flex flex-wrap gap-2">
-            <Button variant="secondary" onClick={() => setSelectedUserId(user.id)}>
-              View
+            <Button variant="secondary" size="sm" onClick={() => navigate(`/users/${user.id}`)}>
+              View Profile
             </Button>
             <Button
               variant={user.status === "blocked" ? "primary" : "danger"}
-              onClick={() =>
-                updateStatus.mutate({
-                  userId: user.id,
-                  status: user.status === "blocked" ? "active" : "blocked"
-                })
-              }
+              size="sm"
+              onClick={() => handleToggleStatus(user)}
               isLoading={updateStatus.isPending}
             >
               {user.status === "blocked" ? "Unblock" : "Block"}
             </Button>
-            <Button variant="ghost" onClick={() => removeUser.mutate(user.id)} isLoading={removeUser.isPending}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDeleteUser(user)}
+              isLoading={removeUser.isPending}
+            >
               Delete
             </Button>
           </div>
         )
       }
     ],
-    [removeUser, updateStatus]
+    [navigate, updateStatus, removeUser]
   );
 
   return (
     <div className="space-y-6">
-      <Card title="User Management" description="Search, filter, and manage user lifecycle from one place.">
-        <div className="grid gap-3 md:grid-cols-4">
+      <div className="flex items-center justify-between border-b pb-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">User Management</h1>
+          <p className="text-xs text-slate-500">
+            Search, filter, and manage farmer lifecycles. Total registered accounts: {usersQuery.data?.items.length || 0}.
+          </p>
+        </div>
+      </div>
+
+      <Card title="User Search & Filters" description="Search and filter active/inactive accounts.">
+        <div className="grid gap-4 md:grid-cols-4">
           <InputField label="Search" placeholder="Name / phone" value={search} onChange={(e) => setSearch(e.target.value)} />
           <InputField
             label="Location"
@@ -121,81 +159,32 @@ export const UsersPage = () => {
             value={activity}
             onChange={(e) => setActivity(e.target.value as typeof activity)}
             options={[
-              { label: "All", value: "" },
-              { label: "Last 24h", value: "24h" },
-              { label: "Last 7 days", value: "7d" },
-              { label: "Inactive", value: "inactive" },
-              { label: "Blocked", value: "blocked" }
+              { label: "All Statuses", value: "" },
+              { label: "Last 24h Active", value: "24h" },
+              { label: "Last 7 days Active", value: "7d" },
+              { label: "Inactive Accounts", value: "inactive" },
+              { label: "Blocked Accounts", value: "blocked" }
             ]}
           />
-        </div>
-        <div className="mt-4">
-          <Button variant="secondary" onClick={() => setPage(1)}>
-            Apply Filters
-          </Button>
         </div>
       </Card>
 
       <Card>
         {(updateStatus.isError || removeUser.isError) && (
           <div className="mb-4">
-            <ErrorState message="Failed to apply user action. Please retry." />
+            <ErrorState message="Failed to apply user status change. Please retry." />
           </div>
         )}
         {usersQuery.isLoading && <Loader />}
-        {usersQuery.isError && <ErrorState message="Unable to load users." />}
+        {usersQuery.isError && <ErrorState message="Unable to load user accounts." />}
         {usersQuery.data && (
-          <>
-            <DataTable columns={columns} data={usersQuery.data.items} emptyTitle="No users found for current filters." />
-            <Pagination
-              page={usersQuery.data.pagination.page}
-              totalPages={usersQuery.data.pagination.totalPages}
-              onPageChange={setPage}
-            />
-          </>
+          <DataTable
+            columns={columns}
+            data={usersQuery.data.items}
+            emptyTitle="No users found for current filters."
+          />
         )}
       </Card>
-
-      <Modal
-        isOpen={Boolean(selectedUserId)}
-        title="User Profile"
-        onClose={() => setSelectedUserId("")}
-        footer={<Button onClick={() => setSelectedUserId("")}>Done</Button>}
-      >
-        {selectedUserQuery.isLoading && <Loader />}
-        {selectedUserQuery.isError && <ErrorState message="Unable to load profile." />}
-        {selectedUserQuery.data && (
-          <div className="grid gap-3 text-sm">
-            <div>
-              <p className="font-medium text-slate-700">Name</p>
-              <p>{selectedUserQuery.data.user.name || "-"}</p>
-            </div>
-            <div>
-              <p className="font-medium text-slate-700">Phone</p>
-              <p>{selectedUserQuery.data.user.phone}</p>
-            </div>
-            <div>
-              <p className="font-medium text-slate-700">Location</p>
-              <p>{selectedUserQuery.data.user.location || "-"}</p>
-            </div>
-            <div>
-              <p className="font-medium text-slate-700">Selected Crops</p>
-              <p>{selectedUserQuery.data.user.crops.join(", ") || "-"}</p>
-            </div>
-            <div>
-              <p className="font-medium text-slate-700">AI Plans Generated</p>
-              <p>{selectedUserQuery.data.user.plansGenerated}</p>
-            </div>
-            <div>
-              <p className="font-medium text-slate-700">Status</p>
-              <Badge tone={selectedUserQuery.data.user.status === "active" ? "green" : "red"}>
-                {selectedUserQuery.data.user.status}
-              </Badge>
-            </div>
-          </div>
-        )}
-      </Modal>
     </div>
   );
 };
-

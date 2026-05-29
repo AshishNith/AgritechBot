@@ -4,8 +4,8 @@ import { MapPin, Droplets, Wind, Gauge, Lightbulb, Sun, Cloud, CloudRain, CloudL
 import { useNavigation } from '@react-navigation/native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '../providers/ThemeContext';
-import { themeMinimal } from '../constants/theme.minimal';
-import { AppText, GlassCard, AnimatedIcon } from './ui';
+import { theme } from '../constants/theme';
+import { AppText, AnimatedIcon } from './ui';
 
 interface HeroWeatherCardProps {
   temperature: number;
@@ -77,7 +77,15 @@ export function HeroWeatherCard({
           { opacity: pressed ? 0.8 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] },
         ]}
       >
-        <GlassCard padded={false} style={[styles.card, { borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)' }]}>
+        <View style={[
+          styles.card, 
+          { 
+            backgroundColor: isDark ? 'rgba(109,207,150,0.08)' : colors.primary + '10', 
+            borderColor: colors.primary + '30', 
+            borderWidth: 1, 
+            ...theme.shadow.sm 
+          }
+        ]}>
           <View style={styles.contentLayout}>
             {/* Left side: Main Weather info */}
             <View style={styles.mainInfo}>
@@ -131,7 +139,7 @@ export function HeroWeatherCard({
               </AppText>
             </View>
           )}
-        </GlassCard>
+        </View>
       </Pressable>
     </Animated.View>
   );

@@ -30,6 +30,15 @@ export const useUserMutations = () => {
     onSuccess: invalidateUsers
   });
 
-  return { updateStatus, removeUser };
+  const updateWallet = useMutation({
+    mutationFn: ({ userId, payload }: { userId: string; payload: { plan: "free" | "basic" | "pro"; chatCredits: number; imageCredits: number; topupCredits?: number; topupImageCredits?: number } }) =>
+      userService.updateWallet(userId, payload),
+    onSuccess: (data, variables) => {
+      invalidateUsers();
+      queryClient.invalidateQueries({ queryKey: queryKeys.userDetail(variables.userId) });
+    }
+  });
+
+  return { updateStatus, removeUser, updateWallet };
 };
 

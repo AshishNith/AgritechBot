@@ -2,13 +2,12 @@ import { IconMap } from '../components/IconMap';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Image, StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import * as Location from 'expo-location';
 
 import { apiService } from '../api/services';
-import { AppText, GlassCard, Pill, PulseMic, Screen, ScreenCard, AnimatedIcon } from '../components/ui';
+import { AppText, Pill, PulseMic, Screen, ScreenCard, AnimatedIcon } from '../components/ui';
 import { LeafletMap, MapMarker } from '../components/LeafletMap';
 import { WeatherDashboardWidget } from '../components/WeatherDashboardWidget';
 import { homeWeatherCard, marketplaceFallback, quickChips } from '../constants/designData';
@@ -243,7 +242,6 @@ export function HomeScreen() {
 
   return (
     <Screen scrollable withTabBar padded={false}>
-      <LinearGradient colors={isDark ? [colors.backgroundAlt, colors.background] : ['#edf7f0', '#f6f7f7']} style={StyleSheet.absoluteFillObject} />
       <View style={styles.topRow}>
         <View style={styles.brandRow}>
           {/* Left Side: Name and Greeting */}
@@ -275,7 +273,7 @@ export function HomeScreen() {
       </View>
 
       {/* New Hero Weather Card */}
-      <View style={{ paddingHorizontal: 20 }}>
+      <View style={{ paddingHorizontal: 14 }}>
         <HeroWeatherCard
           temperature={weatherTemperature}
           condition={weatherCondition}
@@ -296,8 +294,16 @@ export function HomeScreen() {
       </View>
 
       {/* Farm Map Directly Below Weather */}
-      <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
-        <GlassCard style={styles.mapCard}>
+      <View style={{ paddingHorizontal: 14, marginTop: 4 }}>
+        <View style={[
+          styles.mapCard, 
+          { 
+            backgroundColor: isDark ? 'rgba(109,207,150,0.08)' : colors.primary + '10', 
+            borderColor: colors.primary + '30', 
+            borderWidth: 1, 
+            ...theme.shadow.sm 
+          }
+        ]}>
           <View style={styles.mapHeader}>
             <View style={styles.mapTitleRow}>
               <View style={[styles.mapIconWrap, { backgroundColor: colors.primary + '15' }]}>
@@ -335,10 +341,10 @@ export function HomeScreen() {
             {/* Subtle Overlay to make map non-interactive on home */}
             <View style={StyleSheet.absoluteFillObject} />
           </TouchableOpacity>
-        </GlassCard>
+        </View>
       </View>
 
-    <View style={{ paddingHorizontal: 20, marginTop: 20 }}>
+    <View style={{ paddingHorizontal: 14, marginTop: 4 }}>
       <PlannerWidget 
         onPress={() => navigation.navigate('Planner')}
         plans={plans}
@@ -348,12 +354,12 @@ export function HomeScreen() {
       {/* AI Assistant */}
 
       {/* Recommendations */}
-      <View style={{ marginTop: 24, marginBottom: 8 }}>
-        <AppText variant="label" style={{ marginLeft: 20 }}>{tx('recommendedForYou')}</AppText>
+      <View style={{ marginTop: 14, marginBottom: 8 }}>
+        <AppText variant="label" style={{ marginLeft: 14 }}>{tx('recommendedForYou')}</AppText>
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false} 
-          contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 20, gap: 14 }}
+          contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 14, gap: 14 }}
         >
           {recommendedProducts.map((product) => (
             <TouchableOpacity 
@@ -361,39 +367,45 @@ export function HomeScreen() {
               activeOpacity={0.9}
               onPress={() => navigation.navigate('ProductDetail', { productId: product.id })}
             >
-              <GlassCard style={styles.recommendationCard}>
+              <View 
+                style={[
+                  styles.recommendationCard, 
+                  { 
+                    backgroundColor: isDark ? 'rgba(109,207,150,0.08)' : colors.primary + '10', 
+                    borderColor: colors.primary + '30',
+                    ...theme.shadow.sm,
+                  }
+                ]}
+              >
                 <Image 
                   source={{ uri: product.images[0] || 'https://via.placeholder.com/150' }} 
                   style={styles.recommendationImage} 
                 />
-                <View style={{ padding: 12 }}>
-                  <AppText variant="label" numberOfLines={1} style={{ fontSize: 13 }}>{product.name}</AppText>
-                  <AppText color={colors.primary} style={{ fontWeight: '700', marginTop: 4 }}>₹{product.price}</AppText>
-                  
-                  <View style={styles.recommendationFooter}>
-                    <AppText variant="caption" color={colors.textMuted}>{product.brand || 'Anaaj'}</AppText>
-                    <View style={[styles.ratingTag, { backgroundColor: colors.primary + '15' }]}>
-                      {(() => { const Star = IconMap['Star']; return Star ? <Star size={10} color={colors.primary} fill={colors.primary} /> : null; })()}
-                      <AppText variant="caption" color={colors.primary} style={{ fontSize: 10, fontWeight: '700' }}>
-                        {product.ratings?.average || '4.5'}
-                      </AppText>
-                    </View>
+                <AppText variant="label" numberOfLines={1} style={{ fontSize: 13 }}>{product.name}</AppText>
+                
+                <View style={styles.recommendationFooter}>
+                  <AppText color={colors.primaryDark} variant="label" style={{ fontWeight: '700' }}>₹{product.price}</AppText>
+                  <View style={[styles.ratingTag, { backgroundColor: colors.primary + '15' }]}>
+                    {(() => { const Star = IconMap['Star']; return Star ? <Star size={10} color={colors.primary} fill={colors.primary} /> : null; })()}
+                    <AppText variant="caption" color={colors.primary} style={{ fontSize: 10, fontWeight: '700' }}>
+                      {product.ratings?.average || '4.5'}
+                    </AppText>
                   </View>
                 </View>
-              </GlassCard>
+              </View>
             </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
 
       {/* Quick Action Grid - Moved to last above mic */}
-      <View style={{ marginBottom: 12, marginTop: 24, paddingHorizontal: 20 }}>
+      <View style={{ marginBottom: 12, marginTop: 14, paddingHorizontal: 14 }}>
         <AppText variant="label" style={{ marginBottom: 8 }}>{tx('quickServices')}</AppText>
         <QuickActionGrid />
       </View>
 
       {/* Mic Area */}
-      <View style={[styles.micArea, { paddingHorizontal: 20 }]}>
+      <View style={[styles.micArea, { paddingHorizontal: 14 }]}>
         <PulseMic />
         <AppText color={colors.textMuted} style={{ marginTop: 18, textAlign: 'center' }}>{t(language, 'voiceFarmingHelp')}</AppText>
         <Pill label={t(language, 'startListening')} active onPress={() => navigation.navigate('Voice')} style={{ marginTop: 18 }} />
@@ -405,7 +417,7 @@ export function HomeScreen() {
 const styles = StyleSheet.create({
   topRow: {
     marginTop: 16,
-    paddingHorizontal: 20,
+    paddingHorizontal: 14,
     marginBottom: 16,
   },
   brandRow: {
@@ -551,14 +563,15 @@ const styles = StyleSheet.create({
   },
   recommendationCard: {
     width: 170,
-    padding: 0,
-    overflow: 'hidden',
-    borderRadius: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    padding: 12,
+    gap: 10,
   },
   recommendationImage: {
     width: '100%',
     height: 110,
-    backgroundColor: 'rgba(0,0,0,0.05)',
+    borderRadius: 16,
   },
   recommendationFooter: {
     flexDirection: 'row',

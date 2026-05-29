@@ -125,7 +125,15 @@ export const CropsPage = () => {
             <Button variant="secondary" onClick={() => openEditModal(crop)}>
               Edit
             </Button>
-            <Button variant="danger" onClick={() => remove.mutate(crop.id)} isLoading={remove.isPending}>
+            <Button
+              variant="danger"
+              onClick={() => {
+                if (window.confirm(`Are you sure you want to delete crop "${crop.name}"?`)) {
+                  remove.mutate(crop.id);
+                }
+              }}
+              isLoading={remove.isPending}
+            >
               Delete
             </Button>
           </div>

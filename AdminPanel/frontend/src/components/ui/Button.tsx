@@ -2,9 +2,11 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "../../utils/cn";
 
 type Variant = "primary" | "secondary" | "danger" | "ghost";
+type Size = "sm" | "md" | "lg";
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
+  size?: Size;
   isLoading?: boolean;
   leftIcon?: ReactNode;
 }
@@ -16,10 +18,17 @@ const variantClasses: Record<Variant, string> = {
   ghost: "bg-transparent text-slate-700 hover:bg-slate-100"
 };
 
+const sizeClasses: Record<Size, string> = {
+  sm: "px-2.5 py-1 text-xs rounded-md",
+  md: "px-4 py-2 text-sm rounded-lg",
+  lg: "px-6 py-3 text-base rounded-lg"
+};
+
 export const Button = ({
   children,
   className,
   variant = "primary",
+  size = "md",
   isLoading = false,
   leftIcon,
   disabled,
@@ -27,8 +36,9 @@ export const Button = ({
 }: Props) => (
   <button
     className={cn(
-      "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60",
+      "inline-flex items-center justify-center gap-2 font-medium transition disabled:cursor-not-allowed disabled:opacity-60",
       variantClasses[variant],
+      sizeClasses[size],
       className
     )}
     disabled={disabled || isLoading}

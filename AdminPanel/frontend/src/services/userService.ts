@@ -16,8 +16,22 @@ export const userService = {
     return data;
   },
 
-  async getById(userId: string): Promise<{ user: UserProfile }> {
-    const { data } = await apiClient.get<{ user: UserProfile }>(`/admin/users/${userId}`);
+  async getById(userId: string): Promise<{ user: UserProfile; wallet: any }> {
+    const { data } = await apiClient.get<{ user: UserProfile; wallet: any }>(`/admin/users/${userId}`);
+    return data;
+  },
+
+  async updateWallet(
+    userId: string,
+    payload: { 
+      plan: "free" | "basic" | "pro"; 
+      chatCredits: number; 
+      imageCredits: number;
+      topupCredits?: number;
+      topupImageCredits?: number;
+    }
+  ): Promise<{ message: string }> {
+    const { data } = await apiClient.put<{ message: string }>(`/admin/users/${userId}/wallet`, payload);
     return data;
   },
 

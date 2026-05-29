@@ -161,6 +161,7 @@ export const PlansPage = () => {
 
       {selectedPlan && (
         <Modal 
+          isOpen={Boolean(selectedPlan)}
           title={`Plan Details - ${selectedPlan.crop}`} 
           onClose={() => setSelectedPlan(null)}
           size="lg"

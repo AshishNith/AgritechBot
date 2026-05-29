@@ -6,7 +6,7 @@ import { buildPagination } from '../utils/pagination';
 
 const logsQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
+  limit: z.coerce.number().int().min(1).max(100000).default(20),
   type: z.enum(['api', 'error', 'ai_failure', 'notification', 'system']).optional()
 });
 

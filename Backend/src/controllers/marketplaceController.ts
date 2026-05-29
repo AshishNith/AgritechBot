@@ -43,12 +43,35 @@ export async function getProducts(request: FastifyRequest, reply: FastifyReply) 
     sort?: 'newest' | 'price-asc' | 'price-desc';
   };
 
-  const filter: Record<string, unknown> = {
-    $or: [{ inStock: true }, { 'inventory.available': true }],
+  const filter: Record<string, any> = {
+    $and: [
+      {
+        $or: [{ inStock: true }, { 'inventory.available': true }],
+      }
+    ]
   };
-  if (category) filter.category = new RegExp(`^${category}$`, 'i');
-  if (subCategory) filter.subCategory = new RegExp(`^${subCategory}$`, 'i');
-  if (search) filter.$text = { $search: search };
+  if (category) filter.$and.push({ category: new RegExp(`^${category}$`, 'i') });
+  if (subCategory) filter.$and.push({ subCategory: new RegExp(`^${subCategory}$`, 'i') });
+
+  if (search) {
+    const searchRegex = new RegExp(search, 'i');
+    filter.$and.push({
+      $or: [
+        { name: searchRegex },
+        { nameHi: searchRegex },
+        { nameGu: searchRegex },
+        { namePa: searchRegex },
+        { brand: searchRegex },
+        { description: searchRegex },
+        { descriptionHi: searchRegex },
+        { descriptionGu: searchRegex },
+        { descriptionPa: searchRegex },
+        { category: searchRegex },
+        { subCategory: searchRegex }
+      ]
+    });
+  }
+
 
   const sortBy: Record<string, 1 | -1> =
     sort === 'price-asc'

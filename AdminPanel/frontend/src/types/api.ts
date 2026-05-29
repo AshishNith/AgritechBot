@@ -128,3 +128,99 @@ export interface LogItem {
   meta?: Record<string, unknown>;
 }
 
+export interface ProductItem {
+  id: string;
+  name: string;
+  brand: string;
+  nameHi: string;
+  nameGu: string;
+  namePa: string;
+  description: string;
+  descriptionHi: string;
+  descriptionGu: string;
+  descriptionPa: string;
+  category: string;
+  categoryHi: string;
+  categoryGu: string;
+  categoryPa: string;
+  subCategory: string;
+  subCategoryHi: string;
+  subCategoryGu: string;
+  subCategoryPa: string;
+  price: number;
+  unit: string;
+  unitHi: string;
+  unitGu: string;
+  unitPa: string;
+  images: string[];
+  inStock: boolean;
+  quantity: number;
+  seller: {
+    name: string;
+    phone?: string;
+    rating?: number;
+    location?: string;
+  };
+  createdAt: string;
+}
+
+export interface ProductPayload {
+  name: string;
+  brand?: string;
+  nameHi?: string;
+  nameGu?: string;
+  namePa?: string;
+  description: string;
+  descriptionHi?: string;
+  descriptionGu?: string;
+  descriptionPa?: string;
+  category: string;
+  categoryHi?: string;
+  categoryGu?: string;
+  categoryPa?: string;
+  subCategory?: string;
+  subCategoryHi?: string;
+  subCategoryGu?: string;
+  subCategoryPa?: string;
+  price: number;
+  unit: string;
+  unitHi?: string;
+  unitGu?: string;
+  unitPa?: string;
+  images?: string[];
+  inStock?: boolean;
+  quantity?: number;
+  seller: {
+    name: string;
+    phone?: string;
+    rating?: number;
+    location?: string;
+  };
+}
+
+export interface OrderItem {
+  id: string;
+  userId: string;
+  userName: string;
+  userPhone: string;
+  userEmail?: string;
+  items: Array<{
+    productId: string;
+    name: string;
+    quantity: number;
+    price: number;
+  }>;
+  totalAmount: number;
+  paymentId: string;
+  status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
+  deliveryAddress: {
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string;
+    pincode: string;
+  };
+  createdAt: string;
+  updatedAt?: string;
+}
+

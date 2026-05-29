@@ -3,13 +3,14 @@ import { z } from 'zod';
 import { CropPlan } from '../models/CropPlan';
 import { Notification } from '../models/Notification';
 import { User } from '../models/User';
+import { Wallet } from '../models/Wallet';
 import { AppError } from '../utils/AppError';
 import { buildPagination } from '../utils/pagination';
 import { createAdminLog } from '../services/adminLogService';
 
 const listUsersQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(10),
+  limit: z.coerce.number().int().min(1).max(100000).default(10),
   search: z.string().optional(),
   location: z.string().optional(),
   crop: z.string().optional(),
@@ -122,6 +123,7 @@ export async function getAdminUserById(
   }
 
   const plansGenerated = await CropPlan.countDocuments({ userId: user._id });
+  const wallet = await Wallet.ensureForUser(user._id);
 
   return reply.send({
     user: {
@@ -136,6 +138,15 @@ export async function getAdminUserById(
       lastActiveAt: user.lastActiveAt ? new Date(user.lastActiveAt).toISOString() : new Date(user.updatedAt).toISOString(),
       plansGenerated,
       createdAt: new Date(user.createdAt).toISOString()
+    },
+    wallet: {
+      plan: wallet.plan,
+      chatCredits: wallet.chatCredits,
+      imageCredits: wallet.imageCredits,
+      topupCredits: wallet.topupCredits,
+      topupImageCredits: wallet.topupImageCredits,
+      totalChatsUsed: wallet.totalChatsUsed,
+      totalScansUsed: wallet.totalScansUsed
     }
   });
 }
@@ -184,5 +195,54 @@ export async function deleteAdminUser(
   });
 
   return reply.send({ message: 'User deleted successfully' });
+}
+
+const updateWalletSchema = z.object({
+  plan: z.enum(['free', 'basic', 'pro']),
+  chatCredits: z.coerce.number().int().min(0),
+  imageCredits: z.coerce.number().int().min(0),
+  topupCredits: z.coerce.number().int().min(0).optional(),
+  topupImageCredits: z.coerce.number().int().min(0).optional()
+});
+
+export async function updateAdminUserWallet(
+  request: FastifyRequest<{ Params: { userId: string }; Body: z.infer<typeof updateWalletSchema> }>,
+  reply: FastifyReply
+) {
+  const parsed = updateWalletSchema.safeParse(request.body);
+  if (!parsed.success) {
+    throw AppError.badRequest('errInvalidInput', JSON.stringify(parsed.error.flatten().fieldErrors));
+  }
+
+  const { plan, chatCredits, imageCredits, topupCredits, topupImageCredits } = parsed.data;
+
+  const wallet = await Wallet.ensureForUser(request.params.userId);
+
+  wallet.plan = plan;
+  wallet.chatCredits = chatCredits;
+  wallet.imageCredits = imageCredits;
+  if (topupCredits !== undefined) wallet.topupCredits = topupCredits;
+  if (topupImageCredits !== undefined) wallet.topupImageCredits = topupImageCredits;
+
+  await wallet.save();
+
+  await createAdminLog('system', 'User wallet credits/plan updated by admin', {
+    adminId: request.adminUser ? String(request.adminUser._id) : null,
+    userId: request.params.userId,
+    plan,
+    chatCredits,
+    imageCredits
+  });
+
+  return reply.send({
+    message: 'User wallet updated successfully',
+    wallet: {
+      plan: wallet.plan,
+      chatCredits: wallet.chatCredits,
+      imageCredits: wallet.imageCredits,
+      topupCredits: wallet.topupCredits,
+      topupImageCredits: wallet.topupImageCredits
+    }
+  });
 }
 
