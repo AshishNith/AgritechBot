@@ -1,4 +1,4 @@
-{
+﻿{
   "common": {
     "anaaj": "ANAAJ AI",
     "farming": "Farming",
@@ -220,6 +220,29 @@
     "sitemap": {
       "title": "Sitemap | Anaaj.ai",
       "metaDesc": "Find all pages and resources available on Anaaj.ai."
+    },
+    "sustainability": {
+      "title": "Sustainability | Anaaj.ai Precision Farming",
+      "metaDesc": "Learn how Anaaj.ai helps Indian farmers implement sustainable, precision agricultural practices to minimize chemical waste and preserve soil health."
+    },
+    "privacy": {
+      "title": "Privacy Policy | Anaaj.ai",
+      "metaDesc": "Understand how Anaaj.ai protects your agricultural data and personal information. Your data belongs to you."
+    },
+    "terms": {
+      "title": "Terms of Service | Anaaj.ai",
+      "metaDesc": "Review the terms and conditions for using the Anaaj.ai platform and agricultural advisory services."
+    },
+    "download": {
+      "title": "Download App | Anaaj.ai",
+      "metaDesc": "Download the Anaaj.ai mobile application to get real-time voice-first crop diagnostics, weather advisories, and mandi rates in your language."
+    },
+    "founders": {
+      "title": "Founders | Anaaj.ai",
+      "metaDesc": "Meet the visionaries behind Anaaj AI, working to empower Indian farmers with precision voice-first AI technology."
+    },
+    "checkout": {
+      "title": "Secure Checkout | Anaaj.ai"
     }
   },
   "aboutUs": {
@@ -370,7 +393,16 @@
       "how-to": "How-To Guides",
       "success-story": "Farmer Success Stories",
       "education": "Educational Guides",
-      "news": "News & Updates"
+      "news": "News & Updates",
+      "howTo": "How-To Guides",
+      "successStory": "Farmer Success Stories"
+    },
+    "articlesCount": "{{count}} Articles",
+    "latestArticles": "Latest Articles",
+    "cta": {
+      "title": "Transform Your Farming Today",
+      "desc": "Get real-time crop disease detection and personalized agricultural advice directly in your pocket. Free for Android.",
+      "button": "Download Anaaj.ai"
     }
   },
   "sitemapPage": {
@@ -619,5 +651,19 @@
       "text": "We reserve the right to suspend or terminate accounts that violate these terms or engage in fraudulent activities that threaten the integrity of our advisory models."
     },
     "copyright": "© 2026 Anaaj.ai Precision Ltd. All Rights Reserved."
+  },
+  "weather": {
+    "currentLocation": "Current Location",
+    "location": "Ludhiana",
+    "humidity": "Humidity",
+    "rain": "Rain Prob.",
+    "wind": "Wind",
+    "aiAlert": "AI Alert",
+    "alertTitle": "Optimal Farming Conditions",
+    "alertDesc": "No extreme weather alerts today. Soil moisture is optimal for current sowing cycle.",
+    "heatAlertTitle": "High Temperature Warning",
+    "heatAlertDesc": "Temperatures are exceeding 35°C. Increase irrigation frequency to prevent soil dryness.",
+    "setAlert": "Set Alert",
+    "viewDetail": "View Detail"
   }
 }
