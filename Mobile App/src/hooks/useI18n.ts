@@ -160,7 +160,9 @@ type ExtraTranslationKey =
   | 'completed'
   | 'noCropsWidget'
   | 'suggestedStages'
-  | 'readyToGenerate';
+  | 'readyToGenerate'
+  | 'progress'
+  | 'discussWithAI';
 
 export type AppTranslationKey = TranslationKey | ExtraTranslationKey;
 
@@ -324,6 +326,8 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     noCropsWidget: 'No Crops',
     suggestedStages: 'Suggested Stages',
     readyToGenerate: 'Ready to Generate',
+    progress: 'Roadmap Progress',
+    discussWithAI: 'Discuss plan with AI',
   },
   Hindi: {
     homeTab: 'होम',
@@ -484,6 +488,8 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     noCropsWidget: 'कोई फसल नहीं',
     suggestedStages: 'सुझाए गए चरण',
     readyToGenerate: 'बनाने के लिए तैयार',
+    progress: 'रोडमैप प्रगति',
+    discussWithAI: 'AI के साथ योजना पर चर्चा करें',
   },
   Gujarati: {
     homeTab: 'હોમ',
@@ -644,6 +650,8 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     noCropsWidget: 'કોઈ પાક નથી',
     suggestedStages: 'સૂચવેલા તબક્કાઓ',
     readyToGenerate: 'બનાવવા માટે તૈયાર',
+    progress: 'રોડમેપ પ્રગતિ',
+    discussWithAI: 'AI સાથે યોજનાની ચર્ચા કરો',
   },
   Punjabi: {
     homeTab: 'ਹੋਮ',
@@ -804,6 +812,8 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     noCropsWidget: 'ਕੋਈ ਫਸਲ ਨਹੀਂ',
     suggestedStages: 'ਸੁਝਾਏ ਗਏ ਪੜਾਅ',
     readyToGenerate: 'ਬਣਾਉਣ ਲਈ ਤਿਆਰ',
+    progress: 'ਰੋਡਮੈਪ ਪ੍ਰਗਤੀ',
+    discussWithAI: 'AI ਨਾਲ ਯੋਜਨਾ ਬਾਰੇ ਚਰਚਾ ਕਰੋ',
   },
 };
 

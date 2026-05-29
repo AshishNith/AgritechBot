@@ -1,9 +1,9 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { IconMap } from '../components/IconMap';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 import { apiService } from '../api/services';
 import { AppText, Pill, Screen, ScreenCard, SearchInput, SectionHeader } from '../components/ui';
@@ -67,8 +67,15 @@ export function MarketplaceScreen() {
   const setFeaturedProduct = useAppStore((state) => state.setFeaturedProduct);
   const addToCart = useMarketplaceStore((state) => state.addToCart);
   const cartCount = useMarketplaceStore((state) => state.getCartItemsCount());
-  const [search, setSearch] = useState('');
+  const route = useRoute<any>();
+  const [search, setSearch] = useState(route.params?.search ?? '');
   const [category, setCategory] = useState('all');
+
+  useEffect(() => {
+    if (route.params?.search !== undefined) {
+      setSearch(route.params.search);
+    }
+  }, [route.params?.search]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['products-marketplace', search],

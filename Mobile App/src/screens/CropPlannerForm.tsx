@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Alert, ActivityIndicator, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Screen, AppText, GlassCard, GradientButton, Pill } from '../components/ui';
+import { Screen, AppText, GradientButton, Pill } from '../components/ui';
 import { IconMap } from '../components/IconMap';
 import { useTheme } from '../providers/ThemeContext';
+import { theme } from '../constants/theme';
 import { useAppStore } from '../store/useAppStore';
 import { useI18n } from '../hooks/useI18n';
 import { apiService } from '../api/services';
@@ -81,7 +82,7 @@ export const CropPlannerForm: React.FC = () => {
   );
 
   return (
-    <Screen style={styles.container}>
+    <Screen padded={false} style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Feather name="arrow-left" size={24} color={colors.text} />
@@ -90,7 +91,7 @@ export const CropPlannerForm: React.FC = () => {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <GlassCard style={styles.card}>
+        <View style={[styles.card, { backgroundColor: isDark ? 'rgba(109,207,150,0.08)' : colors.primary + '10', borderColor: colors.primary + '30', borderWidth: 1, ...theme.shadow.sm }]}>
           <AppText color={colors.textMuted} style={styles.introText}>
             {tx('aiPlannerSubtitle')}
           </AppText>
@@ -99,7 +100,7 @@ export const CropPlannerForm: React.FC = () => {
             <View style={styles.inputGroup}>
               <View style={styles.inputWrap}>
                 <AppText variant="caption" style={styles.label}>{tx('cropName')} *</AppText>
-                <GlassCard style={styles.inputField}>
+                <View style={[styles.inputField, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : colors.surface, borderColor: colors.border, borderWidth: 1 }]}>
                   <Feather name="search" size={16} color={colors.textMuted} />
                   <TextInput
                     style={[styles.textInput, { color: colors.text }]}
@@ -108,12 +109,12 @@ export const CropPlannerForm: React.FC = () => {
                     value={formData.crop}
                     onChangeText={(val) => setFormData({ ...formData, crop: val })}
                   />
-                </GlassCard>
+                </View>
               </View>
 
               <View style={styles.inputWrap}>
                 <AppText variant="caption" style={styles.label}>{tx('landSizeAcres')} *</AppText>
-                <GlassCard style={styles.inputField}>
+                <View style={[styles.inputField, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : colors.surface, borderColor: colors.border, borderWidth: 1 }]}>
                   <MaterialCommunityIcons name="ruler" size={16} color={colors.textMuted} />
                   <TextInput
                     style={[styles.textInput, { color: colors.text }]}
@@ -123,12 +124,12 @@ export const CropPlannerForm: React.FC = () => {
                     value={formData.landSize}
                     onChangeText={(val) => setFormData({ ...formData, landSize: val })}
                   />
-                </GlassCard>
+                </View>
               </View>
 
               <View style={styles.inputWrap}>
                 <AppText variant="caption" style={styles.label}>{tx('district')} *</AppText>
-                <GlassCard style={styles.inputField}>
+                <View style={[styles.inputField, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : colors.surface, borderColor: colors.border, borderWidth: 1 }]}>
                   <Feather name="map-pin" size={16} color={colors.textMuted} />
                   <TextInput
                     style={[styles.textInput, { color: colors.text }]}
@@ -137,12 +138,12 @@ export const CropPlannerForm: React.FC = () => {
                     value={formData.district}
                     onChangeText={(val) => setFormData({ ...formData, district: val })}
                   />
-                </GlassCard>
+                </View>
               </View>
 
               <View style={styles.inputWrap}>
                 <AppText variant="caption" style={styles.label}>{tx('state')} *</AppText>
-                <GlassCard style={styles.inputField}>
+                <View style={[styles.inputField, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : colors.surface, borderColor: colors.border, borderWidth: 1 }]}>
                   <MaterialCommunityIcons name="map-marker-radius" size={16} color={colors.textMuted} />
                   <TextInput
                     style={[styles.textInput, { color: colors.text }]}
@@ -151,12 +152,12 @@ export const CropPlannerForm: React.FC = () => {
                     value={formData.state}
                     onChangeText={(val) => setFormData({ ...formData, state: val })}
                   />
-                </GlassCard>
+                </View>
               </View>
 
               <View style={styles.inputWrap}>
                 <AppText variant="caption" style={styles.label}>{tx('soilTypeOptional')}</AppText>
-                <GlassCard style={styles.inputField}>
+                <View style={[styles.inputField, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : colors.surface, borderColor: colors.border, borderWidth: 1 }]}>
                   <MaterialCommunityIcons name="texture-box" size={16} color={colors.textMuted} />
                   <TextInput
                     style={[styles.textInput, { color: colors.text }]}
@@ -165,7 +166,7 @@ export const CropPlannerForm: React.FC = () => {
                     value={formData.soilType}
                     onChangeText={(val) => setFormData({ ...formData, soilType: val })}
                   />
-                </GlassCard>
+                </View>
               </View>
             </View>
           ))}
@@ -177,7 +178,14 @@ export const CropPlannerForm: React.FC = () => {
                   key={opt.id}
                   style={[
                     styles.optionCard,
-                    formData.waterAvailability === opt.id && { backgroundColor: colors.primary + '15', borderColor: colors.primary }
+                    {
+                      backgroundColor: formData.waterAvailability === opt.id 
+                        ? (isDark ? 'rgba(109,207,150,0.15)' : colors.primary + '15')
+                        : (isDark ? 'rgba(255,255,255,0.03)' : colors.surface),
+                      borderColor: formData.waterAvailability === opt.id 
+                        ? colors.primary 
+                        : colors.border,
+                    }
                   ]}
                   onPress={() => setFormData({ ...formData, waterAvailability: opt.id as any })}
                 >
@@ -201,7 +209,14 @@ export const CropPlannerForm: React.FC = () => {
                   key={opt.id}
                   style={[
                     styles.optionCard,
-                    formData.farmingType === opt.id && { backgroundColor: colors.primary + '15', borderColor: colors.primary }
+                    {
+                      backgroundColor: formData.farmingType === opt.id 
+                        ? (isDark ? 'rgba(109,207,150,0.15)' : colors.primary + '15')
+                        : (isDark ? 'rgba(255,255,255,0.03)' : colors.surface),
+                      borderColor: formData.farmingType === opt.id 
+                        ? colors.primary 
+                        : colors.border,
+                    }
                   ]}
                   onPress={() => setFormData({ ...formData, farmingType: opt.id as any })}
                 >
@@ -227,18 +242,18 @@ export const CropPlannerForm: React.FC = () => {
               leftIcon={(() => { const Icon = IconMap['Sparkles']; return Icon ? <Icon size={18} color="#fff" /> : null; })()}
             />
           </View>
-        </GlassCard>
+        </View>
       </ScrollView>
 
       {loading && (
         <View style={styles.loadingOverlay}>
-          <GlassCard style={styles.loadingCard}>
+          <View style={[styles.loadingCard, { backgroundColor: isDark ? 'rgba(10,17,13,0.98)' : colors.surface, borderColor: colors.primary + '30', borderWidth: 1, ...theme.shadow.glow }]}>
             <ActivityIndicator size="large" color={colors.primary} />
             <AppText weight="bold" style={{ marginTop: 16 }}>{tx('consultingAgronomist')}</AppText>
             <AppText variant="caption" style={{ marginTop: 8, textAlign: 'center' }}>
               {tx('analyzingData')}
             </AppText>
-          </GlassCard>
+          </View>
         </View>
       )}
     </Screen>
@@ -322,8 +337,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 16,
     borderWidth: 1.5,
-    borderColor: 'transparent',
-    backgroundColor: 'rgba(0,0,0,0.03)',
   },
   footer: {
     marginTop: 12,

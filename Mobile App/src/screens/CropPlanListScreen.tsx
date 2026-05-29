@@ -2,14 +2,15 @@ import React from 'react';
 import { StyleSheet, View, FlatList, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Screen, AppText, GlassCard, GradientButton } from '../components/ui';
+import { Screen, AppText, GradientButton } from '../components/ui';
 import { IconMap } from '../components/IconMap';
 import { useTheme } from '../providers/ThemeContext';
 import { useI18n } from '../hooks/useI18n';
+import { theme } from '../constants/theme';
 import { apiService } from '../api/services';
 
 export const CropPlanListScreen: React.FC = () => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const { t: tx } = useI18n();
   const navigation = useNavigation<any>();
   const [loading, setLoading] = React.useState(true);
@@ -39,45 +40,62 @@ export const CropPlanListScreen: React.FC = () => {
       activeOpacity={0.8}
       onPress={() => navigation.navigate('CropPlanResult', { planId: item._id })}
     >
-      <GlassCard style={styles.planCard}>
+      <View style={[
+        styles.planCard,
+        {
+          backgroundColor: isDark ? 'rgba(109,207,150,0.08)' : colors.primary + '10',
+          borderColor: colors.primary + '30',
+          borderWidth: 1,
+          ...theme.shadow.sm,
+        }
+      ]}>
         <View style={[styles.iconWrap, { backgroundColor: colors.primary + '15' }]}>
           <MaterialCommunityIcons name="sprout" size={24} color={colors.primary} />
         </View>
         
         <View style={styles.planInfo}>
+          {/* Top Row: Crop and Date */}
           <View style={styles.row}>
             <AppText weight="bold" style={styles.cropTitle}>{item.crop}</AppText>
-            {item.generatedPlan?.total_duration && (
-              <View style={styles.badge}>
-                <AppText variant="caption" color={colors.primary} weight="bold">
-                  {item.generatedPlan.total_duration}
-                </AppText>
-              </View>
-            )}
-          </View>
-          
-          <AppText variant="caption" color={colors.textMuted}>
-            {item.location?.district || ''}, {item.location?.state || ''} • {item.inputData?.farmingType || ''}
-          </AppText>
-          
-          <View style={styles.cardFooter}>
-            <View style={styles.footerItem}>
-              <Feather name="trending-up" size={12} color="#059669" />
-              <AppText style={styles.footerText}>{item.generatedPlan?.profit_estimation || 'N/A'}</AppText>
-            </View>
             <AppText variant="caption" color={colors.textMuted}>
               {new Date(item.createdAt).toLocaleDateString()}
             </AppText>
           </View>
+          
+          {/* Location & Farming Method */}
+          <AppText variant="caption" color={colors.textMuted} style={{ marginTop: 2, textTransform: 'none' }}>
+            {item.location?.district || ''}, {item.location?.state || ''} • {item.inputData?.farmingType || item.farmingType || 'Traditional'}
+          </AppText>
+          
+          {/* Duration Badge */}
+          {item.generatedPlan?.total_duration && (
+            <View style={{ flexDirection: 'row', marginTop: 6 }}>
+              <View style={styles.badge}>
+                <AppText variant="caption" color={colors.primary} weight="bold" style={{ textTransform: 'none', fontSize: 10 }}>
+                  ⏱️ {item.generatedPlan.total_duration}
+                </AppText>
+              </View>
+            </View>
+          )}
+          
+          {/* Profit Estimation */}
+          {item.generatedPlan?.profit_estimation && (
+            <View style={[styles.footerItem, { marginTop: 6 }]}>
+              <Feather name="trending-up" size={12} color="#059669" />
+              <AppText style={styles.footerText} numberOfLines={1} ellipsizeMode="tail">
+                {item.generatedPlan.profit_estimation}
+              </AppText>
+            </View>
+          )}
         </View>
         
-        <Feather name="chevron-right" size={20} color={colors.textMuted} />
-      </GlassCard>
+        <Feather name="chevron-right" size={20} color={colors.textMuted} style={{ marginLeft: 6 }} />
+      </View>
     </TouchableOpacity>
   );
 
   return (
-    <Screen style={styles.container}>
+    <Screen padded={false} style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Feather name="arrow-left" size={24} color={colors.text} />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Screen, AppText, Pill } from '../components/ui';
 import { useTheme } from '../providers/ThemeContext';
@@ -11,8 +11,8 @@ import { theme } from '../constants/theme';
 
 export const CropPlanResult: React.FC = () => {
   const { colors, isDark } = useTheme();
-  const { t: tx, language } = useI18n();
-  const navigation = useNavigation<any>();
+  const { t: tx } = useI18n();
+  const navigation = useNavigation();
   const route = useRoute<any>();
   const { planId } = route.params;
 
@@ -108,7 +108,7 @@ export const CropPlanResult: React.FC = () => {
   }
 
   return (
-    <Screen padded={false} style={styles.container}>
+    <Screen style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Feather name="arrow-left" size={24} color={isDark ? colors.textOnDark : colors.text} />
@@ -120,39 +120,19 @@ export const CropPlanResult: React.FC = () => {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {/* Summary Stack (Vertical) */}
-        <View style={styles.summaryCol}>
-          {/* Total Cost */}
+        {/* Summary Row (Primary green tinted cards) */}
+        <View style={styles.summaryRow}>
           <View style={[styles.summaryCard, { backgroundColor: isDark ? 'rgba(109,207,150,0.08)' : colors.primary + '10', borderColor: colors.primary + '30', borderWidth: 1, ...theme.shadow.sm }]}>
-            <View style={[styles.summaryIconWrap, { backgroundColor: colors.primary + '15' }]}>
-              <Feather name="dollar-sign" size={16} color={isDark ? colors.primary : colors.primaryDark} />
-            </View>
-            <View style={styles.summaryTextWrap}>
-              <AppText variant="caption" color={colors.textMuted}>{tx('totalCost') || 'Total Cost'}</AppText>
-              <AppText weight="bold" style={{ color: isDark ? colors.primary : colors.primaryDark, fontSize: 15, marginTop: 2 }}>{plan.total_estimated_cost}</AppText>
-            </View>
+            <AppText variant="caption" color={colors.textMuted}>{tx('totalCost') || 'Total Cost'}</AppText>
+            <AppText weight="bold" style={{ color: isDark ? colors.primary : colors.primaryDark, marginTop: 4 }}>{plan.total_estimated_cost}</AppText>
           </View>
-
-          {/* Expected Yield */}
           <View style={[styles.summaryCard, { backgroundColor: isDark ? 'rgba(109,207,150,0.08)' : colors.primary + '10', borderColor: colors.primary + '30', borderWidth: 1, ...theme.shadow.sm }]}>
-            <View style={[styles.summaryIconWrap, { backgroundColor: 'rgba(37,99,235,0.1)' }]}>
-              <MaterialCommunityIcons name="scale-balance" size={16} color={isDark ? '#60a5fa' : '#2563eb'} />
-            </View>
-            <View style={styles.summaryTextWrap}>
-              <AppText variant="caption" color={colors.textMuted}>{tx('expYield') || 'Expected Yield'}</AppText>
-              <AppText weight="bold" style={{ color: isDark ? '#60a5fa' : '#2563eb', fontSize: 15, marginTop: 2 }}>{plan.expected_yield}</AppText>
-            </View>
+            <AppText variant="caption" color={colors.textMuted}>{tx('expYield') || 'Expected Yield'}</AppText>
+            <AppText weight="bold" style={{ color: isDark ? '#60a5fa' : '#2563eb', marginTop: 4 }}>{plan.expected_yield}</AppText>
           </View>
-
-          {/* Profit Estimation */}
           <View style={[styles.summaryCard, { backgroundColor: isDark ? 'rgba(109,207,150,0.08)' : colors.primary + '10', borderColor: colors.primary + '30', borderWidth: 1, ...theme.shadow.sm }]}>
-            <View style={[styles.summaryIconWrap, { backgroundColor: 'rgba(5,150,105,0.1)' }]}>
-              <Feather name="trending-up" size={16} color={isDark ? '#34d399' : '#059669'} />
-            </View>
-            <View style={styles.summaryTextWrap}>
-              <AppText variant="caption" color={colors.textMuted}>{tx('profitEst') || 'Profit Estimate'}</AppText>
-              <AppText weight="bold" style={{ color: isDark ? '#34d399' : '#059669', fontSize: 15, marginTop: 2 }}>{plan.profit_estimation}</AppText>
-            </View>
+            <AppText variant="caption" color={colors.textMuted}>{tx('profitEst') || 'Profit Estimate'}</AppText>
+            <AppText weight="bold" style={{ color: isDark ? '#34d399' : '#059669', marginTop: 4 }}>{plan.profit_estimation}</AppText>
           </View>
         </View>
 
@@ -250,50 +230,34 @@ export const CropPlanResult: React.FC = () => {
                                 {task.details}
                               </AppText>
 
-                              {/* Tools Required Section */}
-                              {task.tools_required && task.tools_required.length > 0 && (
-                                <View style={{ marginTop: 10 }}>
-                                  <AppText variant="caption" color={colors.textMuted} style={{ textTransform: 'none', marginBottom: 6 }}>
-                                    {language === 'Hindi' ? 'आवश्यक उपकरण:' : language === 'Gujarati' ? 'જરૂરી સાધનો:' : language === 'Punjabi' ? 'ਲੋੜੀਂਦੇ ਟੂਲ:' : 'Required Tools:'}
-                                  </AppText>
-                                  <View style={styles.tagWrap}>
-                                    {task.tools_required.map((tool: string, i: number) => (
-                                      <TouchableOpacity 
-                                        key={i} 
-                                        activeOpacity={0.8}
-                                        style={[
-                                          styles.toolPill, 
-                                          { 
-                                            backgroundColor: isDark ? 'rgba(109,207,150,0.15)' : colors.primary + '15', 
-                                            borderColor: colors.primary + '30', 
-                                            borderWidth: 1 
-                                          }
-                                        ]}
-                                        onPress={() => {
-                                          navigation.navigate('Marketplace', { search: tool } as any);
-                                        }}
-                                      >
-                                        <Feather name="shopping-bag" size={10} color={colors.primary} style={{ marginRight: 4 }} />
-                                        <AppText variant="caption" style={{ color: isDark ? colors.primary : colors.primaryDark, fontSize: 10, textTransform: 'none', fontWeight: 'bold' }}>
-                                          {tool}
-                                        </AppText>
-                                      </TouchableOpacity>
-                                    ))}
-                                  </View>
+                              {/* Tools Redirection Loop (Module 3) */}
+                              <View style={styles.taskFooter}>
+                                <View style={styles.tagWrap}>
+                                  {task.tools_required?.map((tool: string, i: number) => (
+                                    <TouchableOpacity 
+                                      key={i} 
+                                      activeOpacity={0.8}
+                                      style={[
+                                        styles.toolPill, 
+                                        { 
+                                          backgroundColor: isDark ? 'rgba(109,207,150,0.15)' : colors.primary + '15', 
+                                          borderColor: colors.primary + '30', 
+                                          borderWidth: 1 
+                                        }
+                                      ]}
+                                      onPress={() => {
+                                        navigation.navigate('MarketplaceTab', { search: tool } as any);
+                                      }}
+                                    >
+                                      <Feather name="shopping-bag" size={10} color={colors.primary} style={{ marginRight: 4 }} />
+                                      <AppText variant="caption" style={{ color: isDark ? colors.primary : colors.primaryDark, fontSize: 10, textTransform: 'none', fontWeight: 'bold' }}>
+                                        {tool}
+                                      </AppText>
+                                    </TouchableOpacity>
+                                  ))}
                                 </View>
-                              )}
-
-                              {/* Estimated Cost Section */}
-                              {task.estimated_cost && (
-                                <View style={{ marginTop: 10, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
-                                  <AppText variant="caption" color={colors.textMuted} style={{ textTransform: 'none' }}>
-                                    {language === 'Hindi' ? 'अनुमानित लागत: ' : language === 'Gujarati' ? 'અંદાજિત ખર્ચ: ' : language === 'Punjabi' ? 'ਅਨੁਮਾਨਿਤ ਲਾਗਤ: ' : 'Estimated Cost: '}
-                                  </AppText>
-                                  <AppText variant="caption" color={isDark ? colors.primary : colors.primaryDark} weight="bold" style={{ textTransform: 'none', flexShrink: 1 }}>
-                                    {task.estimated_cost}
-                                  </AppText>
-                                </View>
-                              )}
+                                <AppText variant="caption" color={isDark ? colors.primary : colors.primaryDark} weight="bold">{task.estimated_cost}</AppText>
+                              </View>
 
                               {task.tips && (
                                 <View style={[styles.tipBox, { backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }]}>
@@ -333,46 +297,6 @@ export const CropPlanResult: React.FC = () => {
             </View>
           </View>
         </View>
-
-        {/* Discuss Plan with AI Button */}
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={[
-            styles.discussButton,
-            {
-              backgroundColor: colors.primary,
-              borderColor: colors.primaryDark,
-              borderWidth: 1,
-              ...theme.shadow.sm,
-            }
-          ]}
-          onPress={() => {
-            const getSeededInitialMessage = () => {
-              const cropName = planData?.crop || 'my crop';
-              const loc = planData?.location?.district && planData?.location?.state 
-                ? `${planData.location.district}, ${planData.location.state}`
-                : 'my farm';
-              
-              if (language === 'Hindi') {
-                return `मेरे पास ${loc} में ${cropName} के लिए एक फसल योजना है। कृपया इस रोडमैप के बारे में कुछ प्रश्नों में मेरी मदद करें।`;
-              }
-              if (language === 'Gujarati') {
-                return `મારી પાસે ${loc} માં ${cropName} માટે પાકની યોજના છે. કૃપા કરીને આ રોડમેપ વિશેના કેટલાક પ્રશ્નોમાં મને મદદ કરો।`;
-              }
-              if (language === 'Punjabi') {
-                return `ਮੇਰੇ ਕੋਲ ${loc} ਵਿੱਚ ${cropName} ਲਈ ਇੱਕ ਫਸਲ ਯੋਜਨਾ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਇਸ ਰੋਡਮੈਪ ਬਾਰੇ ਕੁਝ ਪ੍ਰਸ਼ਨਾਂ ਵਿੱਚ ਮੇਰੀ ਮਦਦ ਕਰੋ।`;
-              }
-              return `I have a crop plan for ${cropName} in ${loc}. Please help me with some questions about this roadmap.`;
-            };
-
-            navigation.navigate('Chat', { initialMessage: getSeededInitialMessage() });
-          }}
-        >
-          <Feather name="message-square" size={18} color="#fff" style={{ marginRight: 8 }} />
-          <AppText weight="bold" style={{ color: '#fff', fontSize: 15 }}>
-            {tx('discussWithAI') || 'Discuss with AI'}
-          </AppText>
-        </TouchableOpacity>
       </ScrollView>
     </Screen>
   );
@@ -401,26 +325,16 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
   },
-  summaryCol: {
+  summaryRow: {
+    flexDirection: 'row',
     gap: 10,
     marginBottom: 16,
   },
   summaryCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 14,
-    borderRadius: 16,
-    gap: 14,
-  },
-  summaryIconWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  summaryTextWrap: {
     flex: 1,
+    padding: 12,
+    alignItems: 'center',
+    borderRadius: 16,
   },
   progressContainer: {
     padding: 14,
@@ -523,6 +437,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
+    flex: 1,
+    marginRight: 10,
   },
   toolPill: {
     flexDirection: 'row',
@@ -547,14 +463,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 4,
-  },
-  discussButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 16,
-    marginTop: 24,
-    marginBottom: 16,
   },
 });
