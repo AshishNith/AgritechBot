@@ -1,4 +1,4 @@
-﻿{
+{
   "common": {
     "anaaj": "ANAAJ AI",
     "farming": "Farming",
@@ -182,7 +182,7 @@
     "dataNodes": "Data Nodes",
     "dataNodesDesc": "Active in 40+ districts across 4 states",
     "statusActive": "Status: Active",
-    "address": "H 1226, Number 5, Kota, Indraprastha Industrial Area, Kota, Rajasthan 324005"
+    "address": "H1 - 226, Road Number 5, Kota, Indraprastha Industrial Area, Kota, Rajasthan 324005"
   },
   "finalCTA": {
     "title1": "Your harvest,",
@@ -350,7 +350,7 @@
       },
       "address": {
         "label": "Headquarters",
-        "line1": "H 1226, Number 5, Kota,",
+        "line1": "H1 - 226, Road Number 5, Kota,",
         "line2": "Indraprastha Industrial Area, Kota,",
         "line3": "Rajasthan 324005"
       },
