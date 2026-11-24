@@ -151,6 +151,8 @@
     "label": "The Visionaries",
     "title": "Meet our team",
     "desc": "Driven by a singular goal: to make expert agricultural knowledge accessible to every farmer in India.",
+    "sharedVision": "Our Shared Vision",
+    "visionQuote": "\"Technology is only as good as the lives it improves. We are here to ensure that every harvest is safer, smarter, and more abundant.\"",
     "prashant-jain": {
       "name": "Prashant Jain",
       "role": "Growth & Partnerships",
@@ -629,7 +631,7 @@
   },
   "termsOfService": {
     "title": "Terms of Service",
-    "effectiveDate": "Effective Date: March 2026",
+    "effectiveDate": "Effective Date: November 2026",
     "section1": {
       "title": "1. Acceptance of Terms",
       "text": "By accessing or using the Anaaj.ai website or mobile application, you agree to be bound by these Terms of Service. If you do not agree to all of these terms, do not use our services."
@@ -648,7 +650,61 @@
     },
     "section5": {
       "title": "5. Termination",
-      "text": "We reserve the right to suspend or terminate accounts that violate these terms or engage in fraudulent activities that threaten the integrity of our advisory models."
+      "text": "We reserve the right to suspend or terminate accounts that violate these terms or engage in fraudulent activities that threaten the integrity of our advisory models. You may stop using the service and delete your account at any time from the app (Profile > Delete account) or by emailing privacy@anaajai.com."
+    },
+    "section6": {
+      "title": "6. Accounts and Eligibility",
+      "text": "You must be at least 18 years old, or use the service under the supervision of a parent or guardian, to create an account. You sign in with your mobile number and a one-time password (OTP). You are responsible for all activity on your account and for keeping your phone and OTPs secure. Tell us immediately if you think someone else is using your account."
+    },
+    "section7": {
+      "title": "7. Safe Use of Advice",
+      "text": "Our guidance on pests, diseases, fertilizers and crop-protection chemicals is general information generated with AI. It is not a laboratory test, a professional diagnosis or a prescription. Before you apply any chemical:",
+      "items": [
+        "Read the product label and follow the manufacturer's instructions and local regulations.",
+        "Use protective equipment and keep chemicals away from children, animals and water sources.",
+        "Check with your local agriculture officer, agronomist or extension service if you are unsure.",
+        "Photo and voice results can be inaccurate, so use your own judgement and test on a small area first."
+      ]
+    },
+    "section8": {
+      "title": "8. Marketplace Orders and Delivery",
+      "text": "The Anaaj.ai marketplace lets you order seeds, fertilizers, crop-care products and tools offered by Anaaj.ai and its listed sellers. Product details, prices and availability may change without notice, and we may cancel an order if an item is unavailable or a listing contains an obvious error. You can follow the status of your order in the app (pending, confirmed, shipped, delivered or cancelled). Delivery times are estimates and depend on your location and the delivery partner."
+    },
+    "section9": {
+      "title": "9. Payments",
+      "text": "Payments in the app are made in Indian rupees (INR) and are processed by our payment partner, Razorpay. Your card, UPI or bank details are handled directly by Razorpay. The price is shown at checkout before you pay. If a payment fails, or money is debited but your order, plan or credits are not confirmed, contact us with your payment ID and we will check and resolve it."
+    },
+    "section10": {
+      "title": "10. Plans, Credits and Top-ups",
+      "text": "Some features, such as AI chat and crop scans, use credits. Free limits, paid plans and top-up packs are shown in the app with their price and quantity. Credits are for your own use and cannot be transferred, sold or exchanged for cash. The validity of a plan and the availability of credits are shown in the app at the time of purchase. We may change plan benefits, prices or free limits in the future, but a change will not reduce what you have already paid for during its validity period."
+    },
+    "section11": {
+      "title": "11. Cancellations and Refunds",
+      "text": "You can ask to cancel a marketplace order before it is shipped by contacting us. If a product arrives damaged, defective or different from what you ordered, contact us as soon as possible with your order details and photos, and we will repair, replace or refund it as appropriate. Plans and credits that have already been used are generally not refundable. If you are charged twice, or charged without receiving what you paid for, we will refund the amount. Approved refunds are returned to the original payment method, and the time taken depends on your bank or payment provider. Nothing in these terms limits your rights under applicable consumer protection laws."
+    },
+    "section12": {
+      "title": "12. Your Content and Device Permissions",
+      "text": "You keep ownership of the photos, voice recordings and text you submit. You give Anaaj.ai a limited licence to process them to provide and improve the advice you receive, as described in our Privacy Policy. Do not upload unlawful, offensive or infringing content. The app asks for permission to use your camera and photo gallery (crop photos), microphone (voice questions) and location (local weather and advice). You can turn these off in your device settings, but the related features will then stop working."
+    },
+    "section13": {
+      "title": "13. Third-Party Services",
+      "text": "The service uses third-party services such as Google (maps, phone verification and notifications), Razorpay (payments) and AI model and speech providers. Their own terms and privacy policies apply when you use them, and we are not responsible for services outside our control."
+    },
+    "section14": {
+      "title": "14. Limitation of Liability",
+      "text": "To the fullest extent permitted by law, Anaaj.ai is not liable for indirect or consequential losses, including loss of crop, yield, income or profit, arising from your use of the service or your reliance on its advice. Our total liability for any claim relating to the service is limited to the amount you paid us for the order or plan that the claim relates to. Nothing in these terms excludes liability that cannot be excluded by law."
+    },
+    "section15": {
+      "title": "15. Governing Law and Disputes",
+      "text": "These terms are governed by the laws of India. Subject to any right you have as a consumer to bring a claim in another court, the courts at Kota, Rajasthan have jurisdiction over disputes. We encourage you to contact us first so that we can try to resolve any complaint quickly and informally."
+    },
+    "section16": {
+      "title": "16. Changes to These Terms",
+      "text": "We may update these terms from time to time. The effective date at the top of this page shows the latest version. If a change is significant, we will tell you in the app or on this website. If you keep using the service after a change, you accept the updated terms."
+    },
+    "section17": {
+      "title": "17. Contact and Business Details",
+      "text": "Anaaj.ai Precision Ltd, H1 - 226, Road Number 5, Indraprastha Industrial Area, Kota, Rajasthan 324005, India. For support, orders, payments and refunds, email anaajcustomerservice@gmail.com. For privacy requests and account deletion, email privacy@anaajai.com."
     },
     "copyright": "© 2026 Anaaj.ai Precision Ltd. All Rights Reserved."
   },
