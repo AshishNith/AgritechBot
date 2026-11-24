@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, TextInput, View, Keyboard, InteractionManager } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Pressable, StyleSheet, TextInput, View, Keyboard, InteractionManager } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -101,7 +101,8 @@ export function OtpScreen({ navigation, route }: Props) {
 
   return (
     <Screen>
-      <View style={styles.shell}>
+      {/* Keep the code boxes and Verify button above the keyboard (Android edge-to-edge does not resize). */}
+      <KeyboardAvoidingView behavior="padding" style={styles.shell}>
         <AppText variant="heading">{t(language, 'otpVerification')}</AppText>
         <AppText variant="title" style={{ marginTop: 10 }}>
           {t(language, 'enterTheCode')}
@@ -110,6 +111,8 @@ export function OtpScreen({ navigation, route }: Props) {
           {t(language, 'sentCodeTo')} {phone}
         </AppText>
 
+        {/* Plain wrapper so the animated card moves with the keyboard on Android (see LoginScreen). */}
+        <View collapsable={false}>
         <ScreenCard style={styles.card}>
           <Pressable
             onPress={() => {
@@ -165,6 +168,7 @@ export function OtpScreen({ navigation, route }: Props) {
             }
           />
         </ScreenCard>
+        </View>
 
         <Pressable
           onPress={handleResend}
@@ -184,7 +188,7 @@ export function OtpScreen({ navigation, route }: Props) {
         <AppText color={theme.colors.textMuted} style={styles.secureText}>
           {t(language, 'secureConnection')} | {t(language, 'stepTwoOfThree')}
         </AppText>
-      </View>
+      </KeyboardAvoidingView>
     </Screen>
   );
 }

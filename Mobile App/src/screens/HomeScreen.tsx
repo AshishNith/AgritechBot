@@ -8,7 +8,7 @@ import * as Location from 'expo-location';
 
 import { apiService } from '../api/services';
 import { AppText, Pill, PulseMic, Screen, ScreenCard, AnimatedIcon } from '../components/ui';
-import { LeafletMap, MapMarker } from '../components/LeafletMap';
+import { LeafletMap } from '../components/LeafletMap';
 import { WeatherDashboardWidget } from '../components/WeatherDashboardWidget';
 import { homeWeatherCard, marketplaceFallback, quickChips } from '../constants/designData';
 import { t } from '../constants/localization';
@@ -24,6 +24,7 @@ import { HeroWeatherCard } from '../components/HeroWeatherCard';
 import { QuickActionGrid } from '../components/QuickActionGrid';
 import { WalletCreditBadge } from '../components/WalletCreditBadge';
 import { useWallet } from '../hooks/useWallet';
+import { AppWalkthrough } from '../components/AppWalkthrough';
 
 const DARK_MAP_STYLE = [
   { "elementType": "geometry", "stylers": [{ "color": "#1d2c21" }] },
@@ -51,6 +52,8 @@ export function HomeScreen() {
   const user = useAppStore((state) => state.user);
   const language = useAppStore((state) => state.language);
   const setFeaturedProduct = useAppStore((state) => state.setFeaturedProduct);
+  const hasSeenWalkthrough = useAppStore((state) => state.hasSeenWalkthrough);
+  const setHasSeenWalkthrough = useAppStore((state) => state.setHasSeenWalkthrough);
   const [liveCoords, setLiveCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [liveLocationName, setLiveLocationName] = useState(t(language, 'mandi'));
 
@@ -105,31 +108,6 @@ export function HomeScreen() {
     }),
     [liveCoords, user?.location?.latitude, user?.location?.longitude]
   );
-
-  // Generate random vendors for the map
-  const mockVendors = useMemo<MapMarker[]>(() => {
-    const { latitude, longitude } = weatherCoordinates;
-    return [
-      {
-        latitude: latitude + 0.005,
-        longitude: longitude + 0.003,
-        title: t(language, 'mandiSeedBank'),
-        type: 'vendor'
-      },
-      {
-        latitude: latitude - 0.004,
-        longitude: longitude + 0.006,
-        title: t(language, 'equipmentRental'),
-        type: 'vendor'
-      },
-      {
-        latitude: latitude + 0.002,
-        longitude: longitude - 0.005,
-        title: t(language, 'fertilizerStore'),
-        type: 'vendor'
-      }
-    ];
-  }, [weatherCoordinates]);
 
   const { data: liveWeather } = useQuery({
     queryKey: ['home-live-weather', weatherCoordinates.latitude, weatherCoordinates.longitude],
@@ -325,8 +303,7 @@ export function HomeScreen() {
             onPress={() => navigation.navigate('FullMap', {
               latitude: weatherCoordinates.latitude,
               longitude: weatherCoordinates.longitude,
-              locationName: liveLocationName,
-              markers: mockVendors
+              locationName: liveLocationName
             })}
           >
             <LeafletMap 
@@ -336,7 +313,6 @@ export function HomeScreen() {
               height="100%" 
               zoom={14}
               mapType="satellite"
-              markers={mockVendors}
             />
             {/* Subtle Overlay to make map non-interactive on home */}
             <View style={StyleSheet.absoluteFillObject} />
@@ -410,6 +386,8 @@ export function HomeScreen() {
         <AppText color={colors.textMuted} style={{ marginTop: 18, textAlign: 'center' }}>{t(language, 'voiceFarmingHelp')}</AppText>
         <Pill label={t(language, 'startListening')} active onPress={() => navigation.navigate('Voice')} style={{ marginTop: 18 }} />
       </View>
+
+      <AppWalkthrough visible={!hasSeenWalkthrough} onClose={() => setHasSeenWalkthrough(true)} />
     </Screen>
   );
 }

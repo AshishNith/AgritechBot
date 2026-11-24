@@ -289,7 +289,6 @@ export interface CreatePaymentOrderResponse {
   currency: string;
   keyId: string;         // Razorpay key_id for checkout
   checkoutToken?: string;
-  isMock?: boolean;
 }
 
 export interface WalletUpdateResponse {

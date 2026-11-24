@@ -16,10 +16,13 @@ import { useAppStore } from '../store/useAppStore';
 import { useTheme } from '../providers/ThemeContext';
 import { useI18n } from '../hooks/useI18n';
 import { useWallet } from '../hooks/useWallet';
+import { AppWalkthrough } from '../components/AppWalkthrough';
+import { openStoreListing, shareApp } from '../utils/appLinks';
 
 export function ProfileScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { isDark, setThemeMode, colors } = useTheme();
+  const { isDark, themeMode, setThemeMode, colors } = useTheme();
+  const [showTour, setShowTour] = useState(false);
   const { t: tx } = useI18n();
   
   const user = useAppStore((state) => state.user);
@@ -291,17 +294,16 @@ export function ProfileScreen() {
         <Pressable onPress={() => setShowLanguagePicker(true)}>
           <IconRow icon="Languages" title={tx('appLanguage')} subtitle={language || 'English'} />
         </Pressable>
-        <IconRow 
-          icon="MoonStar" 
-          title={tx('darkAppearance')} 
-          right={
-            <Switch 
-              value={isDark} 
-              onValueChange={(val) => setThemeMode(val ? 'dark' : 'light')} 
-              trackColor={{ true: colors.primary }} 
-            />
-          } 
+        <IconRow
+          icon="MoonStar"
+          title={tx('appearance')}
+          subtitle={tx(themeMode === 'system' ? 'themeSystem' : themeMode === 'dark' ? 'themeDark' : 'themeLight')}
         />
+        <View style={styles.themeRow}>
+          <Pill label={tx('themeSystem')} active={themeMode === 'system'} onPress={() => setThemeMode('system')} />
+          <Pill label={tx('themeLight')} active={themeMode === 'light'} onPress={() => setThemeMode('light')} />
+          <Pill label={tx('themeDark')} active={themeMode === 'dark'} onPress={() => setThemeMode('dark')} />
+        </View>
         <Pressable onPress={() => navigation.navigate('Notifications')}>
           <IconRow
             icon="Bell"
@@ -317,6 +319,23 @@ export function ProfileScreen() {
           />
         </Pressable>
       </ScreenCard>
+
+      <AppText variant="caption" color={theme.colors.textMuted} style={styles.sectionLabel}>
+        {tx('supportUs')}
+      </AppText>
+      <ScreenCard>
+        <Pressable onPress={() => shareApp(tx('shareAppMessage'))}>
+          <IconRow icon="Share2" title={tx('shareApp')} subtitle={tx('shareAppSubtitle')} />
+        </Pressable>
+        <Pressable onPress={() => openStoreListing()}>
+          <IconRow icon="Star" title={tx('rateApp')} subtitle={tx('rateAppSubtitle')} />
+        </Pressable>
+        <Pressable onPress={() => setShowTour(true)}>
+          <IconRow icon="Compass" title={tx('appTour')} subtitle={tx('appTourSubtitle')} />
+        </Pressable>
+      </ScreenCard>
+
+      <AppWalkthrough visible={showTour} onClose={() => setShowTour(false)} />
 
       <AppText variant="caption" weight="bold" color={theme.colors.textMuted} style={styles.sectionLabel}>
         {tx('securityAndData').toUpperCase()}
@@ -685,6 +704,12 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     marginTop: 20,
+    marginBottom: 12,
+  },
+  themeRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
     marginBottom: 12,
   },
   modalOverlay: {

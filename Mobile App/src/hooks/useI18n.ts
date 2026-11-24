@@ -29,6 +29,27 @@ type ExtraTranslationKey =
   | 'preferences'
   | 'appLanguage'
   | 'darkAppearance'
+  | 'appearance'
+  | 'themeSystem'
+  | 'themeLight'
+  | 'themeDark'
+  | 'supportUs'
+  | 'shareApp'
+  | 'shareAppSubtitle'
+  | 'shareAppMessage'
+  | 'rateApp'
+  | 'rateAppSubtitle'
+  | 'appTour'
+  | 'appTourSubtitle'
+  | 'next'
+  | 'tour1Title'
+  | 'tour1Body'
+  | 'tour2Title'
+  | 'tour2Body'
+  | 'tour3Title'
+  | 'tour3Body'
+  | 'tour4Title'
+  | 'tour4Body'
   | 'notifications'
   | 'on'
   | 'off'
@@ -194,6 +215,27 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     preferences: 'Preferences',
     appLanguage: 'App Language',
     darkAppearance: 'Dark Appearance',
+    appearance: 'Appearance',
+    themeSystem: 'System',
+    themeLight: 'Light',
+    themeDark: 'Dark',
+    supportUs: 'Support Anaaj AI',
+    shareApp: 'Share App',
+    shareAppSubtitle: 'Tell other farmers about Anaaj AI',
+    shareAppMessage: 'I use Anaaj AI for crop advice, disease scans and weather updates. Try it:',
+    rateApp: 'Rate Anaaj AI',
+    rateAppSubtitle: 'Leave a review on Google Play',
+    appTour: 'App Tour',
+    appTourSubtitle: 'See what Anaaj AI can do',
+    next: 'Next',
+    tour1Title: 'Ask anything about farming',
+    tour1Body: 'Type or speak your question in your own language and get an answer from the AI assistant.',
+    tour2Title: 'Scan your crop',
+    tour2Body: 'Take a photo of a sick plant to find the disease and how to treat it.',
+    tour3Title: 'Plan your season',
+    tour3Body: 'Create a crop plan with stage-by-stage tasks, from land preparation to harvest.',
+    tour4Title: 'Weather and marketplace',
+    tour4Body: 'Check the local forecast and buy seeds, fertilisers and tools from the Market tab.',
     notifications: 'Notifications',
     on: 'On',
     off: 'Off',
@@ -356,6 +398,27 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     preferences: 'पसंद',
     appLanguage: 'ऐप भाषा',
     darkAppearance: 'डार्क दिखावट',
+    appearance: 'दिखावट',
+    themeSystem: 'सिस्टम',
+    themeLight: 'लाइट',
+    themeDark: 'डार्क',
+    supportUs: 'अनाज AI का साथ दें',
+    shareApp: 'ऐप शेयर करें',
+    shareAppSubtitle: 'दूसरे किसानों को अनाज AI के बारे में बताएं',
+    shareAppMessage: 'मैं फसल सलाह, रोग जांच और मौसम की जानकारी के लिए अनाज AI इस्तेमाल करता हूं। आप भी आज़माएं:',
+    rateApp: 'अनाज AI को रेट करें',
+    rateAppSubtitle: 'Google Play पर अपनी राय दें',
+    appTour: 'ऐप टूर',
+    appTourSubtitle: 'देखें अनाज AI क्या-क्या कर सकता है',
+    next: 'आगे',
+    tour1Title: 'खेती से जुड़ा कोई भी सवाल पूछें',
+    tour1Body: 'अपनी भाषा में लिखकर या बोलकर सवाल पूछें और AI सहायक से जवाब पाएं।',
+    tour2Title: 'अपनी फसल स्कैन करें',
+    tour2Body: 'बीमार पौधे की फोटो लें और रोग तथा उसका इलाज जानें।',
+    tour3Title: 'अपने सीजन की योजना बनाएं',
+    tour3Body: 'खेत की तैयारी से कटाई तक, हर चरण के कामों के साथ फसल योजना बनाएं।',
+    tour4Title: 'मौसम और बाज़ार',
+    tour4Body: 'अपने इलाके का मौसम देखें और मार्केट टैब से बीज, खाद और औज़ार खरीदें।',
     notifications: 'नोटिफिकेशन',
     on: 'चालू',
     off: 'बंद',
@@ -518,6 +581,27 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     preferences: 'પસંદગીઓ',
     appLanguage: 'એપ ભાષા',
     darkAppearance: 'ડાર્ક દેખાવ',
+    appearance: 'દેખાવ',
+    themeSystem: 'સિસ્ટમ',
+    themeLight: 'લાઇટ',
+    themeDark: 'ડાર્ક',
+    supportUs: 'અનાજ AI ને સાથ આપો',
+    shareApp: 'ઍપ શેર કરો',
+    shareAppSubtitle: 'બીજા ખેડૂતોને અનાજ AI વિશે જણાવો',
+    shareAppMessage: 'હું પાક સલાહ, રોગ તપાસ અને હવામાન માહિતી માટે અનાજ AI વાપરું છું. તમે પણ અજમાવો:',
+    rateApp: 'અનાજ AI ને રેટ કરો',
+    rateAppSubtitle: 'Google Play પર તમારો અભિપ્રાય આપો',
+    appTour: 'ઍપ ટૂર',
+    appTourSubtitle: 'જુઓ અનાજ AI શું કરી શકે છે',
+    next: 'આગળ',
+    tour1Title: 'ખેતી વિશે કોઈ પણ પ્રશ્ન પૂછો',
+    tour1Body: 'તમારી ભાષામાં લખીને અથવા બોલીને પ્રશ્ન પૂછો અને AI સહાયક પાસેથી જવાબ મેળવો.',
+    tour2Title: 'તમારો પાક સ્કેન કરો',
+    tour2Body: 'બીમાર છોડનો ફોટો લો અને રોગ તથા તેનો ઉપચાર જાણો.',
+    tour3Title: 'તમારી સીઝનનું આયોજન કરો',
+    tour3Body: 'જમીનની તૈયારીથી લણણી સુધી, દરેક તબક્કાના કામ સાથે પાક યોજના બનાવો.',
+    tour4Title: 'હવામાન અને બજાર',
+    tour4Body: 'તમારા વિસ્તારનું હવામાન જુઓ અને માર્કેટ ટૅબમાંથી બીજ, ખાતર અને સાધનો ખરીદો.',
     notifications: 'નોટિફિકેશન્સ',
     on: 'ચાલુ',
     off: 'બંધ',
@@ -680,6 +764,27 @@ const extraTranslations: Record<AppLanguage, Record<ExtraTranslationKey, string>
     preferences: 'ਪਸੰਦਾਂ',
     appLanguage: 'ਐਪ ਭਾਸ਼ਾ',
     darkAppearance: 'ਡਾਰਕ ਰੂਪ',
+    appearance: 'ਦਿੱਖ',
+    themeSystem: 'ਸਿਸਟਮ',
+    themeLight: 'ਲਾਈਟ',
+    themeDark: 'ਡਾਰਕ',
+    supportUs: 'ਅਨਾਜ AI ਦਾ ਸਾਥ ਦਿਓ',
+    shareApp: 'ਐਪ ਸਾਂਝੀ ਕਰੋ',
+    shareAppSubtitle: 'ਹੋਰ ਕਿਸਾਨਾਂ ਨੂੰ ਅਨਾਜ AI ਬਾਰੇ ਦੱਸੋ',
+    shareAppMessage: 'ਮੈਂ ਫ਼ਸਲ ਸਲਾਹ, ਬਿਮਾਰੀ ਜਾਂਚ ਅਤੇ ਮੌਸਮ ਦੀ ਜਾਣਕਾਰੀ ਲਈ ਅਨਾਜ AI ਵਰਤਦਾ ਹਾਂ। ਤੁਸੀਂ ਵੀ ਅਜ਼ਮਾਓ:',
+    rateApp: 'ਅਨਾਜ AI ਨੂੰ ਰੇਟ ਕਰੋ',
+    rateAppSubtitle: 'Google Play ਉੱਤੇ ਆਪਣੀ ਰਾਏ ਦਿਓ',
+    appTour: 'ਐਪ ਟੂਰ',
+    appTourSubtitle: 'ਵੇਖੋ ਅਨਾਜ AI ਕੀ ਕਰ ਸਕਦਾ ਹੈ',
+    next: 'ਅੱਗੇ',
+    tour1Title: 'ਖੇਤੀ ਬਾਰੇ ਕੋਈ ਵੀ ਸਵਾਲ ਪੁੱਛੋ',
+    tour1Body: 'ਆਪਣੀ ਭਾਸ਼ਾ ਵਿੱਚ ਲਿਖ ਕੇ ਜਾਂ ਬੋਲ ਕੇ ਸਵਾਲ ਪੁੱਛੋ ਅਤੇ AI ਸਹਾਇਕ ਤੋਂ ਜਵਾਬ ਲਓ।',
+    tour2Title: 'ਆਪਣੀ ਫ਼ਸਲ ਸਕੈਨ ਕਰੋ',
+    tour2Body: 'ਬਿਮਾਰ ਪੌਦੇ ਦੀ ਫੋਟੋ ਲਓ ਅਤੇ ਬਿਮਾਰੀ ਤੇ ਉਸ ਦਾ ਇਲਾਜ ਜਾਣੋ।',
+    tour3Title: 'ਆਪਣੇ ਸੀਜ਼ਨ ਦੀ ਯੋਜਨਾ ਬਣਾਓ',
+    tour3Body: 'ਜ਼ਮੀਨ ਦੀ ਤਿਆਰੀ ਤੋਂ ਵਾਢੀ ਤੱਕ, ਹਰ ਪੜਾਅ ਦੇ ਕੰਮਾਂ ਨਾਲ ਫ਼ਸਲ ਯੋਜਨਾ ਬਣਾਓ।',
+    tour4Title: 'ਮੌਸਮ ਅਤੇ ਬਾਜ਼ਾਰ',
+    tour4Body: 'ਆਪਣੇ ਇਲਾਕੇ ਦਾ ਮੌਸਮ ਵੇਖੋ ਅਤੇ ਮਾਰਕੀਟ ਟੈਬ ਤੋਂ ਬੀਜ, ਖਾਦ ਅਤੇ ਸੰਦ ਖਰੀਦੋ।',
     notifications: 'ਨੋਟਿਫਿਕੇਸ਼ਨ',
     on: 'ਚਾਲੂ',
     off: 'ਬੰਦ',

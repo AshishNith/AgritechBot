@@ -16,6 +16,8 @@ interface AppState {
   notificationsEnabled: boolean;
   unreadNotificationCount: number;
   hasPlayedGreeting: boolean;
+  hasSeenWalkthrough: boolean;
+  setHasSeenWalkthrough: (seen: boolean) => void;
   setToken: (token: string | null) => void;
   setUser: (user: UserProfile | null) => void;
   setLanguage: (language: AppLanguage | null) => void;
@@ -44,6 +46,8 @@ export const useAppStore = create<AppState>()(
       notificationsEnabled: true,
       unreadNotificationCount: 0,
       hasPlayedGreeting: false,
+      hasSeenWalkthrough: false,
+      setHasSeenWalkthrough: (hasSeenWalkthrough) => set({ hasSeenWalkthrough }),
       setToken: (token) => set({ token }),
       setUser: (user) => set({ user }),
       setLanguage: (language) => set({ language }),
@@ -77,6 +81,7 @@ export const useAppStore = create<AppState>()(
         language: state.language,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
         notificationsEnabled: state.notificationsEnabled,
+        hasSeenWalkthrough: state.hasSeenWalkthrough,
       }),
     }
   )

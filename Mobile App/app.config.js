@@ -2,7 +2,7 @@ const { expo } = require('./app.json');
 
 module.exports = () => ({
   ...expo,
-  owner: 'ig_ashish.ranjan3',
+  owner: 'ig_ashish.ranjan4',
   scheme: 'anaajai',
   android: {
     ...expo.android,
@@ -16,8 +16,6 @@ module.exports = () => ({
   extra: {
     ...(expo.extra || {}),
     apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL || expo.extra?.apiBaseUrl || '',
-    eas: {
-      projectId: 'ed5779df-e2ca-4ec8-aac9-c9449ad5cb0c',
-    },
+    ...(expo.extra?.eas ? { eas: expo.extra.eas } : {}),
   },
 });

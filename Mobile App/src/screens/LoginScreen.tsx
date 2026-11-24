@@ -2,7 +2,7 @@ import { IconMap } from '../components/IconMap';
 import { useMutation } from '@tanstack/react-query';
 
 import { useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet, TextInput, View, Linking } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, StyleSheet, TextInput, View, Linking } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { apiService } from '../api/services';
@@ -88,7 +88,9 @@ export function LoginScreen({ navigation }: Props) {
   return (
     <Screen>
       <WebViewRecaptcha ref={recaptchaVerifier} />
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+      {/* Edge-to-edge (targetSdk 35+) stops Android from resizing the window for the keyboard,
+          so padding is needed on Android too or the keyboard hides the number field. */}
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <View style={styles.hero}>
           <View style={styles.blurCircleOne} />
           <View style={styles.blurCircleTwo} />
@@ -97,6 +99,9 @@ export function LoginScreen({ navigation }: Props) {
             {t(language, 'loginSubtitle')}
           </AppText>
         </View>
+        {/* Plain wrapper: on Android the animated ScreenCard keeps its first on-screen position,
+            so without it the card stays behind the keyboard while the rest of the page moves up. */}
+        <View collapsable={false}>
         <ScreenCard style={styles.formCard}>
           <AppText variant="label">{t(language, 'mobileNumber')}</AppText>
           <View style={[styles.inputWrap, { borderColor: colors.border }]}>
@@ -136,6 +141,7 @@ export function LoginScreen({ navigation }: Props) {
           />
 
         </ScreenCard>
+        </View>
           <AppText color={theme.colors.textMuted} style={styles.terms}>
             By continuing, you agree to our{' '}
             <AppText 

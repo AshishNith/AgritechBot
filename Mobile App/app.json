@@ -2,12 +2,11 @@
   "expo": {
     "name": "Anaaj AI",
     "slug": "anaaj-ai-mobile",
-    "version": "1.0.1",
+    "version": "1.0.5",
     "icon": "./assets/icon.png",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
-
     "splash": {
       "image": "./assets/icon.png",
       "resizeMode": "contain",
@@ -38,20 +37,34 @@
         "backgroundColor": "#10241b"
       },
       "package": "com.anaajai.mobile",
-      "usesCleartextTraffic": true,
+      "versionCode": 7,
       "permissions": [
         "CAMERA",
         "READ_MEDIA_IMAGES",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE",
         "RECORD_AUDIO",
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
         "INTERNET"
-      ]
+      ],
+      "blockedPermissions": [
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ],
+      "edgeToEdgeEnabled": true
     },
-    
     "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "targetSdkVersion": 36,
+            "compileSdkVersion": 36,
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "extraProguardRules": "-keepclassmembers class * { @android.webkit.JavascriptInterface <methods>; }\n-keepattributes JavascriptInterface\n-keepattributes *Annotation*\n-dontwarn com.razorpay.**\n-keep class com.razorpay.** { *; }\n-optimizations !method/inlining/*\n-keepclasseswithmembers class * { public void onPayment*(...); }\n-keep class com.swmansion.reanimated.** { *; }\n-keep class com.facebook.react.turbomodule.** { *; }"
+          }
+        }
+      ],
       [
         "expo-av",
         {
@@ -80,9 +93,9 @@
       "apiBaseUrl": "https://backend.goran.in",
       "paymentWebBaseUrl": "https://anaaj.ai",
       "eas": {
-        "projectId": "ed5779df-e2ca-4ec8-aac9-c9449ad5cb0c"
+        "projectId": "bde4135c-2858-4c22-9693-05eb1733edc9"
       }
     },
-    "owner": "ig_ashish.ranjan3"
+    "owner": "ig_ashish.ranjan4"
   }
 }

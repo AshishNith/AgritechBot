@@ -6,6 +6,7 @@ import { AppText, GlassCard } from '../ui';
 import { CropTask, Language, ThemeMode, WeatherDay } from '../../types/planner';
 import { getPlannerTheme } from '../../constants/plannerTheme';
 import { translations } from '../../constants/plannerTranslations';
+import { useAppStore } from '../../store/useAppStore';
 
 interface MonthlyViewProps {
   tasks: CropTask[];
@@ -21,28 +22,49 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ tasks, lang, themeMode
   const [weather, setWeather] = useState<WeatherDay[]>([]);
   const [loadingWeather, setLoadingWeather] = useState(false);
 
-  useEffect(() => {
-    fetchWeather();
-  }, []);
+  const location = useAppStore((state) => state.user?.location);
+  const latitude = location?.latitude;
+  const longitude = location?.longitude;
 
-  const fetchWeather = async () => {
-    setLoadingWeather(true);
-    try {
-      // Mock weather data or fetch from Open-Meteo
-      const mockWeather: WeatherDay[] = [
-        { day: 'Mon', icon: 'sunny', tempHigh: 34, tempLow: 22, note: 'Clear' },
-        { day: 'Tue', icon: 'partly-cloudy', tempHigh: 32, tempLow: 21, note: 'Cloudy' },
-        { day: 'Wed', icon: 'rainy', tempHigh: 28, tempLow: 19, note: 'Showers' },
-        { day: 'Thu', icon: 'cloudy', tempHigh: 30, tempLow: 20, note: 'Overcast' },
-        { day: 'Fri', icon: 'sunny', tempHigh: 35, tempLow: 23, note: 'Dry' },
-      ];
-      setWeather(mockWeather);
-    } catch (e) {
-      console.error('Weather fetch error', e);
-    } finally {
-      setLoadingWeather(false);
+  useEffect(() => {
+    if (latitude == null || longitude == null) {
+      setWeather([]);
+      return;
     }
-  };
+    let cancelled = false;
+    const fetchWeather = async () => {
+      setLoadingWeather(true);
+      try {
+        const response = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=5&timezone=auto`
+        );
+        const json = await response.json();
+        const daily = json?.daily;
+        if (!daily?.time) throw new Error('No forecast data');
+        const forecast: WeatherDay[] = daily.time.map((date: string, i: number) => {
+          const code: number = daily.weather_code[i];
+          const icon: WeatherDay['icon'] =
+            code === 0 ? 'sunny' : code <= 3 ? 'partly-cloudy' : code >= 51 && code !== 45 && code !== 48 ? 'rainy' : 'cloudy';
+          return {
+            day: format(new Date(date + 'T00:00:00'), 'EEE'),
+            icon,
+            tempHigh: Math.round(daily.temperature_2m_max[i]),
+            tempLow: Math.round(daily.temperature_2m_min[i]),
+            note: '',
+          };
+        });
+        if (!cancelled) setWeather(forecast);
+      } catch {
+        if (!cancelled) setWeather([]);
+      } finally {
+        if (!cancelled) setLoadingWeather(false);
+      }
+    };
+    fetchWeather();
+    return () => {
+      cancelled = true;
+    };
+  }, [latitude, longitude]);
 
   const days = eachDayOfInterval({
     start: startOfMonth(currentMonth),
@@ -56,7 +78,7 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ tasks, lang, themeMode
   return (
     <View style={styles.container}>
       {/* Weather Strip */}
-      <GlassCard style={[styles.weatherStrip, { backgroundColor: theme.surface2, borderColor: theme.border }]}>
+      {weather.length > 0 && <GlassCard style={[styles.weatherStrip, { backgroundColor: theme.surface2, borderColor: theme.border }]}>
         <View style={styles.weatherHeader}>
           <Feather name="cloud-rain" size={16} color={theme.blue} />
           <AppText weight="bold" style={{ fontSize: 12, color: theme.blue }}>5-DAY FORECAST</AppText>
@@ -74,7 +96,7 @@ export const MonthlyView: React.FC<MonthlyViewProps> = ({ tasks, lang, themeMode
             </View>
           ))}
         </ScrollView>
-      </GlassCard>
+      </GlassCard>}
 
       {/* Calendar Header */}
       <View style={styles.calendarHeader}>

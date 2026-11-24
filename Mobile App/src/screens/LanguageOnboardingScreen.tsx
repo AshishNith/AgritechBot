@@ -1,9 +1,10 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Image, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Languages } from 'lucide-react-native';
 
 import { AppText, FloatingOrb, GradientButton, Pill, ProgressDots, Screen } from '../components/ui';
-import { designImages, languageOptions } from '../constants/designData';
+import { languageOptions } from '../constants/designData';
 import { t } from '../constants/localization';
 import { theme } from '../constants/theme';
 import { RootStackParamList } from '../navigation/types';
@@ -39,7 +40,10 @@ export function LanguageOnboardingScreen({ navigation }: Props) {
       <FloatingOrb size={130} style={{ top: 24, left: -26 }} />
       <FloatingOrb size={96} style={{ top: 180, right: -12 }} />
       <View style={styles.hero}>
-        <Image source={{ uri: designImages.languageGlobe }} style={styles.globe} />
+        {/* Local icon instead of the old remote mockup image, which now loads a map tile. */}
+        <View style={styles.globe}>
+          <Languages size={110} color={theme.colors.textOnDark} strokeWidth={1.4} />
+        </View>
         <View style={[styles.bubble, { top: 18, left: 0 }]}>
           <AppText color={theme.colors.textOnDark}>नमस्ते</AppText>
         </View>
@@ -55,7 +59,7 @@ export function LanguageOnboardingScreen({ navigation }: Props) {
           {t(language, 'yourLanguageYourApp')}
         </AppText>
         <AppText color="#c3dfcf" style={styles.centered}>
-          {t(language, 'yourLanguageYourApp')} | {t(language, 'yourLanguageYourApp')} | {t(language, 'yourLanguageYourApp')}
+          {t('Hindi', 'yourLanguageYourApp')} | {t('Gujarati', 'yourLanguageYourApp')} | {t('Punjabi', 'yourLanguageYourApp')}
         </AppText>
         <View style={styles.grid}>
           {languageOptions.map((item) => (
@@ -93,9 +97,12 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   globe: {
-    width: 260,
-    height: 260,
-    resizeMode: 'contain',
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bubble: {
     position: 'absolute',

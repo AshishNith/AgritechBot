@@ -34,15 +34,6 @@ export async function openRazorpayCheckout(params: {
   description: string;
   prefill?: RazorpayPrefill;
 }): Promise<RazorpayCheckoutResult> {
-  if (params.order.isMock) {
-    const mockPaymentId = `pay_mock_${Date.now()}`;
-    return {
-      razorpay_order_id: params.order.orderId,
-      razorpay_payment_id: mockPaymentId,
-      razorpay_signature: `mock_signature_${params.order.orderId}_${mockPaymentId}`,
-    };
-  }
-
   const result = await RazorpayCheckout.open({
     key: params.order.keyId,
     amount: params.order.amount,

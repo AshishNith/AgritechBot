@@ -7,7 +7,8 @@ import {
   X, Scan, Brain, ArrowLeft, Share2, ChevronLeft, ChevronRight,
   Globe, Mail, Camera, CloudSun, Droplets, Wind, Thermometer, Sun, Cloud,
   MoreVertical, PlayCircle, ImagePlus, LocateFixed, Locate, MapPinOff, MapPin,
-  Minus, Plus, Trash2, CheckCircle2, CircleCheckBig, Send, Calendar, LogOut
+  Minus, Plus, Trash2, CheckCircle2, CircleCheckBig, Send, Calendar, LogOut,
+  Star, Compass
 } from 'lucide-react-native';
 
 export const IconMap: Record<string, any> = {
@@ -19,5 +20,6 @@ export const IconMap: Record<string, any> = {
   X, Scan, Brain, ArrowLeft, Share2, ChevronLeft, ChevronRight,
   Globe, Mail, Camera, CloudSun, Droplets, Wind, Thermometer, Sun, Cloud,
   MoreVertical, PlayCircle, ImagePlus, LocateFixed, Locate, MapPinOff, MapPin,
-  Minus, Plus, Trash2, CheckCircle2, CircleCheckBig, Send, Calendar, LogOut
+  Minus, Plus, Trash2, CheckCircle2, CircleCheckBig, Send, Calendar, LogOut,
+  Star, Compass
 };

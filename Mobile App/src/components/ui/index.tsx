@@ -22,6 +22,7 @@ interface AnimatedIconProps {
 
 import {
   ActivityIndicator,
+  RefreshControlProps,
   Image,
   ImageSourcePropType,
   Keyboard,
@@ -127,7 +128,7 @@ export function Screen({
   padded?: boolean;
   dark?: boolean;
   style?: StyleProp<ViewStyle>;
-  refreshControl?: React.ReactElement;
+  refreshControl?: React.ReactElement<RefreshControlProps>;
   withTabBar?: boolean;
   headerProps?: {
     title: string;
