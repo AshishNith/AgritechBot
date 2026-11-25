@@ -2,7 +2,7 @@
   "expo": {
     "name": "Anaaj AI",
     "slug": "anaaj-ai-mobile",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "icon": "./assets/icon.png",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
@@ -37,10 +37,9 @@
         "backgroundColor": "#10241b"
       },
       "package": "com.anaajai.mobile",
-      "versionCode": 7,
+      "versionCode": 8,
       "permissions": [
         "CAMERA",
-        "READ_MEDIA_IMAGES",
         "RECORD_AUDIO",
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
@@ -48,6 +47,9 @@
       ],
       "blockedPermissions": [
         "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VIDEO",
         "android.permission.SYSTEM_ALERT_WINDOW"
       ],
       "edgeToEdgeEnabled": true

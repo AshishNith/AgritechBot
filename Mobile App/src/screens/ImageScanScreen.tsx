@@ -57,9 +57,11 @@ export function ImageScanScreen({ route }: { route: any }) {
   );
 
   const requestImageAccess = async (useCamera: boolean) => {
-    const permission = useCamera
-      ? await ImagePicker.requestCameraPermissionsAsync()
-      : await ImagePicker.requestMediaLibraryPermissionsAsync();
+    // Gallery uses the Android system photo picker, which needs no storage permission
+    // (Google Play policy forbids READ_MEDIA_IMAGES/VIDEO for apps like this).
+    if (!useCamera) return true;
+
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
 
     if (permission.granted) {
       return true;
