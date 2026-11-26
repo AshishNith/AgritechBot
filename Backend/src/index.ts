@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
 import multer from "multer";
-import { getGeminiResponse } from "./services/gemini";
+import { getClaudeResponse } from "./services/claude";
 import { speechToText, textToSpeech } from "./services/sarvam";
 import { AnaajRequest, ImageMimeType } from "./types";
 
@@ -83,17 +83,17 @@ app.post(
         isVoiceInput,
       };
 
-      const geminiResponse = await getGeminiResponse(anaajRequest);
+      const aiResponse = await getClaudeResponse(anaajRequest);
 
       let audioBase64: string | undefined;
       if (isVoiceInput) {
-        audioBase64 = await textToSpeech(geminiResponse.text, languageCode);
+        audioBase64 = await textToSpeech(aiResponse.text, languageCode);
       }
 
       return res.json({
-        reply: geminiResponse.text,
-        modelUsed: geminiResponse.modelUsed,
-        queryType: geminiResponse.queryType,
+        reply: aiResponse.text,
+        modelUsed: aiResponse.modelUsed,
+        queryType: aiResponse.queryType,
         transcribedText,
         audioBase64,
       });

@@ -1,26 +1,14 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { GoogleAICacheManager } from '@google/generative-ai/server';
-import { cache } from '../../services/cache/redisCache';
-import { env } from '../../config/env';
 import { logger } from '../../utils/logger';
-import { SYSTEM_PROMPT } from '../data/systemPrompt';
-import { TOOL_CONFIG, TOOL_DEFINITIONS } from '../tools';
 
-const KB_CACHE_KEY = 'gemini:kb:cacheId';
-const KB_CACHE_TTL_SECONDS = 55 * 60;
-const KB_REMOTE_TTL_SECONDS = 60 * 60;
-
-let inMemoryCacheName: string | null = null;
-let refreshTimer: NodeJS.Timeout | null = null;
-let cacheRetryBlockedUntil = 0;
-let cacheUnavailableLogged = false;
-
-function getModelName(): string {
-  return env.GEMINI_MODEL.startsWith('models/')
-    ? env.GEMINI_MODEL
-    : `models/${env.GEMINI_MODEL}`;
-}
+/**
+ * Knowledge base for the chat assistant.
+ *
+ * With Claude, the knowledge base is sent in the system prompt with a prompt-cache
+ * breakpoint (see aiChat.service.ts), so there is no separate cache object to create
+ * or refresh. The initialize/stop functions are kept so existing callers still work.
+ */
 
 let cachedKbText: string | null = null;
 
@@ -36,164 +24,20 @@ export async function getKnowledgeBaseText(): Promise<string> {
   cachedKbText = [
     'Anaaj.ai curated agricultural knowledge base for Indian farming.',
     'Use this information as background knowledge and still adapt to farmer profile, crop stage, and region.',
-    JSON.stringify(payload, null, 2),
+    // Compact JSON: same content, far fewer tokens on every chat request.
+    JSON.stringify(payload),
   ].join('\n\n');
 
   return cachedKbText;
 }
 
-const MIN_CACHE_TOKEN_SIZE = 32768;
-const CHARS_PER_TOKEN_ESTIMATE = 4;
-const MIN_CACHE_CHAR_SIZE = MIN_CACHE_TOKEN_SIZE * CHARS_PER_TOKEN_ESTIMATE; // 131,072 characters
-
-async function createKnowledgeBaseCache(): Promise<string> {
-  if (Date.now() < cacheRetryBlockedUntil) {
-    throw new Error('Gemini knowledge cache temporarily disabled due to provider limits');
-  }
-
-  const kbText = await getKnowledgeBaseText();
-  if (kbText.length < MIN_CACHE_CHAR_SIZE) {
-    throw new Error(`Knowledge base size (${kbText.length} chars) is below context caching threshold (${MIN_CACHE_CHAR_SIZE} chars)`);
-  }
-
-  const cacheManager = new GoogleAICacheManager(env.GEMINI_API_KEY);
-
-  const combinedSystemInstruction = `${SYSTEM_PROMPT}\n\nHere is the verified agricultural database:\n${kbText}`;
-
-  const cachedContent = await cacheManager.create({
-    model: getModelName(),
-    displayName: 'anaaj-ai-agri-knowledge',
-    ttlSeconds: KB_REMOTE_TTL_SECONDS,
-    systemInstruction: combinedSystemInstruction,
-    tools: TOOL_DEFINITIONS,
-    toolConfig: TOOL_CONFIG,
-    contents: [],
-  });
-
-  if (!cachedContent.name) {
-    throw new Error('Gemini knowledge cache creation did not return a cache name');
-  }
-
-  inMemoryCacheName = cachedContent.name;
-  await cache.set(KB_CACHE_KEY, { name: cachedContent.name }, KB_CACHE_TTL_SECONDS);
-  logger.info({ cacheName: cachedContent.name }, 'Knowledge base context cache refreshed');
-
-  return cachedContent.name;
-}
-
-export async function getKnowledgeBaseCacheName(): Promise<string | undefined> {
-  if (Date.now() < cacheRetryBlockedUntil) {
-    return undefined;
-  }
-
-  // Skip cache creation/lookup if database is too small
-  const kbText = await getKnowledgeBaseText();
-  if (kbText.length < MIN_CACHE_CHAR_SIZE) {
-    return undefined;
-  }
-
-  const cached = await cache.get<{ name: string }>(KB_CACHE_KEY);
-  if (cached?.name) {
-    inMemoryCacheName = cached.name;
-    return cached.name;
-  }
-
-  if (inMemoryCacheName) {
-    return inMemoryCacheName;
-  }
-
-  try {
-    return await createKnowledgeBaseCache();
-  } catch (error) {
-    const status = (error as { status?: number }).status;
-    const message = (error as { message?: string }).message || '';
-
-    if (status === 404 || (status === 400 && /too small/i.test(message)) || message.includes('below context caching threshold')) {
-      if (!cacheUnavailableLogged) {
-        logger.info(
-          { model: getModelName(), status, message },
-          'Gemini knowledge caching is not supported/active for this model or content size. Chat will continue without cached context.'
-        );
-        cacheUnavailableLogged = true;
-      }
-      return undefined;
-    }
-
-    if (status === 429) {
-      cacheRetryBlockedUntil = Date.now() + 30 * 60 * 1000; // Block for 30 mins
-      if (!cacheUnavailableLogged) {
-        logger.warn(
-          { status, message },
-          'Gemini knowledge caching quota hit. Disabling caching for 30 minutes.'
-        );
-        cacheUnavailableLogged = true;
-      }
-      return undefined;
-    }
-
-    logger.error({ err: error }, 'Failed to create Gemini knowledge cache');
-    return undefined;
-  }
-}
-
-export async function refreshKnowledgeBaseCache(): Promise<void> {
-  if (Date.now() < cacheRetryBlockedUntil) {
-    return;
-  }
-
-  try {
-    await createKnowledgeBaseCache();
-  } catch (error) {
-    const status = (error as { status?: number }).status;
-    const message = (error as { message?: string }).message || '';
-
-    if (status === 404 || (status === 400 && /too small/i.test(message))) {
-      if (!cacheUnavailableLogged) {
-        logger.warn(
-          { model: getModelName(), status, message },
-          'Gemini knowledge caching not supported or content too small for startup refresh. Proceeding without cache.'
-        );
-        cacheUnavailableLogged = true;
-      }
-      return;
-    }
-
-    if (status === 429) {
-      cacheRetryBlockedUntil = Date.now() + 30 * 60 * 1000;
-      if (!cacheUnavailableLogged) {
-        logger.warn(
-          'Gemini knowledge caching quota hit during startup. Disabling caching for 30 minutes.'
-        );
-        cacheUnavailableLogged = true;
-      }
-      return;
-    }
-
-    logger.error({ err: error }, 'Knowledge base cache refresh failed');
-  }
-}
-
+/** Loads the knowledge base into memory at startup. */
 export async function initializeKnowledgeBaseCache(): Promise<void> {
-  await refreshKnowledgeBaseCache();
-
-  if (!refreshTimer) {
-    refreshTimer = setInterval(() => {
-      refreshKnowledgeBaseCache().catch((err) => {
-        logger.error({ err }, 'Knowledge base cache refresh failed in timer');
-      });
-    }, KB_CACHE_TTL_SECONDS * 1000);
-    refreshTimer.unref();
-  }
+  const text = await getKnowledgeBaseText();
+  logger.info({ chars: text.length }, 'Knowledge base loaded for Claude prompt caching');
 }
 
-/**
- * Stop the knowledge base cache refresh timer
- * Call this during graceful shutdown
- */
+/** Kept for graceful-shutdown callers; nothing to stop with Claude prompt caching. */
 export function stopKnowledgeBaseCacheRefresh(): void {
-  if (refreshTimer) {
-    clearInterval(refreshTimer);
-    refreshTimer = null;
-    logger.info('Knowledge base cache refresh timer stopped');
-  }
+  // no-op
 }

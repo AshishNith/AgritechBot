@@ -1,9 +1,11 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { env } from '../../config/env';
 import { logger } from '../../utils/logger';
 import { cache } from '../../services/cache/redisCache';
-
-const gemini = new GoogleGenerativeAI(env.GEMINI_API_KEY);
+import {
+  createMessage,
+  CLAUDE_SUGGESTIONS_MODEL,
+  getResponseText,
+  parseJsonFromModel,
+} from '../../services/ai/claudeClient';
 
 export interface QuerySuggestion {
   text: string;
@@ -31,14 +33,6 @@ export async function generateQuerySuggestions(params: {
   }
 
   try {
-    const model = gemini.getGenerativeModel({
-      model: env.GEMINI_SUGGESTIONS_MODEL,
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 300,
-      },
-    });
-
     const prompt = `Based on this conversation between a farmer and an AI assistant, generate 3-5 natural follow-up questions the farmer might ask next.
 
 Farmer's Question: "${params.userQuery}"
@@ -65,17 +59,27 @@ Format your response as a JSON array with this structure:
 
 Only return the JSON array, no other text.`;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
+    const response = await createMessage(
+      {
+        model: CLAUDE_SUGGESTIONS_MODEL,
+        max_tokens: 4000,
+        output_config: { effort: 'low' },
+        messages: [{ role: 'user', content: prompt }],
+      },
+      { timeout: 20_000 }
+    );
+    const responseText = getResponseText(response);
 
-    // Extract JSON from response
-    const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
+    let suggestions: Array<{ text: string; category: string }>;
+    try {
+      suggestions = parseJsonFromModel(responseText);
+    } catch {
       logger.warn({ responseText }, 'Failed to extract JSON from suggestions response');
       return getDefaultSuggestions(params.language);
     }
-
-    const suggestions: Array<{ text: string; category: string }> = JSON.parse(jsonMatch[0]);
+    if (!Array.isArray(suggestions)) {
+      return getDefaultSuggestions(params.language);
+    }
 
     // Map to QuerySuggestion format with priorities
     const formatted: QuerySuggestion[] = suggestions.map((s, index) => ({

@@ -1,39 +1,28 @@
-import {
-  FunctionCallingMode,
-  FunctionDeclarationSchemaProperty,
-  SchemaType,
-  Tool,
-} from '@google/generative-ai';
+import type Anthropic from '@anthropic-ai/sdk';
 import { cropCalendarTool } from './cropCalendar.tool';
 import { mandiPriceTool } from './mandiPrice.tool';
 import { weatherTool, type ChatToolDefinition } from './weather.tool';
 import { productRecommendationTool } from './productRecommendation.tool';
 
-const toolRegistry = new Map<string, ChatToolDefinition>(
-  [weatherTool, cropCalendarTool, mandiPriceTool, productRecommendationTool].map((tool) => [tool.name, tool])
-);
-
-export const TOOL_DEFINITIONS: Tool[] = [
-  {
-    functionDeclarations: [weatherTool, cropCalendarTool, mandiPriceTool, productRecommendationTool].map((tool) => ({
-      name: tool.name,
-      description: tool.description,
-      parameters: {
-        type: SchemaType.OBJECT,
-        properties: Object.fromEntries(
-          Object.entries(tool.parameters.properties).map(([key, schema]) => [key, schema])
-        ) as Record<string, FunctionDeclarationSchemaProperty>,
-        required: tool.parameters.required,
-      },
-    })),
-  },
+const CHAT_TOOLS: ChatToolDefinition[] = [
+  weatherTool,
+  cropCalendarTool,
+  mandiPriceTool,
+  productRecommendationTool,
 ];
 
-export const TOOL_CONFIG = {
-  functionCallingConfig: {
-    mode: FunctionCallingMode.AUTO,
+const toolRegistry = new Map<string, ChatToolDefinition>(CHAT_TOOLS.map((tool) => [tool.name, tool]));
+
+/** Claude tool definitions. Order is fixed so the prompt-cache prefix stays stable. */
+export const TOOL_DEFINITIONS: Anthropic.Tool[] = CHAT_TOOLS.map((tool) => ({
+  name: tool.name,
+  description: tool.description,
+  input_schema: {
+    type: 'object',
+    properties: tool.parameters.properties,
+    required: tool.parameters.required ?? [],
   },
-};
+}));
 
 export function getToolByName(name: string): ChatToolDefinition | undefined {
   return toolRegistry.get(name);

@@ -1,6 +1,6 @@
 export type QueryType = "simple" | "image" | "complex";
 
-export type ModelTier = "gemini-2.5-flash-lite" | "gemini-2.5-flash";
+export type ModelTier = string;
 
 export type ImageMimeType = "image/jpeg" | "image/png" | "image/webp";
 

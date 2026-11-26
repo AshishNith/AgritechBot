@@ -38,9 +38,12 @@ const envSchema = z.object({
   ADMIN_PASSWORD: z.string().min(8).default('Admin@123'),
 
   // AI Providers
-  GEMINI_API_KEY: z.string().min(1),
-  GEMINI_MODEL: z.string().default('gemini-1.5-flash'),
-  GEMINI_SUGGESTIONS_MODEL: z.string().default('gemini-1.5-flash'),
+  // Claude (Anthropic) powers chat, crop scan, crop planner, scheduling and voice answers.
+  ANTHROPIC_API_KEY: z.string().min(1),
+  ANTHROPIC_MODEL: z.string().default('claude-sonnet-5-5'),
+  // Model for small background jobs (follow-up suggestions, history summaries).
+  // Defaults to ANTHROPIC_MODEL when unset.
+  ANTHROPIC_SUGGESTIONS_MODEL: z.string().optional().default(''),
 
   // Voice
   SARVAM_API_KEY: z.string().min(1),

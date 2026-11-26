@@ -162,7 +162,7 @@ export async function clearChatHistory(params: { farmerId: string; sessionId: st
  * Get messages for a session, paginated.
  *
  * CRITICAL FIX: The `content` field in MongoDB can be stored as either:
- *   - A plain string (from the new persistExchange in geminiChat.service)
+ *   - A plain string (from the new persistExchange in aiChat.service)
  *   - An object like { text: "...", type: "text" } (legacy format)
  *
  * The normalization handles BOTH cases, preventing empty content on reload.

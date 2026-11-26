@@ -1,4 +1,5 @@
 import { queryLLM } from './ai/llmRouter';
+import { parseJsonFromModel } from './ai/claudeClient';
 import { IUserCrop } from '../models/UserCrop';
 import { TaskType, TaskStatus } from '../models/FarmingTask';
 import { logger } from '../utils/logger';
@@ -44,8 +45,8 @@ export class AISchedulingService {
 
     try {
       const response = await queryLLM([{ role: 'user', content: prompt }]);
-      const cleanedContent = response.content.replace(/```json|```/g, '').trim();
-      const tasks: GeneratedTask[] = JSON.parse(cleanedContent);
+      const tasks = parseJsonFromModel<GeneratedTask[]>(response.content);
+      if (!Array.isArray(tasks)) throw new Error('Schedule response is not a JSON array');
       return tasks;
     } catch (error: any) {
       logger.error({ error: error.message, cropId: crop._id }, 'AI Schedule generation failed');
@@ -97,8 +98,7 @@ export class AISchedulingService {
 
     try {
       const response = await queryLLM([{ role: 'user', content: prompt }]);
-      const cleaned = response.content.replace(/```json|```/g, '').trim();
-      const parsed = JSON.parse(cleaned);
+      const parsed = parseJsonFromModel(response.content);
       if (Array.isArray(parsed)) {
         return parsed.filter((item) => typeof item === 'string').slice(0, 3);
       }

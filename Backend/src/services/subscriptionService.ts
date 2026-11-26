@@ -110,7 +110,7 @@ export async function checkLimit(
 /**
  * Increments usage count upon successful completion of the action.
  * Also syncs to User model atomically using MongoDB transactions.
- * Note: Wallet credit deduction is handled separately in geminiChat.service.ts
+ * Note: Wallet credit deduction is handled separately in aiChat.service.ts
  */
 export async function incrementUsage(
   userId: string,

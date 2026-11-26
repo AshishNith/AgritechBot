@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { connectDB, disconnectDB } from '../config/db';
-import { sendChatMessage } from '../chat/services/geminiChat.service';
+import { sendChatMessage } from '../chat/services/aiChat.service';
 import { User } from '../models/User';
 import { ChatSessionModel } from '../chat/models/ChatSession.model';
 import { initializeKnowledgeBaseCache, stopKnowledgeBaseCacheRefresh } from '../chat/services/knowledgeBase.service';

@@ -1,4 +1,5 @@
 import { queryLLM } from './ai/llmRouter';
+import { parseJsonFromModel } from './ai/claudeClient';
 import { logger } from '../utils/logger';
 
 export interface CropPlanInput {
@@ -71,8 +72,7 @@ export class CropPlanningService {
 
     try {
       const response = await queryLLM([{ role: 'user', content: prompt }]);
-      const cleanedContent = response.content.replace(/```json|```/g, '').trim();
-      return JSON.parse(cleanedContent);
+      return parseJsonFromModel<any>(response.content);
     } catch (error: any) {
       logger.error({ error: error.message, input }, 'Crop Plan generation failed');
       throw new Error('Failed to generate crop plan. Please try again.');

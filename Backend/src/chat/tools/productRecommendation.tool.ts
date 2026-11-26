@@ -1,4 +1,3 @@
-import { SchemaType } from '@google/generative-ai';
 import { ProductSearchService } from '../../services/productSearch.service';
 import { logger } from '../../utils/logger';
 

@@ -1,15 +1,17 @@
-import type { Content } from '@google/generative-ai';
-import { estimateContentTokens, estimateTextTokens } from './tokenCounter';
+import { estimateContentTokens, estimateTextTokens, type HistoryTurn } from './tokenCounter';
 
 export interface TruncationResult {
-  contents: Content[];
+  /** Recent turns to send to the model, oldest first. */
+  contents: HistoryTurn[];
+  /** Summary of older turns that were dropped, when a summary was made. */
+  summary?: string;
   summaryUsed: boolean;
 }
 
 export async function truncateConversationToBudget(params: {
-  historyContents: Content[];
+  historyContents: HistoryTurn[];
   availableTokens: number;
-  summarizeOlderMessages: (olderContents: Content[]) => Promise<string>;
+  summarizeOlderMessages: (olderContents: HistoryTurn[]) => Promise<string>;
 }): Promise<TruncationResult> {
   const { historyContents, availableTokens, summarizeOlderMessages } = params;
 
@@ -21,40 +23,27 @@ export async function truncateConversationToBudget(params: {
     return { contents: historyContents, summaryUsed: false };
   }
 
-  const recentContents = historyContents.slice(-20);
-  const olderContents = historyContents.slice(0, -20);
-  const summary = await summarizeOlderMessages(olderContents);
-  const summaryContent: Content = {
-    role: 'system',
-    parts: [{ text: `CONVERSATION SUMMARY SO FAR: ${summary}` }],
-  };
+  let recent = historyContents.slice(-20);
+  const older = historyContents.slice(0, -20);
+  const summary = await summarizeOlderMessages(older);
+  const summaryTokens = estimateTextTokens(summary);
 
-  let combined = [summaryContent, ...recentContents];
-
-  while (estimateContentTokens(combined) > availableTokens && combined.length > 21) {
-    combined = [summaryContent, ...combined.slice(2)];
+  // Drop the oldest exchanges until the history fits.
+  while (estimateContentTokens(recent) + summaryTokens > availableTokens && recent.length > 2) {
+    recent = recent.slice(2);
   }
 
-  if (estimateContentTokens(combined) > availableTokens) {
-    combined = [
-      summaryContent,
-      ...combined.slice(1).map((content) => ({
-        ...content,
-        parts: content.parts.map((part) => {
-          if (!('text' in part) || typeof part.text !== 'string') {
-            return part;
-          }
-
-          const limitedText =
-            estimateTextTokens(part.text) > 500 ? `${part.text.slice(0, 1800)}...` : part.text;
-          return { text: limitedText };
-        }),
-      })),
-    ];
+  // Still too long: shorten very long messages.
+  if (estimateContentTokens(recent) + summaryTokens > availableTokens) {
+    recent = recent.map((turn) => ({
+      ...turn,
+      text: estimateTextTokens(turn.text) > 500 ? `${turn.text.slice(0, 1800)}...` : turn.text,
+    }));
   }
 
   return {
-    contents: combined,
+    contents: recent,
+    summary,
     summaryUsed: true,
   };
 }

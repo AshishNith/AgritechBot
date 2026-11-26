@@ -1,5 +1,5 @@
 /**
- * geminiChat.service.ts — Clean rewrite of the core Gemini chat service.
+ * aiChat.service.ts — core chat service, powered by Claude (Anthropic).
  *
  * KEY DESIGN PRINCIPLES:
  *   1. Respond FIRST, persist AFTER — The HTTP response is sent as soon as the AI
@@ -8,12 +8,18 @@
  *      messages are transient UI feedback; saving them caused duplicate messages.
  *   3. Typed errors — All thrown errors are HttpError instances so the error
  *      handler preserves user-friendly messages.
- *   4. TTS timeout — TTS is capped at 10 seconds so it can never block the response.
- *   5. Tool loop safety — The tool call loop has a hard cap of 5 iterations.
+ *   4. TTS timeout — TTS is capped so it can never block the response.
+ *   5. Tool loop safety — The tool call loop has a hard cap.
+ *   6. Prompt caching — The system prompt + knowledge base (tens of thousands of
+ *      tokens) is identical for every farmer and cached; per-farmer context comes
+ *      after the cache breakpoint.
+ *
+ * Only the user's text and the assistant's final text are stored, so tool calls
+ * never show up in the app's chat history.
  */
 
 import crypto from 'crypto';
-import { GoogleGenerativeAI, GoogleGenerativeAIFetchError, GoogleGenerativeAIResponseError, Content, Part } from '@google/generative-ai';
+import Anthropic from '@anthropic-ai/sdk';
 import { env } from '../../config/env';
 import { logger } from '../../utils/logger';
 import { HttpError } from '../utils/httpError';
@@ -21,19 +27,28 @@ import { HttpError } from '../utils/httpError';
 // Services
 import { textToSpeech } from '../../services/voice/sarvamTTS';
 import { speechToText } from '../../services/voice/sarvamSTT';
-import { ChatHistoryCache, type LeanChatMessage } from './chatHistoryCache.service';
+import { ChatHistoryCache } from './chatHistoryCache.service';
 import { getFarmerContext } from './contextBuilder.service';
-import { getKnowledgeBaseCacheName, getKnowledgeBaseText } from './knowledgeBase.service';
+import { getKnowledgeBaseText } from './knowledgeBase.service';
 import { touchChatSession } from './sessionManager.service';
 import { getQuickSuggestions, type QuerySuggestion } from './querySuggestions.service';
 import { summarizeConversationHistory } from './historyCompressor.service';
 import { truncateConversationToBudget } from '../utils/contextTruncator';
+import type { HistoryTurn } from '../utils/tokenCounter';
 import { deductCredit, getWallet } from '../../services/walletService';
 import { incrementUsage } from '../../services/subscriptionService';
+import {
+  createMessage,
+  classifyClaudeError,
+  ClaudeRefusalError,
+  CLAUDE_MODEL,
+  getResponseText,
+  getRetryAfterSeconds,
+  toClaudeImageMediaType,
+} from '../../services/ai/claudeClient';
 
 // Chat tools
-import { TOOL_DEFINITIONS, TOOL_CONFIG, executeTool } from '../tools';
-
+import { TOOL_DEFINITIONS, executeTool } from '../tools';
 
 // Models
 import { ChatMessageModel } from '../models/ChatMessage.model';
@@ -46,14 +61,13 @@ import { detectChatLanguage, toUserLanguage, type ChatLanguage } from '../utils/
 
 // ── Configuration ──
 
-const GEMINI_API_TIMEOUT_MS = 20_000;     // 20s per AI call (budget: 20s × 3 calls max = 60s)
+// The mobile app waits up to 90s. Worst case here is 3 AI calls × 25s + 5s TTS = 80s.
+const AI_CALL_TIMEOUT_MS = 25_000;
 const TTS_TIMEOUT_MS = 5_000;             // 5s cap for TTS (non-critical, can fail gracefully)
-const MAX_TOOL_LOOPS = 2;                 // max 2 tool iterations to keep total time under 65s
-const HISTORY_TOKEN_BUDGET = 12_000;      // token budget for context window
+const MAX_TOOL_LOOPS = 2;                 // max 2 tool rounds, then a final answer without tools
+const HISTORY_TOKEN_BUDGET = 12_000;      // token budget for conversation history
 
-const gemini = new GoogleGenerativeAI(env.GEMINI_API_KEY);
-
-// ── Quota cooldown ──
+// ── Rate-limit cooldown ──
 
 let quotaBlockedUntil = 0;
 
@@ -108,31 +122,16 @@ const friendlyErrors: Record<string, Record<ChatLanguage, string>> = {
     gu: 'AI સેવા અસ્થાયી રૂપે ઉપલબ્ધ નથી. કૃપા કરીને થોડી મિનિટો પછી ફરી પ્રયાસ કરો.',
     pa: 'AI ਸੇਵਾ ਅਸਥਾਈ ਤੌਰ \'ਤੇ ਉਪਲਬਧ ਨਹੀਂ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਕੁਝ ਮਿੰਟਾਂ ਬਾਅਦ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
   },
+  unsupported_image: {
+    en: 'This image format is not supported. Please send a JPEG, PNG or WebP photo.',
+    hi: 'यह फ़ोटो फ़ॉर्मेट समर्थित नहीं है। कृपया JPEG, PNG या WebP फ़ोटो भेजें।',
+    gu: 'આ ફોટો ફોર્મેટ સપોર્ટેડ નથી. કૃપા કરીને JPEG, PNG અથવા WebP ફોટો મોકલો.',
+    pa: 'ਇਹ ਫੋਟੋ ਫਾਰਮੈਟ ਸਮਰਥਿਤ ਨਹੀਂ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ JPEG, PNG ਜਾਂ WebP ਫੋਟੋ ਭੇਜੋ।',
+  },
 };
 
 function getFriendlyError(code: string, lang: ChatLanguage): string {
   return friendlyErrors[code]?.[lang] || friendlyErrors.provider_error[lang];
-}
-
-// ── Error classifiers ──
-
-function isQuotaError(error: unknown): boolean {
-  if (error instanceof GoogleGenerativeAIFetchError && error.status === 429) return true;
-  if (error instanceof Error && /quota|rate.?limit|resource.?exhausted/i.test(error.message)) return true;
-  return false;
-}
-
-function isTemporaryProviderError(error: unknown): boolean {
-  if (error instanceof GoogleGenerativeAIFetchError) {
-    return [500, 502, 503].includes(error.status ?? 0);
-  }
-  return false;
-}
-
-function parseRetryDelayMs(error: unknown): number {
-  const match = error instanceof Error && error.message.match(/(\d+)\s*s/);
-  const parsed = match ? Number(match[1]) * 1000 : 10_000; // default 10s (was 60s — way too long)
-  return Math.min(parsed, 15_000); // cap at 15s — never block longer than this
 }
 
 function getQuotaExceededMessage(lang: ChatLanguage, retryAfterSeconds: number): string {
@@ -143,6 +142,165 @@ function getQuotaExceededMessage(lang: ChatLanguage, retryAfterSeconds: number):
     pa: `AI ਵਿਅਸਤ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ${retryAfterSeconds} ਸਕਿੰਟ ਬਾਅਦ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।`,
   };
   return messages[lang];
+}
+
+// ── Helper: system prompt ──
+
+/**
+ * Builds the system prompt. The first block (persona + knowledge base) is the same
+ * for every request and carries the cache breakpoint; the second block is the
+ * per-farmer context and is not cached.
+ */
+async function buildSystemBlocks(params: {
+  farmerContext: string;
+  language: ChatLanguage;
+  conversationSummary?: string;
+}): Promise<Anthropic.TextBlockParam[]> {
+  const kbText = await getKnowledgeBaseText();
+  const languageLabel = getLanguageLabel(params.language);
+
+  const farmerBlock = [
+    `Farmer profile (use it to personalise advice; do not repeat it back):\n${params.farmerContext}`,
+    params.conversationSummary
+      ? `Summary of the earlier part of this conversation:\n${params.conversationSummary}`
+      : '',
+    `Respond entirely in ${languageLabel}.${params.language !== 'en' ? ' Do not answer in English.' : ''}`,
+  ]
+    .filter(Boolean)
+    .join('\n\n');
+
+  return [
+    {
+      type: 'text',
+      text: `${SYSTEM_PROMPT}\n\nHere is the verified agricultural database:\n${kbText}`,
+      cache_control: { type: 'ephemeral', ttl: '1h' },
+    },
+    { type: 'text', text: farmerBlock },
+  ];
+}
+
+// ── Helper: one Claude call ──
+
+function callClaude(
+  system: Anthropic.TextBlockParam[],
+  messages: Anthropic.MessageParam[],
+  allowTools: boolean,
+  label: string
+): Promise<Anthropic.Message> {
+  return withTimeout(
+    createMessage(
+      {
+        model: CLAUDE_MODEL,
+        max_tokens: 16000,
+        output_config: { effort: 'low' },
+        system,
+        tools: TOOL_DEFINITIONS,
+        tool_choice: allowTools ? { type: 'auto' } : { type: 'none' },
+        messages,
+      },
+      { timeout: AI_CALL_TIMEOUT_MS, maxRetries: 0 }
+    ),
+    AI_CALL_TIMEOUT_MS,
+    label
+  );
+}
+
+// ── Helper: one full Claude reply, including the tool-call loop ──
+
+export interface ChatReply {
+  text: string;
+  recommendedProducts: any[];
+  toolRounds: number;
+  /** The final Claude response (for usage / cache stats). */
+  response: Anthropic.Message;
+}
+
+/**
+ * Sends the conversation to Claude, runs any tool calls it makes, and returns the
+ * final answer. Has no database side effects.
+ */
+export async function generateChatReply(params: {
+  history: HistoryTurn[];
+  farmerContext: string;
+  language: ChatLanguage;
+  conversationSummary?: string;
+  text: string;
+  imageBase64?: string;
+  imageMediaType?: ReturnType<typeof toClaudeImageMediaType>;
+}): Promise<ChatReply> {
+  const system = await buildSystemBlocks({
+    farmerContext: params.farmerContext,
+    language: params.language,
+    conversationSummary: params.conversationSummary,
+  });
+
+  // History + current user message (with optional image)
+  const currentContent: Anthropic.ContentBlockParam[] = [];
+  if (params.imageBase64 && params.imageMediaType) {
+    const cleanBase64 = params.imageBase64.includes(',')
+      ? params.imageBase64.split(',')[1] || params.imageBase64
+      : params.imageBase64;
+    currentContent.push({
+      type: 'image',
+      source: { type: 'base64', media_type: params.imageMediaType, data: cleanBase64.replace(/\s/g, '') },
+    });
+  }
+  currentContent.push({ type: 'text', text: params.text });
+
+  const messages: Anthropic.MessageParam[] = [
+    ...params.history.map((turn) => ({ role: turn.role, content: turn.text }) as Anthropic.MessageParam),
+    { role: 'user', content: currentContent },
+  ];
+
+  let recommendedProducts: any[] = [];
+  let response = await callClaude(system, messages, true, 'Claude AI');
+
+  let toolRounds = 0;
+  while (response.stop_reason === 'tool_use') {
+    const toolUses = response.content.filter(
+      (block): block is Anthropic.ToolUseBlock => block.type === 'tool_use'
+    );
+    if (toolUses.length === 0) break;
+
+    messages.push({ role: 'assistant', content: response.content });
+
+    // Run all tool calls of this turn and return every result in one user message.
+    const toolResults: Anthropic.ToolResultBlockParam[] = await Promise.all(
+      toolUses.map(async (toolUse): Promise<Anthropic.ToolResultBlockParam> => {
+        try {
+          const result = await executeTool(toolUse.name, (toolUse.input ?? {}) as Record<string, unknown>);
+          if (toolUse.name === 'get_product_recommendations' && Array.isArray(result.products)) {
+            recommendedProducts = result.products as any[];
+          }
+          return { type: 'tool_result', tool_use_id: toolUse.id, content: JSON.stringify(result) };
+        } catch (toolError) {
+          logger.warn({ err: toolError, tool: toolUse.name }, 'Chat tool execution failed');
+          return {
+            type: 'tool_result',
+            tool_use_id: toolUse.id,
+            is_error: true,
+            content: 'Tool execution failed',
+          };
+        }
+      })
+    );
+    messages.push({ role: 'user', content: toolResults });
+
+    toolRounds++;
+    // After the last allowed tool round, ask for the final answer without tools.
+    response = await callClaude(system, messages, toolRounds < MAX_TOOL_LOOPS, 'Claude AI (tool follow-up)');
+  }
+
+  if (response.stop_reason === 'refusal') {
+    throw new ClaudeRefusalError();
+  }
+
+  return {
+    text: getResponseText(response),
+    recommendedProducts,
+    toolRounds,
+    response,
+  };
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -171,14 +329,11 @@ export async function sendChatMessage(params: {
 }): Promise<ChatMessageResult> {
   const startedAt = Date.now();
 
-  // ── 1. Pre-flight: quota cooldown check ──
-  // Only block if we're within a very recent cooldown (max 15s).
-  // This prevents a single Gemini 429 from locking out all users for a full minute.
+  // ── 1. Pre-flight: rate-limit cooldown check ──
   if (Date.now() < quotaBlockedUntil) {
     const retryAfterSeconds = Math.max(1, Math.ceil((quotaBlockedUntil - Date.now()) / 1000));
     if (retryAfterSeconds > 1) {
-      // Only block if there's meaningful time left; otherwise just try the request
-      logger.info({ retryAfterSeconds }, 'Quota cooldown active, rejecting early');
+      logger.info({ retryAfterSeconds }, 'Rate-limit cooldown active, rejecting early');
       throw new HttpError(
         `AI is busy. Please try again in ${retryAfterSeconds} seconds.`,
         429,
@@ -191,7 +346,7 @@ export async function sendChatMessage(params: {
     ? getLanguageCode(params.preferredLanguage)
     : detectChatLanguage(params.text);
 
-  // ── 2b. Idempotency check ──
+  // ── 2. Idempotency check ──
   const idempotencyHash = crypto
     .createHash('md5')
     .update(`${params.sessionId}:${params.text.trim()}:${params.imageBase64 || ''}`)
@@ -206,8 +361,8 @@ export async function sendChatMessage(params: {
 
   if (existingResponse) {
     logger.info({ sessionId: params.sessionId, hash: idempotencyHash }, 'Idempotency hit: returning cached response');
-    const content = typeof existingResponse.content === 'string' 
-      ? existingResponse.content 
+    const content = typeof existingResponse.content === 'string'
+      ? existingResponse.content
       : (existingResponse.content as any).text || '';
 
     return {
@@ -220,20 +375,28 @@ export async function sendChatMessage(params: {
     };
   }
 
+  // ── 3. Validate an attached image before spending anything ──
+  let imageMediaType: ReturnType<typeof toClaudeImageMediaType>;
+  if (params.imageBase64) {
+    imageMediaType = toClaudeImageMediaType(params.imageMimeType);
+    if (!imageMediaType) {
+      throw new HttpError(getFriendlyError('unsupported_image', language), 400);
+    }
+  }
+
   try {
-    // ── 3. Fetch farmer context + chat history in parallel ──
-    const [farmerCtx, recentMessages, kbCacheName] = await Promise.all([
+    // ── 4. Fetch farmer context + chat history in parallel ──
+    const [farmerCtx, recentMessages] = await Promise.all([
       getFarmerContext(params.farmerId),
       ChatHistoryCache.getRecentMessages(params.sessionId, 50),
-      getKnowledgeBaseCacheName(),
     ]);
 
-    // ── 4. Build Gemini history from DB messages ──
-    const rawHistory: Content[] = [];
+    // ── 5. Build text-only history from DB messages ──
+    const historyTurns: HistoryTurn[] = [];
     for (const msg of recentMessages) {
       if (msg.role !== 'user' && msg.role !== 'assistant') continue;
 
-      let text: string = '';
+      let text = '';
       if (typeof msg.content === 'string') {
         text = msg.content;
       } else if (msg.content && typeof msg.content === 'object') {
@@ -243,134 +406,43 @@ export async function sendChatMessage(params: {
       }
 
       if (!text.trim()) continue;
-
-      rawHistory.push({
-        role: msg.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text }],
-      });
+      historyTurns.push({ role: msg.role, text });
     }
 
-    // Sanitize: Gemini requires alternating user/model roles.
-    const historyContents: Content[] = [];
-    for (const content of rawHistory) {
-      if (historyContents.length > 0 && historyContents[historyContents.length - 1].role === content.role) {
-        const prevText = historyContents[historyContents.length - 1].parts[0].text || '';
-        const currText = content.parts[0].text || '';
-        historyContents[historyContents.length - 1].parts = [{ text: `${prevText}\n\n${currText}` }];
-      } else {
-        historyContents.push(content);
-      }
+    // The conversation sent to Claude must start with a user turn.
+    while (historyTurns.length > 0 && historyTurns[0].role !== 'user') {
+      historyTurns.shift();
     }
 
-    // Truncate to budget
-    const { contents: truncatedHistory } = await truncateConversationToBudget({
-      historyContents,
+    const { contents: truncatedHistory, summary } = await truncateConversationToBudget({
+      historyContents: historyTurns,
       availableTokens: HISTORY_TOKEN_BUDGET,
       summarizeOlderMessages: summarizeConversationHistory,
     });
 
-    // If using cached content, we can't dynamically override the systemInstruction,
-    // so we inject the farmer context and language preference as a mock history exchange
-    // to ensure the AI follows the instructions without echoing them back.
-    if (kbCacheName) {
-      truncatedHistory.push(
-        {
-          role: 'user',
-          parts: [{ text: `System Directive: Here is the user's profile:\n${farmerCtx.contextString}\n\nCRITICAL INSTRUCTION: You MUST respond entirely in the ${getLanguageLabel(language)} language.${language !== 'en' ? ' Do not use English.' : ''}` }]
-        },
-        {
-          role: 'model',
-          parts: [{ text: `I understand. I will keep this profile in mind, I will not echo it back, and I will respond exclusively in ${getLanguageLabel(language)}.` }]
-        }
-      );
-    }
+    // ── 6-7. Ask Claude (with tool calls) ──
+    const reply = await generateChatReply({
+      history: truncatedHistory,
+      farmerContext: farmerCtx.contextString,
+      language,
+      conversationSummary: summary,
+      text: params.text,
+      imageBase64: params.imageBase64,
+      imageMediaType,
+    });
+    const { recommendedProducts, response } = reply;
+    const responseText = reply.text || getFriendlyError('provider_error', language);
 
-    // ── 5. Build current user message parts ──
-    const userParts: Part[] = [{ text: params.text }];
-
-    if (params.imageBase64 && params.imageMimeType) {
-      userParts.push({
-        inlineData: { data: params.imageBase64, mimeType: params.imageMimeType },
-      });
-    }
-
-    // ── 6. Create Gemini model ──
-    const modelConfig: any = {
-      model: env.GEMINI_MODEL,
-      generationConfig: {
-        temperature: 0.7,
-        topP: 0.9,
-        maxOutputTokens: 2048,
+    logger.info(
+      {
+        sessionId: params.sessionId,
+        toolRounds: reply.toolRounds,
+        cacheReadTokens: response.usage.cache_read_input_tokens,
+        cacheWriteTokens: response.usage.cache_creation_input_tokens,
+        outputTokens: response.usage.output_tokens,
       },
-      tools: TOOL_DEFINITIONS,
-      toolConfig: TOOL_CONFIG,
-    };
-
-    let model;
-    if (kbCacheName) {
-      model = gemini.getGenerativeModelFromCachedContent(
-        {
-          name: kbCacheName,
-          model: env.GEMINI_MODEL.startsWith('models/') ? env.GEMINI_MODEL : `models/${env.GEMINI_MODEL}`,
-        } as any,
-        modelConfig,
-        { apiVersion: 'v1beta' }
-      );
-    } else {
-      const kbText = await getKnowledgeBaseText();
-      modelConfig.systemInstruction = `${SYSTEM_PROMPT}\n\nHere is the verified agricultural database:\n${kbText}\n\n${farmerCtx.contextString}\n\nCRITICAL INSTRUCTION: You MUST respond entirely in the ${getLanguageLabel(language)} language.${language !== 'en' ? ' Do not use English.' : ''}`;
-      model = gemini.getGenerativeModel(modelConfig, { apiVersion: 'v1beta' });
-    }
-    const chat = model.startChat({ history: truncatedHistory });
-
-    // ── 7. Send message and handle tool calls ──
-    let responseText = '';
-    let recommendedProducts: any[] = [];
-
-    let geminiResult = await withTimeout(
-      chat.sendMessage(userParts),
-      GEMINI_API_TIMEOUT_MS,
-      'Gemini AI'
+      'Claude chat response'
     );
-
-    let loopCount = 0;
-    while (loopCount < MAX_TOOL_LOOPS) {
-      const candidate = geminiResult.response.candidates?.[0];
-      if (!candidate) break;
-
-      const functionCalls = candidate.content?.parts?.filter((p) => 'functionCall' in p) || [];
-      if (functionCalls.length === 0) break;
-
-      const toolResponses: Part[] = [];
-      for (const part of functionCalls) {
-        if (!('functionCall' in part) || !part.functionCall) continue;
-        const { name, args } = part.functionCall;
-        try {
-          const result = await executeTool(name, args as Record<string, unknown>);
-          if (name === 'get_product_recommendations' && result.products) {
-            recommendedProducts = result.products as any[];
-          }
-          toolResponses.push({ functionResponse: { name, response: result } });
-        } catch (toolError) {
-          toolResponses.push({
-            functionResponse: { name, response: { error: 'Tool execution failed' } },
-          });
-        }
-      }
-
-      geminiResult = await withTimeout(
-        chat.sendMessage(toolResponses),
-        GEMINI_API_TIMEOUT_MS,
-        'Gemini AI (tool follow-up)'
-      );
-      loopCount++;
-    }
-
-    try {
-      responseText = geminiResult.response.text().trim();
-    } catch (textErr) {
-      responseText = getFriendlyError('provider_error', language);
-    }
 
     // Generate audio if necessary (optional)
     let audioBase64: string | undefined;
@@ -385,7 +457,7 @@ export async function sendChatMessage(params: {
     }
 
     const processingTimeMs = Date.now() - startedAt;
-    const cacheHit = !!kbCacheName;
+    const cacheHit = (response.usage.cache_read_input_tokens ?? 0) > 0;
 
     // ── 8. Deduct wallet BEFORE responding (so we can return accurate credits) ──
     let walletData: any = undefined;
@@ -409,7 +481,6 @@ export async function sendChatMessage(params: {
     }
 
     // ── 9. Fire-and-forget non-critical background work ──
-    // DB persistence, session touch, and cache invalidation are not blocking.
     const doBackgroundWork = async () => {
       try {
         await Promise.all([
@@ -447,7 +518,7 @@ export async function sendChatMessage(params: {
       chatId: params.sessionId,
       quickReplies: quickSuggestions.map((s: QuerySuggestion) => s.text),
       recommendedProducts: recommendedProducts.length > 0 ? recommendedProducts : undefined,
-      model: env.GEMINI_MODEL,
+      model: CLAUDE_MODEL,
       cached: cacheHit,
       audioBase64,
       audioMimeType: audioBase64 ? 'audio/mp3' : undefined,
@@ -456,38 +527,35 @@ export async function sendChatMessage(params: {
 
   } catch (error) {
     // ── Error handling — NO persistence of failed messages ──
-    if (isQuotaError(error)) {
-      const delayMs = parseRetryDelayMs(error);
-      quotaBlockedUntil = Date.now() + delayMs;
-      const retryAfterSeconds = Math.max(1, Math.ceil(delayMs / 1000));
-      const msg = getQuotaExceededMessage(language, retryAfterSeconds);
+    if (error instanceof HttpError) throw error;
 
+    const kind = classifyClaudeError(error);
+
+    if (kind === 'rate_limited') {
+      const retryAfterSeconds = Math.min(getRetryAfterSeconds(error, 10), 15);
+      quotaBlockedUntil = Date.now() + retryAfterSeconds * 1000;
       logger.warn(
         { retryAfterSeconds, blockedUntil: new Date(quotaBlockedUntil).toISOString() },
-        'Gemini quota exceeded'
+        'Claude rate limit hit'
       );
-      throw new HttpError(msg, 429, { retryAfterSeconds });
+      throw new HttpError(getQuotaExceededMessage(language, retryAfterSeconds), 429, { retryAfterSeconds });
     }
 
-    if (isTemporaryProviderError(error)) {
-      logger.warn({ err: error, sessionId: params.sessionId }, 'Gemini provider temporarily unavailable');
+    if (kind === 'unavailable') {
+      logger.warn({ err: error, sessionId: params.sessionId }, 'Claude temporarily unavailable');
       throw new HttpError(getFriendlyError('provider_unavailable', language), 503);
     }
 
-    // Timeout vs safety vs generic
-    const isTimeout =
-      (error instanceof Error && error.message.includes('timed out')) ||
-      (error instanceof GoogleGenerativeAIFetchError &&
-        (error.status === 408 || /timeout/i.test(error.message)));
-    const isSafety = error instanceof GoogleGenerativeAIResponseError;
-    const code = isTimeout ? 'timeout' : isSafety ? 'safety' : 'provider_error';
-    const statusCode = isTimeout ? 504 : isSafety ? 400 : 500;
+    const isRefusal = error instanceof ClaudeRefusalError;
+    const isBadRequest = error instanceof Anthropic.BadRequestError;
+    const code = kind === 'timeout' ? 'timeout' : isRefusal ? 'safety' : 'provider_error';
+    const statusCode = kind === 'timeout' ? 504 : isRefusal || isBadRequest ? 400 : 500;
 
     logger.error({ err: error, sessionId: params.sessionId }, 'Chat message processing failed');
-    
+
     // Provide a more detailed error message in non-production to aid debugging
     const originalMessage = error instanceof Error ? `: ${error.message}` : '';
-    const userMessage = env.NODE_ENV !== 'production' 
+    const userMessage = env.NODE_ENV !== 'production'
       ? `${getFriendlyError(code, language)} (Debug${originalMessage})`
       : getFriendlyError(code, language);
 
@@ -578,7 +646,8 @@ async function persistExchange(params: {
         language: params.language,
         idempotencyKey: `${params.idempotencyKey}:assistant`,
         metadata: {
-          model: env.GEMINI_MODEL,
+          model: CLAUDE_MODEL,
+          modelVersion: CLAUDE_MODEL,
           processingTimeMs: params.processingTimeMs,
           cacheHit: params.cacheHit,
           ...(params.audioBase64 ? { audioBase64: params.audioBase64, audioMimeType: 'audio/mp3' } : {}),

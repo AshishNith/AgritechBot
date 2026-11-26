@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { getFarmerContext } from '../services/contextBuilder.service';
-import { sendChatMessage, sendVoiceMessage } from '../services/geminiChat.service';
+import { sendChatMessage, sendVoiceMessage } from '../services/aiChat.service';
 import { clearChatHistory, getSessionMessages } from '../services/sessionManager.service';
 import { speechToText } from '../../services/voice/sarvamSTT';
 import { logger } from '../../utils/logger';

@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 import { ImageAnalysis } from '../models/ImageAnalysis';
 import { incrementUsage } from '../services/subscriptionService';
@@ -10,7 +10,120 @@ import { randomUUID } from 'crypto';
 import { cloudinaryService } from '../services/cloudinaryService';
 import { getWallet, deductCredit } from '../services/walletService';
 
-const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
+import {
+  assertNotRefused,
+  createMessage,
+  classifyClaudeError,
+  ClaudeRefusalError,
+  CLAUDE_MODEL,
+  getResponseText,
+  toClaudeImageMediaType,
+} from '../services/ai/claudeClient';
+
+const CROP_SCAN_TIMEOUT_MS = 75_000;
+
+/**
+ * Shape of the diagnosis the mobile app renders (ImageScanScreen). Enforced with
+ * structured outputs so the app always receives these exact keys and types.
+ * `severity` stays in English (Low/Moderate/High): the app colours the badge from it.
+ */
+const DIAGNOSIS_JSON_SCHEMA = {
+  type: 'object',
+  properties: {
+    crop: { type: 'string' },
+    problem: { type: 'string' },
+    confidence: { type: 'integer' },
+    severity: { type: 'string', enum: ['Low', 'Moderate', 'High'] },
+    severityScore: { type: 'integer' },
+    summary: { type: 'string' },
+    recommendations: {
+      type: 'object',
+      properties: {
+        immediate: { type: 'array', items: { type: 'string' } },
+        organic: { type: 'array', items: { type: 'string' } },
+        chemical: { type: 'array', items: { type: 'string' } },
+      },
+      required: ['immediate', 'organic', 'chemical'],
+      additionalProperties: false,
+    },
+    products: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          category: { type: 'string' },
+          purpose: { type: 'string' },
+        },
+        required: ['name', 'category', 'purpose'],
+        additionalProperties: false,
+      },
+    },
+    expertHelp: { type: 'string' },
+  },
+  required: [
+    'crop',
+    'problem',
+    'confidence',
+    'severity',
+    'severityScore',
+    'summary',
+    'recommendations',
+    'products',
+    'expertHelp',
+  ],
+  additionalProperties: false,
+} as const;
+
+/**
+ * Sends a crop photo to Claude and returns the diagnosis as a JSON string matching
+ * DIAGNOSIS_JSON_SCHEMA. No database or wallet side effects.
+ */
+export async function runCropDiagnosis(
+  imageBase64: string,
+  mediaType: NonNullable<ReturnType<typeof toClaudeImageMediaType>>,
+  language: string
+): Promise<string> {
+  const prompt = `Identify the crop and analyze its health.
+Focus strictly on identifying any visible problems like diseases, pests, or nutrient deficiencies.
+If a problem is found, describe the symptoms precisely and suggest professional solutions.
+Write every text value (problem, summary, recommendations, products, expertHelp) in ${language}.
+Keep "severity" as exactly one of the English words Low, Moderate or High.
+"confidence" and "severityScore" are whole numbers from 0 to 100.
+Ensure the tone follows the Krishi persona: helpful, expert, and professional.`;
+
+  const aiResponse = await createMessage(
+    {
+      model: CLAUDE_MODEL,
+      max_tokens: 16000,
+      output_config: {
+        effort: 'medium',
+        format: { type: 'json_schema', schema: DIAGNOSIS_JSON_SCHEMA },
+      },
+      system: DIAGNOSIS_PROMPT,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: mediaType, data: imageBase64.replace(/\s/g, '') },
+            },
+            { type: 'text', text: prompt },
+          ],
+        },
+      ],
+    },
+    { timeout: CROP_SCAN_TIMEOUT_MS }
+  );
+
+  assertNotRefused(aiResponse);
+  if (aiResponse.stop_reason === 'max_tokens') {
+    throw new Error('Crop analysis response was cut off (max_tokens)');
+  }
+
+  return getResponseText(aiResponse);
+}
 
 // Valid image MIME types
 const VALID_IMAGE_MIME_TYPES = new Set([
@@ -115,36 +228,16 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
       return reply.status(500).send({ error: 'Failed to verify account balance' });
     }
 
-    const model = genAI.getGenerativeModel({
-      model: env.GEMINI_MODEL,
-      systemInstruction: DIAGNOSIS_PROMPT,
-      generationConfig: {
-        maxOutputTokens: 1024,
-        temperature: 0.1, // Even lower for stability
-        topP: 0.8,
-        responseMimeType: 'application/json',
-      },
-    });
+    const mediaType = toClaudeImageMediaType(imageMimeType);
+    if (!mediaType) {
+      return reply.status(400).send({
+        success: false,
+        code: 'errUnknown',
+        message: 'Unsupported image format. Please use a JPEG, PNG or WebP photo.',
+      });
+    }
 
-    const prompt = `Identify the crop and analyze its health. 
-    Focus strictly on identifying any visible problems like diseases, pests, or nutrient deficiencies.
-    If a problem is found, describe the symptoms precisely and suggest professional solutions.
-    CRITICAL: YOU MUST RESPOND IN ${language.toUpperCase()}. 
-    All string values in the JSON (problem, summary, recommendations, products, expertHelp) MUST be translated into ${language}.
-    Ensure the tone follows the Krishi persona: helpful, expert, and professional.`;
-
-    const result = await model.generateContent([
-      { text: prompt },
-      {
-        inlineData: {
-          mimeType: imageMimeType || 'image/jpeg',
-          data: cleanBase64, // Use cleaned base64 without data URL prefix
-        },
-      },
-    ]);
-
-    const response = await result.response;
-    let diagnosisJson = response.text();
+    let diagnosisJson = await runCropDiagnosis(cleanBase64, mediaType, language);
 
     // Log for debugging
     logger.info({ userId, duration: Date.now() - startTime }, 'AI Analysis complete, processing response');
@@ -193,7 +286,7 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
         status: 'completed',
         metadata: {
           processingTimeMs: Date.now() - startTime,
-          modelVersion: env.GEMINI_MODEL,
+          modelVersion: CLAUDE_MODEL,
           language,
           isStructured: true,
           cloudinaryPublicId: uploadResult?.publicId,
@@ -240,24 +333,24 @@ export const analyzeCrop = async (request: FastifyRequest, reply: FastifyReply) 
       });
     }
   } catch (error) {
-    // Differentiate Gemini API errors
-    const errorStr = error instanceof Error ? error.message : String(error);
+    // Map Claude API errors to the status codes the mobile app already handles
     let statusCode = 500;
     let errorMessage = 'Failed to analyze crop image';
+    const kind = classifyClaudeError(error);
 
-    if (errorStr.includes('INVALID_ARGUMENT') || errorStr.includes('Invalid')) {
-      statusCode = 400;
-      errorMessage = 'Invalid image format or data. Please try a different image.';
-    } else if (errorStr.includes('SAFETY') || errorStr.includes('BLOCKED')) {
+    if (error instanceof ClaudeRefusalError) {
       statusCode = 403;
       errorMessage = 'Image could not be processed due to safety restrictions.';
-    } else if (errorStr.includes('RESOURCE_EXHAUSTED') || errorStr.includes('quota')) {
+    } else if (error instanceof Anthropic.BadRequestError) {
+      statusCode = 400;
+      errorMessage = 'Invalid image format or data. Please try a different image.';
+    } else if (kind === 'rate_limited') {
       statusCode = 429;
       errorMessage = 'Service temporarily unavailable. Please try again in a few minutes.';
-    } else if (errorStr.includes('DEADLINE_EXCEEDED') || errorStr.includes('timeout')) {
+    } else if (kind === 'timeout') {
       statusCode = 504;
       errorMessage = 'Image analysis timed out. Please try with a smaller image.';
-    } else if (errorStr.includes('503') || errorStr.includes('Service Unavailable') || errorStr.includes('high demand')) {
+    } else if (kind === 'unavailable') {
       statusCode = 503;
       errorMessage = 'AI Server is currently experiencing high demand. Please try again in 2 minutes.';
     }
