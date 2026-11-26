@@ -99,6 +99,7 @@ export const productRecommendationTool: ChatToolDefinition = {
         howToUse: (product.farmerFriendlyInfo?.howToUse || '').substring(0, 150),
         bestForCrops: product.farmerFriendlyInfo?.bestForCrops || [],
         resultTime: product.farmerFriendlyInfo?.resultTime,
+        image: Array.isArray(product.images) && product.images.length > 0 ? product.images[0] : undefined,
         seller: product.seller?.name || 'Unknown',
         location: product.seller?.location || '',
       }));

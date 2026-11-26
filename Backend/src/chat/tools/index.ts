@@ -1,13 +1,13 @@
 import type Anthropic from '@anthropic-ai/sdk';
 import { cropCalendarTool } from './cropCalendar.tool';
-import { mandiPriceTool } from './mandiPrice.tool';
 import { weatherTool, type ChatToolDefinition } from './weather.tool';
 import { productRecommendationTool } from './productRecommendation.tool';
 
+// get_mandi_price is left out until a real price source (e.g. AGMARKNET) is connected:
+// its stub answered "coming soon", which the AI could relay as fact.
 const CHAT_TOOLS: ChatToolDefinition[] = [
   weatherTool,
   cropCalendarTool,
-  mandiPriceTool,
   productRecommendationTool,
 ];
 

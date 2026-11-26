@@ -72,21 +72,58 @@ export async function createRazorpayOrder(
   return data as unknown as RazorpayOrderResponse;
 }
 
+export interface RazorpayOrderDetails {
+  id: string;
+  amount: number;
+  amount_paid: number;
+  currency: string;
+  status: string;
+  notes: Record<string, string>;
+}
+
+/** Reads an order from Razorpay (server-side source of truth for amount and notes). */
+export async function fetchRazorpayOrder(orderId: string): Promise<RazorpayOrderDetails> {
+  const response = await fetch(`${RAZORPAY_ORDERS_URL}/${encodeURIComponent(orderId)}`, {
+    headers: { Authorization: getAuthHeader() },
+  });
+  const data = (await response.json()) as Record<string, unknown>;
+  if (!response.ok) {
+    logger.error({ razorpayError: data, status: response.status, orderId }, 'Razorpay order lookup failed');
+    throw new Error('Failed to look up Razorpay order');
+  }
+  const notes = (data.notes && typeof data.notes === 'object' ? data.notes : {}) as Record<string, string>;
+  return {
+    id: String(data.id),
+    amount: Number(data.amount),
+    amount_paid: Number(data.amount_paid ?? 0),
+    currency: String(data.currency ?? 'INR'),
+    status: String(data.status ?? ''),
+    notes,
+  };
+}
+
 export function verifyRazorpaySignature(params: {
   orderId: string;
   paymentId: string;
   signature: string;
 }): boolean {
   if (isMockRazorpayOrder(params.orderId)) {
+    // Mock orders exist only for local testing. With live payments on, a mock
+    // order id is never genuine, so it must never verify.
+    if (paymentsEnabled()) return false;
     return params.signature === `${MOCK_SIGNATURE_PREFIX}${params.orderId}_${params.paymentId}`;
   }
 
-  const expected = crypto
-    .createHmac('sha256', env.RAZORPAY_KEY_SECRET)
-    .update(`${params.orderId}|${params.paymentId}`)
-    .digest('hex');
+  const expected = Buffer.from(
+    crypto
+      .createHmac('sha256', env.RAZORPAY_KEY_SECRET)
+      .update(`${params.orderId}|${params.paymentId}`)
+      .digest('hex')
+  );
+  const received = Buffer.from(params.signature);
 
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(params.signature));
+  // timingSafeEqual throws on different lengths; treat that as a bad signature.
+  return expected.length === received.length && crypto.timingSafeEqual(expected, received);
 }
 
 export function createMockRazorpaySignature(orderId: string, paymentId: string): string {

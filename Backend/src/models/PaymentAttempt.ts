@@ -15,7 +15,7 @@ interface OrderDraftAddress {
 
 export interface IPaymentAttempt extends Document {
   userId: Types.ObjectId;
-  purpose: 'order' | 'subscription';
+  purpose: 'order' | 'subscription' | 'topup';
   status: 'created' | 'verified' | 'failed' | 'expired';
   provider: 'razorpay';
   amount: number;
@@ -31,6 +31,9 @@ export interface IPaymentAttempt extends Document {
   };
   subscriptionDraft?: {
     tier: 'basic' | 'pro';
+  };
+  topupDraft?: {
+    packId: string;
   };
   orderId?: Types.ObjectId;
   subscriptionId?: Types.ObjectId;
@@ -50,7 +53,7 @@ const paymentAttemptSchema = new Schema<IPaymentAttempt>(
     },
     purpose: {
       type: String,
-      enum: ['order', 'subscription'],
+      enum: ['order', 'subscription', 'topup'],
       required: true,
       index: true,
     },
@@ -92,6 +95,9 @@ const paymentAttemptSchema = new Schema<IPaymentAttempt>(
         type: String,
         enum: ['basic', 'pro'],
       },
+    },
+    topupDraft: {
+      packId: String,
     },
     orderId: { type: Schema.Types.ObjectId, ref: 'Order' },
     subscriptionId: { type: Schema.Types.ObjectId, ref: 'Subscription' },

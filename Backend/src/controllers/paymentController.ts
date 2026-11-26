@@ -3,9 +3,10 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { Subscription } from '../models/Subscription';
 import { PaymentAttempt } from '../models/PaymentAttempt';
-import { addPlanCredits, addTopupCredits } from '../services/walletService';
+import { addPlanCredits, addTopupCredits, getWallet } from '../services/walletService';
 import {
   createRazorpayOrder,
+  fetchRazorpayOrder,
   paymentsEnabled,
   verifyRazorpaySignature,
 } from '../services/payments/razorpay';
@@ -176,11 +177,26 @@ export async function createSubscriptionOrderHandler(
   const { tier } = parsed.data;
 
   try {
+    const receipt = buildReceipt('sub', userId);
     const order = await createRazorpayOrder({
       amount: SUBSCRIPTION_PRICES[tier],
       currency: 'INR',
-      receipt: buildReceipt('sub', userId),
+      receipt,
       notes: { userId, tier },
+    });
+
+    // Record what this order is for, so verification grants exactly this plan once.
+    await PaymentAttempt.create({
+      userId,
+      purpose: 'subscription',
+      status: 'created',
+      provider: 'razorpay',
+      amount: order.amount,
+      currency: order.currency || 'INR',
+      receipt,
+      checkoutToken: createCheckoutToken(),
+      providerOrderId: order.id,
+      subscriptionDraft: { tier },
     });
 
     return reply.send({
@@ -207,11 +223,26 @@ export async function createTopupOrderHandler(request: FastifyRequest, reply: Fa
   const pack = TOPUP_PACKS[packId];
 
   try {
+    const receipt = buildReceipt('topup', userId);
     const order = await createRazorpayOrder({
       amount: pack.amount,
       currency: 'INR',
-      receipt: buildReceipt('topup', userId),
+      receipt,
       notes: { userId, packId },
+    });
+
+    // Record what this order is for, so verification grants exactly this pack once.
+    await PaymentAttempt.create({
+      userId,
+      purpose: 'topup',
+      status: 'created',
+      provider: 'razorpay',
+      amount: order.amount,
+      currency: order.currency || 'INR',
+      receipt,
+      checkoutToken: createCheckoutToken(),
+      providerOrderId: order.id,
+      topupDraft: { packId },
     });
 
     return reply.send({
@@ -281,6 +312,154 @@ export async function createMarketplaceOrderHandler(request: FastifyRequest, rep
   }
 }
 
+type TopupPackId = keyof typeof TOPUP_PACKS;
+
+function isTopupPackId(value: unknown): value is TopupPackId {
+  return typeof value === 'string' && value in TOPUP_PACKS;
+}
+
+/**
+ * Finds the PaymentAttempt for a subscription/top-up order. Orders created before
+ * attempts were recorded are rebuilt from Razorpay's own order data (its notes and
+ * amount), never from what the client claims.
+ */
+async function findOrRecoverDigitalAttempt(params: {
+  userId: string;
+  purpose: 'subscription' | 'topup';
+  razorpayOrderId: string;
+  claimedTier?: 'basic' | 'pro';
+  claimedPackId?: TopupPackId;
+}) {
+  const existing = await PaymentAttempt.findOne({
+    providerOrderId: params.razorpayOrderId,
+    userId: params.userId,
+  });
+  if (existing) return existing;
+
+  let tier: 'basic' | 'pro' | undefined;
+  let packId: TopupPackId | undefined;
+  let amount: number;
+
+  if (paymentsEnabled()) {
+    const order = await fetchRazorpayOrder(params.razorpayOrderId);
+    if (order.notes.userId !== params.userId) return null;
+    if (params.purpose === 'subscription') {
+      if (order.notes.tier !== 'basic' && order.notes.tier !== 'pro') return null;
+      tier = order.notes.tier;
+      if (order.amount !== SUBSCRIPTION_PRICES[tier]) return null;
+    } else {
+      if (!isTopupPackId(order.notes.packId)) return null;
+      packId = order.notes.packId;
+      if (order.amount !== TOPUP_PACKS[packId].amount) return null;
+    }
+    amount = order.amount;
+  } else {
+    // Local/mock mode only: no real money is involved.
+    tier = params.claimedTier;
+    packId = params.claimedPackId;
+    if (params.purpose === 'subscription' && !tier) return null;
+    if (params.purpose === 'topup' && !packId) return null;
+    amount = params.purpose === 'subscription' ? SUBSCRIPTION_PRICES[tier!] : TOPUP_PACKS[packId!].amount;
+  }
+
+  return PaymentAttempt.findOneAndUpdate(
+    { providerOrderId: params.razorpayOrderId },
+    {
+      $setOnInsert: {
+        userId: params.userId,
+        purpose: params.purpose,
+        status: 'created',
+        provider: 'razorpay',
+        amount,
+        currency: 'INR',
+        receipt: `recovered_${params.razorpayOrderId}`,
+        checkoutToken: createCheckoutToken(),
+        providerOrderId: params.razorpayOrderId,
+        ...(tier ? { subscriptionDraft: { tier } } : {}),
+        ...(packId ? { topupDraft: { packId } } : {}),
+      },
+    },
+    { upsert: true, new: true }
+  );
+}
+
+/**
+ * Grants a plan or credit pack for a verified payment. The plan/pack comes from the
+ * server-side record of the order (not the request), and each order is granted once.
+ */
+async function grantDigitalPurchase(params: {
+  reply: FastifyReply;
+  userId: string;
+  purpose: 'subscription' | 'topup';
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
+  claimedTier?: 'basic' | 'pro';
+  claimedPackId?: TopupPackId;
+}) {
+  const { reply, userId, purpose, razorpayOrderId, razorpayPaymentId, razorpaySignature } = params;
+
+  const attempt = await findOrRecoverDigitalAttempt({
+    userId,
+    purpose,
+    razorpayOrderId,
+    claimedTier: params.claimedTier,
+    claimedPackId: params.claimedPackId,
+  });
+
+  if (!attempt || attempt.purpose !== purpose) {
+    logger.warn({ userId, purpose, razorpayOrderId }, 'Payment verify: order not found for this user/purpose');
+    return reply.status(404).send({ error: 'PAYMENT_ORDER_NOT_FOUND' });
+  }
+
+  // Atomically claim the order: only the first successful verify grants anything.
+  const claimed = await PaymentAttempt.findOneAndUpdate(
+    { _id: attempt._id, status: 'created' },
+    {
+      $set: {
+        status: 'verified',
+        providerPaymentId: razorpayPaymentId,
+        providerSignature: razorpaySignature,
+        verifiedAt: new Date(),
+      },
+      $unset: { verificationError: 1 },
+    },
+    { new: true }
+  );
+
+  if (!claimed) {
+    // Already processed. A retry of the same payment is fine; anything else is not.
+    if (attempt.status === 'verified' && attempt.providerPaymentId === razorpayPaymentId) {
+      const wallet = await getWallet(userId);
+      return reply.send({ success: true, wallet, alreadyProcessed: true });
+    }
+    logger.warn({ userId, razorpayOrderId, status: attempt.status }, 'Payment verify: order already used');
+    return reply.status(409).send({ error: 'PAYMENT_ORDER_NOT_ACTIVE' });
+  }
+
+  try {
+    let wallet;
+    if (purpose === 'subscription') {
+      const tier = claimed.subscriptionDraft?.tier;
+      if (!tier) throw new Error('Subscription draft missing tier');
+      wallet = await addPlanCredits(userId, tier);
+    } else {
+      const packId = claimed.topupDraft?.packId;
+      if (!isTopupPackId(packId)) throw new Error('Top-up draft missing pack');
+      const pack = TOPUP_PACKS[packId];
+      wallet = await addTopupCredits(userId, pack.packType, pack.credits);
+    }
+    logger.info({ userId, purpose, razorpayOrderId }, 'Digital purchase granted');
+    return reply.send({ success: true, wallet });
+  } catch (grantError) {
+    // Undo the claim so the farmer can retry; they have paid.
+    await PaymentAttempt.findByIdAndUpdate(claimed._id, {
+      $set: { status: 'created', verificationError: 'GRANT_FAILED' },
+    });
+    throw grantError;
+  }
+}
+
 export async function verifyPaymentHandler(request: FastifyRequest, reply: FastifyReply) {
   const parsed = verifyPaymentSchema.safeParse(request.body);
   if (!parsed.success) {
@@ -322,15 +501,17 @@ export async function verifyPaymentHandler(request: FastifyRequest, reply: Fasti
       return reply.status(400).send({ error: 'INVALID_SIGNATURE' });
     }
 
-    if (purpose === 'subscription' && tier) {
-      const wallet = await addPlanCredits(userId, tier);
-      return reply.send({ success: true, wallet });
-    }
-
-    if (purpose === 'topup' && packId) {
-      const pack = TOPUP_PACKS[packId];
-      const wallet = await addTopupCredits(userId, pack.packType, pack.credits);
-      return reply.send({ success: true, wallet });
+    if (purpose === 'subscription' || purpose === 'topup') {
+      return await grantDigitalPurchase({
+        reply,
+        userId,
+        purpose,
+        razorpayOrderId,
+        razorpayPaymentId,
+        razorpaySignature,
+        claimedTier: tier,
+        claimedPackId: packId,
+      });
     }
 
     if (purpose === 'marketplace') {

@@ -39,6 +39,8 @@ export function createUsageEnforcementMiddleware(type: 'chat' | 'scan') {
 
         return;
       } catch (walletError) {
+        // Out of credits (402) must reach the client; only real lookup failures fall back.
+        if (walletError instanceof AppError) throw walletError;
         logger.warn({ userId, type, error: walletError }, 'Wallet lookup failed, falling back to subscription limits');
       }
 
